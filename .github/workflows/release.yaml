@@ -1,0 +1,33 @@
+name: Build and Release App
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        lfs: 'true'
+
+    - uses: actions/setup-java@v2
+      with:
+        distribution: temurin
+        java-version: 11
+
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+
+    - name: Build APKs
+      run: ./gradlew :app:assembleRelease
+
+    - name: Publish release
+      uses: softprops/action-gh-release@v1
+      with:
+        # TODO fix app signing
+        files: |
+          ${{runner.workspace}}/my-app/app/build/outputs/apk/release/app-release-unsigned.apk
