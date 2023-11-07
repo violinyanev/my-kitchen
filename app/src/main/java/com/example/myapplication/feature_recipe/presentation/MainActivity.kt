@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.feature_recipe.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
