@@ -1,10 +1,11 @@
-package com.example.myapplication.feature_recipe.domain.model
+package com.example.myapplication.feature_recipe.data.data_source
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.myapplication.feature_recipe.domain.model.Recipe
 import kotlinx.coroutines.flow.Flow
 
 @Dao
