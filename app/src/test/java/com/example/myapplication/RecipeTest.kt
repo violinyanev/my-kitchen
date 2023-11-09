@@ -2,7 +2,7 @@ package com.example.myapplication
 
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.ui.theme.Purple80
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class RecipeTest {
