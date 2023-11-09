@@ -1,4 +1,4 @@
-package com.example.myapplication.feature_recipe.domain.model
+package com.example.myapplication.recipes.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
