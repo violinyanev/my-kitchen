@@ -19,7 +19,7 @@ class RecipeRepositoryImpl(
         return dao.insertRecipe(recipe)
     }
 
-    override suspend fun deketeRecipe(recipe: Recipe) {
+    override suspend fun deleteRecipe(recipe: Recipe) {
         return dao.deketeRecipe(recipe)
     }
 }
