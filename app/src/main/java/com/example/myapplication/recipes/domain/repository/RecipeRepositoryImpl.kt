@@ -1,10 +1,10 @@
-package com.example.myapplication.feature_recipe.domain.repository
+package com.example.myapplication.recipes.domain.repository
 
-import com.example.myapplication.feature_recipe.data.data_source.RecipeDao
-import com.example.myapplication.feature_recipe.domain.model.Recipe
+import com.example.myapplication.recipes.data.datasource.RecipeDao
+import com.example.myapplication.recipes.domain.model.Recipe
 import kotlinx.coroutines.flow.Flow
 
-class RecipeRepositoryImpl (
+class RecipeRepositoryImpl(
     private val dao: RecipeDao
 ) : RecipeRepository {
     override fun getRecipes(): Flow<List<Recipe>> {
