@@ -26,9 +26,17 @@ jobs:
       uses: gradle/gradle-build-action@v2
 
     - name: Build APKs
-      run: ./gradlew :app:assembleDebug :app:testDebug :ktlintCheck :app:koverHtmlReportDebug
+      run: ./gradlew :app:assembleDebug :app:testDebug :ktlintCheck :app:koverXmlReportDebug
 
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    - name: Add coverage report to PR
+      id: kover
+      uses: mi-kas/kover-report@v1.7
+      with:
+        path: |
+          ${{ github.workspace }}/app/build/reports/kover/reportDebug.xml
+        token: ${{ secrets.COMMENTS_TOKEN }}
+        title: Code Coverage
+        update-comment: true
+        min-coverage-overall: 10
+        min-coverage-changed-files: 80
+        coverage-counter-type: LINE

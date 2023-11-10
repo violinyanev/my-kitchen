@@ -10,5 +10,5 @@ interface RecipeRepository {
 
     suspend fun insertRecipe(recipe: Recipe)
 
-    suspend fun deketeRecipe(recipe: Recipe)
+    suspend fun deleteRecipe(recipe: Recipe)
 }

@@ -4,4 +4,5 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.8.10" apply false
     id("org.jetbrains.kotlinx.kover") version "0.7.4" apply false
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
+    id("com.google.dagger.hilt.android") version "2.48.1" apply false
 }
