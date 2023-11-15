@@ -3,12 +3,14 @@ kotlin {
 }
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlinx.kover")
-    id("org.jlleitschuh.gradle.ktlint")
-    kotlin("kapt")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    // alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kover)
+    alias(libs.plugins.ktlint)
+
+    kotlin("kapt") // TODO Remove
 }
 
 android {
