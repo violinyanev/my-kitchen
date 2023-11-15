@@ -6,7 +6,8 @@ import com.example.myapplication.recipes.domain.model.Recipe
 
 @Database(
     entities = [Recipe::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 abstract class RecipeDatabase : RoomDatabase() {
     abstract val recipeDao: RecipeDao
