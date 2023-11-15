@@ -25,7 +25,7 @@ material = "1.8.0-rc01"
 material3 = "1.0.1"
 
 # @keep
-minSdk = "23"
+minSdk = "28"
 monitor = "1.6.0"
 navigation = "2.5.3"
 okhttpLogging = "4.10.0"
