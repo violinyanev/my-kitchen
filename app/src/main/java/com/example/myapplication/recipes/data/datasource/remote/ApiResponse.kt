@@ -1,3 +1,3 @@
 package com.example.myapplication.recipes.data.datasource.remote
 
-class RecipeBackend
+data class ApiResponse(val title: String, val body: String)

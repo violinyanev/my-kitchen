@@ -11,4 +11,8 @@ import com.example.myapplication.recipes.domain.model.Recipe
 )
 abstract class RecipeDatabase : RoomDatabase() {
     abstract val recipeDao: RecipeDao
+
+    companion object {
+        const val DATABASE_NAME = "recipedb"
+    }
 }
