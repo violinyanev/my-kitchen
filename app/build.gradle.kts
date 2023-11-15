@@ -132,11 +132,6 @@ dependencies {
 
 }
 
-// Allow references to generated code
-//kapt {
-//    correctErrorTypes = true
-//}
-
 koverReport {
     // filters for all report types of all build variants
     filters {
