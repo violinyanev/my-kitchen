@@ -16,13 +16,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AddEditRecipeViewModel @Inject constructor (
+class AddEditRecipeViewModel @Inject constructor(
     private val recipesUseCases: Recipes,
     savedStateHandle: SavedStateHandle
-): ViewModel() {
-    private val _recipeTitle = mutableStateOf(RecipeTextFieldState(
-        hint = "Enter title..."
-    ))
+) : ViewModel() {
+    private val _recipeTitle = mutableStateOf(
+        RecipeTextFieldState(
+            hint = "Enter title..."
+        )
+    )
     val recipeTitle: State<RecipeTextFieldState> = _recipeTitle
 
     private val _recipeContent = mutableStateOf(RecipeTextFieldState(hint = "Enter some content..."))
@@ -38,11 +40,11 @@ class AddEditRecipeViewModel @Inject constructor (
 
     init {
         savedStateHandle.get<Int>("recipeId")?.let {
-            recipeId ->
+                recipeId ->
             if (recipeId != -1) {
                 viewModelScope.launch {
                     recipesUseCases.getRecipe(recipeId)?.also {
-                        recipe ->
+                            recipe ->
                         currentRecipeId = recipe.id
                         _recipeTitle.value = recipeTitle.value.copy(
                             text = recipe.title,
@@ -102,7 +104,7 @@ class AddEditRecipeViewModel @Inject constructor (
     }
 
     sealed class UiEvent {
-        data class ShowSnackbar(val message: String): UiEvent()
-        object SaveRecipe: UiEvent()
+        data class ShowSnackbar(val message: String) : UiEvent()
+        object SaveRecipe : UiEvent()
     }
 }

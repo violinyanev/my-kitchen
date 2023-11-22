@@ -4,7 +4,7 @@ import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.domain.util.OrderType
 import com.example.myapplication.recipes.domain.util.RecipeOrder
 
-data class RecipesState (
+data class RecipesState(
     val recipes: List<Recipe> = emptyList(),
     val recipeOrder: RecipeOrder = RecipeOrder.Date(OrderType.Descending),
     val isOrderSelectionVisible: Boolean = false

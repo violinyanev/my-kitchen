@@ -15,9 +15,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RecipeViewModel @Inject constructor (
+class RecipeViewModel @Inject constructor(
     private val recipesUseCases: Recipes
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = mutableStateOf(RecipesState())
     val state: State<RecipesState> = _state
@@ -35,7 +35,8 @@ class RecipeViewModel @Inject constructor (
             is RecipesEvent.Order -> {
                 // TODO implement
                 if (state.value.recipeOrder::class == event.recipesOrder::class &&
-                    state.value.recipeOrder.orderType == event.recipesOrder.orderType) {
+                    state.value.recipeOrder.orderType == event.recipesOrder.orderType
+                ) {
                     return
                 }
                 getRecipes(event.recipesOrder)
@@ -55,7 +56,7 @@ class RecipeViewModel @Inject constructor (
             is RecipesEvent.ToggleOrderSection -> {
                 _state.value = state.value.copy(
                     isOrderSelectionVisible =
-                        !state.value.isOrderSelectionVisible
+                    !state.value.isOrderSelectionVisible
                 )
             }
         }
@@ -65,7 +66,7 @@ class RecipeViewModel @Inject constructor (
         getRecipesJob?.cancel()
         getRecipesJob = recipesUseCases.getRecipes(recipesOrder)
             .onEach {
-                recipes ->
+                    recipes ->
                 _state.value = state.value.copy(
                     recipes = recipes
                 )

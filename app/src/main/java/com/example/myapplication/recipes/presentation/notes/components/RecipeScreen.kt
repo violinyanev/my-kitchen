@@ -19,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
-//import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -33,11 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.myapplication.recipes.domain.model.Recipe
-import com.example.myapplication.recipes.presentation.notes.components.RecipeViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.myapplication.recipes.presentation.notes.components.OrderSection
+import com.example.myapplication.recipes.presentation.notes.components.RecipeViewModel
 import com.example.myapplication.recipes.presentation.notes.components.RecipesEvent
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -54,11 +53,10 @@ fun RecipeScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = {
-
             }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add recipe")
             }
-        },
+        }
     ) {
         Column(
             modifier = Modifier
@@ -98,13 +96,13 @@ fun RecipeScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 LazyColumn() {
-                    items(state.recipes) {recipe ->
-                        RecipeItem(recipe = recipe,
+                    items(state.recipes) { recipe ->
+                        RecipeItem(
+                            recipe = recipe,
                             modifier = Modifier.fillMaxWidth()
                                 .clickable {
-
                                 } // TODO onDelete
-                            )
+                        )
                     }
                 }
             }
@@ -127,8 +125,6 @@ fun RecipeList(recipes: List<Recipe>, modifier: Modifier = Modifier) {
     }
 }
 
-
-
 @Preview
 @Composable
 fun RecipeListPreview() {
@@ -136,8 +132,8 @@ fun RecipeListPreview() {
         Recipe(
             title = "Delicious Chocolate Cake",
             content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor " +
-                    "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud" +
-                    "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+                "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud" +
+                "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
             color = 3,
             timestamp = 1
         ),

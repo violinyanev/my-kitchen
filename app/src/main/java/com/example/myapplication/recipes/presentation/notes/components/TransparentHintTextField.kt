@@ -11,10 +11,9 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.myapplication.recipes.domain.model.Recipe
 
 @Composable
-fun TransparentHintTextField (
+fun TransparentHintTextField(
     text: String,
     hint: String,
     modifier: Modifier = Modifier,
@@ -25,10 +24,10 @@ fun TransparentHintTextField (
     onFocusChange: (FocusState) -> Unit
 ) {
     Box(
-        modifier= modifier
-    )
-    {
-        BasicTextField(value = text,
+        modifier = modifier
+    ) {
+        BasicTextField(
+            value = text,
             onValueChange = onValueChange,
             singleLine = singleLine,
             textStyle = textStyle,
@@ -37,18 +36,17 @@ fun TransparentHintTextField (
                     onFocusChange(it)
                 }
         )
-        if (isHintVisible)
-        {
+        if (isHintVisible) {
             Text(text = hint, style = textStyle, color = Color.DarkGray)
         }
     }
 }
 
-
 @Preview
 @Composable
 fun TransparentHintTextFieldPreview() {
-    TransparentHintTextField(text = "Text",
+    TransparentHintTextField(
+        text = "Text",
         hint = "Hint",
         onFocusChange = {},
         onValueChange = {}

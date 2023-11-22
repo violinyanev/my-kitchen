@@ -17,4 +17,4 @@ class Recipe(
     }
 }
 
-class InvalidRecipeException(message: String): Exception(message)
+class InvalidRecipeException(message: String) : Exception(message)

@@ -1,19 +1,19 @@
 package com.example.myapplication.di
 
+import android.app.Application
+import androidx.room.Room
 import com.example.myapplication.recipes.data.datasource.RecipeDatabase
 import com.example.myapplication.recipes.domain.repository.RecipeRepository
 import com.example.myapplication.recipes.domain.repository.RecipeRepositoryImpl
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import android.app.Application
-import androidx.room.Room
 import com.example.myapplication.recipes.domain.usecase.AddRecipe
 import com.example.myapplication.recipes.domain.usecase.DeleteRecipe
 import com.example.myapplication.recipes.domain.usecase.GetRecipe
 import com.example.myapplication.recipes.domain.usecase.GetRecipes
 import com.example.myapplication.recipes.domain.usecase.Recipes
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
@@ -23,7 +23,8 @@ class AppModule {
     @Singleton
     fun provideRecipeDatabase(app: Application): RecipeDatabase {
         return Room.databaseBuilder(
-            app, RecipeDatabase::class.java,
+            app,
+            RecipeDatabase::class.java,
             RecipeDatabase.DATABASE_NAME
         ).build()
     }
@@ -37,11 +38,11 @@ class AppModule {
     @Provides
     @Singleton
     fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
-        return Recipes (
+        return Recipes(
             getRecipes = GetRecipes(repository),
             deleteRecipe = DeleteRecipe(repository),
             addRecipe = AddRecipe(repository),
-            getRecipe = GetRecipe(repository),
+            getRecipe = GetRecipe(repository)
         )
     }
 

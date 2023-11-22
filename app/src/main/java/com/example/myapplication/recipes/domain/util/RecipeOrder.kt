@@ -5,9 +5,9 @@ sealed class RecipeOrder(val orderType: OrderType) {
     class Date(orderType: OrderType) : RecipeOrder(orderType)
 
     fun copy(orderType: OrderType): RecipeOrder {
-        return when(this) {
-            is Title -> Title (orderType)
-            is Date -> Date (orderType)
+        return when (this) {
+            is Title -> Title(orderType)
+            is Date -> Date(orderType)
         }
     }
 }

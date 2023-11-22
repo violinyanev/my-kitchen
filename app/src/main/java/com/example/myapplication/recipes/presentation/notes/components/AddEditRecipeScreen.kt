@@ -1,8 +1,6 @@
 package com.example.myapplication.recipes.presentation.notes.components
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.Animatable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,19 +16,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.myapplication.recipes.domain.model.Recipe
 import kotlinx.coroutines.flow.collectLatest
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEditRecipeScreen (
+fun AddEditRecipeScreen(
     navController: NavController,
     recipeColor: Int,
     viewModel: AddEditRecipeViewModel = hiltViewModel()
@@ -38,9 +33,7 @@ fun AddEditRecipeScreen (
     val titleState = viewModel.recipeTitle.value
     val contentState = viewModel.recipeContent.value
 
-
-
-    //val scaffoldState = rememberScaffoldState()
+    // val scaffoldState = rememberScaffoldState()
     /*val recipeBackground = remember {
         Animatable(
             Color(recipeColor)
@@ -63,18 +56,21 @@ fun AddEditRecipeScreen (
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                //viewModel.onEvent(AddEditRecipeEvent.color)
+                // viewModel.onEvent(AddEditRecipeEvent.color)
             }) {
-
             }
         }
     ) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)) {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
                 Text(text = "TODO color palette")
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -90,7 +86,7 @@ fun AddEditRecipeScreen (
                 isHintVisible = titleState.isHintVisible,
                 singleLine = true,
                 textStyle = MaterialTheme.typography.headlineMedium
-                )
+            )
             Spacer(modifier = Modifier.height(16.dp))
             TransparentHintTextField(
                 text = contentState.text,
@@ -109,5 +105,3 @@ fun AddEditRecipeScreen (
         }
     }
 }
-
-

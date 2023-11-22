@@ -33,8 +33,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    NavHost(navController = navController,
-                        startDestination = Screen.RecipesScreen.route) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.RecipesScreen.route
+                    ) {
                         composable(route = Screen.RecipesScreen.route) {
                             RecipeScreen(navController = navController)
                         }
@@ -48,11 +50,14 @@ class MainActivity : ComponentActivity() {
                                 navArgument(name = "recipeColor") {
                                     type = NavType.IntType
                                     defaultValue = -1
-                                })
+                                }
+                            )
                         ) {
                             val color = it.arguments?.getInt("recipeColor") ?: -1
-                            AddEditRecipeScreen(navController = navController,
-                                recipeColor = color)
+                            AddEditRecipeScreen(
+                                navController = navController,
+                                recipeColor = color
+                            )
                         }
                     }
                 }

@@ -11,19 +11,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-
 @Composable
-fun DefaultRadioButton (
+fun DefaultRadioButton(
     text: String,
     selected: Boolean,
     onSelect: () -> Unit,
-    modifier: Modifier=Modifier
+    modifier: Modifier = Modifier
 ) {
-    Row (
+    Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
-    )
-    {
+    ) {
         RadioButton(
             selected = selected,
             onClick = onSelect,
