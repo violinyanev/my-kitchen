@@ -16,3 +16,5 @@ class Recipe(
         val recipeColors = listOf(Purple80)
     }
 }
+
+class InvalidRecipeException(message: String) : Exception(message)

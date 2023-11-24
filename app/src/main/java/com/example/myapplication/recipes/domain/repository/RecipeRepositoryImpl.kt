@@ -20,6 +20,6 @@ class RecipeRepositoryImpl(
     }
 
     override suspend fun deleteRecipe(recipe: Recipe) {
-        return dao.deketeRecipe(recipe)
+        return dao.deleteRecipe(recipe)
     }
 }
