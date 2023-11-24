@@ -111,31 +111,3 @@ fun RecipeScreen(
         }
     }
 }
-
-/*
-@Preview
-@Composable
-fun RecipeScreenPreview() {
-    val recipes = listOf(
-        Recipe(
-            title = "Delicious Chocolate Cake",
-            content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor " +
-                "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud" +
-                "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            color = 3,
-            timestamp = 1
-        ),
-        Recipe(
-            title = "Carrot on a stick",
-            content = "Whatsup doc... Feeling like a lonely tune?",
-            color = 3,
-            timestamp = 1
-        )
-    )
-
-    val viewModel: RecipeViewModel = hiltViewModel()
-
-    val navController = rememberNavController()
-    RecipeScreen(navController = navController, viewModel=viewModel)
-}*/
-
