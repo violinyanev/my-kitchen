@@ -34,21 +34,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.presentation.notes.components.OrderSection
 import com.example.myapplication.recipes.presentation.notes.components.RecipeViewModel
 import com.example.myapplication.recipes.presentation.notes.components.RecipesEvent
+import com.example.myapplication.recipes.presentation.util.Screen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeScreen(
     navController: NavController,
     viewModel: RecipeViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
-    val scaffoldState = rememberScrollState()
-    val scope = rememberCoroutineScope()
+    //val scaffoldState = rememberScrollState()
+    //val scope = rememberCoroutineScope()
 
     Scaffold(
         floatingActionButton = {
@@ -111,24 +112,10 @@ fun RecipeScreen(
     }
 }
 
-@Composable
-fun RecipeList(recipes: List<Recipe>, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            for (r in recipes) {
-                RecipeItem(r, modifier)
-            }
-        }
-    }
-}
-
+/*
 @Preview
 @Composable
-fun RecipeListPreview() {
+fun RecipeScreenPreview() {
     val recipes = listOf(
         Recipe(
             title = "Delicious Chocolate Cake",
@@ -146,5 +133,9 @@ fun RecipeListPreview() {
         )
     )
 
-    RecipeList(recipes)
-}
+    val viewModel: RecipeViewModel = hiltViewModel()
+
+    val navController = rememberNavController()
+    RecipeScreen(navController = navController, viewModel=viewModel)
+}*/
+
