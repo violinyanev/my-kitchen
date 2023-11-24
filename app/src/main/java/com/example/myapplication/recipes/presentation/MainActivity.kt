@@ -27,57 +27,53 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyApplicationTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    val navController = rememberNavController()
-                    NavHost(
-                        navController = navController,
-                        startDestination = Screen.RecipesScreen.route
-                    ) {
-                        composable(route = Screen.RecipesScreen.route) {
-                            RecipeScreen(navController = navController)
-                        }
-                        composable(
-                            route = Screen.AddEditRecipeScreen.route + "?recipeId={recipeId}&recipeColor={recipeColor}",
-                            arguments = listOf(
-                                navArgument(name = "recipeId") {
-                                    type = NavType.IntType
-                                    defaultValue = -1
-                                },
-                                navArgument(name = "recipeColor") {
-                                    type = NavType.IntType
-                                    defaultValue = -1
-                                }
-                            )
-                        ) {
-                            val color = it.arguments?.getInt("recipeColor") ?: -1
-                            AddEditRecipeScreen(
-                                navController = navController,
-                                recipeColor = color
-                            )
-                        }
-                    }
-                }
+                MainScreen()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun MainScreen() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        val navController = rememberNavController()
+        NavHost(
+            navController = navController,
+            startDestination = Screen.RecipesScreen.route
+        ) {
+            composable(route = Screen.RecipesScreen.route) {
+                RecipeScreen(navController = navController)
+            }
+            composable(
+                route = Screen.AddEditRecipeScreen.route + "?recipeId={recipeId}&recipeColor={recipeColor}",
+                arguments = listOf(
+                    navArgument(name = "recipeId") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    },
+                    navArgument(name = "recipeColor") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    }
+                )
+            ) {
+                val color = it.arguments?.getInt("recipeColor") ?: -1
+                AddEditRecipeScreen(
+                    navController = navController,
+                    recipeColor = color
+                )
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     MyApplicationTheme {
-        Greeting("Android")
+        MainScreen()
     }
 }
