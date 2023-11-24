@@ -64,7 +64,7 @@ fun AddEditRecipeScreen(
                 }
                 // backgroundColor = MaterialTheme.colors.primary
             ) {
-                Icon(imageVector = Icons.Default.Done, contentDescription = "Save note")
+                Icon(imageVector = Icons.Default.Done, contentDescription = "Save")
             }
         }
     ) {
