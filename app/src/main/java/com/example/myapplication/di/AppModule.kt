@@ -45,28 +45,4 @@ class AppModule {
             getRecipe = GetRecipe(repository)
         )
     }
-
-    /*@Provides
-    @Singleton
-    fun provideRecipeRepository(api: RecipeAPI): RecipeRepository {
-        return RecipeRepositoryImpl(api)
-    }
-
-    @Provides
-    @Singleton
-    fun provideRecipeAPI(): RecipeAPI {
-        return Retrofit.Builder()
-            .baseUrl("http://127.0.0.1:5000/recipes")  // TODO make configurable
-            .build()
-            .create(RecipeAPI::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideRecipeDatabase(): RecipeDatabase {
-        return Retrofit.Builder()
-            .baseUrl("http://127.0.0.1:5000/recipes")  // TODO make configurable
-            .build()
-            .create(RecipeAPI::class.java)
-    }*/
 }
