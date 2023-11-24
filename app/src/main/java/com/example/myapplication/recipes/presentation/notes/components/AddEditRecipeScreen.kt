@@ -1,7 +1,6 @@
 package com.example.myapplication.recipes.presentation.notes.components
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.collectLatest
-import androidx.compose.runtime.remember
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +36,7 @@ fun AddEditRecipeScreen(
     val titleState = viewModel.recipeTitle.value
     val contentState = viewModel.recipeContent.value
 
-    //val scaffoldState = rememberScaffoldState()
+    // val scaffoldState = rememberScaffoldState()
     /*val recipeBackground = remember {
         Animatable(
             Color(recipeColor)
@@ -63,12 +61,12 @@ fun AddEditRecipeScreen(
             FloatingActionButton(
                 onClick = {
                     viewModel.onEvent(AddEditRecipeEvent.SaveRecipe)
-                },
-                //backgroundColor = MaterialTheme.colors.primary
+                }
+                // backgroundColor = MaterialTheme.colors.primary
             ) {
                 Icon(imageVector = Icons.Default.Done, contentDescription = "Save note")
             }
-        },
+        }
     ) {
         Column(
             modifier = Modifier
