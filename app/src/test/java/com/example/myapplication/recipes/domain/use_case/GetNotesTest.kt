@@ -1,11 +1,11 @@
 package com.example.myapplication.recipes.domain.use_case
 
 import com.example.myapplication.recipes.data.repository.FakeRecipeRepository
-import com.google.common.truth.Truth.assertThat
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.domain.usecase.GetRecipes
-import com.example.myapplication.recipes.domain.util.RecipeOrder
 import com.example.myapplication.recipes.domain.util.OrderType
+import com.example.myapplication.recipes.domain.util.RecipeOrder
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -42,8 +42,8 @@ class GetRecipesTest {
     fun `Order recipes by title ascending, correct order`() = runBlocking {
         val recipes = getRecipes(RecipeOrder.Title(OrderType.Ascending)).first()
 
-        for(i in 0..recipes.size - 2) {
-            assertThat(recipes[i].title).isLessThan(recipes[i+1].title)
+        for (i in 0..recipes.size - 2) {
+            assertThat(recipes[i].title).isLessThan(recipes[i + 1].title)
         }
     }
 
@@ -51,8 +51,8 @@ class GetRecipesTest {
     fun `Order recipes by title descending, correct order`() = runBlocking {
         val recipes = getRecipes(RecipeOrder.Title(OrderType.Descending)).first()
 
-        for(i in 0..recipes.size - 2) {
-            assertThat(recipes[i].title).isGreaterThan(recipes[i+1].title)
+        for (i in 0..recipes.size - 2) {
+            assertThat(recipes[i].title).isGreaterThan(recipes[i + 1].title)
         }
     }
 
@@ -60,8 +60,8 @@ class GetRecipesTest {
     fun `Order recipes by date ascending, correct order`() = runBlocking {
         val recipes = getRecipes(RecipeOrder.Date(OrderType.Ascending)).first()
 
-        for(i in 0..recipes.size - 2) {
-            assertThat(recipes[i].timestamp).isLessThan(recipes[i+1].timestamp)
+        for (i in 0..recipes.size - 2) {
+            assertThat(recipes[i].timestamp).isLessThan(recipes[i + 1].timestamp)
         }
     }
 
@@ -69,9 +69,8 @@ class GetRecipesTest {
     fun `Order recipes by date descending, correct order`() = runBlocking {
         val recipes = getRecipes(RecipeOrder.Date(OrderType.Descending)).first()
 
-        for(i in 0..recipes.size - 2) {
-            assertThat(recipes[i].timestamp).isGreaterThan(recipes[i+1].timestamp)
+        for (i in 0..recipes.size - 2) {
+            assertThat(recipes[i].timestamp).isGreaterThan(recipes[i + 1].timestamp)
         }
     }
-
 }
