@@ -111,18 +111,31 @@ dependencies {
     testImplementation(libs.truth)
 }
 
+val excludedClasses = listOf(
+    "*Activity",
+    "*Activity\$*",
+    "*.databinding.*",
+    "*.BuildConfig",
+    "ComposableSingletons\$*"
+)
+
+val excludedPackages = listOf(
+    "com.example.myapplication.di",
+    "dagger.hilt.internal.aggregatedroot.codegen",
+    "_HiltModules",
+    "Hilt_",
+    "dagger.hilt.internal.aggregatedroot.codegen",
+    "hilt_aggregated_deps",
+    "ViewModel_Factory"
+)
+
+val koverExcludes = (excludedClasses.map { "*$it*" } + excludedPackages.map { "*$it*" })
+
 koverReport {
     // filters for all report types of all build variants
     filters {
         excludes {
-            classes(
-                "*Fragment",
-                "*Fragment\$*",
-                "*Activity",
-                "*Activity\$*",
-                "*.databinding.*",
-                "*.BuildConfig"
-            )
+            classes(koverExcludes)
         }
     }
 
@@ -130,17 +143,7 @@ koverReport {
         // filters for all report types only of 'release' build type
         filters {
             excludes {
-                classes(
-                    "*Fragment",
-                    "*Fragment\$*",
-                    "*Activity",
-                    "*Activity\$*",
-                    "*.databinding.*",
-                    "*.BuildConfig",
-
-                    // excludes debug classes
-                    "*.DebugUtil"
-                )
+                classes(koverExcludes)
             }
         }
     }
