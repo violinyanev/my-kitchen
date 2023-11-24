@@ -1,8 +1,7 @@
-package com.example.myapplication.recipes.domain.use_case
+package com.example.myapplication.recipes.domain.usecase
 
 import com.example.myapplication.recipes.data.repository.FakeRecipeRepository
 import com.example.myapplication.recipes.domain.model.Recipe
-import com.example.myapplication.recipes.domain.usecase.GetRecipes
 import com.example.myapplication.recipes.domain.util.OrderType
 import com.example.myapplication.recipes.domain.util.RecipeOrder
 import com.google.common.truth.Truth.assertThat
