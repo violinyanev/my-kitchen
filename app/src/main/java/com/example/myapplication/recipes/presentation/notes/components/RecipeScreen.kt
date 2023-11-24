@@ -53,6 +53,7 @@ fun RecipeScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = {
+                navController.navigate(Screen.AddEditRecipeScreen.route)
             }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add recipe")
             }
