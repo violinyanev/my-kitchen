@@ -27,9 +27,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.myapplication.recipes.core.util.TestTags
 import com.example.myapplication.recipes.presentation.notes.components.OrderSection
 import com.example.myapplication.recipes.presentation.notes.components.RecipeViewModel
 import com.example.myapplication.recipes.presentation.notes.components.RecipesEvent
@@ -83,7 +85,8 @@ fun RecipeScreen(
                     OrderSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
+                            .padding(vertical = 16.dp)
+                            .testTag(TestTags.ORDER_SECTION),
                         recipeOrder = state.recipeOrder,
                         onOrderChange = {
                             viewModel.onEvent(RecipesEvent.Order(it))
