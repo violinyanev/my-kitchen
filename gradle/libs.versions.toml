@@ -4,7 +4,7 @@ activityCompose = "1.7.2"
 androidGradlePlugin = "8.1.0"
 
 # @keep
-compileSdk = "33"
+compileSdk = "34"
 composeLatest = "1.4.0-alpha03"
 composeBom = "2023.06.01"
 compose-compiler = "1.5.3"
