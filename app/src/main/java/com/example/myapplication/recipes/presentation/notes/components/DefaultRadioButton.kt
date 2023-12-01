@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.myapplication.ui.theme.MyApplicationTheme
 
 @Composable
 fun DefaultRadioButton(
@@ -32,5 +35,19 @@ fun DefaultRadioButton(
         )
 
         Spacer(modifier = Modifier.width(8.dp))
+        Text(text = text, style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.width(8.dp))
+    }
+}
+
+@Preview()
+@Composable
+fun ButtonPreview() {
+    MyApplicationTheme {
+        DefaultRadioButton(
+            text = "test",
+            selected = true,
+            onSelect = {}
+        )
     }
 }
