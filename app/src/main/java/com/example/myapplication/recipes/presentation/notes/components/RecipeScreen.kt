@@ -28,13 +28,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.myapplication.recipes.core.util.TestTags
+import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.presentation.notes.components.OrderSection
 import com.example.myapplication.recipes.presentation.notes.components.RecipeViewModel
 import com.example.myapplication.recipes.presentation.notes.components.RecipesEvent
+import com.example.myapplication.recipes.presentation.notes.components.RecipesState
 import com.example.myapplication.recipes.presentation.util.Screen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -44,14 +49,35 @@ fun RecipeScreen(
     viewModel: RecipeViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
+
+    RecipeScreenContent(
+        onAddRecipe = {
+            navController.navigate(Screen.AddEditRecipeScreen.route)
+        },
+        onSortClick = {
+            viewModel.onEvent(RecipesEvent.ToggleOrderSection)
+        },
+        onEvent = {
+            viewModel.onEvent(it)
+        },
+        recipeState = state
+    )
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+private fun RecipeScreenContent(
+    onAddRecipe: () -> Unit,
+    onSortClick: () -> Unit,
+    onEvent: (RecipesEvent) -> Unit,
+    recipeState: RecipesState
+) {
     // val scaffoldState = rememberScrollState()
     // val scope = rememberCoroutineScope()
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                navController.navigate(Screen.AddEditRecipeScreen.route)
-            }) {
+            FloatingActionButton(onClick = onAddRecipe) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add recipe")
             }
         }
@@ -68,43 +94,71 @@ fun RecipeScreen(
             ) {
                 Text(text = "Your recipe", style = MaterialTheme.typography.bodyMedium)
                 IconButton(
-                    onClick = {
-                        viewModel.onEvent(RecipesEvent.ToggleOrderSection)
-                    }
+                    onClick = onSortClick
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search, // TODO fix icon to sort
                         contentDescription = "Sort"
                     )
                 }
-                AnimatedVisibility(
-                    visible = state.isOrderSelectionVisible,
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
-                    OrderSection(
+            }
+            AnimatedVisibility(
+                visible = recipeState.isOrderSelectionVisible,
+                enter = fadeIn() + slideInVertically(),
+                exit = fadeOut() + slideOutVertically()
+            ) {
+                OrderSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .testTag(TestTags.ORDER_SECTION),
+                    recipeOrder = recipeState.recipeOrder,
+                    onOrderChange = {
+                        onEvent(RecipesEvent.Order(it))
+                    }
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn() {
+                items(recipeState.recipes) { recipe ->
+                    RecipeItem(
+                        recipe = recipe,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp)
-                            .testTag(TestTags.ORDER_SECTION),
-                        recipeOrder = state.recipeOrder,
-                        onOrderChange = {
-                            viewModel.onEvent(RecipesEvent.Order(it))
-                        }
+                            .clickable {
+                            } // TODO onDelete
                     )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                LazyColumn() {
-                    items(state.recipes) { recipe ->
-                        RecipeItem(
-                            recipe = recipe,
-                            modifier = Modifier.fillMaxWidth()
-                                .clickable {
-                                } // TODO onDelete
-                        )
-                    }
                 }
             }
         }
     }
+}
+
+class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<RecipesState> {
+    override val values = sequenceOf(
+        RecipesState(),
+        RecipesState(
+            recipes = List(10) { index ->
+                Recipe(
+                    "Recipe $index",
+                    content = "Lorem ipsum dolor sit amet $index",
+                    timestamp = 5,
+                    color = 5
+                )
+            }
+        )
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun RecipeScreenPreviewRealistic(
+    @PreviewParameter(RecipeScreenStatePreviewParameterProvider::class) recipesState: RecipesState
+) {
+    RecipeScreenContent(
+        onAddRecipe = {},
+        onSortClick = {},
+        onEvent = {},
+        recipeState = recipesState
+    )
 }
