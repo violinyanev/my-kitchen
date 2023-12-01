@@ -1,7 +1,8 @@
-package com.example.myapplication.recipes.domain.repository
+package com.example.myapplication.recipes.data.repository
 
 import com.example.myapplication.recipes.data.datasource.RecipeDao
 import com.example.myapplication.recipes.domain.model.Recipe
+import com.example.myapplication.recipes.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 
 class RecipeRepositoryImpl(

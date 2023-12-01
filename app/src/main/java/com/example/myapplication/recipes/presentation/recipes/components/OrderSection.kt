@@ -1,4 +1,4 @@
-package com.example.myapplication.recipes.presentation.notes.components
+package com.example.myapplication.recipes.presentation.recipes.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

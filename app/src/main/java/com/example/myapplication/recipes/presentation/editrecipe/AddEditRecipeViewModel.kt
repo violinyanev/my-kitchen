@@ -1,4 +1,4 @@
-package com.example.myapplication.recipes.presentation.notes.components
+package com.example.myapplication.recipes.presentation.editrecipe
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -96,7 +96,11 @@ class AddEditRecipeViewModel @Inject constructor(
                         )
                         _eventFlow.emit(UiEvent.SaveRecipe)
                     } catch (e: InvalidRecipeException) {
-                        _eventFlow.emit(UiEvent.ShowSnackbar(message = e.message ?: "Couldn't save recipe"))
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                message = e.message ?: "Couldn't save recipe"
+                            )
+                        )
                     }
                 }
             }
