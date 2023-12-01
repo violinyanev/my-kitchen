@@ -1,4 +1,4 @@
-package com.example.myapplication.recipes.presentation.notes.components
+package com.example.myapplication.recipes.presentation.recipes
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf

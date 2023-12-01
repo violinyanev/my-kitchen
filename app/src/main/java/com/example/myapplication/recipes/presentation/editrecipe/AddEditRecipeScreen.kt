@@ -1,4 +1,4 @@
-package com.example.myapplication.recipes.presentation.notes.components
+package com.example.myapplication.recipes.presentation.editrecipe
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.myapplication.recipes.core.util.TestTags
+import com.example.myapplication.recipes.presentation.editrecipe.components.TransparentHintTextField
 import kotlinx.coroutines.flow.collectLatest
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

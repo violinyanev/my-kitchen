@@ -1,4 +1,4 @@
-package com.example.myapplication.recipes.presentation.notes.components
+package com.example.myapplication.recipes.presentation.editrecipe
 
 import androidx.compose.ui.focus.FocusState
 

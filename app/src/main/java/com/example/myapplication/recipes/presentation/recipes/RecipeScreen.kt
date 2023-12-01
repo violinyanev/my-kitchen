@@ -1,3 +1,5 @@
+package com.example.myapplication.recipes.presentation.recipes
+
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -36,10 +38,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.myapplication.recipes.core.util.TestTags
 import com.example.myapplication.recipes.domain.model.Recipe
-import com.example.myapplication.recipes.presentation.notes.components.OrderSection
-import com.example.myapplication.recipes.presentation.notes.components.RecipeViewModel
-import com.example.myapplication.recipes.presentation.notes.components.RecipesEvent
-import com.example.myapplication.recipes.presentation.notes.components.RecipesState
+import com.example.myapplication.recipes.presentation.recipes.components.OrderSection
+import com.example.myapplication.recipes.presentation.recipes.components.RecipeItem
 import com.example.myapplication.recipes.presentation.util.Screen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 

@@ -3,8 +3,8 @@ package com.example.myapplication.di
 import android.app.Application
 import androidx.room.Room
 import com.example.myapplication.recipes.data.datasource.RecipeDatabase
+import com.example.myapplication.recipes.data.repository.RecipeRepositoryImpl
 import com.example.myapplication.recipes.domain.repository.RecipeRepository
-import com.example.myapplication.recipes.domain.repository.RecipeRepositoryImpl
 import com.example.myapplication.recipes.domain.usecase.AddRecipe
 import com.example.myapplication.recipes.domain.usecase.DeleteRecipe
 import com.example.myapplication.recipes.domain.usecase.GetRecipe
