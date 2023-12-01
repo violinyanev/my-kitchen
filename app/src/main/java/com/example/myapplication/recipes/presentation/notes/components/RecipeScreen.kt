@@ -41,6 +41,7 @@ import com.example.myapplication.recipes.presentation.notes.components.RecipeVie
 import com.example.myapplication.recipes.presentation.notes.components.RecipesEvent
 import com.example.myapplication.recipes.presentation.notes.components.RecipesState
 import com.example.myapplication.recipes.presentation.util.Screen
+import com.example.myapplication.ui.theme.MyApplicationTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -155,10 +156,12 @@ class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<Recip
 fun RecipeScreenPreviewRealistic(
     @PreviewParameter(RecipeScreenStatePreviewParameterProvider::class) recipesState: RecipesState
 ) {
-    RecipeScreenContent(
-        onAddRecipe = {},
-        onSortClick = {},
-        onEvent = {},
-        recipeState = recipesState
-    )
+    MyApplicationTheme {
+        RecipeScreenContent(
+            onAddRecipe = {},
+            onSortClick = {},
+            onEvent = {},
+            recipeState = recipesState
+        )
+    }
 }
