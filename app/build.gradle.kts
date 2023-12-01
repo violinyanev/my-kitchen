@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.kover)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -109,6 +110,9 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+
+    detektPlugins(libs.detektTwitterPlugin)
+    detektPlugins(libs.detektFormattingPlugin)
 }
 
 val excludedClasses = listOf(
@@ -147,4 +151,9 @@ koverReport {
             }
         }
     }
+}
+
+detekt {
+    autoCorrect = true
+    config.setFrom("${project.rootDir}/gradle/detekt.yml")
 }
