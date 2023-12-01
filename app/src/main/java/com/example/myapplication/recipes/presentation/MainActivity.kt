@@ -1,6 +1,5 @@
 package com.example.myapplication.recipes.presentation
 
-import com.example.myapplication.recipes.presentation.recipes.RecipeScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.myapplication.recipes.presentation.editrecipe.AddEditRecipeScreen
+import com.example.myapplication.recipes.presentation.recipes.RecipeScreen
 import com.example.myapplication.recipes.presentation.util.Screen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import dagger.hilt.android.AndroidEntryPoint
