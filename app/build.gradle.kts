@@ -92,6 +92,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.test.manifest)
 
     // Testing dependencies
     debugImplementation(libs.androidx.monitor)
