@@ -22,6 +22,8 @@ kotlin = "1.9.10"
 ktlint = "11.6.1"
 detekt = "1.23.3"
 twitterDetekt = "0.0.26" # When changing this version, also update .idea/detekt.xml accordingly
+robolectric = "4.10.3"
+roborazzi = "1.7.0-alpha-1"
 ktx = "1.12.0"
 lifecycle = "2.7.0-rc01"
 material = "1.12.0-alpha01"
@@ -79,9 +81,16 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "testExtJunit" }
+androidx-test-ext-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "testExtJunit" }
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiAutomator" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "work" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+
+androidx-compose-ui-test-junit-android = { module = "androidx.compose.ui:ui-test-junit4-android", version.ref = "composeLatest" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
+
 # gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
@@ -102,6 +111,7 @@ okhttp3-logging-interceptor = { module = "com.squareup.okhttp3:logging-intercept
 detektFormattingPlugin = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detektTwitterPlugin = { module = "com.twitter.compose.rules:detekt", version.ref = "twitterDetekt" }
 
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
@@ -111,6 +121,7 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 # spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"}
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
