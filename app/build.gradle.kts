@@ -77,6 +77,12 @@ android {
     }
 
     buildToolsVersion = "34.0.0"
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
