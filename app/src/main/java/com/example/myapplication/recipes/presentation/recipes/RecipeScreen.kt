@@ -61,6 +61,12 @@ fun RecipeScreen(
         onEvent = {
             viewModel.onEvent(it)
         },
+        onRecipeClicked = {recipe ->
+            navController.navigate(
+                Screen.AddEditRecipeScreen.route +
+                        "?recipeId=${recipe.id}&recipeColor=${recipe.color}"
+            )
+        },
         recipeState = state
     )
 }
@@ -71,6 +77,7 @@ private fun RecipeScreenContent(
     onAddRecipe: () -> Unit,
     onSortClick: () -> Unit,
     onEvent: (RecipesEvent) -> Unit,
+    onRecipeClicked: (Recipe) -> Unit,
     recipeState: RecipesState
 ) {
     // val scaffoldState = rememberScrollState()
@@ -127,7 +134,8 @@ private fun RecipeScreenContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                            } // TODO onDelete
+                                onRecipeClicked(recipe)
+                            },
                     )
                 }
             }
@@ -161,6 +169,7 @@ fun RecipeScreenPreviewRealistic(
             onAddRecipe = {},
             onSortClick = {},
             onEvent = {},
+            onRecipeClicked = {},
             recipeState = recipesState
         )
     }
