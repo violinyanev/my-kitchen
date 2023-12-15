@@ -8,7 +8,7 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 import org.junit.Rule
 import org.junit.Test
 
-/*class MyComposeTest {
+class MyComposeTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -17,10 +17,9 @@ import org.junit.Test
 
     @Test
     fun myTest() {
-        // Start the app
         composeTestRule.setContent {
             MyApplicationTheme {
-                TestScreen(uiState = fakeUiState, /*...*/)
+                //TestScreen(uiState = fakeUiState, /*...*/)
             }
         }
 
@@ -28,5 +27,5 @@ import org.junit.Test
 
         composeTestRule.onNodeWithText("Welcome").assertIsDisplayed()
     }
-}*/
+}
 
