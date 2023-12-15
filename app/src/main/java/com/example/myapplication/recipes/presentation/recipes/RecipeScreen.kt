@@ -61,10 +61,10 @@ fun RecipeScreen(
         onEvent = {
             viewModel.onEvent(it)
         },
-        onRecipeClicked = {recipe ->
+        onRecipeClicked = { recipe ->
             navController.navigate(
                 Screen.AddEditRecipeScreen.route +
-                        "?recipeId=${recipe.id}&recipeColor=${recipe.color}"
+                    "?recipeId=${recipe.id}&recipeColor=${recipe.color}"
             )
         },
         recipeState = state
@@ -135,7 +135,7 @@ private fun RecipeScreenContent(
                             .fillMaxWidth()
                             .clickable {
                                 onRecipeClicked(recipe)
-                            },
+                            }
                     )
                 }
             }
