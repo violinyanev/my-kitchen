@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.recipes.presentation.recipes
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
