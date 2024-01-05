@@ -52,11 +52,11 @@ fun MainScreen() {
                     navArgument(name = "recipeId") {
                         type = NavType.IntType
                         defaultValue = -1
-                    },
+                    }
                 )
             ) {
                 AddEditRecipeScreen(
-                    navController = navController,
+                    navController = navController
                 )
             }
         }
