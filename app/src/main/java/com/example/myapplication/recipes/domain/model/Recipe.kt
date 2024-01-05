@@ -2,7 +2,7 @@ package com.example.myapplication.recipes.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.myapplication.ui.theme.Purple80
+import com.example.myapplication.ui.theme.md_theme_light_surface
 
 @Entity
 class Recipe(
@@ -13,7 +13,7 @@ class Recipe(
     @PrimaryKey val id: Int? = null
 ) {
     companion object {
-        val recipeColors = listOf(Purple80)
+        val recipeColors = listOf(md_theme_light_surface)
     }
 }
 

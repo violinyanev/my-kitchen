@@ -40,7 +40,7 @@ fun TransparentHintTextField(
                 .testTag(testTag)
         )
         if (isHintVisible) {
-            Text(text = hint, style = textStyle, color = Color.DarkGray)
+            Text(text = hint, style = textStyle)
         }
     }
 }
@@ -50,8 +50,20 @@ fun TransparentHintTextField(
 fun TransparentHintTextFieldPreview() {
     TransparentHintTextField(
         text = "Text",
+        hint = "",
+        onFocusChange = {},
+        onValueChange = {}
+    )
+}
+
+@Preview
+@Composable
+fun TransparentHintTextFieldHinyPreview() {
+    TransparentHintTextField(
+        text = "",
         hint = "Hint",
         onFocusChange = {},
         onValueChange = {}
     )
 }
+

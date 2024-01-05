@@ -53,16 +53,10 @@ fun MainScreen() {
                         type = NavType.IntType
                         defaultValue = -1
                     },
-                    navArgument(name = "recipeColor") {
-                        type = NavType.IntType
-                        defaultValue = -1
-                    }
                 )
             ) {
-                val color = it.arguments?.getInt("recipeColor") ?: -1
                 AddEditRecipeScreen(
                     navController = navController,
-                    recipeColor = color
                 )
             }
         }

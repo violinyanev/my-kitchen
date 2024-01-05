@@ -1,6 +1,7 @@
 package com.example.myapplication.recipes.presentation.editrecipe
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,11 +29,9 @@ import com.example.myapplication.recipes.presentation.editrecipe.components.Tran
 import kotlinx.coroutines.flow.collectLatest
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditRecipeScreen(
     navController: NavController,
-    recipeColor: Int,
     viewModel: AddEditRecipeViewModel = hiltViewModel()
 ) {
     val titleState = viewModel.recipeTitle.value
@@ -75,13 +74,6 @@ fun AddEditRecipeScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                Text(text = "TODO color palette")
-            }
             Spacer(modifier = Modifier.height(16.dp))
             TransparentHintTextField(
                 text = titleState.text,
