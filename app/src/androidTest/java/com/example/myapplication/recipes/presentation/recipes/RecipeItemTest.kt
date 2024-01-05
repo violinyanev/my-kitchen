@@ -25,7 +25,6 @@ class RecipeItemTest {
                     Recipe(
                         title = title,
                         content = content,
-                        color = 3,
                         timestamp = 1
                     )
                 )

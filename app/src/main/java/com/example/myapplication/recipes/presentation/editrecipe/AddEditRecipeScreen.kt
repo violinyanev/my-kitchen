@@ -32,13 +32,6 @@ fun AddEditRecipeScreen(
     val titleState = viewModel.recipeTitle.value
     val contentState = viewModel.recipeContent.value
 
-    // val scaffoldState = rememberScaffoldState()
-    /*val recipeBackground = remember {
-        Animatable(
-            Color(recipeColor)
-        )
-    }*/
-
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {

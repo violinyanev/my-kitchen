@@ -47,7 +47,7 @@ fun MainScreen() {
                 RecipeScreen(navController = navController)
             }
             composable(
-                route = Screen.AddEditRecipeScreen.route + "?recipeId={recipeId}&recipeColor={recipeColor}",
+                route = Screen.AddEditRecipeScreen.route + "?recipeId={recipeId}",
                 arguments = listOf(
                     navArgument(name = "recipeId") {
                         type = NavType.IntType

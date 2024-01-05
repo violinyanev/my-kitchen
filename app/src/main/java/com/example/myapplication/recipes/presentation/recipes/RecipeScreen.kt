@@ -64,7 +64,7 @@ fun RecipeScreen(
         onRecipeClicked = { recipe ->
             navController.navigate(
                 Screen.AddEditRecipeScreen.route +
-                    "?recipeId=${recipe.id}&recipeColor=${recipe.color}"
+                    "?recipeId=${recipe.id}"
             )
         },
         recipeState = state
@@ -151,8 +151,7 @@ class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<Recip
                 Recipe(
                     "Recipe $index",
                     content = "Lorem ipsum dolor sit amet $index",
-                    timestamp = 5,
-                    color = 5
+                    timestamp = 5
                 )
             }
         )
