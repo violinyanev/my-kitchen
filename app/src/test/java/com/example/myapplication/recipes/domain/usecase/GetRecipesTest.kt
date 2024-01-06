@@ -26,8 +26,7 @@ class GetRecipesTest {
                 Recipe(
                     title = c.toString(),
                     content = c.toString(),
-                    timestamp = index.toLong(),
-                    color = index
+                    timestamp = index.toLong()
                 )
             )
         }

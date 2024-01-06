@@ -2,7 +2,6 @@ package com.example.myapplication.recipes.presentation.editrecipe
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,9 +29,6 @@ class AddEditRecipeViewModel @Inject constructor(
     private val _recipeContent = mutableStateOf(RecipeTextFieldState(hint = "Enter some content..."))
     val recipeContent: State<RecipeTextFieldState> = _recipeContent
 
-    private val _recipeColor = mutableStateOf(Recipe.Companion.recipeColors.random().toArgb())
-    val recipeColor: State<Int> = _recipeColor
-
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
@@ -54,7 +50,6 @@ class AddEditRecipeViewModel @Inject constructor(
                             text = recipe.content,
                             isHintVisible = false
                         )
-                        _recipeColor.value = recipeColor.value
                     }
                 }
             }
@@ -79,9 +74,6 @@ class AddEditRecipeViewModel @Inject constructor(
                     isHintVisible = !event.focusState.isFocused && recipeContent.value.text.isBlank()
                 )
             }
-            is AddEditRecipeEvent.ChangeColor -> {
-                _recipeColor.value = event.color
-            }
             is AddEditRecipeEvent.SaveRecipe -> {
                 viewModelScope.launch {
                     try {
@@ -90,8 +82,7 @@ class AddEditRecipeViewModel @Inject constructor(
                                 title = recipeTitle.value.text,
                                 content = recipeContent.value.text,
                                 timestamp = System.currentTimeMillis(),
-                                id = currentRecipeId,
-                                color = recipeColor.value
+                                id = currentRecipeId
                             )
                         )
                         _eventFlow.emit(UiEvent.SaveRecipe)

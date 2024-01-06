@@ -47,22 +47,16 @@ fun MainScreen() {
                 RecipeScreen(navController = navController)
             }
             composable(
-                route = Screen.AddEditRecipeScreen.route + "?recipeId={recipeId}&recipeColor={recipeColor}",
+                route = Screen.AddEditRecipeScreen.route + "?recipeId={recipeId}",
                 arguments = listOf(
                     navArgument(name = "recipeId") {
-                        type = NavType.IntType
-                        defaultValue = -1
-                    },
-                    navArgument(name = "recipeColor") {
                         type = NavType.IntType
                         defaultValue = -1
                     }
                 )
             ) {
-                val color = it.arguments?.getInt("recipeColor") ?: -1
                 AddEditRecipeScreen(
-                    navController = navController,
-                    recipeColor = color
+                    navController = navController
                 )
             }
         }
