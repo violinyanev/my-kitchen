@@ -13,8 +13,11 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -32,11 +35,15 @@ fun AddEditRecipeScreen(
     val titleState = viewModel.recipeTitle.value
     val contentState = viewModel.recipeContent.value
 
+    val snackBarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is AddEditRecipeViewModel.UiEvent.ShowSnackbar -> {
-                    // TODO
+                    snackBarHostState.showSnackbar(
+                        message = event.message
+                    )
                 }
                 is AddEditRecipeViewModel.UiEvent.SaveRecipe -> {
                     navController.navigateUp()
@@ -46,6 +53,7 @@ fun AddEditRecipeScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
