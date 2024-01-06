@@ -2,8 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>FunctionNaming:RecipeTest.kt$RecipeTest$@Test fun recipe_constructor()</ID>
-    <ID>FunctionNaming:RecipeTest.kt$RecipeTest$@Test fun recipe_hasDefaultColors()</ID>
     <ID>ModifierMissing:AddEditRecipeScreen.kt$AddEditRecipeScreen</ID>
     <ID>ModifierMissing:MainActivity.kt$MainScreen</ID>
     <ID>ModifierReused:RecipeItem.kt$Column( modifier = modifier.padding(16.dp) ) { Text( text = recipe.title, style = MaterialTheme.typography.bodyMedium ) Text( text = recipe.content, style = MaterialTheme.typography.bodySmall, modifier = modifier.padding(top = 8.dp) ) }</ID>

@@ -6,10 +6,10 @@ import org.junit.Test
 
 class RecipeTest {
     @Test
-    fun recipe_constructor() {
-        val recipe = Recipe(title = "recipe", content = "content", timestamp = 15, id = 123)
-        assertEquals(recipe.title, "recipe")
-        assertEquals(recipe.content, "content")
+    fun `has values passed to constructors`() {
+        val recipe = Recipe(title = "the recipe", content = "the content", timestamp = 15, id = 123)
+        assertEquals(recipe.title, "the recipe")
+        assertEquals(recipe.content, "the content")
         assertEquals(recipe.timestamp, 15)
         assertEquals(recipe.id, 123)
     }
