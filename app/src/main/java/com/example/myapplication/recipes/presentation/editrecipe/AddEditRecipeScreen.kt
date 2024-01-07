@@ -62,8 +62,9 @@ fun AddEditRecipeScreen(
         contentState = contentState,
         snackBarHostState = snackBarHostState,
         eventHandler = {
-        viewModel.onEvent(it)
-    })
+            viewModel.onEvent(it)
+        }
+    )
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -73,7 +74,7 @@ fun AddEditRecipeScreenContent(
     contentState: RecipeTextFieldState,
     snackBarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    eventHandler: (AddEditRecipeEvent) -> Unit,
+    eventHandler: (AddEditRecipeEvent) -> Unit
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
@@ -131,19 +132,19 @@ fun AddEditRecipeScreenContent(
 
 data class AddEditRecipeState(
     val title: RecipeTextFieldState,
-    val content: RecipeTextFieldState,
+    val content: RecipeTextFieldState
 )
 
 class AddEditRecipeScreenPreviewParameterProvider : PreviewParameterProvider<AddEditRecipeState> {
     override val values = sequenceOf(
         AddEditRecipeState(
             title = RecipeTextFieldState(text = "", hint = "enter title...", isHintVisible = true),
-            content = RecipeTextFieldState(text = "", hint = "enter content...", isHintVisible = true),
+            content = RecipeTextFieldState(text = "", hint = "enter content...", isHintVisible = true)
         ),
         AddEditRecipeState(
             title = RecipeTextFieldState(text = "My Recipe", hint = "", isHintVisible = false),
-            content = RecipeTextFieldState(text = "It goes like this...", hint = "", isHintVisible = false),
-        ),
+            content = RecipeTextFieldState(text = "It goes like this...", hint = "", isHintVisible = false)
+        )
     )
 }
 
@@ -157,7 +158,7 @@ private fun AddEditRecipeScreenPreview(
             titleState = state.title,
             contentState = state.content,
             snackBarHostState = SnackbarHostState(),
-            eventHandler = {},
+            eventHandler = {}
         )
     }
 }
@@ -172,7 +173,7 @@ private fun AddEditRecipeScreenPreviewNightMode(
             titleState = state.title,
             contentState = state.content,
             snackBarHostState = SnackbarHostState(),
-            eventHandler = {},
+            eventHandler = {}
         )
     }
 }
