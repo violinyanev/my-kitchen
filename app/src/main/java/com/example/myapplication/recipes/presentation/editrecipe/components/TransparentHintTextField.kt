@@ -16,12 +16,12 @@ import androidx.compose.ui.tooling.preview.Preview
 fun TransparentHintTextField(
     text: String,
     hint: String,
+    onFocusChange: (FocusState) -> Unit,
+    onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     isHintVisible: Boolean = true,
-    onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
-    onFocusChange: (FocusState) -> Unit,
     testTag: String = ""
 ) {
     Box(
