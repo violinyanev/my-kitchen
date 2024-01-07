@@ -29,14 +29,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.myapplication.recipes.core.util.TestTags
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.presentation.recipes.components.OrderSection
 import com.example.myapplication.recipes.presentation.recipes.components.RecipeItem
@@ -118,8 +116,7 @@ private fun RecipeScreenContent(
                 OrderSection(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp)
-                        .testTag(TestTags.ORDER_SECTION),
+                        .padding(vertical = 16.dp),
                     recipeOrder = recipeState.recipeOrder,
                     onOrderChange = {
                         onEvent(RecipesEvent.Order(it))
