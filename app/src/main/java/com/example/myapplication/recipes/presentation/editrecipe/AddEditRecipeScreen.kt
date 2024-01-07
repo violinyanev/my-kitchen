@@ -1,6 +1,7 @@
 package com.example.myapplication.recipes.presentation.editrecipe
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,14 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.myapplication.recipes.core.util.TestTags
 import com.example.myapplication.recipes.presentation.editrecipe.components.TransparentHintTextField
+import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AddEditRecipeScreen(
     navController: NavController,
@@ -53,12 +57,31 @@ fun AddEditRecipeScreen(
         }
     }
 
+    AddEditRecipeScreenContent(
+        titleState = titleState,
+        contentState = contentState,
+        snackBarHostState = snackBarHostState,
+        eventHandler = {
+            viewModel.onEvent(it)
+        }
+    )
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun AddEditRecipeScreenContent(
+    titleState: RecipeTextFieldState,
+    contentState: RecipeTextFieldState,
+    snackBarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier,
+    eventHandler: (AddEditRecipeEvent) -> Unit
+) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    viewModel.onEvent(AddEditRecipeEvent.SaveRecipe)
+                    eventHandler(AddEditRecipeEvent.SaveRecipe)
                 }
                 // backgroundColor = MaterialTheme.colors.primary
             ) {
@@ -77,10 +100,10 @@ fun AddEditRecipeScreen(
                 text = titleState.text,
                 hint = titleState.hint,
                 onValueChange = {
-                    viewModel.onEvent(AddEditRecipeEvent.EnteredTitle(it))
+                    eventHandler(AddEditRecipeEvent.EnteredTitle(it))
                 },
                 onFocusChange = {
-                    viewModel.onEvent(AddEditRecipeEvent.ChangeTitleFocus(it))
+                    eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
                 },
                 isHintVisible = titleState.isHintVisible,
                 singleLine = true,
@@ -92,10 +115,10 @@ fun AddEditRecipeScreen(
                 text = contentState.text,
                 hint = contentState.hint,
                 onValueChange = {
-                    viewModel.onEvent(AddEditRecipeEvent.EnteredContent(it))
+                    eventHandler(AddEditRecipeEvent.EnteredContent(it))
                 },
                 onFocusChange = {
-                    viewModel.onEvent(AddEditRecipeEvent.ChangeContentFocus(it))
+                    eventHandler(AddEditRecipeEvent.ChangeContentFocus(it))
                 },
                 isHintVisible = contentState.isHintVisible,
                 singleLine = true,
@@ -104,5 +127,53 @@ fun AddEditRecipeScreen(
                 testTag = TestTags.CONTENT_TEXT_FIELD
             )
         }
+    }
+}
+
+data class AddEditRecipeState(
+    val title: RecipeTextFieldState,
+    val content: RecipeTextFieldState
+)
+
+class AddEditRecipeScreenPreviewParameterProvider : PreviewParameterProvider<AddEditRecipeState> {
+    override val values = sequenceOf(
+        AddEditRecipeState(
+            title = RecipeTextFieldState(text = "", hint = "enter title...", isHintVisible = true),
+            content = RecipeTextFieldState(text = "", hint = "enter content...", isHintVisible = true)
+        ),
+        AddEditRecipeState(
+            title = RecipeTextFieldState(text = "My Recipe", hint = "", isHintVisible = false),
+            content = RecipeTextFieldState(text = "It goes like this...", hint = "", isHintVisible = false)
+        )
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_UNDEFINED)
+@Composable
+private fun AddEditRecipeScreenPreview(
+    @PreviewParameter(AddEditRecipeScreenPreviewParameterProvider::class) state: AddEditRecipeState
+) {
+    MyApplicationTheme {
+        AddEditRecipeScreenContent(
+            titleState = state.title,
+            contentState = state.content,
+            snackBarHostState = SnackbarHostState(),
+            eventHandler = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun AddEditRecipeScreenPreviewNightMode(
+    @PreviewParameter(AddEditRecipeScreenPreviewParameterProvider::class) state: AddEditRecipeState
+) {
+    MyApplicationTheme {
+        AddEditRecipeScreenContent(
+            titleState = state.title,
+            contentState = state.content,
+            snackBarHostState = SnackbarHostState(),
+            eventHandler = {}
+        )
     }
 }
