@@ -31,7 +31,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.myapplication.recipes.core.util.TestTags
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
 
@@ -116,7 +115,6 @@ fun AddEditRecipeScreenContent(
                         .onFocusChanged {
                             eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
                         }
-                        .testTag(TestTags.TITLE_TEXT_FIELD)
                 )
             }
 
@@ -138,7 +136,6 @@ fun AddEditRecipeScreenContent(
                         .onFocusChanged {
                             eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
                         }
-                        .testTag(TestTags.CONTENT_TEXT_FIELD)
                 )
             }
         }
