@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun AddEditRecipeScreen(
     navController: NavController,
+    modifier: Modifier = Modifier,
     viewModel: AddEditRecipeViewModel = hiltViewModel()
 ) {
     val titleState = viewModel.recipeTitle.value
@@ -63,7 +64,8 @@ fun AddEditRecipeScreen(
             ) {
                 Icon(imageVector = Icons.Default.Done, contentDescription = "Save")
             }
-        }
+        },
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier
