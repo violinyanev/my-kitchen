@@ -160,7 +160,7 @@ class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<Recip
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun RecipeScreenPreviewRealistic(
+private fun RecipeScreenPreviewRealistic(
     @PreviewParameter(RecipeScreenStatePreviewParameterProvider::class) recipesState: RecipesState
 ) {
     MyApplicationTheme {
