@@ -21,7 +21,7 @@ fun RecipeItem(recipe: Recipe, modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.surface
     ) {
         Column(
-            modifier = modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Text(
                 text = recipe.title,
@@ -30,7 +30,7 @@ fun RecipeItem(recipe: Recipe, modifier: Modifier = Modifier) {
             Text(
                 text = recipe.content,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
     }

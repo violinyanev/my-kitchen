@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ModifierReused:RecipeItem.kt$Column( modifier = modifier.padding(16.dp) ) { Text( text = recipe.title, style = MaterialTheme.typography.bodyMedium ) Text( text = recipe.content, style = MaterialTheme.typography.bodySmall, modifier = modifier.padding(top = 8.dp) ) }</ID>
     <ID>ModifierReused:RecipeItem.kt$Surface( modifier = modifier.padding(16.dp) .testTag(TestTags.RECIPE_ITEM), color = MaterialTheme.colorScheme.surface ) { Column( modifier = modifier.padding(16.dp) ) { Text( text = recipe.title, style = MaterialTheme.typography.bodyMedium ) Text( text = recipe.content, style = MaterialTheme.typography.bodySmall, modifier = modifier.padding(top = 8.dp) ) } }</ID>
     <ID>ModifierReused:RecipeItem.kt$Text( text = recipe.content, style = MaterialTheme.typography.bodySmall, modifier = modifier.padding(top = 8.dp) )</ID>
     <ID>PreviewPublic:RecipeScreen.kt$RecipeScreenPreviewRealistic</ID>
