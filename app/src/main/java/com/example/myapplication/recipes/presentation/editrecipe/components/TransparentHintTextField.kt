@@ -2,8 +2,8 @@ package com.example.myapplication.recipes.presentation.editrecipe.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
@@ -27,7 +27,7 @@ fun TransparentHintTextField(
     Box(
         modifier = modifier
     ) {
-        BasicTextField(
+        TextField(
             value = text,
             onValueChange = onValueChange,
             singleLine = singleLine,
