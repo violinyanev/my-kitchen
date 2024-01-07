@@ -2,10 +2,11 @@ package com.example.myapplication.recipes.presentation.editrecipe
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,10 +17,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -27,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.myapplication.recipes.core.util.TestTags
-import com.example.myapplication.recipes.presentation.editrecipe.components.TransparentHintTextField
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
 
@@ -63,7 +67,8 @@ fun AddEditRecipeScreen(
         snackBarHostState = snackBarHostState,
         eventHandler = {
             viewModel.onEvent(it)
-        }
+        },
+        modifier = modifier
     )
 }
 
@@ -83,7 +88,6 @@ fun AddEditRecipeScreenContent(
                 onClick = {
                     eventHandler(AddEditRecipeEvent.SaveRecipe)
                 }
-                // backgroundColor = MaterialTheme.colors.primary
             ) {
                 Icon(imageVector = Icons.Default.Done, contentDescription = "Save")
             }
@@ -96,36 +100,47 @@ fun AddEditRecipeScreenContent(
                 .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            TransparentHintTextField(
-                text = titleState.text,
-                hint = titleState.hint,
-                onValueChange = {
-                    eventHandler(AddEditRecipeEvent.EnteredTitle(it))
-                },
-                onFocusChange = {
-                    eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
-                },
-                isHintVisible = titleState.isHintVisible,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.headlineMedium,
-                testTag = TestTags.TITLE_TEXT_FIELD
-            )
+
+            Box {
+                TextField(
+                    value = titleState.text,
+                    onValueChange = {
+                        eventHandler(AddEditRecipeEvent.EnteredTitle(it))
+                    },
+                    placeholder = {
+                        Text(text = titleState.hint, style = MaterialTheme.typography.headlineMedium)
+                    },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.fillMaxWidth()
+                        .onFocusChanged {
+                            eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
+                        }
+                        .testTag(TestTags.TITLE_TEXT_FIELD)
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
-            TransparentHintTextField(
-                text = contentState.text,
-                hint = contentState.hint,
-                onValueChange = {
-                    eventHandler(AddEditRecipeEvent.EnteredContent(it))
-                },
-                onFocusChange = {
-                    eventHandler(AddEditRecipeEvent.ChangeContentFocus(it))
-                },
-                isHintVisible = contentState.isHintVisible,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.fillMaxHeight(),
-                testTag = TestTags.CONTENT_TEXT_FIELD
-            )
+
+            Box {
+                TextField(
+                    value = contentState.text,
+                    onValueChange = {
+                        eventHandler(AddEditRecipeEvent.EnteredContent(it))
+                    },
+                    minLines = 15,
+                    placeholder = {
+                        Text(text = contentState.hint, style = MaterialTheme.typography.bodyMedium)
+                    },
+                    singleLine = false,
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.fillMaxWidth()
+                        .onFocusChanged {
+                            eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
+                        }
+                        .testTag(TestTags.CONTENT_TEXT_FIELD)
+                )
+            }
         }
     }
 }
