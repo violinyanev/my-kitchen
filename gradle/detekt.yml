@@ -51,7 +51,7 @@ complexity:
     active: false
     threshold: 10
     includeStaticDeclarations: false
-  ComplexMethod:
+  CyclomaticComplexMethod:
     active: false
     threshold: 10
     ignoreSingleWhenExpression: false
@@ -68,7 +68,8 @@ complexity:
     ignoreAnnotated: ['Composable']
   LongParameterList:
     active: true
-    threshold: 8
+    functionThreshold: 8
+    constructorThreshold: 8
     ignoreDefaultParameters: false
     ignoreAnnotated: ['Composable']
   MethodOverloading:
@@ -131,7 +132,10 @@ exceptions:
   active: true
   ExceptionRaisedInUnexpectedLocation:
     active: false
-    methodNames: 'toString,hashCode,equals,finalize'
+    methodNames:
+      - toString
+      - hashCodeequals
+      - finalize
   InstanceOfCheckForException:
     active: false
   NotImplementedDeclaration:
@@ -144,14 +148,21 @@ exceptions:
     active: false
   SwallowedException:
     active: false
-    ignoredExceptionTypes: 'InterruptedException,NumberFormatException,ParseException,MalformedURLException'
+    ignoredExceptionTypes:
+      - InterruptedException
+      - NumberFormatException
+      - ParseException
+      - MalformedURLException
   ThrowingExceptionFromFinally:
     active: false
   ThrowingExceptionInMain:
     active: false
   ThrowingExceptionsWithoutMessageOrCause:
     active: false
-    exceptions: 'IllegalArgumentException,IllegalStateException,IOException'
+    exceptions:
+      - IllegalArgumentException
+      - IllegalStateException
+      - IOException
   ThrowingNewInstanceOfSameException:
     active: false
   TooGenericExceptionCaught:
@@ -195,7 +206,6 @@ formatting:
     active: true
     autoCorrect: true
     indentSize: 4
-    continuationIndentSize: 4
   MaximumLineLength:
     active: true
     maxLineLength: 180
@@ -282,7 +292,7 @@ naming:
     enumEntryPattern: '^[A-Z][_a-zA-Z0-9]*'
   ForbiddenClassName:
     active: false
-    forbiddenName: ''
+    forbiddenName: []
   FunctionMaxLength:
     active: false
     maximumFunctionNameLength: 30
@@ -293,16 +303,11 @@ naming:
     active: true
     functionPattern: '^([a-z][a-zA-Z0-9]*)|(`.*`)$'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
     ignoreAnnotated: ['Composable']
   FunctionParameterNaming:
     active: true
     parameterPattern: '[a-z][A-Za-z0-9]*'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
-  # TODO: what does this do?
-  #MatchingDeclarationName:
-  #  active: true
   MemberNameEqualsClassName:
     active: false
     ignoreOverridden: true
@@ -331,7 +336,6 @@ naming:
     variablePattern: '[a-z][A-Za-z0-9]*'
     privateVariablePattern: '[_a-z][A-Za-z0-9]*'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
 
 performance:
   active: true
@@ -346,8 +350,6 @@ performance:
 
 potential-bugs:
   active: true
-  DuplicateCaseInWhenExpression:
-    active: true
   EqualsAlwaysReturnsTrueOrFalse:
     active: false
   EqualsWithHashCodeExist:
@@ -362,7 +364,7 @@ potential-bugs:
     active: false
   LateinitUsage:
     active: false
-    excludeAnnotatedProperties: ""
+    ignoreAnnotated: ""
     ignoreOnClassesPattern: ""
   UnconditionalJumpStatementInLoop:
     active: false
@@ -383,7 +385,8 @@ style:
     active: false
   DataClassContainsFunctions:
     active: false
-    conversionFunctionPrefix: 'to'
+    conversionFunctionPrefix:
+      - to
   EqualsNullCall:
     active: false
   EqualsOnSignatureLine:
@@ -399,13 +402,14 @@ style:
   #  values: 'TODO:,FIXME:'
   ForbiddenImport:
     active: false
-    imports: ''
+    imports: []
   ForbiddenVoid:
     active: false
   FunctionOnlyReturningConstant:
     active: false
     ignoreOverridableFunction: true
-    excludedFunctions: 'describeContents'
+    excludedFunctions:
+      - describeContents
   LoopWithTooManyJumpStatements:
     active: false
     maxJumpCount: 1
@@ -419,8 +423,6 @@ style:
   #  ignoreAnnotation: false
   #  ignoreNamedArgument: true
   #  ignoreEnums: false
-  MandatoryBracesIfStatements:
-    active: false
   MaxLineLength:
     active: true
     maxLineLength: 180
@@ -441,8 +443,6 @@ style:
     active: true
   OptionalUnit:
     active: false
-  OptionalWhenBraces:
-    active: false
   PreferToOverPairSyntax:
     active: false
   ProtectedMemberInFinalClass:
@@ -452,7 +452,8 @@ style:
   ReturnCount:
     active: false
     max: 2
-    excludedFunctions: "equals"
+    excludedFunctions:
+      - equals
     excludeLabeled: false
     excludeReturnFromLambda: true
   SafeCast:
@@ -468,10 +469,11 @@ style:
     active: false
   UnderscoresInNumericLiterals:
     active: false
-    acceptableDecimalLength: 5
+    acceptableLength: 5
   UnnecessaryAbstractClass:
     active: false
-    excludeAnnotatedClasses: "dagger.Module"
+    ignoreAnnotated:
+      - dagger.Module
   UnnecessaryApply:
     active: false
   UnnecessaryInheritance:
@@ -491,7 +493,7 @@ style:
     allowedNames: "(_|ignored|expected)"
   UseDataClass:
     active: false
-    excludeAnnotatedClasses: ""
+    ignoreAnnotated: ""
   UtilityClassWithPublicConstructor:
     active: false
   VarCouldBeVal:
