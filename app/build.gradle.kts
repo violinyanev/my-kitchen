@@ -119,13 +119,19 @@ dependencies {
 val excludedClasses = listOf(
     "*Activity",
     "*Activity\$*",
+    "*Activity\$*",
     "*.databinding.*",
     "*.BuildConfig",
     "ComposableSingletons\$*"
 )
 
 val excludedPackages = listOf(
+    // Dependency injection itself doesn't need to be tested
     "com.example.myapplication.di",
+    // Presentation not unit test(able) currently, could revisit later (maybe try paparazzi + compose?)
+    "com.example.myapplication.recipes.presentation",
+    // Theme values are generated, no need to unit test
+    "com.example.myapplication.ui.theme",
     "dagger.hilt.internal.aggregatedroot.codegen",
     "_HiltModules",
     "Hilt_",
