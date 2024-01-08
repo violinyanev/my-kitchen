@@ -8,4 +8,6 @@
     <string name="sort_date">Datum</string>
     <string name="sort_descending">Absteigend</string>
     <string name="sort_ascending">Aufsteigend</string>
+    <string name="add_recipe">Neues Rezept</string>
+    <string name="sort">Sortieren</string>
 </resources>
