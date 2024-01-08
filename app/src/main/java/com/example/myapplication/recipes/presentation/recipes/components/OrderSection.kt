@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.example.myapplication.R
 import com.example.myapplication.recipes.domain.util.OrderType
 import com.example.myapplication.recipes.domain.util.RecipeOrder
 
@@ -23,7 +25,7 @@ fun OrderSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             DefaultRadioButton(
-                text = "Title",
+                text = stringResource(R.string.title_hint),
                 selected = recipeOrder is RecipeOrder.Title,
                 onSelect = {
                     onOrderChange(RecipeOrder.Title(recipeOrder.orderType))
