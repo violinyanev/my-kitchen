@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.compose.material.icons.ext)
     implementation(libs.material)
     // implementation(libs.gson)
     // implementation(libs.okhttp3.logging.interceptor)
