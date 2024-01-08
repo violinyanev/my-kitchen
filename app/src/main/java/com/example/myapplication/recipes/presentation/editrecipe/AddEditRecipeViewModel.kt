@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.R
 import com.example.myapplication.recipes.domain.model.InvalidRecipeException
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.domain.usecase.Recipes
@@ -21,12 +22,12 @@ class AddEditRecipeViewModel @Inject constructor(
 ) : ViewModel() {
     private val _recipeTitle = mutableStateOf(
         RecipeTextFieldState(
-            hint = "Enter title..."
+            hintStringId = R.string.title_hint
         )
     )
     val recipeTitle: State<RecipeTextFieldState> = _recipeTitle
 
-    private val _recipeContent = mutableStateOf(RecipeTextFieldState(hint = "Enter some content..."))
+    private val _recipeContent = mutableStateOf(RecipeTextFieldState(hintStringId = R.string.content_hint))
     val recipeContent: State<RecipeTextFieldState> = _recipeContent
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()

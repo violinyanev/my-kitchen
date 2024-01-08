@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="title_hint">Titel</string>
+    <string name="content_hint">Rezept</string>
+    <string name="save">Speichern</string>
+    <string name="sort_title">Titel</string>
+    <string name="sort_date">Datum</string>
+    <string name="sort_descending">Absteigend</string>
+    <string name="sort_ascending">Aufsteigend</string>
+</resources>

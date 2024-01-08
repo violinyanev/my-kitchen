@@ -24,12 +24,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ResourcesCompat.ID_NULL
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.myapplication.R
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
 
@@ -87,7 +90,7 @@ fun AddEditRecipeScreenContent(
                     eventHandler(AddEditRecipeEvent.SaveRecipe)
                 }
             ) {
-                Icon(imageVector = Icons.Default.Done, contentDescription = "Save")
+                Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
             }
         },
         modifier = modifier
@@ -106,11 +109,14 @@ fun AddEditRecipeScreenContent(
                         eventHandler(AddEditRecipeEvent.EnteredTitle(it))
                     },
                     placeholder = {
-                        Text(text = titleState.hint, style = MaterialTheme.typography.headlineMedium)
+                        if (titleState.hintStringId != ID_NULL) {
+                            Text(text = stringResource(titleState.hintStringId), style = MaterialTheme.typography.headlineMedium)
+                        }
                     },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .onFocusChanged {
                             eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
                         }
@@ -127,11 +133,17 @@ fun AddEditRecipeScreenContent(
                     },
                     minLines = 15,
                     placeholder = {
-                        Text(text = contentState.hint, style = MaterialTheme.typography.bodyMedium)
+                        if (titleState.hintStringId != ID_NULL) {
+                            Text(
+                                text = stringResource(contentState.hintStringId),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     },
                     singleLine = false,
                     textStyle = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .onFocusChanged {
                             eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
                         }
@@ -149,12 +161,12 @@ data class AddEditRecipeState(
 class AddEditRecipeScreenPreviewParameterProvider : PreviewParameterProvider<AddEditRecipeState> {
     override val values = sequenceOf(
         AddEditRecipeState(
-            title = RecipeTextFieldState(text = "", hint = "enter title...", isHintVisible = true),
-            content = RecipeTextFieldState(text = "", hint = "enter content...", isHintVisible = true)
+            title = RecipeTextFieldState(text = "", hintStringId = R.string.title_hint, isHintVisible = true),
+            content = RecipeTextFieldState(text = "", hintStringId = R.string.content_hint, isHintVisible = true)
         ),
         AddEditRecipeState(
-            title = RecipeTextFieldState(text = "My Recipe", hint = "", isHintVisible = false),
-            content = RecipeTextFieldState(text = "It goes like this...", hint = "", isHintVisible = false)
+            title = RecipeTextFieldState(text = "My Recipe", hintStringId = ID_NULL, isHintVisible = false),
+            content = RecipeTextFieldState(text = "It goes like this...", hintStringId = ID_NULL, isHintVisible = false)
         )
     )
 }
