@@ -97,7 +97,7 @@ private fun RecipeScreenContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Your recipe", style = MaterialTheme.typography.bodyMedium)
+                Text(text = stringResource(R.string.your_recipes), style = MaterialTheme.typography.bodyMedium)
                 IconButton(
                     onClick = onSortClick
                 ) {

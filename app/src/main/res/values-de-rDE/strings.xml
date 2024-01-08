@@ -10,4 +10,5 @@
     <string name="sort_ascending">Aufsteigend</string>
     <string name="add_recipe">Neues Rezept</string>
     <string name="sort">Sortieren</string>
+    <string name="your_recipes">Rezepte</string>
 </resources>
