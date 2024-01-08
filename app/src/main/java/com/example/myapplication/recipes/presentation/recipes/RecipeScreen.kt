@@ -29,12 +29,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.myapplication.R
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.presentation.recipes.components.OrderSection
 import com.example.myapplication.recipes.presentation.recipes.components.RecipeItem
@@ -78,13 +80,10 @@ private fun RecipeScreenContent(
     onRecipeClicked: (Recipe) -> Unit,
     recipeState: RecipesState
 ) {
-    // val scaffoldState = rememberScrollState()
-    // val scope = rememberCoroutineScope()
-
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = onAddRecipe) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add recipe")
+                Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(id = R.string.add_recipe))
             }
         }
     ) {
@@ -104,7 +103,7 @@ private fun RecipeScreenContent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.FilterList,
-                        contentDescription = "Sort"
+                        contentDescription = stringResource(id = R.string.sort)
                     )
                 }
             }
