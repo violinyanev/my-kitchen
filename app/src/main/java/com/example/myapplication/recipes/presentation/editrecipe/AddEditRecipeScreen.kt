@@ -109,7 +109,7 @@ fun AddEditRecipeScreenContent(
                         eventHandler(AddEditRecipeEvent.EnteredTitle(it))
                     },
                     placeholder = {
-                        if(titleState.hintStringId != ID_NULL) {
+                        if (titleState.hintStringId != ID_NULL) {
                             Text(text = stringResource(titleState.hintStringId), style = MaterialTheme.typography.headlineMedium)
                         }
                     },
@@ -133,7 +133,7 @@ fun AddEditRecipeScreenContent(
                     },
                     minLines = 15,
                     placeholder = {
-                        if(titleState.hintStringId != ID_NULL) {
+                        if (titleState.hintStringId != ID_NULL) {
                             Text(
                                 text = stringResource(contentState.hintStringId),
                                 style = MaterialTheme.typography.bodyMedium
