@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 import com.example.myapplication.recipes.domain.util.OrderType
@@ -66,12 +68,23 @@ fun OrderSection(
     }
 }
 
+class OrderSectionPreviewParameterProvider : PreviewParameterProvider<RecipeOrder> {
+    override val values = sequenceOf(
+        RecipeOrder.Title(OrderType.Descending),
+        RecipeOrder.Title(OrderType.Ascending),
+        RecipeOrder.Date(OrderType.Descending),
+        RecipeOrder.Date(OrderType.Ascending)
+    )
+}
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun OrderSectionPreview() {
+private fun OrderSectionPreview(
+    @PreviewParameter(OrderSectionPreviewParameterProvider::class) recipeOrder: RecipeOrder
+) {
     MyApplicationTheme {
         OrderSection(
-            recipeOrder = RecipeOrder.Date(OrderType.Descending),
+            recipeOrder = recipeOrder,
             onOrderChange = {}
         )
     }

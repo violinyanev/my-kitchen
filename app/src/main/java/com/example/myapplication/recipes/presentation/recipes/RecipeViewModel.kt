@@ -68,7 +68,8 @@ class RecipeViewModel @Inject constructor(
             .onEach {
                     recipes ->
                 _state.value = state.value.copy(
-                    recipes = recipes
+                    recipes = recipes,
+                    recipeOrder = recipesOrder
                 )
             }
             .launchIn(viewModelScope)
