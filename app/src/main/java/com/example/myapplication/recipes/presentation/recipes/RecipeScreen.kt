@@ -19,7 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -103,7 +103,7 @@ private fun RecipeScreenContent(
                     onClick = onSortClick
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Search, // TODO fix icon to sort
+                        imageVector = Icons.Default.FilterList,
                         contentDescription = "Sort"
                     )
                 }
