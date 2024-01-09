@@ -31,4 +31,4 @@ jobs:
       with:
         # TODO fix app signing
         files: |
-          ${{runner.workspace}}/my-app/app/build/outputs/apk/release/app-release-unsigned.apk
+          ${{runner.workspace}}/my-app/app/build/outputs/apk/release/app-release.apk
