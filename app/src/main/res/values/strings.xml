@@ -3,6 +3,7 @@
     <!-- Recipes -->
 
     <!-- Recipes main screen -->
+    <string name="your_recipes" translation_description="Text shown on top of the recipes main screen">Recipes</string>
     <string name="add_recipe" translation_description="Content description for the add recipe button">Sort</string>
     <string name="sort_title" translation_description="The text shown when sorting by title">Title</string>
     <string name="sort_date" translation_description="The text shown when sorting by date">Date</string>
