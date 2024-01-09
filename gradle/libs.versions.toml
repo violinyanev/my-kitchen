@@ -22,6 +22,7 @@ mockServer = "4.12.0"
 turbine = "1.0.0"
 truth = "1.4.2"
 kotlin = "1.9.23"
+robolectric = "4.7.3"
 ktlint = "11.6.1"
 detekt = "1.23.6"
 twitterDetekt = "0.0.26" # When changing this version, also update .idea/detekt.xml accordingly
@@ -92,6 +93,7 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 androidx-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeLatest" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
