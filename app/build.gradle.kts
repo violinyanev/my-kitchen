@@ -86,6 +86,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.junit.ktx)
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.core.ktx)
@@ -146,6 +147,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp3.mockwebserver)
     testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
 
     detektPlugins(libs.detektTwitterPlugin)
     detektPlugins(libs.detektFormattingPlugin)
