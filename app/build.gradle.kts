@@ -124,6 +124,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
 
     detektPlugins(libs.detektTwitterPlugin)
     detektPlugins(libs.detektFormattingPlugin)
