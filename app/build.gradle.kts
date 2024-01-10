@@ -125,6 +125,9 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
     detektPlugins(libs.detektTwitterPlugin)
     detektPlugins(libs.detektFormattingPlugin)
 }
