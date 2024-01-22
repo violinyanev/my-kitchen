@@ -1,5 +1,6 @@
 package com.example.myapplication.recipes.domain.model
 
+import androidx.annotation.StringRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -11,4 +12,4 @@ class Recipe(
     @PrimaryKey val id: Int? = null
 )
 
-class InvalidRecipeException(message: String) : Exception(message)
+class InvalidRecipeException(@StringRes message: Int) : Exception()
