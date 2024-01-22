@@ -1,7 +1,6 @@
 package com.example.myapplication.recipes.domain.usecase
 
 import com.example.myapplication.recipes.data.repository.FakeRecipeRepository
-import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.domain.util.OrderType
 import com.example.myapplication.recipes.domain.util.RecipeOrder
 import com.google.common.truth.Truth.assertThat
@@ -19,21 +18,6 @@ class GetRecipesTest {
     fun setUp() {
         fakeRepository = FakeRecipeRepository()
         getRecipes = GetRecipes(fakeRepository)
-
-        val recipesToInsert = mutableListOf<Recipe>()
-        ('a'..'z').forEachIndexed { index, c ->
-            recipesToInsert.add(
-                Recipe(
-                    title = c.toString(),
-                    content = c.toString(),
-                    timestamp = index.toLong()
-                )
-            )
-        }
-        recipesToInsert.shuffle()
-        runBlocking {
-            recipesToInsert.forEach { fakeRepository.insertRecipe(it) }
-        }
     }
 
     @Test
