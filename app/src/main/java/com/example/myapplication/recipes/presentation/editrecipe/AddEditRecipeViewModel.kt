@@ -36,6 +36,13 @@ class AddEditRecipeViewModel @Inject constructor(
     private var currentRecipeId: Long? = null
 
     init {
+        // TODO remove this?
+
+        savedStateHandle.get<Int>("recipeId")?.let { recipeIdInt ->
+            savedStateHandle.remove<Int>("recipeId")
+            savedStateHandle.set<Long>("recipeId", recipeIdInt.toLong())
+        }
+
         savedStateHandle.get<Long>("recipeId")?.let {
                 recipeId ->
             if (recipeId != -1L) {
