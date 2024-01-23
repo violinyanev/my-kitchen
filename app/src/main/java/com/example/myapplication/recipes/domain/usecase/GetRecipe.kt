@@ -6,7 +6,7 @@ import com.example.myapplication.recipes.domain.repository.RecipeRepository
 class GetRecipe(
     private val repository: RecipeRepository
 ) {
-    suspend operator fun invoke(id: Int): Recipe? {
+    suspend operator fun invoke(id: Long): Recipe? {
         return repository.getRecipeById(id)
     }
 }

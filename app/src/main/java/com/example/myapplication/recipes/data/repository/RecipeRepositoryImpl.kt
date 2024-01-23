@@ -12,7 +12,7 @@ class RecipeRepositoryImpl(
         return dao.getRecipes()
     }
 
-    override suspend fun getRecipeById(id: Int): Recipe? {
+    override suspend fun getRecipeById(id: Long): Recipe? {
         return dao.getRecipeById(id)
     }
 

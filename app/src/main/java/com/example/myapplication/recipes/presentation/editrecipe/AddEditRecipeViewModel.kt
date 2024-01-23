@@ -36,9 +36,9 @@ class AddEditRecipeViewModel @Inject constructor(
     private var currentRecipeId: Long? = null
 
     init {
-        savedStateHandle.get<Int>("recipeId")?.let {
+        savedStateHandle.get<Long>("recipeId")?.let {
                 recipeId ->
-            if (recipeId != -1) {
+            if (recipeId != -1L) {
                 viewModelScope.launch {
                     recipesUseCases.getRecipe(recipeId)?.also {
                             recipe ->
