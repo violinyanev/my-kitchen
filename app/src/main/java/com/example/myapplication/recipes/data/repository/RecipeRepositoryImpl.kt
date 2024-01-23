@@ -5,9 +5,13 @@ import com.example.myapplication.recipes.data.datasource.backend.RecipeServiceWr
 import com.example.myapplication.recipes.data.datasource.localdb.RecipeDao
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.domain.repository.RecipeRepository
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 // TODO Split into API code
+@OptIn(DelicateCoroutinesApi::class)
 class RecipeRepositoryImpl(
     private val dao: RecipeDao,
     private val recipeService: RecipeServiceWrapper
@@ -17,7 +21,10 @@ class RecipeRepositoryImpl(
     }
 
     init {
-        recipeService.syncToDao(dao)
+        // TODO improve
+        GlobalScope.launch {
+            recipeService.syncToDao(dao)
+        }
     }
 
     override suspend fun getRecipeById(id: Long): Recipe? {

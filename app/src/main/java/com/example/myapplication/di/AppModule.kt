@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.room.Room
 import com.example.myapplication.recipes.data.datasource.backend.RecipeService
 import com.example.myapplication.recipes.data.datasource.backend.RecipeServiceWrapper
-import com.example.myapplication.recipes.data.datasource.backend.RecipesApiClient
 import com.example.myapplication.recipes.data.datasource.localdb.RecipeDatabase
 import com.example.myapplication.recipes.data.repository.RecipeRepositoryImpl
 import com.example.myapplication.recipes.domain.repository.RecipeRepository

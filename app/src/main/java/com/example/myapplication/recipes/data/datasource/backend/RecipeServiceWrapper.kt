@@ -3,6 +3,9 @@ package com.example.myapplication.recipes.data.datasource.backend
 import android.util.Log
 import com.example.myapplication.recipes.data.datasource.localdb.RecipeDao
 import com.example.myapplication.recipes.domain.model.Recipe
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import retrofit2.Call
 import retrofit2.Callback
@@ -10,13 +13,11 @@ import retrofit2.Response
 
 class RecipeServiceWrapper(private val recipeService: RecipeService) {
     // TODO fix this
-    fun syncToDao(dao: RecipeDao) {
-        recipeService.getRecipes().enqueue(object :
-            Callback<List<BackendRecipe>> {
-            override fun onResponse(
-                call: Call<List<BackendRecipe>>,
-                response: Response<List<BackendRecipe>>
-            ) {
+    suspend fun syncToDao(dao: RecipeDao) {
+        runBlocking {
+            launch(Dispatchers.IO) {
+                val response = recipeService.getRecipes().execute()
+
                 if (response.isSuccessful) {
                     response.body()?.let {
                         for (r in it.iterator()) {
@@ -33,23 +34,24 @@ class RecipeServiceWrapper(private val recipeService: RecipeService) {
                         }
                     } ?: {
                         // TODO improve handling here
+                        Log.e("RECIPES", "General API failure: " + response.message())
                         throw Exception("Empty body")
                     }
-
                 } else {
                     // TODO improve handling here
+                    Log.e("RECIPES", "General API failure: " + response.message())
                     throw Exception("Failed web request")
                 }
-            }
 
-            override fun onFailure(
-                call: Call<List<BackendRecipe>>,
-                t: Throwable
-            ) {
-                // TODO improve handling here
-                throw Exception("Network error :( ${t.message}")
+                val dbRecipes = dao.getRecipes()
+
+                dbRecipes.collectLatest {
+                    for (r in it.iterator()) {
+                        insertRecipe(r.id!!, r)
+                    }
+                }
             }
-        })
+        }
     }
 
     fun insertRecipe(recipeId: Long, recipe: Recipe) {
