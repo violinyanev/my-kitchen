@@ -2,7 +2,9 @@ package com.example.myapplication.di
 
 import android.app.Application
 import androidx.room.Room
-import com.example.myapplication.recipes.data.datasource.RecipeDatabase
+import com.example.myapplication.recipes.data.datasource.backend.RecipeService
+import com.example.myapplication.recipes.data.datasource.backend.RecipeServiceWrapper
+import com.example.myapplication.recipes.data.datasource.localdb.RecipeDatabase
 import com.example.myapplication.recipes.data.repository.RecipeRepositoryImpl
 import com.example.myapplication.recipes.domain.repository.RecipeRepository
 import com.example.myapplication.recipes.domain.usecase.AddRecipe
@@ -14,6 +16,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -31,8 +35,22 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideRecipeRepository(db: RecipeDatabase): RecipeRepository {
-        return RecipeRepositoryImpl(db.recipeDao)
+    fun provideRecipeService(): RecipeServiceWrapper {
+        // TODO Make configurable
+        val baseUrl = "https://ultraviolince.com:8019"
+        return RecipeServiceWrapper(
+            Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(RecipeService::class.java)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideRecipeRepository(db: RecipeDatabase, service: RecipeServiceWrapper): RecipeRepository {
+        return RecipeRepositoryImpl(db.recipeDao, service)
     }
 
     @Provides

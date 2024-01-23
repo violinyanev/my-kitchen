@@ -37,10 +37,8 @@ class AddEditRecipeViewModel @Inject constructor(
 
     init {
         // TODO remove this?
-
         savedStateHandle.get<Int>("recipeId")?.let { recipeIdInt ->
-            savedStateHandle.remove<Int>("recipeId")
-            savedStateHandle.set<Long>("recipeId", recipeIdInt.toLong())
+            savedStateHandle["recipeId"] = recipeIdInt.toLong()
         }
 
         savedStateHandle.get<Long>("recipeId")?.let {
