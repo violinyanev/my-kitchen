@@ -1,4 +1,4 @@
-package com.example.myapplication.recipes.data.datasource
+package com.example.myapplication.recipes.data.datasource.localdb
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

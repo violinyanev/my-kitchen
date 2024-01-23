@@ -1,4 +1,4 @@
-package com.example.myapplication.recipes.data.datasource
+package com.example.myapplication.recipes.data.datasource.localdb
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -18,6 +18,9 @@ interface RecipeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecipe(recipe: Recipe): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRecipes(recipes: List<Recipe>)
 
     @Delete
     suspend fun deleteRecipe(recipe: Recipe)
