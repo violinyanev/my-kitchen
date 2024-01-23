@@ -35,12 +35,13 @@ class FakeRecipeRepository : RecipeRepository {
         return recipes
     }
 
-    override suspend fun getRecipeById(id: Int): Recipe? {
+    override suspend fun getRecipeById(id: Long): Recipe? {
         return recipes.find { it.id == id }
     }
 
-    override suspend fun insertRecipe(recipe: Recipe) {
+    override suspend fun insertRecipe(recipe: Recipe): Long {
         recipes.add(recipe)
+        return recipes.size.toLong()
     }
 
     override suspend fun deleteRecipe(recipe: Recipe) {
