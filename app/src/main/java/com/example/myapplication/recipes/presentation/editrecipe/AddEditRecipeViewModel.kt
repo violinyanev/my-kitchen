@@ -33,7 +33,7 @@ class AddEditRecipeViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
-    private var currentRecipeId: Int? = null
+    private var currentRecipeId: Long? = null
 
     init {
         savedStateHandle.get<Int>("recipeId")?.let {

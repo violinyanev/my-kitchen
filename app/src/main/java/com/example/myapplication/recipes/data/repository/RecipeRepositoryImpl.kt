@@ -16,7 +16,7 @@ class RecipeRepositoryImpl(
         return dao.getRecipeById(id)
     }
 
-    override suspend fun insertRecipe(recipe: Recipe) {
+    override suspend fun insertRecipe(recipe: Recipe): Long {
         return dao.insertRecipe(recipe)
     }
 

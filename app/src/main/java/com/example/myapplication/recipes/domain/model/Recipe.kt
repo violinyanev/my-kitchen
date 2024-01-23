@@ -9,7 +9,7 @@ class Recipe(
     val title: String,
     val content: String,
     val timestamp: Long,
-    @PrimaryKey val id: Int? = null
+    @PrimaryKey val id: Long? = null
 )
 
 class InvalidRecipeException(@StringRes message: Int) : Exception()
