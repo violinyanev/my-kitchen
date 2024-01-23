@@ -35,12 +35,12 @@ class RecipeServiceWrapper(private val recipeService: RecipeService) {
                     } ?: {
                         // TODO improve handling here
                         Log.e("RECIPES", "General API failure: " + response.message())
-                        throw Exception("Empty body")
+                        throw BackendException(customMessage = "General API failure: " + response.message())
                     }
                 } else {
                     // TODO improve handling here
                     Log.e("RECIPES", "General API failure: " + response.message())
-                    throw Exception("Failed web request")
+                    throw BackendException(customMessage = "General API failure: " + response.message())
                 }
 
                 val dbRecipes = dao.getRecipes()
