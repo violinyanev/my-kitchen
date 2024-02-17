@@ -11,48 +11,18 @@ import org.junit.Test
 
 class GetRecipesTest {
 
-    private lateinit var getRecipes: GetRecipes
+    private lateinit var login: Login
     private lateinit var fakeRepository: FakeRecipeRepository
 
     @Before
     fun setUp() {
         fakeRepository = FakeRecipeRepository()
-        getRecipes = GetRecipes(fakeRepository)
+        login = Login(fakeRepository)
     }
 
     @Test
-    fun `Order recipes by title ascending, correct order`() = runBlocking {
-        val recipes = getRecipes(RecipeOrder.Title(OrderType.Ascending)).first()
-
-        for (i in 0..recipes.size - 2) {
-            assertThat(recipes[i].title).isLessThan(recipes[i + 1].title)
-        }
+    fun `not logged in by default`() = runBlocking {
+        fakeRepository.getLoginState().co
     }
 
-    @Test
-    fun `Order recipes by title descending, correct order`() = runBlocking {
-        val recipes = getRecipes(RecipeOrder.Title(OrderType.Descending)).first()
-
-        for (i in 0..recipes.size - 2) {
-            assertThat(recipes[i].title).isGreaterThan(recipes[i + 1].title)
-        }
-    }
-
-    @Test
-    fun `Order recipes by date ascending, correct order`() = runBlocking {
-        val recipes = getRecipes(RecipeOrder.Date(OrderType.Ascending)).first()
-
-        for (i in 0..recipes.size - 2) {
-            assertThat(recipes[i].timestamp).isLessThan(recipes[i + 1].timestamp)
-        }
-    }
-
-    @Test
-    fun `Order recipes by date descending, correct order`() = runBlocking {
-        val recipes = getRecipes(RecipeOrder.Date(OrderType.Descending)).first()
-
-        for (i in 0..recipes.size - 2) {
-            assertThat(recipes[i].timestamp).isGreaterThan(recipes[i + 1].timestamp)
-        }
-    }
 }

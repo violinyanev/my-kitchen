@@ -16,4 +16,7 @@ interface RecipeService {
 
     @DELETE("/recipes/{recipeId}")
     fun deleteRecipe(@Path("recipeId") recipeId: Int): Call<Void>
+
+    @POST("/users/login")
+    fun login(@Body loginRequest: LoginRequest): Call<LoginResult>
 }

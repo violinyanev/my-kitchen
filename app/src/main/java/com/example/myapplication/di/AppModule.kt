@@ -11,13 +11,13 @@ import com.example.myapplication.recipes.domain.usecase.AddRecipe
 import com.example.myapplication.recipes.domain.usecase.DeleteRecipe
 import com.example.myapplication.recipes.domain.usecase.GetRecipe
 import com.example.myapplication.recipes.domain.usecase.GetRecipes
+import com.example.myapplication.recipes.domain.usecase.GetSyncState
+import com.example.myapplication.recipes.domain.usecase.Login
 import com.example.myapplication.recipes.domain.usecase.Recipes
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -35,16 +35,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideRecipeService(): RecipeServiceWrapper {
-        // TODO Make configurable
-        val baseUrl = "https://ultraviolince.com:8019"
-        return RecipeServiceWrapper(
-            Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(RecipeService::class.java)
-        )
+    fun provideRecipeService(db: RecipeDatabase): RecipeServiceWrapper {
+        return RecipeServiceWrapper(db.recipeDao)
     }
 
     @Provides
@@ -57,6 +49,8 @@ class AppModule {
     @Singleton
     fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
         return Recipes(
+            login = Login(repository),
+            getSyncState = GetSyncState(repository),
             getRecipes = GetRecipes(repository),
             deleteRecipe = DeleteRecipe(repository),
             addRecipe = AddRecipe(repository),
