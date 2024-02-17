@@ -1,19 +1,13 @@
 package com.example.myapplication.recipes.data.datasource.backend
 
-import android.util.Log
 import com.example.myapplication.recipes.data.datasource.localdb.RecipeDao
 import com.example.myapplication.recipes.domain.model.Recipe
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class RecipeServiceWrapper(private val recipeService: RecipeService) {
     // TODO fix this
     suspend fun syncToDao(dao: RecipeDao) {
+        // TODO re-enable after auth is fixed
+        /*
         runBlocking {
             launch(Dispatchers.IO) {
                 val response = recipeService.getRecipes().execute()
@@ -51,11 +45,12 @@ class RecipeServiceWrapper(private val recipeService: RecipeService) {
                     }
                 }
             }
-        }
+        }*/
     }
 
     fun insertRecipe(recipeId: Long, recipe: Recipe) {
-        recipeService.createRecipe(
+        // TODO re-enable after auth is fixed
+        /*recipeService.createRecipe(
             BackendRecipe(
                 id = recipeId,
                 title = recipe.title,
@@ -81,6 +76,6 @@ class RecipeServiceWrapper(private val recipeService: RecipeService) {
                     Log.d("RECIPES", "Error creating recipe!! ")
                 }
             }
-        )
+        )*/
     }
 }
