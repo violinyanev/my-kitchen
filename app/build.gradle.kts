@@ -124,6 +124,8 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     detektPlugins(libs.detektTwitterPlugin)
     detektPlugins(libs.detektFormattingPlugin)
