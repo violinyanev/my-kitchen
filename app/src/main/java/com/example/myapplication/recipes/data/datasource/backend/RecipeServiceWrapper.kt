@@ -14,6 +14,8 @@ import retrofit2.Response
 class RecipeServiceWrapper(private val recipeService: RecipeService) {
     // TODO fix this
     suspend fun syncToDao(dao: RecipeDao) {
+        // TODO re-enable after auth is fixed
+        /*
         runBlocking {
             launch(Dispatchers.IO) {
                 val response = recipeService.getRecipes().execute()
@@ -51,11 +53,12 @@ class RecipeServiceWrapper(private val recipeService: RecipeService) {
                     }
                 }
             }
-        }
+        }*/
     }
 
     fun insertRecipe(recipeId: Long, recipe: Recipe) {
-        recipeService.createRecipe(
+        // TODO re-enable after auth is fixed
+        /*recipeService.createRecipe(
             BackendRecipe(
                 id = recipeId,
                 title = recipe.title,
@@ -81,6 +84,6 @@ class RecipeServiceWrapper(private val recipeService: RecipeService) {
                     Log.d("RECIPES", "Error creating recipe!! ")
                 }
             }
-        )
+        )*/
     }
 }
