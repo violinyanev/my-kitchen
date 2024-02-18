@@ -29,7 +29,6 @@ class RecipeServiceWrapper {
                 .build()
                 .create(RecipeService::class.java)
         } catch (e: java.lang.IllegalArgumentException) {
-            // TODO internationalize
             return LoginState.LoginFailure(R.string.malformed_server_uri)
         } catch (e: HttpException) {
             return LoginState.LoginFailure(R.string.wrong_credentials)
