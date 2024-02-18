@@ -10,7 +10,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 class RecipeServiceWrapper {
 
     private var recipeService: RecipeService? = null
-    private var token: String? = null
 
     suspend fun login(server: String, email: String, password: String): LoginState {
         try {
@@ -20,21 +19,19 @@ class RecipeServiceWrapper {
                 .build()
                 .create(RecipeService::class.java)
 
-            token = tmpService.login(LoginRequest(email, password)).data.token
+            // TODO Store the token, don't force authentication all the time
+            val token = tmpService.login(LoginRequest(email, password)).data.token
+            recipeService = Retrofit.Builder()
+                    .baseUrl(server)
+                    .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(token)).build())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+                    .create(RecipeService::class.java)
         } catch (e: java.lang.IllegalArgumentException) {
             // TODO internationalize
             return LoginState.LoginFailure("Malformed server URL! Use http(s)://yourdomain.com(:port)")
         } catch (e: HttpException) {
             return LoginState.LoginFailure("Bad credentials!")
-        }
-
-        recipeService = token?.let {
-            Retrofit.Builder()
-                .baseUrl(server)
-                .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(it)).build())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(RecipeService::class.java)
         }
 
         return if (recipeService != null) {
