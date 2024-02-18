@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Retrofit
@@ -45,13 +46,28 @@ class BackendTest {
 
     @Test
     fun `logs in with test user`() = runTest {
-        val response = recipeService.login(LoginRequest(email = "test@user.com", password = "TestPassword")).execute()
+        val response = recipeService.login(LoginRequest(email = "test@user.com", password = "TestPassword"))
 
-        assertTrue(response.isSuccessful)
-        val data = response.body()!!.data
+        assertEquals(response.data.username, "testuser")
+        assertEquals(response.data.token, testToken)
+    }
 
-        assertEquals(data.username, "testuser")
-        assertEquals(data.token, testToken)
+    @Test
+    fun `fails to log in when email is not found`() {
+        assertThrows(retrofit2.HttpException::class.java) {
+            runTest {
+                recipeService.login(LoginRequest(email = "wrong", password = "TestPassword"))
+            }
+        }
+    }
+
+    @Test
+    fun `fails to log in with test user when password is wrong`() {
+        assertThrows(retrofit2.HttpException::class.java) {
+            runTest {
+                recipeService.login(LoginRequest(email = "test@user.com", password = "wrong password"))
+            }
+        }
     }
 
     @Test

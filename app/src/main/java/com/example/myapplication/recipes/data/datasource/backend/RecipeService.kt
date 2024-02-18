@@ -19,5 +19,5 @@ interface RecipeService {
     fun deleteRecipe(@Path("recipeId") recipeId: Long): Call<BackendRecipeResponse>
 
     @POST("/users/login")
-    fun login(@Body loginRequest: LoginRequest): Call<LoginResult>
+    suspend fun login(@Body loginRequest: LoginRequest): LoginResult
 }
