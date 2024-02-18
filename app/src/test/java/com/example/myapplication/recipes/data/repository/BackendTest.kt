@@ -71,6 +71,24 @@ class BackendTest {
     }
 
     @Test
+    fun `fails to list recipes when not authenticated`() {
+        assertThrows(retrofit2.HttpException::class.java) {
+            runTest {
+                recipeService.getRecipes()
+            }
+        }
+    }
+
+    @Test
+    fun `fails to create a recipe when not authenticated`() {
+        assertThrows(retrofit2.HttpException::class.java) {
+            runTest {
+                recipeService.createRecipe(BackendRecipe(id = 3, title = "test", body = "body", timestamp = 567L))
+            }
+        }
+    }
+
+    @Test
     fun `has empty list of recipes`() = runTest {
         val response = authenticatedService.getRecipes()
 
