@@ -22,11 +22,11 @@ class RecipeServiceWrapper {
             // TODO Store the token, don't force authentication all the time
             val token = tmpService.login(LoginRequest(email, password)).data.token
             recipeService = Retrofit.Builder()
-                    .baseUrl(server)
-                    .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(token)).build())
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create(RecipeService::class.java)
+                .baseUrl(server)
+                .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(token)).build())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(RecipeService::class.java)
         } catch (e: java.lang.IllegalArgumentException) {
             // TODO internationalize
             return LoginState.LoginFailure("Malformed server URL! Use http(s)://yourdomain.com(:port)")
