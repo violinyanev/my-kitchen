@@ -1,30 +1,31 @@
 package com.example.myapplication.recipes.data.repository
 
-import android.util.Log
 import com.example.myapplication.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.example.myapplication.recipes.data.datasource.localdb.RecipeDao
 import com.example.myapplication.recipes.domain.model.Recipe
+import com.example.myapplication.recipes.domain.repository.LoginState
 import com.example.myapplication.recipes.domain.repository.RecipeRepository
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
 
-// TODO Split into API code
-@OptIn(DelicateCoroutinesApi::class)
 class RecipeRepositoryImpl(
     private val dao: RecipeDao,
     private val recipeService: RecipeServiceWrapper
 ) : RecipeRepository {
-    override fun getRecipes(): Flow<List<Recipe>> {
-        return dao.getRecipes()
+
+    private val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
+
+    override suspend fun login(server: String, email: String, password: String) {
+        loginState.emit(LoginState.LoginPending)
+        loginState.emit(recipeService.login(server=server, email = email, password = password))
     }
 
-    init {
-        // TODO improve
-        GlobalScope.launch {
-            recipeService.syncToDao(dao)
-        }
+    override fun getLoginState(): Flow<LoginState> {
+        return loginState
+    }
+
+    override fun getRecipes(): Flow<List<Recipe>> {
+        return dao.getRecipes()
     }
 
     override suspend fun getRecipeById(id: Long): Recipe? {
@@ -33,9 +34,7 @@ class RecipeRepositoryImpl(
 
     override suspend fun insertRecipe(recipe: Recipe): Long {
         val recipeId = dao.insertRecipe(recipe)
-        // TODO remove log
-        Log.e("RECIPES", "Recipe id: $recipeId")
-        recipeService.insertRecipe(recipeId, recipe)
+        recipeService?.insertRecipe(recipeId, recipe)
         return recipeId
     }
 

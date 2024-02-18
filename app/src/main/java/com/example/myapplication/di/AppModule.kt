@@ -35,22 +35,10 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideRecipeService(): RecipeServiceWrapper {
-        // TODO Make configurable
-        val baseUrl = "https://ultraviolince.com:8019"
-        return RecipeServiceWrapper(
-            Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(RecipeService::class.java)
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideRecipeRepository(db: RecipeDatabase, service: RecipeServiceWrapper): RecipeRepository {
-        return RecipeRepositoryImpl(db.recipeDao, service)
+    fun provideRecipeRepository(
+        db: RecipeDatabase
+    ): RecipeRepository {
+        return RecipeRepositoryImpl(db.recipeDao, RecipeServiceWrapper())
     }
 
     @Provides
