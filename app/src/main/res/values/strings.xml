@@ -10,6 +10,9 @@
     <string name="sort" translation_description="Content description for the sort button">Sort</string>
     <string name="sort_descending" translation_description="The text shown when sorting in descending order">Descending</string>
     <string name="sort_ascending" translation_description="The text shown when sorting in ascending order">Ascending</string>
+    <string name="malformed_server_uri" translation_description="Error text shown when the server URI is empty or malformed">"Malformed server URL! Use http(s)://yourdomain.com(:port)"</string>
+    <string name="wrong_credentials" translation_description="Error text shown when username and password don't match">Bad credentials!</string>
+    <string name="unknown_error" translation_description="Error text shown when an unexpected error happened">Unexpected internal error! Please report a bug</string>
 
     <!-- Recipes add/edit screen -->
     <string name="title_hint" translation_description="The placeholder text shown when the title of a recipe is empty">Title</string>
