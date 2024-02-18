@@ -1,62 +1,46 @@
 package com.example.myapplication.recipes.data.repository
 
+import com.example.myapplication.recipes.data.datasource.backend.AuthInterceptor
 import com.example.myapplication.recipes.data.datasource.backend.BackendRecipe
 import com.example.myapplication.recipes.data.datasource.backend.LoginRequest
 import com.example.myapplication.recipes.data.datasource.backend.RecipeService
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class AuthInterceptor(private val authToken: String) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val originalRequest = chain.request()
-        val modifiedRequest = originalRequest.newBuilder()
-            .header("Authorization", "Bearer $authToken")
-            .build()
-        return chain.proceed(modifiedRequest)
-    }
-}
-
 class BackendTest {
 
-    private val server = "https://ultraviolince.com:8019"
-    private val testToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3R1c2VyIn0.hgvrPuJ1j0PlnnsvYD2mHiFpDycfMgvPYd6ilI3wX78"
-
     private val recipeService = Retrofit.Builder()
-        .baseUrl(server)
+        .baseUrl(FakeBackend.server)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(RecipeService::class.java)
 
-    private val httpClient = OkHttpClient.Builder().addInterceptor(AuthInterceptor(testToken)).build()
-
     private val authenticatedService = Retrofit.Builder()
-        .baseUrl(server)
-        .client(httpClient)
+        .baseUrl(FakeBackend.server)
+        .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(FakeBackend.testToken)).build())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(RecipeService::class.java)
 
     @Test
     fun `logs in with test user`() = runTest {
-        val response = recipeService.login(LoginRequest(email = "test@user.com", password = "TestPassword"))
+        val response = recipeService.login(LoginRequest(email = FakeBackend.testUser, password = FakeBackend.testPassword))
 
-        assertEquals(response.data.username, "testuser")
-        assertEquals(response.data.token, testToken)
+        assertEquals(response.data.username, FakeBackend.testUserName)
+        assertEquals(response.data.token, FakeBackend.testToken)
     }
 
     @Test
     fun `fails to log in when email is not found`() {
         assertThrows(retrofit2.HttpException::class.java) {
             runTest {
-                recipeService.login(LoginRequest(email = "wrong", password = "TestPassword"))
+                recipeService.login(LoginRequest(email = "wrong", password = FakeBackend.testPassword))
             }
         }
     }
@@ -65,7 +49,7 @@ class BackendTest {
     fun `fails to log in with test user when password is wrong`() {
         assertThrows(retrofit2.HttpException::class.java) {
             runTest {
-                recipeService.login(LoginRequest(email = "test@user.com", password = "wrong password"))
+                recipeService.login(LoginRequest(email = FakeBackend.testUser, password = "wrong password"))
             }
         }
     }
