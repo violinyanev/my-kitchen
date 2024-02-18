@@ -27,4 +27,3 @@ class RecipeServiceWrapperTest {
         assertEquals(result, LoginState.LoginFailure("Bad credentials!"))
     }
 }
-

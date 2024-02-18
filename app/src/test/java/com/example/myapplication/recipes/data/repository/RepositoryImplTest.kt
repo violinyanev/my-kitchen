@@ -29,20 +29,18 @@ class RepositoryImplTest {
 
     @Test
     fun `logs in to server successfully`() = runTest {
-         val loginState = repository.getLoginState()
+        val loginState = repository.getLoginState()
 
         coEvery { serviceMock.login(any(), any(), any()) } returns LoginState.LoginSuccess
 
         loginState.test {
-
             repository.login("a", "b", "c")
             assertEquals(awaitItem(), LoginState.LoginEmpty)
             assertEquals(awaitItem(), LoginState.LoginPending)
             assertEquals(awaitItem(), LoginState.LoginSuccess)
         }
 
-        coVerify{ serviceMock.login("a", "b", "c") }
-
+        coVerify { serviceMock.login("a", "b", "c") }
     }
 
     @Test
@@ -58,7 +56,6 @@ class RepositoryImplTest {
             assertEquals(awaitItem(), LoginState.LoginFailure("error"))
         }
 
-        coVerify{ serviceMock.login("a", "b", "c") }
+        coVerify { serviceMock.login("a", "b", "c") }
     }
 }
-

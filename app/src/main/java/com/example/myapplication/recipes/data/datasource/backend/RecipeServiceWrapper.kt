@@ -21,13 +21,10 @@ class RecipeServiceWrapper {
                 .create(RecipeService::class.java)
 
             token = tmpService.login(LoginRequest(email, password)).data.token
-        }
-        catch (e: java.lang.IllegalArgumentException)
-        {
+        } catch (e: java.lang.IllegalArgumentException) {
             // TODO internationalize
             return LoginState.LoginFailure("Malformed server URL! Use http(s)://yourdomain.com(:port)")
-        }
-        catch (e: HttpException) {
+        } catch (e: HttpException) {
             return LoginState.LoginFailure("Bad credentials!")
         }
 

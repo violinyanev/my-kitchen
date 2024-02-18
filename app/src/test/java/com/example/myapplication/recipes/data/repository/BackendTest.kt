@@ -4,7 +4,6 @@ import com.example.myapplication.recipes.data.datasource.backend.AuthInterceptor
 import com.example.myapplication.recipes.data.datasource.backend.BackendRecipe
 import com.example.myapplication.recipes.data.datasource.backend.LoginRequest
 import com.example.myapplication.recipes.data.datasource.backend.RecipeService
-import com.example.myapplication.recipes.data.repository.FakeBackend
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
@@ -15,7 +14,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class BackendTest {
-
 
     private val recipeService = Retrofit.Builder()
         .baseUrl(FakeBackend.server)

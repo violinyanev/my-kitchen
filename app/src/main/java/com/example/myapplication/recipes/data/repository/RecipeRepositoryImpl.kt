@@ -17,7 +17,7 @@ class RecipeRepositoryImpl(
 
     override suspend fun login(server: String, email: String, password: String) {
         loginState.emit(LoginState.LoginPending)
-        loginState.emit(recipeService.login(server=server, email = email, password = password))
+        loginState.emit(recipeService.login(server = server, email = email, password = password))
     }
 
     override fun getLoginState(): Flow<LoginState> {
