@@ -72,29 +72,21 @@ class BackendTest {
 
     @Test
     fun `has empty list of recipes`() = runTest {
-        val response = authenticatedService.getRecipes().execute()
+        val response = authenticatedService.getRecipes()
 
-        assertTrue(response.isSuccessful)
-        val body = response.body()!!
-
-        assertTrue(body.isEmpty())
+        assertTrue(response.isEmpty())
     }
 
     @Test
     fun `creates and deletes a recipe`() = runTest {
         val id = 123L
-        val createResponse = authenticatedService.createRecipe(BackendRecipe(id = id, title = "test", body = "body", timestamp = 567L)).execute()
+        val createResponse = authenticatedService.createRecipe(BackendRecipe(id = id, title = "test", body = "body", timestamp = 567L))
 
-        assertTrue(createResponse.isSuccessful)
+        assertEquals("test", createResponse.recipe.title)
+        assertEquals("body", createResponse.recipe.body)
+        assertEquals(id, createResponse.recipe.id)
+        assertEquals(567L, createResponse.recipe.timestamp)
 
-        val body = createResponse.body()!!
-        assertEquals("test", body.recipe.title)
-        assertEquals("body", body.recipe.body)
-        assertEquals(id, body.recipe.id)
-        assertEquals(567L, body.recipe.timestamp)
-
-        val deleteResponse = authenticatedService.deleteRecipe(recipeId = id).execute()
-
-        assertTrue(deleteResponse.isSuccessful)
+        authenticatedService.deleteRecipe(recipeId = id)
     }
 }
