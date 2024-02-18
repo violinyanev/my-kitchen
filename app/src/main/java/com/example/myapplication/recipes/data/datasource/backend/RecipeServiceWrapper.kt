@@ -1,5 +1,6 @@
 package com.example.myapplication.recipes.data.datasource.backend
 
+import com.example.myapplication.R
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.domain.repository.LoginState
 import okhttp3.OkHttpClient
@@ -28,16 +29,15 @@ class RecipeServiceWrapper {
                 .build()
                 .create(RecipeService::class.java)
         } catch (e: java.lang.IllegalArgumentException) {
-            // TODO internationalize
-            return LoginState.LoginFailure("Malformed server URL! Use http(s)://yourdomain.com(:port)")
+            return LoginState.LoginFailure(R.string.malformed_server_uri)
         } catch (e: HttpException) {
-            return LoginState.LoginFailure("Bad credentials!")
+            return LoginState.LoginFailure(R.string.wrong_credentials)
         }
 
         return if (recipeService != null) {
             LoginState.LoginSuccess
         } else {
-            LoginState.LoginFailure("Unknown error")
+            LoginState.LoginFailure(R.string.unknown_error)
         }
     }
 

@@ -13,4 +13,7 @@
     <string name="your_recipes">Rezepte</string>
     <string name="missing_title">Der Rezepttitel darf nicht leer sein</string>
     <string name="missing_body">Der Rezepinhalt darf nicht leer sein</string>
+    <string name="malformed_server_uri">Falsche Server addresse! Erwartetes format http(s)://yourdomain.com(:port)</string>
+    <string name="wrong_credentials">Falscher login/passwort</string>
+    <string name="unknown_error">Unerwarter Fehler! Bitte als melden</string>
 </resources>
