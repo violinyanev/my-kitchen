@@ -8,8 +8,10 @@ import com.example.myapplication.recipes.data.repository.RecipeRepositoryImpl
 import com.example.myapplication.recipes.domain.repository.RecipeRepository
 import com.example.myapplication.recipes.domain.usecase.AddRecipe
 import com.example.myapplication.recipes.domain.usecase.DeleteRecipe
+import com.example.myapplication.recipes.domain.usecase.GetLoginState
 import com.example.myapplication.recipes.domain.usecase.GetRecipe
 import com.example.myapplication.recipes.domain.usecase.GetRecipes
+import com.example.myapplication.recipes.domain.usecase.Login
 import com.example.myapplication.recipes.domain.usecase.Recipes
 import dagger.Module
 import dagger.Provides
@@ -42,6 +44,8 @@ class AppModule {
     @Singleton
     fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
         return Recipes(
+            login = Login(repository),
+            getSyncState = GetLoginState(repository),
             getRecipes = GetRecipes(repository),
             deleteRecipe = DeleteRecipe(repository),
             addRecipe = AddRecipe(repository),

@@ -1,8 +1,12 @@
 package com.example.myapplication.recipes.data.datasource.backend
 
+import android.util.Log
 import com.example.myapplication.R
+import com.example.myapplication.recipes.data.datasource.localdb.RecipeDao
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.domain.repository.LoginState
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.last
 import okhttp3.OkHttpClient
 import retrofit2.HttpException
 import retrofit2.Retrofit
@@ -41,76 +45,54 @@ class RecipeServiceWrapper {
         }
     }
 
-    // TODO fix this
-    private suspend fun sync() {
-        /*runBlocking {
-            launch(Dispatchers.IO) {
-                val response = recipeService?.getRecipes()?.execute()
-
-                if (response?.isSuccessful == true) {
-                    response.body()?.let {
-                        for (r in it.iterator()) {
-                            runBlocking {
-                                dao.insertRecipe(
-                                    Recipe(
-                                        id = r.id,
-                                        title = r.title,
-                                        content = r.body,
-                                        timestamp = r.timestamp
-                                    )
-                                )
-                            }
-                        }
-                    } ?: {
-                        // TODO improve handling here
-                        Log.e("RECIPES", "General API failure: " + response.message())
-                        throw BackendException(customMessage = "General API failure: " + response.message())
-                    }
-                } else {
-                    // TODO improve handling here
-                    Log.e("RECIPES", "General API failure: " + response?.message())
-                    throw BackendException(customMessage = "General API failure: " + response?.message())
-                }
-
-                val dbRecipes = dao.getRecipes()
-
-                dbRecipes.collectLatest {
-                    for (r in it.iterator()) {
-                        insertRecipe(r.id!!, r)
-                    }
-                }
-            }
-        }*/
-    }
-
-    fun insertRecipe(recipeId: Long, recipe: Recipe) {
-        // TODO re-enable after auth is fixed
-        /*recipeService.createRecipe(
+    suspend fun insertRecipe(recipeId: Long, recipe: Recipe) {
+        // TODO check response
+        recipeService?.createRecipe(
             BackendRecipe(
                 id = recipeId,
                 title = recipe.title,
                 body = recipe.content,
                 timestamp = recipe.timestamp
             )
-        )?.enqueue(
-            object :
-                Callback<BackendRecipe> {
-                override fun onResponse(
-                    call: Call<BackendRecipe>,
-                    response: Response<BackendRecipe>
-                ) {
-                    // TODO affect synced status
-                    Log.d("RECIPES", "Recipe created! ")
-                }
+        )
+    }
 
-                override fun onFailure(
-                    call: Call<BackendRecipe>,
-                    t: Throwable
-                ) {
-                    // TODO proper error handling
-                    Log.d("RECIPES", "Error creating recipe!! ")
+    suspend fun deleteRecipe(recipeId: Long) {
+        // TODO check response
+        recipeService?.deleteRecipe(recipeId = recipeId)
+    }
+
+    suspend fun sync(dao: RecipeDao) {
+        recipeService?.let { service ->
+            val existingRecipes = mutableSetOf<Long>()
+
+            for (r in service.getRecipes()) {
+                dao.insertRecipe(
+                    Recipe(
+                        id = r.id,
+                        title = r.title,
+                        content = r.body,
+                        timestamp = r.timestamp
+                    )
+                )
+                existingRecipes.add(r.id)
+            }
+
+            val dbRecipes = dao.getRecipes()
+
+            Log.e("RECIPES", "Before1")
+            val currentDbRecipes = dbRecipes.last()
+
+            Log.e("RECIPES", "Before2")
+
+            for (r in currentDbRecipes) {
+                r.id?.let {
+                    if(!existingRecipes.contains(it)){
+                        insertRecipe(it, r)
+                    }
                 }
             }
-        )*/
+            Log.e("RECIPES", "After")
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.myapplication.recipes.presentation.recipes
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -25,9 +26,11 @@ class RecipeViewModel @Inject constructor(
     private var recentlyDeletedRecipe: Recipe? = null
 
     private var getRecipesJob: Job? = null
+    private var getLoginJob: Job? = null
 
     init {
         getRecipes(RecipeOrder.Date(state.value.recipeOrder.orderType))
+        getLoginStatus()
     }
 
     fun onEvent(event: RecipesEvent) {
@@ -70,6 +73,19 @@ class RecipeViewModel @Inject constructor(
                 _state.value = state.value.copy(
                     recipes = recipes,
                     recipeOrder = recipesOrder
+                )
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun getLoginStatus() {
+        getLoginJob?.cancel()
+        getLoginJob = recipesUseCases.getSyncState()
+            .onEach {
+                    syncState ->
+                Log.i("RECIPES", "State $syncState")
+                _state.value = state.value.copy(
+                    syncState = syncState
                 )
             }
             .launchIn(viewModelScope)

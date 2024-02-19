@@ -17,7 +17,12 @@ class RecipeRepositoryImpl(
 
     override suspend fun login(server: String, email: String, password: String) {
         loginState.emit(LoginState.LoginPending)
-        loginState.emit(recipeService.login(server = server, email = email, password = password))
+        val loginResult = recipeService.login(server = server, email = email, password = password)
+        loginState.emit(loginResult)
+
+        if (loginResult == LoginState.LoginSuccess) {
+            recipeService.sync(dao)
+        }
     }
 
     override fun getLoginState(): Flow<LoginState> {
@@ -34,11 +39,12 @@ class RecipeRepositoryImpl(
 
     override suspend fun insertRecipe(recipe: Recipe): Long {
         val recipeId = dao.insertRecipe(recipe)
-        recipeService?.insertRecipe(recipeId, recipe)
+        recipeService.insertRecipe(recipeId, recipe)
         return recipeId
     }
 
     override suspend fun deleteRecipe(recipe: Recipe) {
+        recipeService.deleteRecipe(recipe.id!!)
         return dao.deleteRecipe(recipe)
     }
 }
