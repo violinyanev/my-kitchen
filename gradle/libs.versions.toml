@@ -1,12 +1,12 @@
 
 [versions]
 activityCompose = "1.8.2"
-androidGradlePlugin = "8.2.1"
+androidGradlePlugin = "8.2.2"
 
 # @keep
 compileSdk = "34"
-composeLatest = "1.6.0-beta03"
-composeBom = "2023.10.01"
+composeLatest = "1.6.1"
+composeBom = "2024.02.00"
 compose-compiler = "1.5.7"
 constraintLayoutCompose = "1.0.1"
 coreTesting = "2.2.0"
@@ -25,23 +25,23 @@ ktlint = "11.6.1"
 detekt = "1.23.3"
 twitterDetekt = "0.0.26" # When changing this version, also update .idea/detekt.xml accordingly
 ktx = "1.12.0"
-lifecycle = "2.7.0-rc02"
-material = "1.12.0-alpha02"
-material3 = "1.1.2"
+lifecycle = "2.7.0"
+material = "1.12.0-alpha03"
+material3 = "1.2.0"
 
 # @keep
 minSdk = "28"
 monitor = "1.6.1"
-navigation = "2.7.6"
+navigation = "2.7.7"
 okhttpLogging = "4.10.0"
-pagingCompose = "3.3.0-alpha02"
+pagingCompose = "3.3.0-alpha03"
 room = "2.6.1"
 
 # @keep
 targetSdk = "33"
 testExtJunit = "1.1.5"
 uiAutomator = "2.2.0"
-viewModelCompose = "2.6.2"
+viewModelCompose = "2.7.0"
 work = "2.9.0"
 ksp = "1.9.10-1.0.13"
 kover = "0.7.4"
