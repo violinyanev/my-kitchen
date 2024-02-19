@@ -1,12 +1,9 @@
 package com.example.myapplication.recipes.data.datasource.backend
 
-import android.util.Log
 import com.example.myapplication.R
 import com.example.myapplication.recipes.data.datasource.localdb.RecipeDao
 import com.example.myapplication.recipes.domain.model.Recipe
 import com.example.myapplication.recipes.domain.repository.LoginState
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.last
 import okhttp3.OkHttpClient
 import retrofit2.HttpException
 import retrofit2.Retrofit
