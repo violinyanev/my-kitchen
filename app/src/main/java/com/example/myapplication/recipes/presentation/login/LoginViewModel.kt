@@ -22,7 +22,7 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
     private val _server = mutableStateOf(
         RecipeTextFieldState(
-            text = "https://ultraviolince.com:8019", // TODO remove default
+            text = "",
             hintStringId = R.string.server_hint
         )
     )
@@ -30,7 +30,7 @@ class LoginViewModel @Inject constructor(
     private val _username = mutableStateOf(
         RecipeTextFieldState(
             hintStringId = R.string.username_hint,
-            text = "test@user.com"
+            text = ""
         )
     )
     val username: State<RecipeTextFieldState> = _username
@@ -40,7 +40,7 @@ class LoginViewModel @Inject constructor(
     private val _password = mutableStateOf(
         RecipeTextFieldState(
             hintStringId = R.string.password_hint,
-            text = "TestPassword" // TODO remove default
+            text = ""
         )
     )
     val password: State<RecipeTextFieldState> = _password
