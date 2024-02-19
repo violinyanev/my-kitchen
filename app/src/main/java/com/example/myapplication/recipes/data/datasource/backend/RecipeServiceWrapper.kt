@@ -78,7 +78,7 @@ class RecipeServiceWrapper {
                 existingRecipes.add(r.id)
             }
 
-            val dbRecipes = dao.getRecipes()
+            /*val dbRecipes = dao.getRecipes()
 
             Log.e("RECIPES", "Before1")
             val currentDbRecipes = dbRecipes.last()
@@ -92,7 +92,7 @@ class RecipeServiceWrapper {
                     }
                 }
             }
-            Log.e("RECIPES", "After")
+            Log.e("RECIPES", "After")*/
         }
     }
 }
