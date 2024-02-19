@@ -19,7 +19,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.SyncProblem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.myapplication.R
 import com.example.myapplication.recipes.domain.model.Recipe
+import com.example.myapplication.recipes.domain.repository.LoginState
 import com.example.myapplication.recipes.presentation.recipes.components.OrderSection
 import com.example.myapplication.recipes.presentation.recipes.components.RecipeItem
 import com.example.myapplication.recipes.presentation.util.Screen
@@ -54,6 +58,11 @@ fun RecipeScreen(
     RecipeScreenContent(
         onAddRecipe = {
             navController.navigate(Screen.AddEditRecipeScreen.route)
+        },
+        onLoginClick = {
+            navController.navigate(
+                Screen.LoginScreen.route
+            )
         },
         onSortClick = {
             viewModel.onEvent(RecipesEvent.ToggleOrderSection)
@@ -76,6 +85,7 @@ fun RecipeScreen(
 private fun RecipeScreenContent(
     onAddRecipe: () -> Unit,
     onSortClick: () -> Unit,
+    onLoginClick: () -> Unit,
     onEvent: (RecipesEvent) -> Unit,
     onRecipeClicked: (Recipe) -> Unit,
     recipeState: RecipesState
@@ -105,6 +115,34 @@ private fun RecipeScreenContent(
                         imageVector = Icons.Default.FilterList,
                         contentDescription = stringResource(id = R.string.sort)
                     )
+                }
+                IconButton(
+                    onClick = onLoginClick
+                ) {
+                    when (recipeState.syncState) {
+                        LoginState.LoginEmpty ->
+                            Icon(
+                                imageVector = Icons.Default.SyncProblem,
+                                contentDescription = stringResource(id = R.string.sync_disabled)
+                            )
+
+                        LoginState.LoginPending ->
+                            Icon(
+                                imageVector = Icons.Default.Sync,
+                                contentDescription = stringResource(id = R.string.sync_loading)
+                            )
+
+                        LoginState.LoginSuccess ->
+                            Icon(
+                                imageVector = Icons.Default.CloudSync,
+                                contentDescription = stringResource(id = R.string.sync_enabled)
+                            )
+                        is LoginState.LoginFailure ->
+                            Icon(
+                                imageVector = Icons.Default.SyncProblem,
+                                contentDescription = stringResource(id = R.string.sync_disabled)
+                            )
+                    }
                 }
             }
             AnimatedVisibility(
@@ -142,6 +180,10 @@ private fun RecipeScreenContent(
 class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<RecipesState> {
     override val values = sequenceOf(
         RecipesState(),
+        RecipesState(syncState = LoginState.LoginEmpty),
+        RecipesState(syncState = LoginState.LoginPending),
+        RecipesState(syncState = LoginState.LoginSuccess),
+        RecipesState(syncState = LoginState.LoginFailure(R.string.sync_disabled)),
         RecipesState(
             recipes = List(10) { index ->
                 Recipe(
@@ -162,6 +204,7 @@ private fun RecipeScreenPreviewRealistic(
     MyApplicationTheme {
         RecipeScreenContent(
             onAddRecipe = {},
+            onLoginClick = {},
             onSortClick = {},
             onEvent = {},
             onRecipeClicked = {},

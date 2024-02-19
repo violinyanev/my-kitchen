@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.myapplication.recipes.presentation.editrecipe.AddEditRecipeScreen
+import com.example.myapplication.recipes.presentation.login.LoginScreen
 import com.example.myapplication.recipes.presentation.recipes.RecipeScreen
 import com.example.myapplication.recipes.presentation.util.Screen
 import com.example.myapplication.ui.theme.MyApplicationTheme
@@ -43,6 +44,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
             navController = navController,
             startDestination = Screen.RecipesScreen.route
         ) {
+            composable(route = Screen.LoginScreen.route) {
+                LoginScreen(navController = navController)
+            }
             composable(route = Screen.RecipesScreen.route) {
                 RecipeScreen(navController = navController)
             }

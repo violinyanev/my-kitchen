@@ -49,8 +49,7 @@ class FakeRecipeRepository : RecipeRepository {
         recipes.remove(recipe)
     }
 
-    override suspend fun login(server: String, username: String, password: String) {
-        TODO("Not yet implemented")
+    override suspend fun login(server: String, email: String, password: String) {
     }
 
     override fun getLoginState(): Flow<LoginState> {
