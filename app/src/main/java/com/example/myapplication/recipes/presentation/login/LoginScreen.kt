@@ -33,6 +33,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -107,7 +109,8 @@ fun LoginScreenContent(
                     if (!buttonLoading) {
                         eventHandler(LoginEvent.Login)
                     }
-                }
+                },
+                modifier = Modifier.semantics { contentDescription = "Login" }
             ) {
                 if (buttonLoading) {
                     val rotationAnimatable = remember {
@@ -164,6 +167,7 @@ fun LoginScreenContent(
                         .onFocusChanged {
                             eventHandler(LoginEvent.ChangeServerFocus(it))
                         }
+                        .semantics { contentDescription = "Server URI" }
                 )
             }
 
@@ -187,6 +191,7 @@ fun LoginScreenContent(
                         .onFocusChanged {
                             eventHandler(LoginEvent.ChangeUsernameFocus(it))
                         }
+                        .semantics { contentDescription = "User name" }
                 )
             }
 
@@ -210,6 +215,7 @@ fun LoginScreenContent(
                         .onFocusChanged {
                             eventHandler(LoginEvent.ChangePasswordFocus(it))
                         }
+                        .semantics { contentDescription = "Password" }
                 )
             }
         }
