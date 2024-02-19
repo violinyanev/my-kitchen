@@ -1,5 +1,6 @@
 package com.example.myapplication.recipes.presentation.editrecipe
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -95,7 +96,7 @@ class AddEditRecipeViewModel @Inject constructor(
                     } catch (e: InvalidRecipeException) {
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
-                                message = e.message ?: "Couldn't save recipe"
+                                message = e.errorString
                             )
                         )
                     }
@@ -105,7 +106,7 @@ class AddEditRecipeViewModel @Inject constructor(
     }
 
     sealed class UiEvent {
-        data class ShowSnackbar(val message: String) : UiEvent()
+        data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
         object SaveRecipe : UiEvent()
     }
 }
