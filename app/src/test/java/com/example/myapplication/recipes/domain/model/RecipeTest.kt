@@ -1,6 +1,5 @@
 package com.example.myapplication.recipes.domain.model
 
-import com.example.myapplication.recipes.domain.model.Recipe
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -1,8 +1,6 @@
 package com.example.myapplication.recipes.data.datasource.backend
 
 import com.example.myapplication.R
-import com.example.myapplication.recipes.data.datasource.backend.FakeBackend
-import com.example.myapplication.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.example.myapplication.recipes.domain.repository.LoginState
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
