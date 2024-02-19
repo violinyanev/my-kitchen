@@ -1,4 +1,4 @@
-package com.example.myapplication.recipes.data.repository
+package com.example.myapplication.recipes.data.datasource.backend
 
 class FakeBackend {
     // TODO use real test server

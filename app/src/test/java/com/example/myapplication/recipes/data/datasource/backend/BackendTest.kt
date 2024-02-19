@@ -1,9 +1,5 @@
-package com.example.myapplication.recipes.data.repository
+package com.example.myapplication.recipes.data.datasource.backend
 
-import com.example.myapplication.recipes.data.datasource.backend.AuthInterceptor
-import com.example.myapplication.recipes.data.datasource.backend.BackendRecipe
-import com.example.myapplication.recipes.data.datasource.backend.LoginRequest
-import com.example.myapplication.recipes.data.datasource.backend.RecipeService
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
