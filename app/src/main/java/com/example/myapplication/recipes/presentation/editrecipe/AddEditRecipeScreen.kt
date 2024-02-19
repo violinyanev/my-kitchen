@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -92,7 +94,8 @@ fun AddEditRecipeScreenContent(
             FloatingActionButton(
                 onClick = {
                     eventHandler(AddEditRecipeEvent.SaveRecipe)
-                }
+                },
+                modifier = Modifier.semantics { contentDescription = "Save recipe" }
             ) {
                 Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
             }
@@ -124,6 +127,7 @@ fun AddEditRecipeScreenContent(
                         .onFocusChanged {
                             eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
                         }
+                        .semantics { contentDescription = "Enter recipe title" }
                 )
             }
 
@@ -151,6 +155,7 @@ fun AddEditRecipeScreenContent(
                         .onFocusChanged {
                             eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
                         }
+                        .semantics { contentDescription = "Enter recipe content" }
                 )
             }
         }
