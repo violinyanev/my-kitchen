@@ -12,4 +12,4 @@ class Recipe(
     @PrimaryKey val id: Long? = null
 )
 
-class InvalidRecipeException(@StringRes message: Int) : Exception()
+class InvalidRecipeException(@StringRes val errorString: Int) : Exception()

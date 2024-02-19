@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -47,12 +48,15 @@ fun AddEditRecipeScreen(
 
     val snackBarHostState = remember { SnackbarHostState() }
 
+    // TODO better way?
+    val context = LocalContext.current
+
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is AddEditRecipeViewModel.UiEvent.ShowSnackbar -> {
                     snackBarHostState.showSnackbar(
-                        message = event.message
+                        message = context.resources.getString(event.message)
                     )
                 }
                 is AddEditRecipeViewModel.UiEvent.SaveRecipe -> {
