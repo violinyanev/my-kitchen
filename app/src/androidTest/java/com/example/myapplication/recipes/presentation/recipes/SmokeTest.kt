@@ -1,4 +1,4 @@
-package com.example.myapplication.recipes.presentation.recipes
+package com.ultraviolince.mykitchen.recipes.presentation.recipes
 
 import android.util.Log
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -13,7 +13,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
-import com.example.myapplication.recipes.presentation.MainActivity
+import com.ultraviolince.mykitchen.recipes.presentation.MainActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
