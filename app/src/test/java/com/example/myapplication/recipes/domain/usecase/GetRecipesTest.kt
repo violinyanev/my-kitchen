@@ -11,12 +11,14 @@ import org.junit.Test
 
 class GetRecipesTest {
 
+    private lateinit var getRecipe: GetRecipe
     private lateinit var getRecipes: GetRecipes
     private lateinit var fakeRepository: FakeRecipeRepository
 
     @Before
     fun setUp() {
         fakeRepository = FakeRecipeRepository()
+        getRecipe = GetRecipe(fakeRepository)
         getRecipes = GetRecipes(fakeRepository)
     }
 
@@ -54,5 +56,15 @@ class GetRecipesTest {
         for (i in 0..recipes.size - 2) {
             assertThat(recipes[i].timestamp).isGreaterThan(recipes[i + 1].timestamp)
         }
+    }
+
+    @Test
+    fun `Get recipe by id`() = runBlocking {
+        val recipeId = fakeRepository.getTestRecipes()[0]
+        val recipe = getRecipe(recipeId.id!!)
+
+        assertThat(recipe).isNotNull()
+        assertThat(recipe?.id).isEqualTo(recipeId.id!!)
+        assertThat(recipe?.title).isEqualTo(recipeId.title)
     }
 }

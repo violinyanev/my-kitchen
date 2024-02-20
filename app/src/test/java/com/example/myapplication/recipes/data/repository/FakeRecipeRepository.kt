@@ -18,7 +18,8 @@ class FakeRecipeRepository : RecipeRepository {
                 Recipe(
                     title = c.toString(),
                     content = c.toString(),
-                    timestamp = index.toLong()
+                    timestamp = index.toLong(),
+                    id = index.toLong()
                 )
             )
         }
