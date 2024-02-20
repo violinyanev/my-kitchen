@@ -13,17 +13,17 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myapplication"
+    namespace = "com.ultraviolince.mykitchen"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.example.myapplication"
+        applicationId = "com.ultraviolince.mykitchen"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "com.example.myapplication.recipes.utils.TestRunner"
+        testInstrumentationRunner = "com.ultraviolince.mykitchen.recipes.utils.TestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -144,11 +144,11 @@ val excludedClasses = listOf(
 
 val excludedPackages = listOf(
     // Dependency injection itself doesn't need to be tested
-    "com.example.myapplication.di",
+    "com.ultraviolince.mykitchen.di",
     // Presentation not unit test(able) currently, could revisit later (maybe try paparazzi + compose?)
-    "com.example.myapplication.recipes.presentation",
+    "com.ultraviolince.mykitchen.recipes.presentation",
     // Theme values are generated, no need to unit test
-    "com.example.myapplication.ui.theme",
+    "com.ultraviolince.mykitchen.ui.theme",
     "dagger.hilt.internal.aggregatedroot.codegen",
     "_HiltModules",
     "Hilt_",
