@@ -1,4 +1,4 @@
-name: Build App
+name: Tests
 
 # Only pushes and PRs against the main branch are built
 on:
