@@ -137,7 +137,6 @@ val excludedClasses = listOf(
     "*Activity",
     "*Activity\$*",
     "*_Impl",
-    "*.databinding.*",
     "*.BuildConfig",
     "ComposableSingletons\$*"
 )
