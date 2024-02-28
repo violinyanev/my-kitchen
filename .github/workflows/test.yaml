@@ -45,7 +45,6 @@ jobs:
     strategy:
       matrix:
         api-level:
-          - 29
           - 30
 
     steps:
