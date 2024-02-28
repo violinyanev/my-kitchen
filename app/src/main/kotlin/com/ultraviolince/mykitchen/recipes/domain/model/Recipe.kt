@@ -10,6 +10,8 @@ class Recipe(
     val content: String,
     val timestamp: Long,
     @PrimaryKey val id: Long? = null
-)
+) {
+    override fun toString() = "Recipe[$id] $title (ts $timestamp)"
+}
 
 class InvalidRecipeException(@StringRes val errorString: Int) : Exception()
