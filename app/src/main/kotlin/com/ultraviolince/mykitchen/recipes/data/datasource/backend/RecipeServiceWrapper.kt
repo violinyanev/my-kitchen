@@ -61,8 +61,8 @@ class RecipeServiceWrapper {
                     timestamp = recipe.timestamp
                 )
             )
-        // TODO better error handling
         } catch (e: HttpException) {
+            // TODO better error handling
             Log.e("Recipes", "Failed to sync recipe $recipe. Reason: ${e.message()} req: ${e.response()}")
         }
         Log.i("Recipes", "Recipe synced to backend: $recipe")
