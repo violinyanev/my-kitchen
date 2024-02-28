@@ -83,7 +83,7 @@ class RecipeViewModel @Inject constructor(
         getLoginJob = recipesUseCases.getSyncState()
             .onEach {
                     syncState ->
-                Log.i("RECIPES", "State $syncState")
+                Log.i("Recipes", "Login state changed to $syncState")
                 _state.value = state.value.copy(
                     syncState = syncState
                 )

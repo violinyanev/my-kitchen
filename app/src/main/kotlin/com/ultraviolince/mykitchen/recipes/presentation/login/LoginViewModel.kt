@@ -1,5 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.presentation.login
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +52,7 @@ class LoginViewModel @Inject constructor(
     fun onEvent(event: LoginEvent) {
         when (event) {
             is LoginEvent.EnteredServer -> {
+                Log.i("Recipes", "User entered server name ${event.value}")
                 _server.value = server.value.copy(text = event.value)
             }
             is LoginEvent.ChangeServerFocus -> {
@@ -59,6 +61,7 @@ class LoginViewModel @Inject constructor(
                 )
             }
             is LoginEvent.EnteredUsername -> {
+                Log.i("Recipes", "User entered user name ${event.value}")
                 _username.value = username.value.copy(text = event.value)
             }
             is LoginEvent.ChangeUsernameFocus -> {
@@ -67,6 +70,7 @@ class LoginViewModel @Inject constructor(
                 )
             }
             is LoginEvent.EnteredPassword -> {
+                Log.i("Recipes", "User entered a password with length ${event.value.length}")
                 _password.value = password.value.copy(text = event.value)
             }
             is LoginEvent.ChangePasswordFocus -> {

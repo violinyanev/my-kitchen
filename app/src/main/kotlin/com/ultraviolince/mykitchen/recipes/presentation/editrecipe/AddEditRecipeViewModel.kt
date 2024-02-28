@@ -1,5 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.presentation.editrecipe
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -37,9 +38,13 @@ class AddEditRecipeViewModel @Inject constructor(
     private var currentRecipeId: Long? = null
 
     init {
+        Log.i("Recipes", "Entering the edit recipe screen")
+
         // TODO remove this?
         savedStateHandle.get<Int>("recipeId")?.let { recipeIdInt ->
-            savedStateHandle["recipeId"] = recipeIdInt.toLong()
+            val recipeId = recipeIdInt.toLong()
+            savedStateHandle["recipeId"] = recipeId
+            Log.i("Recipes", "Editing recipe with id=$recipeId")
         }
 
         savedStateHandle.get<Long>("recipeId")?.let {
@@ -66,6 +71,7 @@ class AddEditRecipeViewModel @Inject constructor(
     fun onEvent(event: AddEditRecipeEvent) {
         when (event) {
             is AddEditRecipeEvent.EnteredTitle -> {
+                Log.i("Recipes", "User entered title ${event.value}")
                 _recipeTitle.value = recipeTitle.value.copy(text = event.value)
             }
             is AddEditRecipeEvent.ChangeTitleFocus -> {
@@ -74,6 +80,7 @@ class AddEditRecipeViewModel @Inject constructor(
                 )
             }
             is AddEditRecipeEvent.EnteredContent -> {
+                Log.i("Recipes", "User entered content ${event.value}")
                 _recipeContent.value = recipeContent.value.copy(text = event.value)
             }
             is AddEditRecipeEvent.ChangeContentFocus -> {
@@ -82,6 +89,7 @@ class AddEditRecipeViewModel @Inject constructor(
                 )
             }
             is AddEditRecipeEvent.SaveRecipe -> {
+                Log.i("Recipes", "User is saving the recipe")
                 viewModelScope.launch {
                     try {
                         recipesUseCases.addRecipe(
