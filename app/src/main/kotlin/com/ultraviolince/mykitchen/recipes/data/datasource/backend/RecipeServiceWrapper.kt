@@ -1,10 +1,12 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
+import android.util.Log
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -23,9 +25,14 @@ class RecipeServiceWrapper {
 
             // TODO Store the token, don't force authentication all the time
             val token = tmpService.login(LoginRequest(email, password)).data.token
+
+            val logger = HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+
             recipeService = Retrofit.Builder()
                 .baseUrl(server)
-                .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(token)).build())
+                .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(token)).addInterceptor(logger).build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(RecipeService::class.java)
@@ -44,14 +51,21 @@ class RecipeServiceWrapper {
 
     suspend fun insertRecipe(recipeId: Long, recipe: Recipe) {
         // TODO check response
-        recipeService?.createRecipe(
-            BackendRecipe(
-                id = recipeId,
-                title = recipe.title,
-                body = recipe.content,
-                timestamp = recipe.timestamp
+        Log.i("Recipes", "Syncing recipe to backend: $recipe")
+        try {
+            recipeService?.createRecipe(
+                BackendRecipe(
+                    id = recipeId,
+                    title = recipe.title,
+                    body = recipe.content,
+                    timestamp = recipe.timestamp
+                )
             )
-        )
+        } catch (e: HttpException) {
+            // TODO better error handling
+            Log.e("Recipes", "Failed to sync recipe $recipe. Reason: ${e.message()} req: ${e.response()}")
+        }
+        Log.i("Recipes", "Recipe synced to backend: $recipe")
     }
 
     suspend fun deleteRecipe(recipeId: Long) {
