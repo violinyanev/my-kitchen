@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.recipes.presentation.recipes
 import android.util.Log
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -94,8 +95,7 @@ class SmokeTest {
         createRecipe("recipe1", "content1")
     }
 
-    // TODO: reenable after fixed
-    /*@Test fun loginToBackend_ThenCreateRecipe() {
+    @Test fun loginToBackend_ThenCreateRecipe() {
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
             assertExists()
@@ -131,5 +131,5 @@ class SmokeTest {
         composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)
 
         createRecipe("recipe2", "content2")
-    }*/
+    }
 }
