@@ -69,8 +69,15 @@ class RecipeServiceWrapper {
     }
 
     suspend fun deleteRecipe(recipeId: Long) {
-        // TODO check response
-        recipeService?.deleteRecipe(recipeId = recipeId)
+        Log.i("Recipes", "Deleting recipe from backend: $recipeId")
+        try {
+            // TODO check response
+            recipeService?.deleteRecipe(recipeId = recipeId)
+        } catch (e: HttpException) {
+            // TODO better error handling
+            Log.e("Recipes", "Failed to delete recipe $recipeId. Reason: ${e.message()} req: ${e.response()}")
+        }
+        Log.i("Recipes", "Deleted recipe from backend: $recipeId")
     }
 
     suspend fun sync(dao: RecipeDao) {

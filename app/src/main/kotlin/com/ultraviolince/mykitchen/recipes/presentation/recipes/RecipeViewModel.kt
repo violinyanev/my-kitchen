@@ -51,6 +51,7 @@ class RecipeViewModel @Inject constructor(
                 }
             }
             is RecipesEvent.DeleteRecipe -> {
+                Log.i("Recipes", "User deleted recipe ${event.recipe}")
                 viewModelScope.launch {
                     recipesUseCases.deleteRecipe(event.recipe)
                     recentlyDeletedRecipe = event.recipe
