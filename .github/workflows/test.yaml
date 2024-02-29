@@ -54,6 +54,7 @@ jobs:
           # api-level: [26, 29, 31]
 
     steps:
+      - uses: actions/checkout@v4
       - name: Get AVD info
         uses: ./.github/actions/get-avd-info
         id: avd-info
