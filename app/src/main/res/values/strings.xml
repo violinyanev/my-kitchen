@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">My Application</string>
+    <string name="app_name" translation_description="Application name">My Kitchen</string>
     <!-- Recipes -->
 
     <!-- Recipes main screen -->
