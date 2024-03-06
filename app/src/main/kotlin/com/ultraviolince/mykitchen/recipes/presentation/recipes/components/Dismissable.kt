@@ -48,52 +48,15 @@ fun <T> Dismissable(
     SwipeToDismissBox(
         state = dismissState,
         backgroundContent = {
-            //Box(Modifier.fillMaxSize().background(color))
             DeleteBackground(dismissState)
         }
     ) {
-        content(item)
-    }
+        Column {
 
-    /*var isRemoved by remember {
-        mutableStateOf(false)
-    }
-    val state = rememberSwipeToDismissBoxState(
-        confirmValueChange = { value ->
-            if (value == SwipeToDismissBoxValue.EndToStart) {
-                isRemoved = true
-                true
-            } else {
-                false
-            }
-        }
-    )
-
-    LaunchedEffect(key1 = isRemoved) {
-        if(isRemoved) {
-            delay(animationDuration.toLong())
-            onDelete(item)
+            content(item)
+            Text("progress " + dismissState.dismissDirection.toString())
         }
     }
-
-    AnimatedVisibility(
-        visible = !isRemoved,
-        exit = shrinkVertically(
-            animationSpec = tween(durationMillis = animationDuration),
-            shrinkTowards = Alignment.Top
-        ) + fadeOut()
-    ) {
-        setOf(SwipeToDismissBoxValue.EndToStart)
-        SwipeToDismissBox(state = state,
-            backgroundContent =  {
-                DeleteBackground(swipeDismissState = state)
-            },
-            enableDismissFromStartToEnd = false,
-            enableDismissFromEndToStart = true,
-            content = {
-                content(item)
-            })
-    }*/
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,18 +89,18 @@ fun DeleteBackground(
 private fun DismissablePreview(
 ) {
     var showDismissed by remember {
-        mutableStateOf(false)
+        mutableStateOf("")
     }
 
     MyApplicationTheme {
-        //val items = listOf("Item 1", "Item 2", "Item 3", "Item 4")
-        val recipes by remember {
+        var recipes by remember {
             mutableStateOf(
                 List(3) { index ->
                     Recipe(
                         "Recipe $index",
                         content = "Lorem ipsum dolor sit amet $index",
-                        timestamp = 5
+                        timestamp = 5,
+                        id = index.toLong()
                     )
                 })
         }
@@ -145,8 +108,9 @@ private fun DismissablePreview(
             LazyColumn {
                 items(recipes) { recipe ->
                     Dismissable(item = recipe,
-                        onDelete = {
-                            showDismissed = true
+                        onDelete = {deletedRecipe ->
+                            showDismissed = showDismissed + "," + deletedRecipe.id.toString()
+                            //recipes = recipes.filter { it != deletedRecipe }
                         }
                     ) {
                         RecipeItem(
@@ -159,12 +123,11 @@ private fun DismissablePreview(
                 }
             }
 
-            if (showDismissed) {
-                Box {
-                    Text("Dismissed!")
-                }
+            Box {
+                Text(showDismissed)
             }
         }
 
     }
 }
+
