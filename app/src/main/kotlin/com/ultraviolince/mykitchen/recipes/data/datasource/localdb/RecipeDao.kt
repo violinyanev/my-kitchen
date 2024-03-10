@@ -5,8 +5,10 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.model.User
+import com.ultraviolince.mykitchen.recipes.domain.model.UserWithRecipes
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -34,4 +36,8 @@ interface RecipeDao {
 
     @Delete
     suspend fun deleteRecipe(recipe: Recipe)
+
+    @Transaction
+    @Query("SELECT * FROM User")
+    suspend fun getUsersWithRecipes(): List<UserWithRecipes>
 }

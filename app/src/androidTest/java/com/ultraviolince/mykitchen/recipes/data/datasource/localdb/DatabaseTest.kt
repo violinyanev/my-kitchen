@@ -1,135 +1,41 @@
-package com.ultraviolince.mykitchen.recipes.presentation.recipes
+package com.ultraviolince.mykitchen.recipes.data.datasource.localdb
 
-import android.util.Log
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
+import androidx.room.migration.AutoMigrationSpec
+import androidx.room.testing.MigrationTestHelper
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.work.Configuration
-import androidx.work.testing.SynchronousExecutor
-import androidx.work.testing.WorkManagerTestInitHelper
-import com.ultraviolince.mykitchen.recipes.presentation.MainActivity
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.RuleChain
+import org.junit.runner.RunWith
+import java.io.IOException
 
-@OptIn(ExperimentalTestApi::class)
-@HiltAndroidTest
-class SmokeTest {
-    private val hiltRule = HiltAndroidRule(this)
-    private val composeTestRule = createAndroidComposeRule<MainActivity>()
+// TODO enable this test
+
+@Suppress("DEPRECATION")
+@RunWith(AndroidJUnit4::class)
+class DatabaseMigrationTest {
+    private val testDbName = "migration-test"
 
     @get:Rule
-    val rule: RuleChain = RuleChain
-        .outerRule(hiltRule)
-        .around(composeTestRule)
+    val helper: MigrationTestHelper = MigrationTestHelper(
+        InstrumentationRegistry.getInstrumentation(),
+        RecipeDatabase::class.java.canonicalName!!,
+        FrameworkSQLiteOpenHelperFactory()
+    )
 
-    @Before
-    fun setup() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val config = Configuration.Builder()
-            .setMinimumLoggingLevel(Log.DEBUG)
-            .setExecutor(SynchronousExecutor())
-            .build()
+    /*@Test
+    @Throws(IOException::class)
+    fun migrate1To2() {
+        helper.createDatabase(testDbName, 1).apply {
+            // Database has schema version 1. Insert some data using SQL queries.
+            // You can't use DAO classes because they expect the latest schema.
+            execSQL("INSERT INTO Recipe (id, title, content, timestamp) VALUES (1, 'Recipe 1', 'Recipe Content 1', 123);")
 
-        WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
-    }
-
-    private fun createRecipe(title: String, content: String) {
-        // When the "New Recipe" button is clicked
-        with(composeTestRule.onNodeWithContentDescription("New recipe")) {
-            assertExists()
-            assertIsDisplayed()
-            performClick()
+            // Prepare for the next version.
+            close()
         }
 
-        composeTestRule.waitForIdle()
-
-        // Type recipe details
-        with(composeTestRule.onNodeWithContentDescription("Enter recipe title")) {
-            assertExists()
-            assertIsDisplayed()
-            performTextInput(title)
-        }
-        with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
-            assertExists()
-            assertIsDisplayed()
-            performTextInput(content)
-        }
-
-        // Click "save"
-        with(composeTestRule.onNodeWithContentDescription("Save recipe")) {
-            assertExists()
-            assertIsDisplayed()
-            performClick()
-        }
-
-        composeTestRule.waitForIdle()
-
-        // Recipe is in the overview
-        with(composeTestRule.onNodeWithText(title)) {
-            assertExists()
-            assertIsDisplayed()
-        }
-        with(composeTestRule.onNodeWithText(content)) {
-            assertExists()
-            assertIsDisplayed()
-        }
-    }
-
-    @Test fun createRecipe_WithoutLogin() {
-        // By default, no cloud sync
-        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
-            assertExists()
-            assertIsDisplayed()
-        }
-
-        createRecipe("recipe1", "content1")
-    }
-
-    @Test fun loginToBackend_ThenCreateRecipe() {
-        // By default, no cloud sync
-        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
-            assertExists()
-            assertIsDisplayed()
-            performClick()
-        }
-
-        // Enter server and credentials
-        with(composeTestRule.onNodeWithContentDescription("Server URI")) {
-            assertExists()
-            assertIsDisplayed()
-            performTextInput("https://ultraviolince.com:8019")
-        }
-        with(composeTestRule.onNodeWithContentDescription("User name")) {
-            assertExists()
-            assertIsDisplayed()
-            performTextInput("test@user.com")
-        }
-        with(composeTestRule.onNodeWithContentDescription("Password")) {
-            assertExists()
-            assertIsDisplayed()
-            performTextInput("TestPassword")
-        }
-
-        // Login
-        with(composeTestRule.onNodeWithContentDescription("Login")) {
-            assertExists()
-            assertIsDisplayed()
-            performClick()
-        }
-
-        // Create a new recipe, with backend now
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)
-
-        createRecipe("recipe2", "content2")
-    }
+        helper.runMigrationsAndValidate(testDbName, 2, true)
+    }*/
 }

@@ -74,6 +74,10 @@ android {
         schemaDirectory("$projectDir/schemas")
     }
 
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
+
     buildToolsVersion = "34.0.0"
 }
 

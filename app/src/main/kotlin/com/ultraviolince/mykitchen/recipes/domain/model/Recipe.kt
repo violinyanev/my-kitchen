@@ -9,9 +9,10 @@ class Recipe(
     val title: String,
     val content: String,
     val timestamp: Long,
+    val userCreatorId: Long,
     @PrimaryKey val id: Long? = null
 ) {
-    override fun toString() = "Recipe[$id] $title (ts $timestamp)"
+    override fun toString() = "Recipe[$id] $title (ts $timestamp) user: $userCreatorId"
 }
 
 class InvalidRecipeException(@StringRes val errorString: Int) : Exception()
