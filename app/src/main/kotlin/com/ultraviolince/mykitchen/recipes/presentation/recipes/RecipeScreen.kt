@@ -1,7 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.presentation.recipes
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -45,7 +44,6 @@ import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
-import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.Dismissable
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.OrderSection
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.RecipeItem
 import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
@@ -177,19 +175,13 @@ private fun RecipeScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
             LazyColumn {
                 items(recipeState.recipes) { recipe ->
-                    Dismissable(item = recipe,
-                        onDelete = {
-                            onEvent(RecipesEvent.DeleteRecipe(recipe))
-                        }
-                    ) {
-                        RecipeItem(
-                            recipe = recipe,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    onRecipeClicked(recipe)
-                                })
-                    }
+                    RecipeItem(
+                        recipe = recipe,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onRecipeClicked(recipe)
+                            })
                 }
             }
         }
