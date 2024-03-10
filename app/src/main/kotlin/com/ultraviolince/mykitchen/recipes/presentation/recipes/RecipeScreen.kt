@@ -74,8 +74,7 @@ fun RecipeScreen(
         },
         onRecipeClicked = { recipe ->
             navController.navigate(
-                Screen.AddEditRecipeScreen.route +
-                        "?recipeId=${recipe.id}"
+                Screen.AddEditRecipeScreen.route + "?recipeId=${recipe.id}"
             )
         },
         recipeState = state
