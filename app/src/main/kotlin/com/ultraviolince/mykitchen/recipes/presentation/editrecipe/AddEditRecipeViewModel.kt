@@ -110,11 +110,27 @@ class AddEditRecipeViewModel @Inject constructor(
                     }
                 }
             }
+            is AddEditRecipeEvent.DeleteRecipe -> {
+                Log.i("Recipes", "User is deleting the recipe")
+                viewModelScope.launch {
+                    // TODO id is enough to pass here
+                    recipesUseCases.deleteRecipe(
+                        Recipe(
+                            title = recipeTitle.value.text,
+                            content = recipeContent.value.text,
+                            timestamp = System.currentTimeMillis(),
+                            id = currentRecipeId
+                        )
+                    )
+                    _eventFlow.emit(UiEvent.DeleteRecipe)
+                }
+            }
         }
     }
 
     sealed class UiEvent {
         data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
         object SaveRecipe : UiEvent()
+        object DeleteRecipe : UiEvent()
     }
 }
