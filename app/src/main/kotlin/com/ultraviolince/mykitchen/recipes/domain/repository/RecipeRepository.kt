@@ -14,5 +14,5 @@ interface RecipeRepository {
 
     suspend fun login(server: String, email: String, password: String)
 
-    fun getLoginState(): Flow<LoginState>
+    fun getLoginState(): Flow<CloudSyncState>
 }

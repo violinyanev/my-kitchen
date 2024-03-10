@@ -43,7 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
+import com.ultraviolince.mykitchen.recipes.domain.repository.CloudSyncState
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.OrderSection
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.RecipeItem
 import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
@@ -130,25 +130,27 @@ private fun RecipeScreenContent(
                     onClick = onLoginClick
                 ) {
                     when (recipeState.syncState) {
-                        LoginState.LoginEmpty ->
+                        CloudSyncState.NotLoggedIn ->
                             Icon(
                                 imageVector = Icons.Default.SyncProblem,
                                 contentDescription = stringResource(id = R.string.sync_disabled)
                             )
 
-                        LoginState.LoginPending ->
+                        CloudSyncState.LoginPending ->
                             Icon(
                                 imageVector = Icons.Default.Sync,
                                 contentDescription = stringResource(id = R.string.sync_loading)
                             )
 
-                        LoginState.LoginSuccess ->
+                        is CloudSyncState.SyncInProgress, is CloudSyncState.Synced -> {
+                            // TODO show animation when syncing
                             Icon(
                                 imageVector = Icons.Default.CloudSync,
                                 contentDescription = stringResource(id = R.string.sync_enabled)
                             )
+                        }
 
-                        is LoginState.LoginFailure ->
+                        is CloudSyncState.LoginFailure, is CloudSyncState.SyncFailure ->
                             Icon(
                                 imageVector = Icons.Default.SyncProblem,
                                 contentDescription = stringResource(id = R.string.sync_disabled)
@@ -190,10 +192,10 @@ private fun RecipeScreenContent(
 class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<RecipesState> {
     override val values = sequenceOf(
         RecipesState(),
-        RecipesState(syncState = LoginState.LoginEmpty),
-        RecipesState(syncState = LoginState.LoginPending),
-        RecipesState(syncState = LoginState.LoginSuccess),
-        RecipesState(syncState = LoginState.LoginFailure(R.string.sync_disabled)),
+        RecipesState(syncState = CloudSyncState.NotLoggedIn),
+        RecipesState(syncState = CloudSyncState.LoginPending),
+        RecipesState(syncState = CloudSyncState.SyncInProgress),
+        RecipesState(syncState = CloudSyncState.LoginFailure(R.string.sync_disabled)),
         RecipesState(
             recipes = List(10) { index ->
                 Recipe(

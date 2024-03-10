@@ -3,7 +3,7 @@ package com.ultraviolince.mykitchen.recipes.data.repository
 import app.cash.turbine.test
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
+import com.ultraviolince.mykitchen.recipes.domain.repository.CloudSyncState
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -24,7 +24,7 @@ class RepositoryImplTest {
     fun `not logged in by default`() = runTest {
         val loginState = repository.getLoginState()
 
-        assertEquals(LoginState.LoginEmpty, loginState.first())
+        assertEquals(CloudSyncState.NotLoggedIn, loginState.first())
     }
 
     // TODO fix this test
@@ -50,13 +50,13 @@ class RepositoryImplTest {
     fun `fails to log in to backend when the backend reports errors`() = runTest {
         val loginState = repository.getLoginState()
 
-        coEvery { serviceMock.login(any(), any(), any()) } returns LoginState.LoginFailure(5)
+        coEvery { serviceMock.login(any(), any(), any()) } returns CloudSyncState.LoginFailure(5)
 
         loginState.test {
             repository.login("a", "b", "c")
-            assertEquals(awaitItem(), LoginState.LoginEmpty)
-            assertEquals(awaitItem(), LoginState.LoginPending)
-            assertEquals(awaitItem(), LoginState.LoginFailure(5))
+            assertEquals(awaitItem(), CloudSyncState.NotLoggedIn)
+            assertEquals(awaitItem(), CloudSyncState.LoginPending)
+            assertEquals(awaitItem(), CloudSyncState.LoginFailure(5))
         }
 
         coVerify { serviceMock.login("a", "b", "c") }
