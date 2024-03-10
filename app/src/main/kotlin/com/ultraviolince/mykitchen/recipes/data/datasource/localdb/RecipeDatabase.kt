@@ -7,7 +7,8 @@ import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 @Database(
     entities = [Recipe::class],
     version = 1,
-    exportSchema = false
+    exportSchema = true
+
 )
 abstract class RecipeDatabase : RoomDatabase() {
     abstract val recipeDao: RecipeDao
