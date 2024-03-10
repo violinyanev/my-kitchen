@@ -8,4 +8,5 @@ sealed class AddEditRecipeEvent {
     data class EnteredContent(val value: String) : AddEditRecipeEvent()
     data class ChangeContentFocus(val focusState: FocusState) : AddEditRecipeEvent()
     object SaveRecipe : AddEditRecipeEvent()
+    object DeleteRecipe : AddEditRecipeEvent()
 }

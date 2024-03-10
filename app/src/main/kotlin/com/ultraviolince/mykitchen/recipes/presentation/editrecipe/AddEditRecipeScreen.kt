@@ -1,15 +1,16 @@
 package com.ultraviolince.mykitchen.recipes.presentation.editrecipe
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -64,6 +65,9 @@ fun AddEditRecipeScreen(
                 is AddEditRecipeViewModel.UiEvent.SaveRecipe -> {
                     navController.navigateUp()
                 }
+                is AddEditRecipeViewModel.UiEvent.DeleteRecipe -> {
+                    navController.navigateUp()
+                }
             }
         }
     }
@@ -79,7 +83,6 @@ fun AddEditRecipeScreen(
     )
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AddEditRecipeScreenContent(
     titleState: RecipeTextFieldState,
@@ -91,21 +94,33 @@ fun AddEditRecipeScreenContent(
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    eventHandler(AddEditRecipeEvent.SaveRecipe)
-                },
-                modifier = Modifier.semantics { contentDescription = "Save recipe" }
-            ) {
-                Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
+            Row {
+                FloatingActionButton(
+                    onClick = {
+                        eventHandler(AddEditRecipeEvent.DeleteRecipe)
+                    },
+                    // TODO can we reuse the string from below?
+                    modifier = Modifier.semantics { contentDescription = "Delete recipe" }
+                ) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(id = R.string.delete))
+                }
+                Spacer(modifier = Modifier.width(20.dp))
+                FloatingActionButton(
+                    onClick = {
+                        eventHandler(AddEditRecipeEvent.SaveRecipe)
+                    },
+                    // TODO can we reuse the string from below?
+                    modifier = Modifier.semantics { contentDescription = "Save recipe" }
+                ) {
+                    Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
+                }
             }
         },
         modifier = modifier
-    ) {
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+                .padding(innerPadding)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 

@@ -74,8 +74,7 @@ fun RecipeScreen(
         },
         onRecipeClicked = { recipe ->
             navController.navigate(
-                Screen.AddEditRecipeScreen.route +
-                    "?recipeId=${recipe.id}"
+                Screen.AddEditRecipeScreen.route + "?recipeId=${recipe.id}"
             )
         },
         recipeState = state
@@ -98,7 +97,10 @@ private fun RecipeScreenContent(
                 onClick = onAddRecipe,
                 modifier = Modifier.semantics { contentDescription = "New recipe" }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(id = R.string.add_recipe))
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(id = R.string.add_recipe)
+                )
             }
         }
     ) {
@@ -112,7 +114,10 @@ private fun RecipeScreenContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = stringResource(R.string.your_recipes), style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = stringResource(R.string.your_recipes),
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 IconButton(
                     onClick = onSortClick
                 ) {
@@ -142,6 +147,7 @@ private fun RecipeScreenContent(
                                 imageVector = Icons.Default.CloudSync,
                                 contentDescription = stringResource(id = R.string.sync_enabled)
                             )
+
                         is LoginState.LoginFailure ->
                             Icon(
                                 imageVector = Icons.Default.SyncProblem,
@@ -166,7 +172,7 @@ private fun RecipeScreenContent(
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn() {
+            LazyColumn {
                 items(recipeState.recipes) { recipe ->
                     RecipeItem(
                         recipe = recipe,
@@ -174,8 +180,7 @@ private fun RecipeScreenContent(
                             .fillMaxWidth()
                             .clickable {
                                 onRecipeClicked(recipe)
-                            }
-                    )
+                            })
                 }
             }
         }
