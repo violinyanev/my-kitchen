@@ -4,6 +4,7 @@ import android.util.Log
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.User
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,23 +16,22 @@ class RecipeServiceWrapper {
 
     private var recipeService: RecipeService? = null
 
-    suspend fun login(server: String, email: String, password: String): LoginState {
+    suspend fun login(user: User, password: String?): LoginState {
         try {
             val tmpService = Retrofit.Builder()
-                .baseUrl(server)
+                .baseUrl(user.serverUri)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(RecipeService::class.java)
 
-            // TODO Store the token, don't force authentication all the time
-            val token = tmpService.login(LoginRequest(email, password)).data.token
+            val token = user.token ?: tmpService.login(LoginRequest(user.email, password!!)).data.token
 
             val logger = HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             }
 
             recipeService = Retrofit.Builder()
-                .baseUrl(server)
+                .baseUrl(user.serverUri)
                 .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(token)).addInterceptor(logger).build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()

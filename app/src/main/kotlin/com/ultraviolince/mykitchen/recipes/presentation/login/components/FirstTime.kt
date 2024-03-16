@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.presentation.login
+package com.ultraviolince.mykitchen.recipes.presentation.login.components
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
@@ -44,11 +44,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
+import com.ultraviolince.mykitchen.recipes.presentation.login.CreateUserEvent
+import com.ultraviolince.mykitchen.recipes.presentation.login.LoginViewModel
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun LoginScreen(
+fun FirstTime(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
@@ -99,7 +101,7 @@ fun LoginScreenContent(
     snackBarHostState: SnackbarHostState,
     buttonLoading: Boolean,
     modifier: Modifier = Modifier,
-    eventHandler: (LoginEvent) -> Unit
+    eventHandler: (CreateUserEvent) -> Unit
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
@@ -107,7 +109,7 @@ fun LoginScreenContent(
             FloatingActionButton(
                 onClick = {
                     if (!buttonLoading) {
-                        eventHandler(LoginEvent.Login)
+                        eventHandler(CreateUserEvent.Login)
                     }
                 },
                 modifier = Modifier.semantics { contentDescription = "Login" }
@@ -153,7 +155,7 @@ fun LoginScreenContent(
                 TextField(
                     value = serverState.text,
                     onValueChange = {
-                        eventHandler(LoginEvent.EnteredServer(it))
+                        eventHandler(CreateUserEvent.EnteredServer(it))
                     },
                     placeholder = {
                         if (serverState.hintStringId != ID_NULL) {
@@ -165,7 +167,7 @@ fun LoginScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged {
-                            eventHandler(LoginEvent.ChangeServerFocus(it))
+                            eventHandler(CreateUserEvent.ChangeServerFocus(it))
                         }
                         .semantics { contentDescription = "Server URI" }
                 )
@@ -177,7 +179,7 @@ fun LoginScreenContent(
                 TextField(
                     value = usernameState.text,
                     onValueChange = {
-                        eventHandler(LoginEvent.EnteredUsername(it))
+                        eventHandler(CreateUserEvent.EnteredUsername(it))
                     },
                     placeholder = {
                         if (usernameState.hintStringId != ID_NULL) {
@@ -189,7 +191,7 @@ fun LoginScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged {
-                            eventHandler(LoginEvent.ChangeUsernameFocus(it))
+                            eventHandler(CreateUserEvent.ChangeUsernameFocus(it))
                         }
                         .semantics { contentDescription = "User name" }
                 )
@@ -201,7 +203,7 @@ fun LoginScreenContent(
                 TextField(
                     value = passwordState.text,
                     onValueChange = {
-                        eventHandler(LoginEvent.EnteredPassword(it))
+                        eventHandler(CreateUserEvent.EnteredPassword(it))
                     },
                     placeholder = {
                         if (passwordState.hintStringId != ID_NULL) {
@@ -213,7 +215,7 @@ fun LoginScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged {
-                            eventHandler(LoginEvent.ChangePasswordFocus(it))
+                            eventHandler(CreateUserEvent.ChangePasswordFocus(it))
                         }
                         .semantics { contentDescription = "Password" }
                 )

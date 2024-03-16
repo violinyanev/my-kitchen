@@ -42,7 +42,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         val navController = rememberNavController()
         NavHost(
             navController = navController,
-            startDestination = Screen.RecipesScreen.route
+            startDestination = Screen.LoginScreen.route
         ) {
             composable(route = Screen.LoginScreen.route) {
                 LoginScreen(navController = navController)

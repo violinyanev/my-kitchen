@@ -1,6 +1,8 @@
 package com.ultraviolince.mykitchen.recipes.domain.usecase
 
 data class Recipes(
+    val getUsers: GetUsers,
+    val getDefaultUser: GetDefaultUser,
     val login: Login,
     val getSyncState: GetLoginState,
     val getRecipes: GetRecipes,
