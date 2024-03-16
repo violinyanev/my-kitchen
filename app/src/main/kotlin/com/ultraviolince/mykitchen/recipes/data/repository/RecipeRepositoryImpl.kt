@@ -3,10 +3,13 @@ package com.ultraviolince.mykitchen.recipes.data.repository
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.User
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 
 class RecipeRepositoryImpl(
     private val dao: RecipeDao,
@@ -29,6 +32,10 @@ class RecipeRepositoryImpl(
         return loginState
     }
 
+    override fun getDefaultUser(): User? {
+        return null
+    }
+
     override fun getRecipes(): Flow<List<Recipe>> {
         return dao.getRecipes()
     }
@@ -47,4 +54,9 @@ class RecipeRepositoryImpl(
         recipeService.deleteRecipe(recipe.id!!)
         return dao.deleteRecipe(recipe)
     }
+
+    override fun getUsers(): Flow<List<User>> {
+        return dao.getUsers()
+    }
+
 }

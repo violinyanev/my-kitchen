@@ -9,7 +9,7 @@ class Recipe(
     val title: String,
     val content: String,
     val timestamp: Long,
-    val userCreatorId: Long,
+    val userCreatorId: Long? = null,
     @PrimaryKey val id: Long? = null
 ) {
     override fun toString() = "Recipe[$id] $title (ts $timestamp) user: $userCreatorId"
