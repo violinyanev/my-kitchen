@@ -1,5 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.domain.model
 
+import androidx.annotation.StringRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -14,3 +15,5 @@ class User(
 ) {
     override fun toString() = "User[$id] $name (email $email) (srv: $serverUri)"
 }
+
+class InvalidUserException(@StringRes val errorString: Int) : Exception()

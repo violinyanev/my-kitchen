@@ -16,8 +16,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -56,8 +54,6 @@ class CreateUserViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
-    private var getDefaultUserData: Job? = null
-
     fun onEvent(event: CreateUserEvent) {
         when (event) {
             is CreateUserEvent.EnteredServer -> {
@@ -93,30 +89,8 @@ class CreateUserViewModel @Inject constructor(
                         // TODO fix
                         val user = User(serverUri = server.value.text, email = username.value.text, isDefault = true, name = email.value.text)
                         recipesUseCases.createUser(
-                            user = user,
-                            password = password.value.text
+                            user = user
                         )
-                        recipesUseCases.getSyncState().collect() {
-                            when (it) {
-                                is LoginState.LoginSuccess -> {
-                                    _eventFlow.emit(
-                                        UiEvent.LoginSuccess
-                                    )
-                                }
-                                LoginState.LoginEmpty -> {
-                                    _buttonLoading.value = false
-                                }
-                                is LoginState.LoginFailure -> {
-                                    _buttonLoading.value = false
-                                    _eventFlow.emit(
-                                        UiEvent.ShowSnackbar(it.errorMessage)
-                                    )
-                                }
-                                LoginState.LoginPending -> {
-                                    _buttonLoading.value = true
-                                }
-                            }
-                        }
                     } catch (e: LoginException) {
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
@@ -131,6 +105,6 @@ class CreateUserViewModel @Inject constructor(
 
     sealed class UiEvent {
         data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
-        data object LoginSuccess : UiEvent()
+        data object UserCreated : UiEvent()
     }
 }

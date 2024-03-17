@@ -47,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
+import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
 
@@ -69,6 +70,9 @@ fun LoginScreen(
                         message = context.resources.getString(event.message)
                     )
                 }
+                is LoginViewModel.UiEvent.CreateUser -> {
+                    navController.navigate(Screen.CreateUserScreen.route)
+                }
                 is LoginViewModel.UiEvent.LoginSuccess -> {
                     navController.navigateUp()
                 }
@@ -77,13 +81,9 @@ fun LoginScreen(
     }
 
     LoginScreenContent(
-        serverState = viewModel.server.value,
-        usernameState = viewModel.username.value,
-        emailState = viewModel.email.value,
         passwordState = viewModel.password.value,
         snackBarHostState = snackBarHostState,
         stage = viewModel.stage.value,
-        buttonLoading = viewModel.buttonLoading.value,
         eventHandler = {
             viewModel.onEvent(it)
         },
@@ -94,15 +94,11 @@ fun LoginScreen(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreenContent(
-    serverState: RecipeTextFieldState,
-    usernameState: RecipeTextFieldState,
-    emailState: RecipeTextFieldState,
     passwordState: RecipeTextFieldState,
     snackBarHostState: SnackbarHostState,
     stage: LoginScreenStage,
-    buttonLoading: Boolean,
     modifier: Modifier = Modifier,
-    eventHandler: (CreateUserEvent) -> Unit
+    eventHandler: (LoginEvent) -> Unit
 ) {
     if(stage == LoginScreenStage.LOADING)
     {
@@ -123,13 +119,13 @@ fun LoginScreenContent(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        if (!buttonLoading) {
-                            eventHandler(CreateUserEvent.Login)
+                        if (stage == LoginScreenStage.ENTER_PASSWORD) {
+                            eventHandler(LoginEvent.Login)
                         }
                     },
                     modifier = Modifier.semantics { contentDescription = "Login" }
                 ) {
-                    if (buttonLoading) {
+                    if (stage == LoginScreenStage.LOADING) {
                         val rotationAnimatable = remember {
                             Animatable(0f)
                         }
@@ -166,97 +162,11 @@ fun LoginScreenContent(
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if(stage == LoginScreenStage.CREATE_USER) {
-                    Box {
-                        TextField(
-                            value = serverState.text,
-                            onValueChange = {
-                                eventHandler(CreateUserEvent.EnteredServer(it))
-                            },
-                            placeholder = {
-                                if (serverState.hintStringId != ID_NULL) {
-                                    Text(
-                                        text = stringResource(serverState.hintStringId),
-                                        style = MaterialTheme.typography.headlineMedium
-                                    )
-                                }
-                            },
-                            singleLine = true,
-                            textStyle = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .onFocusChanged {
-                                    eventHandler(CreateUserEvent.ChangeServerFocus(it))
-                                }
-                                .semantics { contentDescription = "Server URI" }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Box {
-                        TextField(
-                            value = emailState.text,
-                            onValueChange = {
-                                eventHandler(CreateUserEvent.EnteredEmail(it))
-                            },
-                            placeholder = {
-                                if (emailState.hintStringId != ID_NULL) {
-                                    Text(
-                                        text = stringResource(emailState.hintStringId),
-                                        style = MaterialTheme.typography.headlineMedium
-                                    )
-                                }
-                            },
-                            singleLine = true,
-                            textStyle = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .onFocusChanged {
-                                    eventHandler(CreateUserEvent.ChangeEmailFocus(it))
-                                }
-                                .semantics { contentDescription = "E-Mail" }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Box {
-                        TextField(
-                            value = usernameState.text,
-                            onValueChange = {
-                                eventHandler(CreateUserEvent.EnteredUsername(it))
-                            },
-                            placeholder = {
-                                if (usernameState.hintStringId != ID_NULL) {
-                                    Text(
-                                        text = stringResource(usernameState.hintStringId),
-                                        style = MaterialTheme.typography.headlineMedium
-                                    )
-                                }
-                            },
-                            singleLine = true,
-                            textStyle = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .onFocusChanged {
-                                    eventHandler(CreateUserEvent.ChangeUsernameFocus(it))
-                                }
-                                .semantics { contentDescription = "User name" }
-                        )
-                    }
-                }
-                else {
-                    Text(text = "Enter password for ${usernameState.text}:")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 Box {
                     TextField(
                         value = passwordState.text,
                         onValueChange = {
-                            eventHandler(CreateUserEvent.EnteredPassword(it))
+                            eventHandler(LoginEvent.EnteredPassword(it))
                         },
                         placeholder = {
                             if (passwordState.hintStringId != ID_NULL) {
@@ -268,7 +178,7 @@ fun LoginScreenContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .onFocusChanged {
-                                eventHandler(CreateUserEvent.ChangePasswordFocus(it))
+                                eventHandler(LoginEvent.ChangePasswordFocus(it))
                             }
                             .semantics { contentDescription = "Password" }
                     )
@@ -281,40 +191,20 @@ fun LoginScreenContent(
 class LoginScreenPreviewParameterProvider : PreviewParameterProvider<LoginScreenState> {
     override val values = sequenceOf(
         LoginScreenState(
-            server = RecipeTextFieldState(),
-            username = RecipeTextFieldState(),
-            email = RecipeTextFieldState(),
             password = RecipeTextFieldState(),
             stage = LoginScreenStage.LOADING
         ),
         LoginScreenState(
-            server = RecipeTextFieldState(text = "", hintStringId = R.string.server_hint, isHintVisible = true),
-            username = RecipeTextFieldState(text = "", hintStringId = R.string.username_hint, isHintVisible = true),
-            email = RecipeTextFieldState(text = "", hintStringId = R.string.email_hint, isHintVisible = true),
-            password = RecipeTextFieldState(text = "", hintStringId = R.string.password_hint, isHintVisible = true),
-            stage = LoginScreenStage.CREATE_USER
-        ),
-        LoginScreenState(
-            server = RecipeTextFieldState(),
-            username = RecipeTextFieldState(),
-            email = RecipeTextFieldState(),
             password = RecipeTextFieldState(text = "", hintStringId = R.string.password_hint, isHintVisible = true),
             stage = LoginScreenStage.ENTER_PASSWORD
         ),
         LoginScreenState(
-            server = RecipeTextFieldState(),
-            username = RecipeTextFieldState(),
-            email = RecipeTextFieldState(),
-            password = RecipeTextFieldState(text = "", hintStringId = R.string.password_hint, isHintVisible = true),
-            stage = LoginScreenStage.ENTER_PASSWORD
-        ),
-        LoginScreenState(
-            server = RecipeTextFieldState(),
-            username = RecipeTextFieldState(),
-            email = RecipeTextFieldState(),
             password = RecipeTextFieldState(text = "Pedro"),
-            stage = LoginScreenStage.ENTER_PASSWORD,
-            buttonLoading = true
+            stage = LoginScreenStage.ENTER_PASSWORD
+        ),
+        LoginScreenState(
+            password = RecipeTextFieldState(text = "Pedro"),
+            stage = LoginScreenStage.WAITING,
         )
     )
 }
@@ -326,13 +216,9 @@ private fun AddEditRecipeScreenPreview(
 ) {
     MyApplicationTheme {
         LoginScreenContent(
-            serverState = state.server,
-            usernameState = state.username,
-            emailState = state.email,
             passwordState = state.password,
             stage = state.stage,
             snackBarHostState = SnackbarHostState(),
-            buttonLoading = state.buttonLoading,
             eventHandler = {}
         )
     }

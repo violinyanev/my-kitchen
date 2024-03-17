@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.AddEditRecipeScreen
+import com.ultraviolince.mykitchen.recipes.presentation.login.CreateUserScreen
 import com.ultraviolince.mykitchen.recipes.presentation.login.LoginScreen
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.RecipeScreen
 import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
@@ -46,6 +47,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) {
             composable(route = Screen.LoginScreen.route) {
                 LoginScreen(navController = navController)
+            }
+            composable(route = Screen.CreateUserScreen.route) {
+                CreateUserScreen(navController = navController)
             }
             composable(route = Screen.RecipesScreen.route) {
                 RecipeScreen(navController = navController)

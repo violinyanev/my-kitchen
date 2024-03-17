@@ -2,8 +2,8 @@ package com.ultraviolince.mykitchen.recipes.presentation.login
 
 enum class LoginScreenStage {
     LOADING,
-    CREATE_USER,
-    ENTER_PASSWORD
+    ENTER_PASSWORD,
+    WAITING
 }
 
 /*sealed class LoginScreenStage {

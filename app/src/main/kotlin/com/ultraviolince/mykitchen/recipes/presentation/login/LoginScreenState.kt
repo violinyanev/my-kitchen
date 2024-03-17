@@ -4,10 +4,6 @@ import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFie
 
 
 data class LoginScreenState(
-    val server: RecipeTextFieldState,
-    val username: RecipeTextFieldState,
-    val email: RecipeTextFieldState,
     val password: RecipeTextFieldState,
     val stage: LoginScreenStage,
-    val buttonLoading: Boolean = false
 )

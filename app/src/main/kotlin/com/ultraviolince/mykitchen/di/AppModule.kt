@@ -7,6 +7,7 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDatabas
 import com.ultraviolince.mykitchen.recipes.data.repository.RecipeRepositoryImpl
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import com.ultraviolince.mykitchen.recipes.domain.usecase.AddRecipe
+import com.ultraviolince.mykitchen.recipes.domain.usecase.CreateUser
 import com.ultraviolince.mykitchen.recipes.domain.usecase.DeleteRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetDefaultUser
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetUsers
@@ -47,6 +48,7 @@ class AppModule {
     fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
         return Recipes(
             login = Login(repository),
+            createUser = CreateUser(repository),
             getUsers = GetUsers(repository),
             getDefaultUser = GetDefaultUser(repository),
             getSyncState = GetLoginState(repository),

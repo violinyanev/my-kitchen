@@ -27,28 +27,6 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val recipesUseCases: Recipes
 ) : ViewModel() {
-    private val _server = mutableStateOf(
-        RecipeTextFieldState(
-            text = "",
-            hintStringId = R.string.server_hint
-        )
-    )
-    val server: State<RecipeTextFieldState> = _server
-    private val _username = mutableStateOf(
-        RecipeTextFieldState(
-            hintStringId = R.string.username_hint,
-            text = ""
-        )
-    )
-    val username: State<RecipeTextFieldState> = _username
-
-    private val _email = mutableStateOf(
-        RecipeTextFieldState(
-            hintStringId = R.string.email_hint,
-            text = ""
-        )
-    )
-    val email: State<RecipeTextFieldState> = _email
 
     private val _buttonLoading = mutableStateOf(false)
     val buttonLoading: State<Boolean> = _buttonLoading
@@ -68,6 +46,7 @@ class LoginViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     private var getDefaultUserData: Job? = null
+    private var user: User? = null
 
     init {
         getUserDetails()
@@ -76,74 +55,47 @@ class LoginViewModel @Inject constructor(
     private fun getUserDetails() {
         getDefaultUserData?.cancel()
         getDefaultUserData = recipesUseCases.getDefaultUser()
-            .onEach {user ->
-                if(user != null) {
-                    if (!user.token.isNullOrEmpty()) {
+            .onEach {defaultUser ->
+                if(defaultUser != null) {
+                    if (!defaultUser.token.isNullOrEmpty()) {
                         // TODO check that token is valid
-                        recipesUseCases.login(user, null)
+                        recipesUseCases.login(defaultUser, null)
                         _eventFlow.emit(
                             UiEvent.LoginSuccess
                         )
                     }
                     else {
-                        _server.value = server.value.copy(text = user.serverUri)
-                        _username.value = username.value.copy(text = user.email)
+                        user = defaultUser
                         _stage.value = LoginScreenStage.ENTER_PASSWORD
                     }
                 }
                 else {
-                    _stage.value = LoginScreenStage.CREATE_USER
+                    _eventFlow.emit(
+                        UiEvent.CreateUser
+                    )
                 }
             }
             .launchIn(viewModelScope)
     }
 
 
-    fun onEvent(event: CreateUserEvent) {
+    fun onEvent(event: LoginEvent) {
         when (event) {
-            is CreateUserEvent.EnteredServer -> {
-                Log.i("Recipes", "User entered server name ${event.value}")
-                _server.value = server.value.copy(text = event.value)
-            }
-            is CreateUserEvent.ChangeServerFocus -> {
-                _server.value = server.value.copy(
-                    isHintVisible = !event.focusState.isFocused && server.value.text.isBlank()
-                )
-            }
-            is CreateUserEvent.EnteredUsername -> {
-                Log.i("Recipes", "User entered user name ${event.value}")
-                _username.value = username.value.copy(text = event.value)
-            }
-            is CreateUserEvent.ChangeUsernameFocus -> {
-                _username.value = username.value.copy(
-                    isHintVisible = !event.focusState.isFocused && username.value.text.isBlank()
-                )
-            }
-            is CreateUserEvent.EnteredEmail -> {
-                Log.i("Recipes", "User entered email ${event.value}")
-                _email.value = email.value.copy(text = event.value)
-            }
-            is CreateUserEvent.ChangeEmailFocus -> {
-                _email.value = email.value.copy(
-                    isHintVisible = !event.focusState.isFocused && email.value.text.isBlank()
-                )
-            }
-            is CreateUserEvent.EnteredPassword -> {
+            is LoginEvent.EnteredPassword -> {
                 Log.i("Recipes", "User entered a password with length ${event.value.length}")
                 _password.value = password.value.copy(text = event.value)
             }
-            is CreateUserEvent.ChangePasswordFocus -> {
+            is LoginEvent.ChangePasswordFocus -> {
                 _password.value = password.value.copy(
                     isHintVisible = !event.focusState.isFocused && password.value.text.isBlank()
                 )
             }
-            is CreateUserEvent.Login -> {
+            is LoginEvent.Login -> {
                 viewModelScope.launch {
                     try {
                         // TODO fix
-                        val user = User(serverUri = server.value.text, email = username.value.text, isDefault = true, name = email.value.text)
                         recipesUseCases.login(
-                            user = user,
+                            user = user!!,
                             password = password.value.text
                         )
                         recipesUseCases.getSyncState().collect() {
@@ -181,6 +133,7 @@ class LoginViewModel @Inject constructor(
 
     sealed class UiEvent {
         data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
+        data object CreateUser : UiEvent()
         data object LoginSuccess : UiEvent()
     }
 }
