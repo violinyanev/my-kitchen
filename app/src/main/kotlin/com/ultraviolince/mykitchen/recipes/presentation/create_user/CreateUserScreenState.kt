@@ -1,13 +1,11 @@
-package com.ultraviolince.mykitchen.recipes.presentation.login
+package com.ultraviolince.mykitchen.recipes.presentation.create_user
 
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
 
 
-data class LoginScreenState(
+data class CreateUserScreenState(
     val server: RecipeTextFieldState,
     val username: RecipeTextFieldState,
     val email: RecipeTextFieldState,
-    val password: RecipeTextFieldState,
-    val stage: LoginScreenStage,
     val buttonLoading: Boolean = false
 )

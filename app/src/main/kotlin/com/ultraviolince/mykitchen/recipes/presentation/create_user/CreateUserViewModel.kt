@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.presentation.login
+package com.ultraviolince.mykitchen.recipes.presentation.create_user
 
 import android.util.Log
 import androidx.annotation.StringRes
@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class CreateUserViewModel @Inject constructor(
     private val recipesUseCases: Recipes
 ) : ViewModel() {
     private val _server = mutableStateOf(
@@ -53,51 +53,10 @@ class LoginViewModel @Inject constructor(
     private val _buttonLoading = mutableStateOf(false)
     val buttonLoading: State<Boolean> = _buttonLoading
 
-    private val _stage = mutableStateOf(LoginScreenStage.LOADING)
-    val stage: State<LoginScreenStage> = _stage
-
-    private val _password = mutableStateOf(
-        RecipeTextFieldState(
-            hintStringId = R.string.password_hint,
-            text = ""
-        )
-    )
-    val password: State<RecipeTextFieldState> = _password
-
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
     private var getDefaultUserData: Job? = null
-
-    init {
-        getUserDetails()
-    }
-
-    private fun getUserDetails() {
-        getDefaultUserData?.cancel()
-        getDefaultUserData = recipesUseCases.getDefaultUser()
-            .onEach {user ->
-                if(user != null) {
-                    if (!user.token.isNullOrEmpty()) {
-                        // TODO check that token is valid
-                        recipesUseCases.login(user, null)
-                        _eventFlow.emit(
-                            UiEvent.LoginSuccess
-                        )
-                    }
-                    else {
-                        _server.value = server.value.copy(text = user.serverUri)
-                        _username.value = username.value.copy(text = user.email)
-                        _stage.value = LoginScreenStage.ENTER_PASSWORD
-                    }
-                }
-                else {
-                    _stage.value = LoginScreenStage.CREATE_USER
-                }
-            }
-            .launchIn(viewModelScope)
-    }
-
 
     fun onEvent(event: CreateUserEvent) {
         when (event) {
@@ -128,21 +87,12 @@ class LoginViewModel @Inject constructor(
                     isHintVisible = !event.focusState.isFocused && email.value.text.isBlank()
                 )
             }
-            is CreateUserEvent.EnteredPassword -> {
-                Log.i("Recipes", "User entered a password with length ${event.value.length}")
-                _password.value = password.value.copy(text = event.value)
-            }
-            is CreateUserEvent.ChangePasswordFocus -> {
-                _password.value = password.value.copy(
-                    isHintVisible = !event.focusState.isFocused && password.value.text.isBlank()
-                )
-            }
-            is CreateUserEvent.Login -> {
+            is CreateUserEvent.Finish -> {
                 viewModelScope.launch {
                     try {
                         // TODO fix
                         val user = User(serverUri = server.value.text, email = username.value.text, isDefault = true, name = email.value.text)
-                        recipesUseCases.login(
+                        recipesUseCases.createUser(
                             user = user,
                             password = password.value.text
                         )
