@@ -1,12 +1,9 @@
 package com.ultraviolince.mykitchen.recipes.presentation.login
 
-enum class LoginScreenStage {
-    LOADING,
-    ENTER_PASSWORD,
-    WAITING
-}
+import com.ultraviolince.mykitchen.recipes.domain.model.User
 
-/*sealed class LoginScreenStage {
+sealed class LoginScreenStage {
     data object Loading : LoginScreenStage()
-    data object Prompt : LoginScreenStage()
-}*/
+    data class EnterPassword(val user: User) : LoginScreenStage()
+    data class AwaitServerResponse(val user: User) : LoginScreenStage()
+}

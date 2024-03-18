@@ -24,7 +24,8 @@ class RecipeServiceWrapper {
                 .build()
                 .create(RecipeService::class.java)
 
-            val token = user.token ?: tmpService.login(LoginRequest(user.email, password!!)).data.token
+            Log.e("Recipes", "User: $user")
+            val token = user.token ?: tmpService.login(LoginRequest(email = user.email, password = password!!)).data.token
 
             val logger = HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
@@ -39,6 +40,7 @@ class RecipeServiceWrapper {
         } catch (e: java.lang.IllegalArgumentException) {
             return LoginState.LoginFailure(R.string.malformed_server_uri)
         } catch (e: HttpException) {
+            Log.e("Recipes", "Wrong credentials: ${e.message}")
             return LoginState.LoginFailure(R.string.wrong_credentials)
         }
 

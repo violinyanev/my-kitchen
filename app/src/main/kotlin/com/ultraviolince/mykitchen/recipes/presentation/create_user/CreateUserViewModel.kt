@@ -87,7 +87,7 @@ class CreateUserViewModel @Inject constructor(
                 viewModelScope.launch {
                     try {
                         // TODO fix
-                        val user = User(serverUri = server.value.text, email = username.value.text, isDefault = true, name = email.value.text)
+                        val user = User(serverUri = server.value.text, email = email.value.text, isDefault = true, name = username.value.text)
                         recipesUseCases.createUser(
                             user = user
                         )

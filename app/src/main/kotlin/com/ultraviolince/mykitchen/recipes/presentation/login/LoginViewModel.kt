@@ -28,10 +28,7 @@ class LoginViewModel @Inject constructor(
     private val recipesUseCases: Recipes
 ) : ViewModel() {
 
-    private val _buttonLoading = mutableStateOf(false)
-    val buttonLoading: State<Boolean> = _buttonLoading
-
-    private val _stage = mutableStateOf(LoginScreenStage.LOADING)
+    private val _stage = mutableStateOf<LoginScreenStage>(LoginScreenStage.Loading)
     val stage: State<LoginScreenStage> = _stage
 
     private val _password = mutableStateOf(
@@ -46,7 +43,6 @@ class LoginViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     private var getDefaultUserData: Job? = null
-    private var user: User? = null
 
     init {
         getUserDetails()
@@ -65,8 +61,7 @@ class LoginViewModel @Inject constructor(
                         )
                     }
                     else {
-                        user = defaultUser
-                        _stage.value = LoginScreenStage.ENTER_PASSWORD
+                        _stage.value = LoginScreenStage.EnterPassword(defaultUser)
                     }
                 }
                 else {
@@ -92,39 +87,43 @@ class LoginViewModel @Inject constructor(
             }
             is LoginEvent.Login -> {
                 viewModelScope.launch {
-                    try {
-                        // TODO fix
-                        recipesUseCases.login(
-                            user = user!!,
-                            password = password.value.text
-                        )
-                        recipesUseCases.getSyncState().collect() {
-                            when (it) {
-                                is LoginState.LoginSuccess -> {
-                                    _eventFlow.emit(
-                                        UiEvent.LoginSuccess
-                                    )
-                                }
-                                LoginState.LoginEmpty -> {
-                                    _buttonLoading.value = false
-                                }
-                                is LoginState.LoginFailure -> {
-                                    _buttonLoading.value = false
-                                    _eventFlow.emit(
-                                        UiEvent.ShowSnackbar(it.errorMessage)
-                                    )
-                                }
-                                LoginState.LoginPending -> {
-                                    _buttonLoading.value = true
+                    val pw = _stage.value as? LoginScreenStage.EnterPassword
+                    if (pw != null)
+                    {
+                        try {
+                            // TODO fix
+                            recipesUseCases.login(
+                                user = pw.user,
+                                password = password.value.text
+                            )
+                            recipesUseCases.getSyncState().collect() {
+                                when (it) {
+                                    is LoginState.LoginSuccess -> {
+                                        _eventFlow.emit(
+                                            UiEvent.LoginSuccess
+                                        )
+                                    }
+                                    LoginState.LoginEmpty -> {
+                                        //_stage.value = LoginScreenStage.EnterPassword(user)
+                                    }
+                                    is LoginState.LoginFailure -> {
+                                        _stage.value = LoginScreenStage.EnterPassword(pw.user)
+                                        _eventFlow.emit(
+                                            UiEvent.ShowSnackbar(it.errorMessage)
+                                        )
+                                    }
+                                    LoginState.LoginPending -> {
+                                        _stage.value = LoginScreenStage.AwaitServerResponse(pw.user)
+                                    }
                                 }
                             }
-                        }
-                    } catch (e: LoginException) {
-                        _eventFlow.emit(
-                            UiEvent.ShowSnackbar(
-                                message = e.errorMsg
+                        } catch (e: LoginException) {
+                            _eventFlow.emit(
+                                UiEvent.ShowSnackbar(
+                                    message = e.errorMsg
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }

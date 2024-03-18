@@ -9,6 +9,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -46,6 +48,7 @@ import androidx.core.content.res.ResourcesCompat.ID_NULL
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.recipes.domain.model.User
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
 import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
@@ -84,6 +87,9 @@ fun LoginScreen(
         passwordState = viewModel.password.value,
         snackBarHostState = snackBarHostState,
         stage = viewModel.stage.value,
+        onSwitchUser = {
+            navController.navigate(Screen.CreateUserScreen.route)
+        },
         eventHandler = {
             viewModel.onEvent(it)
         },
@@ -97,10 +103,11 @@ fun LoginScreenContent(
     passwordState: RecipeTextFieldState,
     snackBarHostState: SnackbarHostState,
     stage: LoginScreenStage,
+    onSwitchUser: () -> Unit,
     modifier: Modifier = Modifier,
     eventHandler: (LoginEvent) -> Unit
 ) {
-    if(stage == LoginScreenStage.LOADING)
+    if(stage == LoginScreenStage.Loading)
     {
         Box (
             modifier = Modifier.fillMaxSize(),
@@ -119,13 +126,13 @@ fun LoginScreenContent(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        if (stage == LoginScreenStage.ENTER_PASSWORD) {
+                        if (stage is LoginScreenStage.EnterPassword) {
                             eventHandler(LoginEvent.Login)
                         }
                     },
                     modifier = Modifier.semantics { contentDescription = "Login" }
                 ) {
-                    if (stage == LoginScreenStage.LOADING) {
+                    if (stage is LoginScreenStage.AwaitServerResponse) {
                         val rotationAnimatable = remember {
                             Animatable(0f)
                         }
@@ -162,9 +169,30 @@ fun LoginScreenContent(
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Row {
+                    val userName =
+                        (stage as? LoginScreenStage.EnterPassword)?.user?.name ?:
+                        (stage as? LoginScreenStage.AwaitServerResponse)?.user?.name ?: "unknown"
+                    Text ("Enter password for user")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Button (
+                        onClick = {
+                            onSwitchUser()
+                        }
+                    ) {
+                        Text (userName)
+                        Icon(
+                            imageVector = Icons.Default.Autorenew,
+                            contentDescription = stringResource(id = R.string.save)
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Box {
                     TextField(
-                        value = passwordState.text,
+                        value = "★".repeat(passwordState.text.length),
                         onValueChange = {
                             eventHandler(LoginEvent.EnteredPassword(it))
                         },
@@ -189,22 +217,23 @@ fun LoginScreenContent(
 }
 
 class LoginScreenPreviewParameterProvider : PreviewParameterProvider<LoginScreenState> {
+    val user = User(name = "pedro", email="", serverUri = "server.com", isDefault = true)
     override val values = sequenceOf(
         LoginScreenState(
             password = RecipeTextFieldState(),
-            stage = LoginScreenStage.LOADING
+            stage = LoginScreenStage.Loading
         ),
         LoginScreenState(
             password = RecipeTextFieldState(text = "", hintStringId = R.string.password_hint, isHintVisible = true),
-            stage = LoginScreenStage.ENTER_PASSWORD
+            stage = LoginScreenStage.EnterPassword(user)
         ),
         LoginScreenState(
             password = RecipeTextFieldState(text = "Pedro"),
-            stage = LoginScreenStage.ENTER_PASSWORD
+            stage = LoginScreenStage.EnterPassword(user)
         ),
         LoginScreenState(
             password = RecipeTextFieldState(text = "Pedro"),
-            stage = LoginScreenStage.WAITING,
+            stage = LoginScreenStage.AwaitServerResponse(user),
         )
     )
 }
@@ -218,6 +247,7 @@ private fun AddEditRecipeScreenPreview(
         LoginScreenContent(
             passwordState = state.password,
             stage = state.stage,
+            onSwitchUser = {},
             snackBarHostState = SnackbarHostState(),
             eventHandler = {}
         )
