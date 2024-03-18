@@ -10,10 +10,16 @@ import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.LoginException
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
+import com.ultraviolince.mykitchen.recipes.domain.util.RecipeOrder
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,6 +54,25 @@ class LoginViewModel @Inject constructor(
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
+
+    private var getDefaultUserData: Job? = null
+
+    init {
+        getUserDetails()
+    }
+
+    private fun getUserDetails() {
+        getDefaultUserData?.cancel()
+        getDefaultUserData = recipesUseCases.getDefaultUser()
+            .onEach {user ->
+                user?.let {
+                    _server.value = server.value.copy(text = user.serverUri)
+                    _username.value = username.value.copy(text = user.email)
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
 
     fun onEvent(event: LoginEvent) {
         when (event) {

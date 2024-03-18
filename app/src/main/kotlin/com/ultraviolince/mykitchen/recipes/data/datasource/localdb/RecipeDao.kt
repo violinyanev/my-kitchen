@@ -5,11 +5,23 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.User
+import com.ultraviolince.mykitchen.recipes.domain.model.UserWithRecipes
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RecipeDao {
+    @Query("SELECT * FROM user")
+    fun getUsers(): Flow<List<User>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUser(user: User): Long
+
+    @Delete
+    suspend fun deleteUser(user: User)
+
     @Query("SELECT * FROM recipe")
     fun getRecipes(): Flow<List<Recipe>>
 
@@ -24,4 +36,8 @@ interface RecipeDao {
 
     @Delete
     suspend fun deleteRecipe(recipe: Recipe)
+
+    @Transaction
+    @Query("SELECT * FROM User")
+    suspend fun getUsersWithRecipes(): List<UserWithRecipes>
 }

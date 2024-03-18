@@ -74,6 +74,10 @@ android {
         schemaDirectory("$projectDir/schemas")
     }
 
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
+
     buildToolsVersion = "34.0.0"
 }
 
@@ -129,6 +133,7 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.room.testing)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
