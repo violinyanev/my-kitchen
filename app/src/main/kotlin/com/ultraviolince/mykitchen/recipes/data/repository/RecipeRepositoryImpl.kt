@@ -20,6 +20,10 @@ class RecipeRepositoryImpl(
         return dao.insertUser(user)
     }
 
+    override suspend fun deleteUser(user: User) {
+        return dao.deleteUser(user)
+    }
+
     override suspend fun login(user: User, password: String?) {
         loginState.emit(LoginState.LoginPending)
         val loginResult = recipeService.login(user = user, password = password)
