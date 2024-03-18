@@ -1,7 +1,7 @@
 package com.ultraviolince.mykitchen.recipes.data.repository
 
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
+import com.ultraviolince.mykitchen.recipes.domain.repository.CloudSyncState
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -53,9 +53,9 @@ class FakeRecipeRepository : RecipeRepository {
     override suspend fun login(server: String, email: String, password: String) {
     }
 
-    override fun getLoginState(): Flow<LoginState> {
+    override fun getLoginState(): Flow<CloudSyncState> {
         return flow {
-            emit(LoginState.LoginEmpty)
+            emit(CloudSyncState.NotLoggedIn)
         }
     }
 }

@@ -4,7 +4,7 @@ import android.util.Log
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
+import com.ultraviolince.mykitchen.recipes.domain.repository.CloudSyncState
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.HttpException
@@ -15,7 +15,7 @@ class RecipeServiceWrapper {
 
     private var recipeService: RecipeService? = null
 
-    suspend fun login(server: String, email: String, password: String): LoginState {
+    suspend fun login(server: String, email: String, password: String): CloudSyncState {
         try {
             val tmpService = Retrofit.Builder()
                 .baseUrl(server)
@@ -37,15 +37,15 @@ class RecipeServiceWrapper {
                 .build()
                 .create(RecipeService::class.java)
         } catch (e: java.lang.IllegalArgumentException) {
-            return LoginState.LoginFailure(R.string.malformed_server_uri)
+            return CloudSyncState.LoginFailure(R.string.malformed_server_uri)
         } catch (e: HttpException) {
-            return LoginState.LoginFailure(R.string.wrong_credentials)
+            return CloudSyncState.LoginFailure(R.string.wrong_credentials)
         }
 
         return if (recipeService != null) {
-            LoginState.LoginSuccess
+            CloudSyncState.SyncInProgress
         } else {
-            LoginState.LoginFailure(R.string.unknown_error)
+            CloudSyncState.LoginFailure(R.string.unknown_error)
         }
     }
 

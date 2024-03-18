@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.LoginException
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
+import com.ultraviolince.mykitchen.recipes.domain.repository.CloudSyncState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,6 +37,8 @@ class LoginViewModel @Inject constructor(
     val username: State<RecipeTextFieldState> = _username
     private val _buttonLoading = mutableStateOf(false)
     val buttonLoading: State<Boolean> = _buttonLoading
+    private val _syncError = mutableStateOf(false)
+    val syncError: State<Boolean> = _syncError
 
     private val _password = mutableStateOf(
         RecipeTextFieldState(
@@ -88,22 +90,26 @@ class LoginViewModel @Inject constructor(
                         )
                         recipesUseCases.getSyncState().collect() {
                             when (it) {
-                                is LoginState.LoginSuccess -> {
+                                is CloudSyncState.NotLoggedIn -> {
+                                    _buttonLoading.value = false
+                                }
+                                is CloudSyncState.LoginPending -> {
+                                    _buttonLoading.value = true
+                                }
+                                is CloudSyncState.SyncInProgress, is CloudSyncState.Synced -> {
+                                    _buttonLoading.value = false
                                     _eventFlow.emit(
                                         UiEvent.LoginSuccess
                                     )
                                 }
-                                LoginState.LoginEmpty -> {
-                                    _buttonLoading.value = false
-                                }
-                                is LoginState.LoginFailure -> {
+                                is CloudSyncState.LoginFailure -> {
                                     _buttonLoading.value = false
                                     _eventFlow.emit(
                                         UiEvent.ShowSnackbar(it.errorMessage)
                                     )
                                 }
-                                LoginState.LoginPending -> {
-                                    _buttonLoading.value = true
+                                is CloudSyncState.SyncFailure -> {
+                                    _syncError.value = true
                                 }
                             }
                         }
