@@ -40,13 +40,6 @@ class AddEditRecipeViewModel @Inject constructor(
     init {
         Log.i("Recipes", "Entering the edit recipe screen")
 
-        // TODO remove this?
-        savedStateHandle.get<Int>("recipeId")?.let { recipeIdInt ->
-            val recipeId = recipeIdInt.toLong()
-            savedStateHandle["recipeId"] = recipeId
-            Log.i("Recipes", "Editing recipe with id=$recipeId")
-        }
-
         savedStateHandle.get<Long>("recipeId")?.let {
                 recipeId ->
             if (recipeId != -1L) {

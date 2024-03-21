@@ -4,6 +4,7 @@ import android.util.Log
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.User
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,23 +16,23 @@ class RecipeServiceWrapper {
 
     private var recipeService: RecipeService? = null
 
-    suspend fun login(server: String, email: String, password: String): LoginState {
+    suspend fun login(user: User, password: String?): LoginState {
         try {
             val tmpService = Retrofit.Builder()
-                .baseUrl(server)
+                .baseUrl(user.serverUri)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(RecipeService::class.java)
 
-            // TODO Store the token, don't force authentication all the time
-            val token = tmpService.login(LoginRequest(email, password)).data.token
+            Log.e("Recipes", "User: $user")
+            val token = user.token ?: tmpService.login(LoginRequest(email = user.email, password = password!!)).data.token
 
             val logger = HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             }
 
             recipeService = Retrofit.Builder()
-                .baseUrl(server)
+                .baseUrl(user.serverUri)
                 .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(token)).addInterceptor(logger).build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
@@ -39,6 +40,7 @@ class RecipeServiceWrapper {
         } catch (e: java.lang.IllegalArgumentException) {
             return LoginState.LoginFailure(R.string.malformed_server_uri)
         } catch (e: HttpException) {
+            Log.e("Recipes", "Wrong credentials: ${e.message}")
             return LoginState.LoginFailure(R.string.wrong_credentials)
         }
 
