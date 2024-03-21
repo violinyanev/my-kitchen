@@ -1,7 +1,7 @@
 
 [versions]
 activityCompose = "1.8.2"
-androidGradlePlugin = "8.3.0"
+androidGradlePlugin = "8.3.1"
 
 # @keep
 compileSdk = "34"
