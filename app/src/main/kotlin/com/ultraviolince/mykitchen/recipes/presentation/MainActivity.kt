@@ -45,7 +45,15 @@ fun MainScreen(modifier: Modifier = Modifier) {
             navController = navController,
             startDestination = Screen.LoginScreen.route
         ) {
-            composable(route = Screen.LoginScreen.route) {
+            composable(
+                route = Screen.LoginScreen.route,
+                arguments = listOf(
+                    navArgument(name = "userId") {
+                        type = NavType.LongType
+                        defaultValue = -1
+                    }
+                )
+            ) {
                 LoginScreen(navController = navController)
             }
             composable(route = Screen.CreateUserScreen.route) {
@@ -58,7 +66,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 route = Screen.AddEditRecipeScreen.route + "?recipeId={recipeId}",
                 arguments = listOf(
                     navArgument(name = "recipeId") {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = -1
                     }
                 )

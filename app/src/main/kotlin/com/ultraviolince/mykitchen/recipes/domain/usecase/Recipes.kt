@@ -2,6 +2,7 @@ package com.ultraviolince.mykitchen.recipes.domain.usecase
 
 data class Recipes(
     val createUser: CreateUser,
+    val getUserById: GetUser,
     val getUsers: GetUsers,
     val getDefaultUser: GetDefaultUser,
     val login: Login,

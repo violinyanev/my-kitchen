@@ -4,6 +4,7 @@ import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFie
 
 
 data class CreateUserScreenState(
+    val existingUser: Boolean = false,
     val server: RecipeTextFieldState,
     val username: RecipeTextFieldState,
     val email: RecipeTextFieldState,

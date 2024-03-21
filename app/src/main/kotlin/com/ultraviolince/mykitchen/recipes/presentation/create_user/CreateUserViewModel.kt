@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.R
@@ -23,8 +24,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateUserViewModel @Inject constructor(
-    private val recipesUseCases: Recipes
+    private val recipesUseCases: Recipes,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val _existingUser = mutableStateOf<Boolean>(
+        false
+    )
+    val existingUser: State<Boolean> = _existingUser
+
+
     private val _server = mutableStateOf(
         RecipeTextFieldState(
             text = "",
@@ -32,6 +41,7 @@ class CreateUserViewModel @Inject constructor(
         )
     )
     val server: State<RecipeTextFieldState> = _server
+
     private val _username = mutableStateOf(
         RecipeTextFieldState(
             hintStringId = R.string.username_hint,
@@ -53,6 +63,31 @@ class CreateUserViewModel @Inject constructor(
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
+
+    private var loginUserWithId: Long? = null
+
+    init {
+        savedStateHandle.get<Long>("userId")?.let {
+                userId ->
+            if (userId != -1L) {
+                viewModelScope.launch {
+                    recipesUseCases.getUserById(userId)?.also {
+                            user ->
+                        loginUserWithId = user.id
+                        _existingUser.value = true
+                        _username.value = username.value.copy(
+                            text = user.email,
+                            isHintVisible = false
+                        )
+                        _email.value = email.value.copy(
+                            text = user.email,
+                            isHintVisible = false
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     fun onEvent(event: CreateUserEvent) {
         when (event) {

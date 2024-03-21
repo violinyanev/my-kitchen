@@ -61,4 +61,8 @@ class RecipeRepositoryImpl(
         return dao.getUsers()
     }
 
+    override suspend fun getUserById(id: Long): User? {
+        return dao.getUserById(id)
+    }
+
 }

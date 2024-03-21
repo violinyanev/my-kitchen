@@ -9,13 +9,16 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Autorenew
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -77,6 +80,7 @@ fun CreateUserScreen(
     }
 
     CreateUserScreenContent(
+        existingUser = viewModel.existingUser.value,
         serverState = viewModel.server.value,
         usernameState = viewModel.username.value,
         emailState = viewModel.email.value,
@@ -92,6 +96,7 @@ fun CreateUserScreen(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CreateUserScreenContent(
+    existingUser: Boolean,
     serverState: RecipeTextFieldState,
     usernameState: RecipeTextFieldState,
     emailState: RecipeTextFieldState,
@@ -103,39 +108,57 @@ fun CreateUserScreenContent(
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    if (!buttonLoading) {
-                        eventHandler(CreateUserEvent.Finish)
-                    }
-                },
-                modifier = Modifier.semantics { contentDescription = "Create user" }
-            ) {
-                if (buttonLoading) {
-                    val rotationAnimatable = remember {
-                        Animatable(0f)
-                    }
-                    LaunchedEffect(Unit) {
-                        rotationAnimatable.animateTo(
-                            targetValue = 360f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(durationMillis = 1000, easing = LinearEasing),
-                                repeatMode = RepeatMode.Restart
-                            )
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .rotate(rotationAnimatable.value)
-                            .then(modifier)
+            Row {
+                if(existingUser)
+                {
+                    FloatingActionButton(
+                        onClick = {
+                            if (!buttonLoading) {
+                                eventHandler(CreateUserEvent.Finish)
+                            }
+                        },
+                        modifier = Modifier.semantics { contentDescription = "Logout" }
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Autorenew,
-                            contentDescription = stringResource(id = R.string.save)
-                        )
+                        Icon(imageVector = Icons.Default.Close, contentDescription = stringResource(id = R.string.save))
                     }
-                } else {
-                    Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                FloatingActionButton(
+                    onClick = {
+                        if (!buttonLoading) {
+                            eventHandler(CreateUserEvent.Finish)
+                        }
+                    },
+                    modifier = Modifier.semantics { contentDescription = "Create user" }
+                ) {
+                    if (buttonLoading) {
+                        val rotationAnimatable = remember {
+                            Animatable(0f)
+                        }
+                        LaunchedEffect(Unit) {
+                            rotationAnimatable.animateTo(
+                                targetValue = 360f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(durationMillis = 1000, easing = LinearEasing),
+                                    repeatMode = RepeatMode.Restart
+                                )
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .rotate(rotationAnimatable.value)
+                                .then(modifier)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Autorenew,
+                                contentDescription = stringResource(id = R.string.save)
+                            )
+                        }
+                    } else {
+                        Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
+                    }
                 }
             }
         },
@@ -245,11 +268,7 @@ class CreateUserPreviewParameterProvider : PreviewParameterProvider<CreateUserSc
             email = RecipeTextFieldState(text = "", hintStringId = R.string.email_hint, isHintVisible = true),
         ),
         CreateUserScreenState(
-            server = RecipeTextFieldState(),
-            username = RecipeTextFieldState(),
-            email = RecipeTextFieldState(),
-        ),
-        CreateUserScreenState(
+            existingUser = true,
             server = RecipeTextFieldState(),
             username = RecipeTextFieldState(),
             email = RecipeTextFieldState(),
@@ -270,6 +289,7 @@ private fun AddEditRecipeScreenPreview(
 ) {
     MyApplicationTheme {
         CreateUserScreenContent(
+            existingUser = state.existingUser,
             serverState = state.server,
             usernameState = state.username,
             emailState = state.email,

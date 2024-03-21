@@ -14,6 +14,7 @@ import com.ultraviolince.mykitchen.recipes.domain.usecase.GetUsers
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetLoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipes
+import com.ultraviolince.mykitchen.recipes.domain.usecase.GetUser
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Login
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import dagger.Module
@@ -50,6 +51,7 @@ class AppModule {
             login = Login(repository),
             createUser = CreateUser(repository),
             getUsers = GetUsers(repository),
+            getUserById = GetUser(repository),
             getDefaultUser = GetDefaultUser(repository),
             getSyncState = GetLoginState(repository),
             getRecipes = GetRecipes(repository),

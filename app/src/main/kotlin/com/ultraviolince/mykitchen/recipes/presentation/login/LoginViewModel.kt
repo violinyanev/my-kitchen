@@ -66,7 +66,7 @@ class LoginViewModel @Inject constructor(
                 }
                 else {
                     _eventFlow.emit(
-                        UiEvent.CreateUser
+                        UiEvent.CreateUser(null)
                     )
                 }
             }
@@ -132,7 +132,7 @@ class LoginViewModel @Inject constructor(
 
     sealed class UiEvent {
         data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
-        data object CreateUser : UiEvent()
+        data class CreateUser(val userId: Long?) : UiEvent()
         data object LoginSuccess : UiEvent()
     }
 }

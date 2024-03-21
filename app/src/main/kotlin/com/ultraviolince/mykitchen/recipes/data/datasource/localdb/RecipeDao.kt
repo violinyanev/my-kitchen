@@ -14,6 +14,9 @@ interface RecipeDao {
     @Query("SELECT * FROM user")
     fun getUsers(): Flow<List<User>>
 
+    @Query("SELECT * FROM user WHERE id =:id")
+    suspend fun getUserById(id: Long): User?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User): Long
 

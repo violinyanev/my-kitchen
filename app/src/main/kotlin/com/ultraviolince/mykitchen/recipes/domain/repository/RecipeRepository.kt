@@ -15,6 +15,7 @@ interface RecipeRepository {
     suspend fun login(user: User, password: String?)
     fun getLoginState(): Flow<LoginState>
     fun getUsers(): Flow<List<User>>
+    suspend fun getUserById(id: Long): User?
     suspend fun insertUser(user: User): Long
     suspend fun deleteUser(user: User)
 }

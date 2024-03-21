@@ -74,7 +74,8 @@ fun LoginScreen(
                     )
                 }
                 is LoginViewModel.UiEvent.CreateUser -> {
-                    navController.navigate(Screen.CreateUserScreen.route)
+                    val userId = event.userId ?: -1
+                    navController.navigate(Screen.CreateUserScreen.route + "/userId=$userId")
                 }
                 is LoginViewModel.UiEvent.LoginSuccess -> {
                     navController.navigateUp()
