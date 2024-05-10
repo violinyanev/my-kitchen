@@ -35,9 +35,10 @@ class AppModule {
     @Provides
     @Singleton
     fun provideRecipeRepository(
-        db: RecipeDatabase
+        db: RecipeDatabase,
+        service: RecipeServiceWrapper
     ): RecipeRepository {
-        return RecipeRepositoryImpl(db.recipeDao, RecipeServiceWrapper())
+        return RecipeRepositoryImpl(db.recipeDao, service)
     }
 
     @Provides
