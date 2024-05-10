@@ -5,7 +5,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import javax.inject.Singleton
 
 @Module
@@ -14,8 +13,7 @@ open class BackendModule {
 
     @Provides
     @Singleton
-    fun provideRecipeServiceWrapper(
-    ): RecipeServiceWrapper {
+    fun provideRecipeServiceWrapper(): RecipeServiceWrapper {
         return RecipeServiceWrapper()
     }
 }

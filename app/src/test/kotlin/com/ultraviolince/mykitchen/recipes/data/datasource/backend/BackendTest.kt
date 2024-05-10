@@ -11,14 +11,13 @@ import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-
 class BackendTest {
 
     companion object {
-        const val user = "User"
-        const val token = "MyToken"
-        const val email = "me@example.com"
-        const val password = "123456 :)"
+        const val USER = "User"
+        const val TOKEN = "MyToken"
+        const val EMAIL = "me@example.com"
+        const val PASSWORD = "123456 :)"
     }
 
     private val mockWebServer = MockWebServer()
@@ -42,26 +41,26 @@ class BackendTest {
     @Test
     fun `logs in successfully`() = runTest {
         mockWebServer.enqueue(
-            MockResponse().setBody("{\"data\":{\"email\":\"$email\",\"token\":\"$token\",\"username\":\"$user\"}}")
+            MockResponse().setBody("{\"data\":{\"email\":\"$EMAIL\",\"token\":\"$TOKEN\",\"username\":\"$USER\"}}")
         )
 
-        val response = recipeService.login(LoginRequest(email = user, password = password))
+        val response = recipeService.login(LoginRequest(email = USER, password = PASSWORD))
 
-        assertEquals(response.data.username, user)
-        assertEquals(response.data.token, token)
+        assertEquals(response.data.username, USER)
+        assertEquals(response.data.token, TOKEN)
 
         val request = mockWebServer.takeRequest()
         assertEquals("/users/login", request.path)
-        assertEquals("{\"email\":\"$user\",\"password\":\"$password\"}", request.body.readUtf8())
+        assertEquals("{\"email\":\"$USER\",\"password\":\"$PASSWORD\"}", request.body.readUtf8())
         assertNull(request.getHeader("Authorization"))
     }
 
     @Test
     fun `gets list of recipes`() = runTest {
         mockWebServer.enqueue(
-            MockResponse().setBody("[" +
-                    "{\"body\":\"b\",\"id\":1,\"timestamp\":11,\"title\":\"r1\",\"user\":\"u1\"}" +
-                    "]")
+            MockResponse().setBody(
+                "[{\"body\":\"b\",\"id\":1,\"timestamp\":11,\"title\":\"r1\",\"user\":\"u1\"}]"
+            )
         )
 
         val response = recipeService.getRecipes()
@@ -83,9 +82,13 @@ class BackendTest {
         mockWebServer.enqueue(
             MockResponse().setBody("{\"data\":{\"content\":\"c\",\"title\":\"t\",\"timestamp\":5,\"id\":1}}")
         )
-        val response = recipeService.createRecipe(recipeRequest = BackendRecipe(
-            id = 1L, title = "title", body = "body", timestamp = 5L
-        )
+        val response = recipeService.createRecipe(
+            recipeRequest = BackendRecipe(
+                id = 1L,
+                title = "title",
+                body = "body",
+                timestamp = 5L
+            )
         )
 
         // TODO: make this a proper response

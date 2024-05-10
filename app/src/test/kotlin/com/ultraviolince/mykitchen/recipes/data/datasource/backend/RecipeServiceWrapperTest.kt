@@ -1,14 +1,8 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
-import com.ultraviolince.mykitchen.R
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Test
-
 class RecipeServiceWrapperTest {
 
-    private val service = RecipeServiceWrapper()
+    // private val service = RecipeServiceWrapper()
 
     // TODO fix the tests
 //    @Test
