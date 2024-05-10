@@ -1,88 +1,113 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.test.runTest
-import okhttp3.OkHttpClient
-import org.junit.Assert.assertThrows
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
 class BackendTest {
 
-    private val recipeService = Retrofit.Builder()
-        .baseUrl(FakeBackend.server)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(RecipeService::class.java)
+    companion object {
+        const val user = "User"
+        const val token = "MyToken"
+        const val email = "me@example.com"
+        const val password = "123456 :)"
+    }
 
-    private val authenticatedService = Retrofit.Builder()
-        .baseUrl(FakeBackend.server)
-        .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(FakeBackend.testToken)).build())
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(RecipeService::class.java)
+    private val mockWebServer = MockWebServer()
+    private lateinit var recipeService: RecipeService
 
-    @Test
-    fun `logs in with test user`() = runTest {
-        val response = recipeService.login(LoginRequest(email = FakeBackend.testUser, password = FakeBackend.testPassword))
+    @Before
+    fun setup() {
+        mockWebServer.start()
+        recipeService = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(RecipeService::class.java)
+    }
 
-        assertEquals(response.data.username, FakeBackend.testUserName)
-        assertEquals(response.data.token, FakeBackend.testToken)
+    @After
+    fun teardown() {
+        mockWebServer.shutdown()
     }
 
     @Test
-    fun `fails to log in when email is not found`() {
-        assertThrows(retrofit2.HttpException::class.java) {
-            runTest {
-                recipeService.login(LoginRequest(email = "wrong", password = FakeBackend.testPassword))
-            }
-        }
-    }
+    fun `logs in successfully`() = runTest {
+        mockWebServer.enqueue(
+            MockResponse().setBody("{\"data\":{\"email\":\"$email\",\"token\":\"$token\",\"username\":\"$user\"}}")
+        )
 
-    @Test
-    fun `fails to log in with test user when password is wrong`() {
-        assertThrows(retrofit2.HttpException::class.java) {
-            runTest {
-                recipeService.login(LoginRequest(email = FakeBackend.testUser, password = "wrong password"))
-            }
-        }
-    }
+        val response = recipeService.login(LoginRequest(email = user, password = password))
 
-    @Test
-    fun `fails to list recipes when not authenticated`() {
-        assertThrows(retrofit2.HttpException::class.java) {
-            runTest {
-                recipeService.getRecipes()
-            }
-        }
-    }
+        assertEquals(response.data.username, user)
+        assertEquals(response.data.token, token)
 
-    @Test
-    fun `fails to create a recipe when not authenticated`() {
-        assertThrows(retrofit2.HttpException::class.java) {
-            runTest {
-                recipeService.createRecipe(BackendRecipe(id = 3, title = "test", body = "body", timestamp = 567L))
-            }
-        }
+        val request = mockWebServer.takeRequest()
+        assertEquals("/users/login", request.path)
+        assertEquals("{\"email\":\"$user\",\"password\":\"$password\"}", request.body.readUtf8())
+        assertNull(request.getHeader("Authorization"))
     }
 
     @Test
     fun `gets list of recipes`() = runTest {
-        // TODO check list is empty after mock server is used
-        authenticatedService.getRecipes()
+        mockWebServer.enqueue(
+            MockResponse().setBody("[" +
+                    "{\"body\":\"b\",\"id\":1,\"timestamp\":11,\"title\":\"r1\",\"user\":\"u1\"}" +
+                    "]")
+        )
+
+        val response = recipeService.getRecipes()
+
+        assertEquals(response.size, 1)
+        assertEquals(response[0].body, "b")
+        assertEquals(response[0].title, "r1")
+        assertEquals(response[0].timestamp, 11L)
+        assertEquals(response[0].id, 1L)
+        // TODO: test author?
+
+        val request = mockWebServer.takeRequest()
+        assertEquals("/recipes", request.path)
+        assertEquals("", request.body.readUtf8())
     }
 
     @Test
-    fun `creates and deletes a recipe`() = runTest {
-        val id = 123L
-        val createResponse = authenticatedService.createRecipe(BackendRecipe(id = id, title = "test", body = "body", timestamp = 567L))
+    fun `creates a recipe`() = runTest {
+        mockWebServer.enqueue(
+            MockResponse().setBody("{\"data\":{\"content\":\"c\",\"title\":\"t\",\"timestamp\":5,\"id\":1}}")
+        )
+        val response = recipeService.createRecipe(recipeRequest = BackendRecipe(
+            id = 1L, title = "title", body = "body", timestamp = 5L
+        )
+        )
 
-        assertEquals("test", createResponse.recipe.title)
-        assertEquals("body", createResponse.recipe.body)
-        assertEquals(id, createResponse.recipe.id)
-        assertEquals(567L, createResponse.recipe.timestamp)
+        // TODO: make this a proper response
+        assertEquals(response.recipe, null)
+//
+        val request = mockWebServer.takeRequest()
+        assertEquals("/recipes", request.path)
+        assertEquals("{\"id\":1,\"title\":\"title\",\"body\":\"body\",\"timestamp\":5}", request.body.readUtf8())
+    }
 
-        authenticatedService.deleteRecipe(recipeId = id)
+    @Test
+    fun `deletes a recipe`() = runTest {
+        mockWebServer.enqueue(
+            MockResponse().setBody("")
+        )
+        val response = recipeService.deleteRecipe(recipeId = 5L)
+
+        // TODO: make this a proper response
+        assertEquals(response.body(), Unit)
+
+        val request = mockWebServer.takeRequest()
+        assertEquals("/recipes/5", request.path)
+        assertEquals("", request.body.readUtf8())
     }
 }
