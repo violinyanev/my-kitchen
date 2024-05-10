@@ -39,7 +39,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("debug")
-            resValue("string", "clear_text_config","false")
+            resValue("string", "clear_text_config", "false")
         }
         debug {
             isMinifyEnabled = false
@@ -49,7 +49,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            resValue("string", "clear_text_config","true")
+            resValue("string", "clear_text_config", "true")
         }
     }
     compileOptions {
