@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.data.datasource.backend
+package com.ultraviolince.mykitchen.recipes.data
 
 class FakeBackend {
     // TODO use real test server
