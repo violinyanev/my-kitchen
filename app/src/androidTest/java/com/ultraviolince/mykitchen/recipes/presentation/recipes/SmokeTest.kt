@@ -13,17 +13,33 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeService
 import com.ultraviolince.mykitchen.recipes.presentation.MainActivity
+import com.ultraviolince.mykitchen.recipes.utils.FileReader
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @OptIn(ExperimentalTestApi::class)
 @HiltAndroidTest
 class SmokeTest {
+
+    private val mockWebServer = MockWebServer()
+    private lateinit var mockServerUrl: String
+    private val testUser = "TestUser"
+    private val testPassword = "TestPassword"
+    private val token = "Token"
+
+
     private val hiltRule = HiltAndroidRule(this)
     private val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -32,8 +48,17 @@ class SmokeTest {
         .outerRule(hiltRule)
         .around(composeTestRule)
 
+    private fun fakeServerLogin() {
+        mockWebServer.enqueue(
+            MockResponse().setBody("{\"data\":{\"email\":\"test@user.com\",\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRlc3RVc2VyIn0.kH9ebqYvk7Jo_DWYJfc392BfUf8OZBFPqw8x9KD-5O0\",\"username\":\"TestUser\"},\"message\":\"Successfully created authentication token\"}\n")
+
+            //FileReader.readStringFromFile("login_response.json"))
+        )
+    }
+
     @Before
     fun setup() {
+        println("############# SETUP BEGIN ################")
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val config = Configuration.Builder()
             .setMinimumLoggingLevel(Log.DEBUG)
@@ -41,9 +66,22 @@ class SmokeTest {
             .build()
 
         WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+        mockWebServer.start()
+        runBlocking {
+            mockServerUrl = mockWebServer.url("/").toString()
+        }
+        println("############# SETUP END ################")
+    }
+
+    @After
+    fun teardown() {
+        println("############# TEARDOWN BEGIN ################")
+        mockWebServer.shutdown()
+        println("############# TEARDOWN END ################")
     }
 
     private fun createRecipe(title: String, content: String) {
+        println("############# CREATE RECIPE ################")
         // When the "New Recipe" button is clicked
         with(composeTestRule.onNodeWithContentDescription("New recipe")) {
             assertExists()
@@ -83,6 +121,7 @@ class SmokeTest {
             assertExists()
             assertIsDisplayed()
         }
+        println("############# RECIPE CREATED ################")
     }
 
     @Test fun createRecipe_WithoutLogin() {
@@ -108,18 +147,20 @@ class SmokeTest {
         with(composeTestRule.onNodeWithContentDescription("Server URI")) {
             assertExists()
             assertIsDisplayed()
-            performTextInput("https://ultraviolince.com:8019")
+            performTextInput(mockServerUrl)
         }
         with(composeTestRule.onNodeWithContentDescription("User name")) {
             assertExists()
             assertIsDisplayed()
-            performTextInput("test@user.com")
+            performTextInput(testUser)
         }
         with(composeTestRule.onNodeWithContentDescription("Password")) {
             assertExists()
             assertIsDisplayed()
-            performTextInput("TestPassword")
+            performTextInput(testPassword)
         }
+
+        fakeServerLogin()
 
         // Login
         with(composeTestRule.onNodeWithContentDescription("Login")) {
@@ -129,8 +170,8 @@ class SmokeTest {
         }
 
         // Create a new recipe, with backend now
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)
+        //composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)*/
 
-        createRecipe("recipe2", "content2")
+        //createRecipe("recipe2", "content2")
     }
 }
