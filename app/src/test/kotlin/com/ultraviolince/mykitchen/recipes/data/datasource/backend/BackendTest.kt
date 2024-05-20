@@ -51,6 +51,7 @@ class BackendTest {
 
         val request = mockWebServer.takeRequest()
         assertEquals("/users/login", request.path)
+        assertEquals("POST", request.method)
         assertEquals("{\"email\":\"$USER\",\"password\":\"$PASSWORD\"}", request.body.readUtf8())
         assertNull(request.getHeader("Authorization"))
     }
@@ -74,13 +75,14 @@ class BackendTest {
 
         val request = mockWebServer.takeRequest()
         assertEquals("/recipes", request.path)
+        assertEquals("GET", request.method)
         assertEquals("", request.body.readUtf8())
     }
 
     @Test
     fun `creates a recipe`() = runTest {
         mockWebServer.enqueue(
-            MockResponse().setBody("{\"data\":{\"content\":\"c\",\"title\":\"t\",\"timestamp\":5,\"id\":1}}")
+            MockResponse().setBody("{\"message\":\"Recipe created successfully\",\"recipe\":{\"body\":\"body\",\"id\":1,\"timestamp\":5,\"title\":\"title\",\"user\":\"u\"}}")
         )
         val response = recipeService.createRecipe(
             recipeRequest = BackendRecipe(
@@ -91,26 +93,29 @@ class BackendTest {
             )
         )
 
-        // TODO: make this a proper response
-        assertEquals(response.recipe, null)
-//
+        assertEquals(response.recipe.title, "title")
+        assertEquals(response.recipe.body, "body")
+        assertEquals(response.recipe.timestamp, 5L)
+        assertEquals(response.recipe.id, 1L)
+
         val request = mockWebServer.takeRequest()
         assertEquals("/recipes", request.path)
+        assertEquals("POST", request.method)
         assertEquals("{\"id\":1,\"title\":\"title\",\"body\":\"body\",\"timestamp\":5}", request.body.readUtf8())
     }
 
     @Test
     fun `deletes a recipe`() = runTest {
         mockWebServer.enqueue(
-            MockResponse().setBody("")
+            MockResponse().setBody("").setResponseCode(204)
         )
         val response = recipeService.deleteRecipe(recipeId = 5L)
 
-        // TODO: make this a proper response
-        assertEquals(response.body(), Unit)
+        assertEquals(response.body(), null)
 
         val request = mockWebServer.takeRequest()
         assertEquals("/recipes/5", request.path)
         assertEquals("", request.body.readUtf8())
+        assertEquals("DELETE", request.method)
     }
 }
