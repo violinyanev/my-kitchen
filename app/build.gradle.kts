@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.room)
+    alias(libs.plugins.screenshot)
 }
 
 android {
@@ -77,6 +78,8 @@ android {
     }
 
     buildToolsVersion = "34.0.0"
+
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
 }
 
 dependencies {
@@ -139,6 +142,8 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp3.mockwebserver)
+
+    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
 
     detektPlugins(libs.detektTwitterPlugin)
     detektPlugins(libs.detektFormattingPlugin)

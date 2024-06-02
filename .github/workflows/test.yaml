@@ -20,6 +20,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      lfs: true
+
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
@@ -29,7 +31,7 @@ jobs:
       uses: gradle/gradle-build-action@v2
 
     - name: Build APKs
-      run: ./gradlew :app:assembleDebug :app:testDebug ktlintCheck :app:koverXmlReportDebug detekt
+      run: ./gradlew :app:assembleDebug :app:testDebug :app:validateDebugScreenshotTest ktlintCheck :app:koverXmlReportDebug detekt
 
     - name: Add coverage report to PR
       id: kover
