@@ -1,7 +1,7 @@
 
 [versions]
 activityCompose = "1.9.0"
-androidGradlePlugin = "8.4.0"
+androidGradlePlugin = "8.4.1"
 
 # @keep
 compileSdk = "34"
@@ -14,7 +14,7 @@ coroutines = "1.8.0"
 espresso = "3.5.1"
 gson = "2.10.1"
 retrofit = "2.9.0"
-hilt = "2.51"
+hilt = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 junit = "4.13.2"
 mockk = "1.13.10"
@@ -26,7 +26,7 @@ ktlint = "11.6.1"
 detekt = "1.23.6"
 twitterDetekt = "0.0.26" # When changing this version, also update .idea/detekt.xml accordingly
 ktx = "1.13.1"
-lifecycle = "2.8.0"
+lifecycle = "2.8.1"
 material = "1.12.0"
 material3 = "1.2.1"
 
@@ -42,7 +42,7 @@ room = "2.6.1"
 targetSdk = "33"
 testExtJunit = "1.1.5"
 uiAutomator = "2.3.0"
-viewModelCompose = "2.8.0"
+viewModelCompose = "2.8.1"
 work = "2.9.0"
 ksp = "1.9.23-1.0.20"
 kover = "0.7.6"
