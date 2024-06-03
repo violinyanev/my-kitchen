@@ -83,7 +83,7 @@ fun RecipeScreen(
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-private fun RecipeScreenContent(
+fun RecipeScreenContent(
     onAddRecipe: () -> Unit,
     onSortClick: () -> Unit,
     onLoginClick: () -> Unit,
