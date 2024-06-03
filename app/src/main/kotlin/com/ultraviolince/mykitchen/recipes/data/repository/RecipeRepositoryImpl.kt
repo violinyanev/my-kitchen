@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.recipes.data.repository
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.User
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
@@ -15,9 +16,17 @@ class RecipeRepositoryImpl(
 
     private val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
 
-    override suspend fun login(server: String, email: String, password: String) {
+    override suspend fun insertUser(user: User): Long {
+        return dao.insertUser(user)
+    }
+
+    override suspend fun deleteUser(user: User) {
+        return dao.deleteUser(user)
+    }
+
+    override suspend fun login(user: User, password: String?) {
         loginState.emit(LoginState.LoginPending)
-        val loginResult = recipeService.login(server = server, email = email, password = password)
+        val loginResult = recipeService.login(user = user, password = password)
         loginState.emit(loginResult)
 
         if (loginResult == LoginState.LoginSuccess) {
@@ -47,4 +56,13 @@ class RecipeRepositoryImpl(
         recipeService.deleteRecipe(recipe.id!!)
         return dao.deleteRecipe(recipe)
     }
+
+    override fun getUsers(): Flow<List<User>> {
+        return dao.getUsers()
+    }
+
+    override suspend fun getUserById(id: Long): User? {
+        return dao.getUserById(id)
+    }
+
 }

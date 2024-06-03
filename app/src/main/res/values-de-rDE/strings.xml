@@ -15,6 +15,7 @@
     <string name="missing_body">Der Rezepinhalt darf nicht leer sein</string>
     <string name="server_hint">Server, z.B. https://myserver.com:8019</string>
     <string name="username_hint">Benutzername</string>
+    <string name="email_hint">E-Mail</string>
     <string name="password_hint">Passwort</string>
     <string name="sync_enabled">Backup an</string>
     <string name="sync_disabled">Backup aus</string>
@@ -25,4 +26,5 @@
     <string name="wrong_credentials">Falscher login/passwort</string>
     <string name="unknown_error">Unerwarter Fehler! Bitte als melden</string>
     <string name="delete">Löschen</string>
+    <string name="missing_email">Sie müssen eine E-Mail Adresse angeben!</string>
 </resources>
