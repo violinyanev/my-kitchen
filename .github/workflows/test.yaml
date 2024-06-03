@@ -20,7 +20,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      lfs: true
+      with:
+        lfs: 'true'
 
     - uses: actions/setup-java@v4
       with:
