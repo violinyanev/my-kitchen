@@ -11,14 +11,13 @@ import com.ultraviolince.mykitchen.recipes.domain.model.LoginException
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
-@HiltViewModel
-class LoginViewModel @Inject constructor(
+@KoinViewModel
+class LoginViewModel(
     private val recipesUseCases: Recipes
 ) : ViewModel() {
     private val _server = mutableStateOf(
@@ -86,7 +85,7 @@ class LoginViewModel @Inject constructor(
                             username = username.value.text,
                             password = password.value.text
                         )
-                        recipesUseCases.getSyncState().collect() {
+                        recipesUseCases.getSyncState().collect {
                             when (it) {
                                 is LoginState.LoginSuccess -> {
                                     _eventFlow.emit(

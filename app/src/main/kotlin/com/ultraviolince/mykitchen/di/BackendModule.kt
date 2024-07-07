@@ -1,18 +1,13 @@
 package com.ultraviolince.mykitchen.di
 
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
 @Module
-@InstallIn(SingletonComponent::class)
-open class BackendModule {
+class BackendModule {
 
-    @Provides
-    @Singleton
+    @Single
     fun provideRecipeServiceWrapper(): RecipeServiceWrapper {
         return RecipeServiceWrapper()
     }

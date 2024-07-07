@@ -13,17 +13,12 @@ import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipes
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Login
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
 @Module
-@InstallIn(SingletonComponent::class)
 class AppModule {
-    @Provides
-    @Singleton
+    @Single
     fun provideRecipeDatabase(app: Application): RecipeDatabase {
         return Room.databaseBuilder(
             app,
@@ -32,8 +27,7 @@ class AppModule {
         ).build()
     }
 
-    @Provides
-    @Singleton
+    @Single
     fun provideRecipeRepository(
         db: RecipeDatabase,
         service: RecipeServiceWrapper
@@ -41,8 +35,7 @@ class AppModule {
         return RecipeRepositoryImpl(db.recipeDao, service)
     }
 
-    @Provides
-    @Singleton
+    @Single
     fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
         return Recipes(
             login = Login(repository),

@@ -11,14 +11,13 @@ import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.InvalidRecipeException
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
-@HiltViewModel
-class AddEditRecipeViewModel @Inject constructor(
+@KoinViewModel
+class AddEditRecipeViewModel(
     private val recipesUseCases: Recipes,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {

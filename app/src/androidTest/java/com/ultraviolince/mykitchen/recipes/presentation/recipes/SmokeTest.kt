@@ -14,23 +14,14 @@ import androidx.work.Configuration
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.ultraviolince.mykitchen.recipes.presentation.MainActivity
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.RuleChain
 
 @OptIn(ExperimentalTestApi::class)
-@HiltAndroidTest
 class SmokeTest {
-    private val hiltRule = HiltAndroidRule(this)
-    private val composeTestRule = createAndroidComposeRule<MainActivity>()
-
     @get:Rule
-    val rule: RuleChain = RuleChain
-        .outerRule(hiltRule)
-        .around(composeTestRule)
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Before
     fun setup() {

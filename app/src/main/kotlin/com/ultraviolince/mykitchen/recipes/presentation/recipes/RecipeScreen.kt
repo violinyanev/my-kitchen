@@ -39,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
@@ -48,12 +47,13 @@ import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.Order
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.RecipeItem
 import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
+import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RecipeScreen(
     navController: NavController,
-    viewModel: RecipeViewModel = hiltViewModel()
+    viewModel: RecipeViewModel = koinViewModel()
 ) {
     val state = viewModel.state.value
 
