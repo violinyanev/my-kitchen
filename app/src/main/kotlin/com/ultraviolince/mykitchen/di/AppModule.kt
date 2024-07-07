@@ -2,6 +2,7 @@ package com.ultraviolince.mykitchen.di
 
 import android.app.Application
 import androidx.room.Room
+import com.example.myapplication.recipes.data.util.DatabaseInitializer
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDatabase
 import com.ultraviolince.mykitchen.recipes.data.repository.RecipeRepositoryImpl
@@ -17,6 +18,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Singleton
 
 @Module
@@ -25,11 +27,19 @@ class AppModule {
     @Provides
     @Singleton
     fun provideRecipeDatabase(app: Application): RecipeDatabase {
-        return Room.databaseBuilder(
+        val db = Room.databaseBuilder(
             app,
             RecipeDatabase::class.java,
             RecipeDatabase.DATABASE_NAME
         ).build()
+
+        if (BuildConfig.DEBUG) {
+            runBlocking {
+                DatabaseInitializer.populateDatabase(db)
+            }
+        }
+
+        return db
     }
 
     @Provides
