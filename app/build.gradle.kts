@@ -83,6 +83,10 @@ android {
     }
 
     buildToolsVersion = "34.0.0"
+
+    ksp {
+        arg("KOIN_CONFIG_CHECK", "true")
+    }
 }
 
 dependencies {
