@@ -13,7 +13,8 @@ class RecipesScreenshotTests {
     @Preview(name = "Test", device = "spec:id=reference_test,shape=Normal,width=500,height=600,unit=dp,dpi=240", showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_UNDEFINED)
     @Composable
     fun Tests(
-        @PreviewParameter(RecipeScreenStatePreviewParameterProvider::class) recipesState: RecipesState ) {
+        @PreviewParameter(RecipeScreenStatePreviewParameterProvider::class) recipesState: RecipesState
+    ) {
         MyApplicationTheme {
             RecipeScreenContent(
                 onAddRecipe = {},

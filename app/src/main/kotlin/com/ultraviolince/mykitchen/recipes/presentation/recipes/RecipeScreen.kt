@@ -89,9 +89,11 @@ fun RecipeScreenContent(
     onLoginClick: () -> Unit,
     onEvent: (RecipesEvent) -> Unit,
     onRecipeClicked: (Recipe) -> Unit,
-    recipeState: RecipesState
+    recipeState: RecipesState,
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
+        modifier = modifier,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddRecipe,

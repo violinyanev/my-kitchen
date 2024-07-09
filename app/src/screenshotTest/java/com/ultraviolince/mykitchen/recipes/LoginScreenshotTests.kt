@@ -15,7 +15,6 @@ class LoginScreenshotTests {
     @Composable
     fun Tests(@PreviewParameter(LoginScreenPreviewParameterProvider::class) state: LoginScreenState) {
         MyApplicationTheme {
-
             LoginScreenContent(
                 serverState = state.server,
                 usernameState = state.username,
