@@ -172,21 +172,12 @@ val excludedPackages = listOf(
     "ViewModel_Factory"
 )
 
-val koverExcludes = (excludedClasses.map { "*$it*" } + excludedPackages.map { "*$it*" })
-
-koverReport {
-    // filters for all report types of all build variants
-    filters {
-        excludes {
-            classes(koverExcludes)
-        }
-    }
-
-    androidReports("release") {
-        // filters for all report types only of 'release' build type
+kover {
+    reports {
         filters {
             excludes {
-                classes(koverExcludes)
+                classes(excludedClasses)
+                packages(excludedPackages)
             }
         }
     }
