@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.AddEditRecipeScreen
+import com.ultraviolince.mykitchen.recipes.presentation.login.CreateUserScreen
 import com.ultraviolince.mykitchen.recipes.presentation.login.LoginScreen
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.RecipeScreen
 import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
@@ -42,10 +43,21 @@ fun MainScreen(modifier: Modifier = Modifier) {
         val navController = rememberNavController()
         NavHost(
             navController = navController,
-            startDestination = Screen.RecipesScreen.route
+            startDestination = Screen.LoginScreen.route
         ) {
-            composable(route = Screen.LoginScreen.route) {
+            composable(
+                route = Screen.LoginScreen.route,
+                arguments = listOf(
+                    navArgument(name = "userId") {
+                        type = NavType.LongType
+                        defaultValue = -1
+                    }
+                )
+            ) {
                 LoginScreen(navController = navController)
+            }
+            composable(route = Screen.CreateUserScreen.route) {
+                CreateUserScreen(navController = navController)
             }
             composable(route = Screen.RecipesScreen.route) {
                 RecipeScreen(navController = navController)
@@ -54,7 +66,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 route = Screen.AddEditRecipeScreen.route + "?recipeId={recipeId}",
                 arguments = listOf(
                     navArgument(name = "recipeId") {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = -1
                     }
                 )

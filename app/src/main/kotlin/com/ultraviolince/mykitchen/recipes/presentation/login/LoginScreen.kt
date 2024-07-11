@@ -9,14 +9,18 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +32,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
@@ -43,7 +48,9 @@ import androidx.core.content.res.ResourcesCompat.ID_NULL
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.recipes.domain.model.User
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
+import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
 
@@ -53,10 +60,6 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-    val serverState = viewModel.server.value
-    val usernameState = viewModel.username.value
-    val passwordState = viewModel.password.value
-
     val snackBarHostState = remember { SnackbarHostState() }
 
     // TODO better way?
@@ -70,6 +73,10 @@ fun LoginScreen(
                         message = context.resources.getString(event.message)
                     )
                 }
+                is LoginViewModel.UiEvent.CreateUser -> {
+                    val userId = event.userId ?: -1
+                    navController.navigate(Screen.CreateUserScreen.route + "/userId=$userId")
+                }
                 is LoginViewModel.UiEvent.LoginSuccess -> {
                     navController.navigateUp()
                 }
@@ -78,11 +85,12 @@ fun LoginScreen(
     }
 
     LoginScreenContent(
-        serverState = serverState,
-        usernameState = usernameState,
-        passwordState = passwordState,
+        passwordState = viewModel.password.value,
         snackBarHostState = snackBarHostState,
-        buttonLoading = viewModel.buttonLoading.value,
+        stage = viewModel.stage.value,
+        onSwitchUser = {
+            navController.navigate(Screen.CreateUserScreen.route)
+        },
         eventHandler = {
             viewModel.onEvent(it)
         },
@@ -93,154 +101,140 @@ fun LoginScreen(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreenContent(
-    serverState: RecipeTextFieldState,
-    usernameState: RecipeTextFieldState,
     passwordState: RecipeTextFieldState,
     snackBarHostState: SnackbarHostState,
-    buttonLoading: Boolean,
+    stage: LoginScreenStage,
+    onSwitchUser: () -> Unit,
     modifier: Modifier = Modifier,
     eventHandler: (LoginEvent) -> Unit
 ) {
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackBarHostState) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    if (!buttonLoading) {
-                        eventHandler(LoginEvent.Login)
-                    }
-                },
-                modifier = Modifier.semantics { contentDescription = "Login" }
-            ) {
-                if (buttonLoading) {
-                    val rotationAnimatable = remember {
-                        Animatable(0f)
-                    }
-                    LaunchedEffect(Unit) {
-                        rotationAnimatable.animateTo(
-                            targetValue = 360f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(durationMillis = 1000, easing = LinearEasing),
-                                repeatMode = RepeatMode.Restart
+    if(stage == LoginScreenStage.Loading)
+    {
+        Box (
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp),
+                color = MaterialTheme.colorScheme.secondary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            )
+        }
+    }
+    else {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackBarHostState) },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        if (stage is LoginScreenStage.EnterPassword) {
+                            eventHandler(LoginEvent.Login)
+                        }
+                    },
+                    modifier = Modifier.semantics { contentDescription = "Login" }
+                ) {
+                    if (stage is LoginScreenStage.AwaitServerResponse) {
+                        val rotationAnimatable = remember {
+                            Animatable(0f)
+                        }
+                        LaunchedEffect(Unit) {
+                            rotationAnimatable.animateTo(
+                                targetValue = 360f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(durationMillis = 1000, easing = LinearEasing),
+                                    repeatMode = RepeatMode.Restart
+                                )
                             )
-                        )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .rotate(rotationAnimatable.value)
+                                .then(modifier)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Autorenew,
+                                contentDescription = stringResource(id = R.string.save)
+                            )
+                        }
+                    } else {
+                        Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
                     }
-                    Box(
-                        modifier = Modifier
-                            .rotate(rotationAnimatable.value)
-                            .then(modifier)
+                }
+            },
+            modifier = modifier
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row {
+                    val userName =
+                        (stage as? LoginScreenStage.EnterPassword)?.user?.name ?:
+                        (stage as? LoginScreenStage.AwaitServerResponse)?.user?.name ?: "unknown"
+                    Text ("Enter password for user")
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Button (
+                        onClick = {
+                            onSwitchUser()
+                        }
                     ) {
+                        Text (userName)
                         Icon(
                             imageVector = Icons.Default.Autorenew,
                             contentDescription = stringResource(id = R.string.save)
                         )
                     }
-                } else {
-                    Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
                 }
-            }
-        },
-        modifier = modifier
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
+                
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Box {
-                TextField(
-                    value = serverState.text,
-                    onValueChange = {
-                        eventHandler(LoginEvent.EnteredServer(it))
-                    },
-                    placeholder = {
-                        if (serverState.hintStringId != ID_NULL) {
-                            Text(text = stringResource(serverState.hintStringId), style = MaterialTheme.typography.headlineMedium)
-                        }
-                    },
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(LoginEvent.ChangeServerFocus(it))
-                        }
-                        .semantics { contentDescription = "Server URI" }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Box {
-                TextField(
-                    value = usernameState.text,
-                    onValueChange = {
-                        eventHandler(LoginEvent.EnteredUsername(it))
-                    },
-                    placeholder = {
-                        if (usernameState.hintStringId != ID_NULL) {
-                            Text(text = stringResource(usernameState.hintStringId), style = MaterialTheme.typography.headlineMedium)
-                        }
-                    },
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(LoginEvent.ChangeUsernameFocus(it))
-                        }
-                        .semantics { contentDescription = "User name" }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Box {
-                TextField(
-                    value = passwordState.text,
-                    onValueChange = {
-                        eventHandler(LoginEvent.EnteredPassword(it))
-                    },
-                    placeholder = {
-                        if (passwordState.hintStringId != ID_NULL) {
-                            Text(text = stringResource(passwordState.hintStringId), style = MaterialTheme.typography.headlineMedium)
-                        }
-                    },
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(LoginEvent.ChangePasswordFocus(it))
-                        }
-                        .semantics { contentDescription = "Password" }
-                )
+                Box {
+                    TextField(
+                        value = "★".repeat(passwordState.text.length),
+                        onValueChange = {
+                            eventHandler(LoginEvent.EnteredPassword(it))
+                        },
+                        placeholder = {
+                            if (passwordState.hintStringId != ID_NULL) {
+                                Text(text = stringResource(passwordState.hintStringId), style = MaterialTheme.typography.headlineMedium)
+                            }
+                        },
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged {
+                                eventHandler(LoginEvent.ChangePasswordFocus(it))
+                            }
+                            .semantics { contentDescription = "Password" }
+                    )
+                }
             }
         }
     }
 }
 
-data class LoginScreenState(
-    val server: RecipeTextFieldState,
-    val username: RecipeTextFieldState,
-    val password: RecipeTextFieldState,
-    val buttonLoading: Boolean = false
-)
-
 class LoginScreenPreviewParameterProvider : PreviewParameterProvider<LoginScreenState> {
+    val user = User(name = "pedro", email="", serverUri = "server.com", isDefault = true)
     override val values = sequenceOf(
         LoginScreenState(
-            server = RecipeTextFieldState(text = "", hintStringId = R.string.server_hint, isHintVisible = true),
-            username = RecipeTextFieldState(text = "", hintStringId = R.string.username_hint, isHintVisible = true),
-            password = RecipeTextFieldState(text = "", hintStringId = R.string.password_hint, isHintVisible = true)
+            password = RecipeTextFieldState(),
+            stage = LoginScreenStage.Loading
         ),
         LoginScreenState(
-            server = RecipeTextFieldState(),
-            username = RecipeTextFieldState(),
-            password = RecipeTextFieldState(),
-            buttonLoading = true
+            password = RecipeTextFieldState(text = "", hintStringId = R.string.password_hint, isHintVisible = true),
+            stage = LoginScreenStage.EnterPassword(user)
+        ),
+        LoginScreenState(
+            password = RecipeTextFieldState(text = "Pedro"),
+            stage = LoginScreenStage.EnterPassword(user)
+        ),
+        LoginScreenState(
+            password = RecipeTextFieldState(text = "Pedro"),
+            stage = LoginScreenStage.AwaitServerResponse(user),
         )
     )
 }
@@ -252,11 +246,10 @@ private fun AddEditRecipeScreenPreview(
 ) {
     MyApplicationTheme {
         LoginScreenContent(
-            serverState = state.server,
-            usernameState = state.username,
             passwordState = state.password,
+            stage = state.stage,
+            onSwitchUser = {},
             snackBarHostState = SnackbarHostState(),
-            buttonLoading = state.buttonLoading,
             eventHandler = {}
         )
     }
