@@ -34,17 +34,17 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat.ID_NULL
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AddEditRecipeScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: AddEditRecipeViewModel = hiltViewModel()
+    viewModel: AddEditRecipeViewModel = koinViewModel()
 ) {
     val titleState = viewModel.recipeTitle.value
     val contentState = viewModel.recipeContent.value

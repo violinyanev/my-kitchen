@@ -19,9 +19,7 @@ import com.ultraviolince.mykitchen.recipes.presentation.login.LoginScreen
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.RecipeScreen
 import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
