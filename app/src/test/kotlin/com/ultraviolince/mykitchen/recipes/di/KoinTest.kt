@@ -4,7 +4,6 @@ import com.ultraviolince.mykitchen.di.AppModule
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.ksp.generated.module
-import org.koin.ksp.generated.com_ultraviolince_mykitchen_di_AppModule
 import org.koin.test.KoinTest
 import org.koin.test.verify.verify
 
