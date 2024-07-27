@@ -13,10 +13,12 @@ import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipes
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Login
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
+import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
 @Module
+@ComponentScan("com.ultraviolince.mykitchen")
 class AppModule {
     @Single
     fun provideRecipeDatabase(app: Application): RecipeDatabase {
@@ -45,5 +47,10 @@ class AppModule {
             addRecipe = AddRecipe(repository),
             getRecipe = GetRecipe(repository)
         )
+    }
+
+    @Single
+    fun provideRecipeServiceWrapper(): RecipeServiceWrapper {
+        return RecipeServiceWrapper()
     }
 }
