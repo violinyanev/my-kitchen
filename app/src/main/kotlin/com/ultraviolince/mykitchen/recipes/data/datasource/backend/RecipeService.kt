@@ -1,23 +1,35 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
-import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 
-interface RecipeService {
+class RecipeService(private val ktor: HttpClient) {
 
-    @GET("/recipes")
-    suspend fun getRecipes(): List<BackendRecipe>
+    suspend fun getRecipes(): Result<List<BackendRecipe>> = runCatching {
+        ktor.get("/recipes").body()
+    }
 
-    @POST("/recipes")
-    suspend fun createRecipe(@Body recipeRequest: BackendRecipe): BackendRecipeResponse
+    suspend fun createRecipe(recipeRequest: BackendRecipe): Result<BackendRecipeResponse> = runCatching {
+        ktor.post("/recipes") {
+            contentType(ContentType.Application.Json)
+            setBody(recipeRequest)
+        }.body()
+    }
 
-    @DELETE("/recipes/{recipeId}")
-    suspend fun deleteRecipe(@Path("recipeId") recipeId: Long): Response<Unit>
+    suspend fun deleteRecipe(recipeId: Long): Result<Unit> = runCatching {
+        ktor.delete("/recipes/$recipeId").body()
+    }
 
-    @POST("/users/login")
-    suspend fun login(@Body loginRequest: LoginRequest): LoginResult
+    suspend fun login(loginRequest: LoginRequest): Result<LoginResult> = runCatching {
+        ktor.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(loginRequest)
+        }.body()
+    }
 }

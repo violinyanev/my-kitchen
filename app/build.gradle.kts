@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.room)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -101,17 +102,20 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.compose.material.icons.ext)
     implementation(libs.material)
-    implementation(libs.gson)
-    implementation(libs.okhttp3.logging.interceptor)
-    implementation(libs.retrofit2.converter.gson)
-    implementation(libs.retrofit2)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.annotations)
     ksp(libs.koin.ksp.compiler)
-    // implementation(libs.androidx.profileinstaller)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.gson)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.auth)
+    implementation(libs.ktor.client.resources)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
@@ -149,6 +153,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp3.mockwebserver)
+    testImplementation(libs.ktor.client.mock)
     testImplementation(libs.koin.test.junit4)
 
     detektPlugins(libs.detektTwitterPlugin)
