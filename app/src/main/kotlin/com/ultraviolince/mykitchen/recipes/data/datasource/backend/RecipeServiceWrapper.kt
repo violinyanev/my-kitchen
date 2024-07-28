@@ -42,7 +42,7 @@ fun createHttpClient(engine: HttpClientEngine, server: String, token: String?): 
     }
 }
 
-class RecipeServiceWrapper {
+class RecipeServiceWrapper(private val dao: RecipeDao) {
 
     private var recipeService: RecipeService? = null
 
@@ -53,7 +53,7 @@ class RecipeServiceWrapper {
         val result = tmpService.login(LoginRequest(email, password))
         result.onSuccess { data ->
             recipeService = RecipeService(createHttpClient(CIO.create(), server, data.data.token))
-
+            sync()
             return LoginState.LoginSuccess
         }
         // TODO fix error handling
@@ -113,7 +113,7 @@ class RecipeServiceWrapper {
         return false
     }
 
-    suspend fun sync(dao: RecipeDao) {
+    private suspend fun sync() {
         recipeService?.apply {
             val existingRecipes = mutableSetOf<Long>()
 
@@ -132,21 +132,21 @@ class RecipeServiceWrapper {
                     existingRecipes.add(r.id)
                 }
 
-                /*val dbRecipes = dao.getRecipes()
+                val dbRecipes = dao.getRecipes()
 
-                Log.e("RECIPES", "Before1")
-                val currentDbRecipes = dbRecipes.last()
-
-                Log.e("RECIPES", "Before2")
-
-                for (r in currentDbRecipes) {
-                    r.id?.let {
-                        if(!existingRecipes.contains(it)){
-                            insertRecipe(it, r)
+                dbRecipes.collect { currentDbRecipes ->
+                    for (r in currentDbRecipes) {
+                        Log.e("RECIPES", "Adding $r")
+                        r.id?.let {
+                            if (!existingRecipes.contains(it)) {
+                                Log.e("RECIPES", "Inserting $r to database")
+                                insertRecipe(it, r)
+                            } else {
+                                Log.e("RECIPES", "Recipe $r already exists database")
+                            }
                         }
                     }
                 }
-                Log.e("RECIPES", "After")*/
             }
         }
     }

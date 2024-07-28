@@ -11,7 +11,7 @@ import org.junit.Test
 
 class RecipeServiceWrapperTest {
 
-    private val service = RecipeServiceWrapper()
+    private val service = RecipeServiceWrapper(FakeDao())
 
     @Test
     fun logsInToServerSuccessfully() = runTest {
