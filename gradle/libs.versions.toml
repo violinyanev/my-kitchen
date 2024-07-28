@@ -20,7 +20,7 @@ mockk = "1.13.12"
 mockServer = "4.12.0"
 turbine = "1.1.0"
 truth = "1.4.2"
-kotlin = "1.9.23"
+kotlin = "2.0.0"
 ktlint = "11.6.1"
 detekt = "1.23.6"
 twitterDetekt = "0.0.26" # When changing this version, also update .idea/detekt.xml accordingly
@@ -42,7 +42,7 @@ testExtJunit = "1.2.1"
 uiAutomator = "2.3.0"
 viewModelCompose = "2.8.4"
 work = "2.9.0"
-ksp = "1.9.23-1.0.20"
+ksp = "2.0.0-1.0.21"
 kover = "0.8.2"
 
 [libraries]
@@ -114,3 +114,4 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"}
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
+compose = {id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
