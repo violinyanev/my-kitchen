@@ -41,6 +41,7 @@ android {
             resValue("string", "clear_text_config", "false")
         }
         debug {
+            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
             isShrinkResources = false
 
