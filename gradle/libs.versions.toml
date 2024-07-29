@@ -26,6 +26,7 @@ ktx = "1.13.1"
 lifecycle = "2.8.4"
 material = "1.12.0"
 material3 = "1.2.1"
+buildHealth = "1.33.0"
 
 # @keep
 minSdk = "28"
@@ -109,3 +110,4 @@ kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"}
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
 compose = {id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
+build-health = {id = "com.autonomousapps.dependency-analysis", version.ref = "buildHealth"}
