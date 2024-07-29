@@ -87,7 +87,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.runner)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
@@ -137,6 +136,7 @@ dependencies {
     androidTestImplementation(libs.androidx.work.testing)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.runner)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
