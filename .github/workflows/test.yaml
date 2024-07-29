@@ -28,6 +28,9 @@ jobs:
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
 
+    - name: Check build health
+      run: ./gradlew buildHealth
+
     - name: Build APKs
       run: ./gradlew :app:assembleDebug :app:testDebug ktlintCheck :app:koverXmlReportDebug detekt
 
