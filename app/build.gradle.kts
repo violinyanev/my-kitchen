@@ -137,10 +137,13 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.runner)
+    // Needed to fix a bug in ui-test (pins espresso to 3.5.0 which has a bug)
+    androidTestImplementation(libs.androidx.espresso.core)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.mockk)
+    // For better coroutine tests
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.client.mock)
