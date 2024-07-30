@@ -12,17 +12,17 @@ class RecipeServiceWrapperTest {
     private val service = RecipeServiceWrapper()
 
     // TODO Fix the tests
-//    @Test
-//    fun logsInToServerSuccessfully() = runTest {
-//        assertEquals(
-//            service.login(
-//                FakeBackend.server,
-//                email = FakeBackend.testUser,
-//                FakeBackend.testPassword
-//            ),
-//            LoginState.LoginSuccess
-//        )
-//    }
+    @Test
+    fun logsInToServerSuccessfully() = runTest {
+        assertEquals(
+            service.login(
+                FakeBackend.server,
+                email = FakeBackend.testUser,
+                FakeBackend.testPassword
+            ),
+            LoginState.LoginSuccess
+        )
+    }
 
     @Test
     fun failsToLoginToServerWhenServerUriIsMalformed() = runTest {

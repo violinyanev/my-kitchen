@@ -1,5 +1,7 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
