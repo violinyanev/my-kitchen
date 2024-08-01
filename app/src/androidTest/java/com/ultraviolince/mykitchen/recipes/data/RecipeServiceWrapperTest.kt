@@ -9,7 +9,7 @@ import org.junit.Test
 
 class RecipeServiceWrapperTest {
 
-    private val service = RecipeServiceWrapper()
+    private val service = RecipeServiceWrapper(FakeDao())
 
     // TODO Fix the tests
 //    @Test

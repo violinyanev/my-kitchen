@@ -19,10 +19,6 @@ class RecipeRepositoryImpl(
         loginState.emit(LoginState.LoginPending)
         val loginResult = recipeService.login(server = server, email = email, password = password)
         loginState.emit(loginResult)
-
-        if (loginResult == LoginState.LoginSuccess) {
-            recipeService.sync(dao)
-        }
     }
 
     override fun getLoginState(): Flow<LoginState> {
