@@ -14,6 +14,7 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import com.ultraviolince.mykitchen.recipes.presentation.MainActivity
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 
 // @OptIn(ExperimentalTestApi::class)
 class SmokeTest {
@@ -29,6 +30,38 @@ class SmokeTest {
             .build()
 
         WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+    }
+
+    private fun login(server: String, user: String, pass: String) {
+        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        // Enter server and credentials
+        with(composeTestRule.onNodeWithContentDescription("Server URI")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextInput(server)
+        }
+        with(composeTestRule.onNodeWithContentDescription("User name")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextInput(user)
+        }
+        with(composeTestRule.onNodeWithContentDescription("Password")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextInput(pass)
+        }
+
+        // Login
+        with(composeTestRule.onNodeWithContentDescription("Login")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
     }
 
     private fun createRecipe(title: String, content: String) {
@@ -74,23 +107,29 @@ class SmokeTest {
     }
 
     // TODO Fix the tests
-//    @Test fun createRecipe_WithoutLogin() {
-//        // By default, no cloud sync
-//        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
-//            assertExists()
-//            assertIsDisplayed()
-//        }
-//
-//        createRecipe("recipe1", "content1")
-//    }
+    @Test
+    fun createRecipe_WithoutLogin() {
+        // By default, no cloud sync
+        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
+            assertExists()
+            assertIsDisplayed()
+        }
+
+        createRecipe("recipe1", "content1")
+    }
+
+    @Test
+    fun testServerLogin() {
+        login(server = "https://ultraviolince.com:8019", user = "test@user.com", pass = "TestPassword")
+
+        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is enabled")) {
+            assertExists()
+            assertIsDisplayed()
+        }
+    }
 
 //    @Test fun loginToBackend_ThenCreateRecipe() {
-//        // By default, no cloud sync
-//        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
-//            assertExists()
-//            assertIsDisplayed()
-//            performClick()
-//        }
+//        login(server = "https://ultraviolince.com:8019", user = "test@user.com", pass = "TestPassword")
 //
 //        // Enter server and credentials
 //        with(composeTestRule.onNodeWithContentDescription("Server URI")) {
