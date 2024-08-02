@@ -1,7 +1,14 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipeResponse
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResult
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResultData
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.RecipeList
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
+import io.ktor.client.call.body
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
@@ -40,11 +47,12 @@ class BackendTest {
 
         val response = recipeService.login(LoginRequest(email = USER, password = PASSWORD))
 
-        assertTrue(response.isSuccess)
-
-        val loginResult = response.getOrThrow()
-        assertEquals(loginResult.data.username, USER)
-        assertEquals(loginResult.data.token, TOKEN)
+        assertEquals(response, Result.Success(LoginResult(
+            LoginResultData(
+                username=USER,
+                token = TOKEN
+            )
+        )))
 
         assertEquals(mockEngine.requestHistory.size, 1)
         val request = mockEngine.requestHistory[0]
@@ -64,14 +72,20 @@ class BackendTest {
         }
         val recipeService = RecipeService(createHttpClient(mockEngine, HOST, null))
 
-        val response = recipeService.getRecipes().getOrThrow()
+        val response = recipeService.getRecipes()
 
-        assertEquals(response.size, 1)
-        assertEquals(response[0].body, "b")
-        assertEquals(response[0].title, "r1")
-        assertEquals(response[0].timestamp, 11L)
-        assertEquals(response[0].id, 1L)
-        // TODO: test author?
+        assertEquals(response, Result.Success(
+            RecipeList(
+                listOf(
+                    BackendRecipe(
+                        id = 1L,
+                        timestamp = 1L,
+                        title = "r1",
+                        body= "b"
+                    )
+                )
+            )
+        ))
 
         assertEquals(mockEngine.requestHistory.size, 1)
         val request = mockEngine.requestHistory[0]
@@ -90,19 +104,21 @@ class BackendTest {
             )
         }
         val recipeService = RecipeService(createHttpClient(mockEngine, HOST, null))
-        val response = recipeService.createRecipe(
-            recipeRequest = BackendRecipe(
-                id = 1L,
-                title = "title",
-                body = "body",
-                timestamp = 5L
-            )
-        ).getOrThrow()
+        val recipe = BackendRecipe(
+            id = 1L,
+            title = "title",
+            body = "body",
+            timestamp = 5L
+        )
 
-        assertEquals(response.recipe.title, "title")
-        assertEquals(response.recipe.body, "body")
-        assertEquals(response.recipe.timestamp, 5L)
-        assertEquals(response.recipe.id, 1L)
+        val response = recipeService.createRecipe(
+            recipeRequest = recipe
+        )
+
+
+        assertEquals(response, Result.Success(
+            BackendRecipeResponse(recipe)
+        ))
 
         assertEquals(mockEngine.requestHistory.size, 1)
         val request = mockEngine.requestHistory[0]
@@ -121,9 +137,9 @@ class BackendTest {
             )
         }
         val recipeService = RecipeService(createHttpClient(mockEngine, HOST, null))
-        val response = recipeService.deleteRecipe(recipeId = 5L).getOrThrow()
+        val response = recipeService.deleteRecipe(recipeId = 5L)
 
-        assertNotNull(response)
+        assertEquals(response, Result.Success(Unit))
 
         assertEquals(mockEngine.requestHistory.size, 1)
         val request = mockEngine.requestHistory[0]
