@@ -104,8 +104,8 @@ class RecipeService(private val ktor: HttpClient) {
 
         return when(response.status.value) {
             in 200..299 -> {
-                val recipes = response.body<LoginResult>()
-                Result.Success(recipes)
+                val result = response.body<LoginResult>()
+                Result.Success(result)
             }
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             409 -> Result.Error(NetworkError.CONFLICT)
