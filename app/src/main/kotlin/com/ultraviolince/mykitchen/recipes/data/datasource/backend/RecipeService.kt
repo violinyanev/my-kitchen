@@ -91,12 +91,6 @@ class RecipeService(private val ktor: HttpClient) {
     }
 
     suspend fun login(loginRequest: LoginRequest): Result<LoginResult, NetworkError> {
-//        ktor.post("/users/login") {
-//            contentType(ContentType.Application.Json)
-//            setBody(loginRequest)
-//        }.body()
-
-
         val response = try {
             ktor.post("/users/login") {
                 contentType(ContentType.Application.Json)
