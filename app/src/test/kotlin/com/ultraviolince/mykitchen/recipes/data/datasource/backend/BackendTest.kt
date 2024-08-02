@@ -6,10 +6,11 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginReq
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResult
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResultData
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.RecipeList
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
-import io.ktor.client.call.body
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
 import io.ktor.http.HttpHeaders
@@ -21,17 +22,20 @@ import io.ktor.utils.io.ByteReadChannel
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class BackendTest {
 
     companion object {
-        const val HOST = "https://test.com"
+        const val MOCK_HOST = "https://test.com"
         const val USER = "User"
         const val TOKEN = "MyToken"
         const val EMAIL = "me@example.com"
         const val PASSWORD = "123456 :)"
+    }
+
+    private fun createHttpClientForTests(mockEngine: MockEngine): HttpClient {
+        //return createHttpClient(mockEngine, MOCK_HOST, null)
+        return createHttpClient(CIO.create(), "https://ultraviolince.com:8019", null)
     }
 
     @Test
@@ -43,7 +47,7 @@ class BackendTest {
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
-        val recipeService = RecipeService(createHttpClient(mockEngine, HOST, null))
+        val recipeService = RecipeService(createHttpClientForTests(mockEngine))
 
         val response = recipeService.login(LoginRequest(email = USER, password = PASSWORD))
 
@@ -56,7 +60,7 @@ class BackendTest {
 
         assertEquals(mockEngine.requestHistory.size, 1)
         val request = mockEngine.requestHistory[0]
-        assertEquals(Url("$HOST/users/login"), request.url)
+        assertEquals(Url("$MOCK_HOST/users/login"), request.url)
         assertEquals(HttpMethod.Post, request.method)
         assertEquals("""{"email":"$USER","password":"$PASSWORD"}""", request.body.toByteArray().toString(Charsets.UTF_8))
     }
@@ -70,7 +74,7 @@ class BackendTest {
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
-        val recipeService = RecipeService(createHttpClient(mockEngine, HOST, null))
+        val recipeService = RecipeService(createHttpClient(mockEngine, MOCK_HOST, null))
 
         val response = recipeService.getRecipes()
 
@@ -89,7 +93,7 @@ class BackendTest {
 
         assertEquals(mockEngine.requestHistory.size, 1)
         val request = mockEngine.requestHistory[0]
-        assertEquals(Url("$HOST/recipes"), request.url)
+        assertEquals(Url("$MOCK_HOST/recipes"), request.url)
         assertEquals(HttpMethod.Get, request.method)
         assertEquals(0L, request.body.contentLength)
     }
@@ -103,7 +107,7 @@ class BackendTest {
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
-        val recipeService = RecipeService(createHttpClient(mockEngine, HOST, null))
+        val recipeService = RecipeService(createHttpClient(mockEngine, MOCK_HOST, null))
         val recipe = BackendRecipe(
             id = 1L,
             title = "title",
@@ -122,7 +126,7 @@ class BackendTest {
 
         assertEquals(mockEngine.requestHistory.size, 1)
         val request = mockEngine.requestHistory[0]
-        assertEquals(Url("$HOST/recipes"), request.url)
+        assertEquals(Url("$MOCK_HOST/recipes"), request.url)
         assertEquals(HttpMethod.Post, request.method)
         assertEquals("""{"id":1,"title":"title","body":"body","timestamp":5}""", request.body.toByteArray().toString(Charsets.UTF_8))
     }
@@ -136,14 +140,14 @@ class BackendTest {
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
         }
-        val recipeService = RecipeService(createHttpClient(mockEngine, HOST, null))
+        val recipeService = RecipeService(createHttpClient(mockEngine, MOCK_HOST, null))
         val response = recipeService.deleteRecipe(recipeId = 5L)
 
         assertEquals(response, Result.Success(Unit))
 
         assertEquals(mockEngine.requestHistory.size, 1)
         val request = mockEngine.requestHistory[0]
-        assertEquals(Url("$HOST/recipes/5"), request.url)
+        assertEquals(Url("$MOCK_HOST/recipes/5"), request.url)
         assertEquals(HttpMethod.Delete, request.method)
         assertEquals(0L, request.body.contentLength)
     }
