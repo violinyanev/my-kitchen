@@ -100,6 +100,8 @@ class RecipeService(private val ktor: HttpClient) {
             return Result.Error(NetworkError.NO_INTERNET)
         } catch(e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
+        } catch(e: Exception) {
+            return Result.Error(NetworkError.UNKNOWN)
         }
 
         return when(response.status.value) {
