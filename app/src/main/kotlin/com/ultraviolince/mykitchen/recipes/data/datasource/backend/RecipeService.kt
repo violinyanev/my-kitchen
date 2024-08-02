@@ -1,5 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
+import android.util.Log
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipeResponse
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
@@ -16,20 +17,22 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
+import java.net.ConnectException
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result as Result
 
+@SuppressWarnings("MagicNumber")
 class RecipeService(private val ktor: HttpClient) {
 
     suspend fun getRecipes(): Result<RecipeList, NetworkError> {
         val response = try {
             ktor.get("/recipes")
-        } catch(e: UnresolvedAddressException) {
+        } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
-        } catch(e: SerializationException) {
+        } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
         }
 
-        return when(response.status.value) {
+        return when (response.status.value) {
             in 200..299 -> {
                 val recipes = response.body<RecipeList>()
                 Result.Success(recipes)
@@ -39,7 +42,10 @@ class RecipeService(private val ktor: HttpClient) {
             408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
             413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
             in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
-            else -> Result.Error(NetworkError.UNKNOWN)
+            else -> {
+                Log.e("#network", "${response.status}, $response")
+                Result.Error(NetworkError.UNKNOWN)
+            }
         }
     }
 
@@ -49,13 +55,13 @@ class RecipeService(private val ktor: HttpClient) {
                 contentType(ContentType.Application.Json)
                 setBody(recipeRequest)
             }
-        } catch(e: UnresolvedAddressException) {
+        } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
-        } catch(e: SerializationException) {
+        } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
         }
 
-        return when(response.status.value) {
+        return when (response.status.value) {
             in 200..299 -> {
                 Result.Success(response.body<BackendRecipeResponse>())
             }
@@ -71,13 +77,13 @@ class RecipeService(private val ktor: HttpClient) {
     suspend fun deleteRecipe(recipeId: Long): Result<Unit, NetworkError> {
         val response = try {
             ktor.delete("/recipes/$recipeId")
-        } catch(e: UnresolvedAddressException) {
+        } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
-        } catch(e: SerializationException) {
+        } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
         }
 
-        return when(response.status.value) {
+        return when (response.status.value) {
             in 200..299 -> {
                 Result.Success(Unit)
             }
@@ -96,25 +102,29 @@ class RecipeService(private val ktor: HttpClient) {
                 contentType(ContentType.Application.Json)
                 setBody(loginRequest)
             }
-        } catch(e: UnresolvedAddressException) {
+        } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
-        } catch(e: SerializationException) {
+        } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
-        } catch(e: Exception) {
-            return Result.Error(NetworkError.UNKNOWN)
+        } catch (e: ConnectException) {
+            return Result.Error(NetworkError.SERVER_ERROR) // TODO Probably need different error handling
         }
 
-        return when(response.status.value) {
+        return when (response.status.value) {
             in 200..299 -> {
                 val result = response.body<LoginResult>()
                 Result.Success(result)
             }
+            400 -> Result.Error(NetworkError.UNAUTHORIZED) // TODO Probably different error handling needed
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             409 -> Result.Error(NetworkError.CONFLICT)
             408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
             413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
             in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
-            else -> Result.Error(NetworkError.UNKNOWN)
+            else -> {
+                Log.e("#network", "${response.status}, $response")
+                Result.Error(NetworkError.UNKNOWN)
+            }
         }
     }
 }

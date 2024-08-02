@@ -50,13 +50,13 @@ class RepositoryImplTest {
     fun `fails to log in to backend when the backend reports errors`() = runTest {
         val loginState = repository.getLoginState()
 
-        coEvery { serviceMock.login(any(), any(), any()) } returns LoginState.LoginFailure(5)
+        coEvery { serviceMock.login(any(), any(), any()) } returns LoginState.LoginFailure()
 
         loginState.test {
             repository.login("a", "b", "c")
             assertEquals(awaitItem(), LoginState.LoginEmpty)
             assertEquals(awaitItem(), LoginState.LoginPending)
-            assertEquals(awaitItem(), LoginState.LoginFailure(5))
+            assertEquals(awaitItem(), LoginState.LoginFailure())
         }
 
         coVerify { serviceMock.login("a", "b", "c") }

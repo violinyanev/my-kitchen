@@ -12,7 +12,7 @@ import io.ktor.serialization.gson.gson
 
 fun createHttpClient(engine: HttpClientEngine, server: String, token: String?): HttpClient {
     return HttpClient(engine) {
-        //expectSuccess = true
+        // expectSuccess = true
 
         defaultRequest {
             url(server)

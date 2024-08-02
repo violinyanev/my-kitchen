@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.OrderSection
@@ -193,7 +194,7 @@ class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<Recip
         RecipesState(syncState = LoginState.LoginEmpty),
         RecipesState(syncState = LoginState.LoginPending),
         RecipesState(syncState = LoginState.LoginSuccess),
-        RecipesState(syncState = LoginState.LoginFailure(R.string.sync_disabled)),
+        RecipesState(syncState = LoginState.LoginFailure(error = NetworkError.UNAUTHORIZED)),
         RecipesState(
             recipes = List(10) { index ->
                 Recipe(

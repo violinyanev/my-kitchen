@@ -1,9 +1,11 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
 import android.util.Log
-import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.map
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onError
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onSuccess
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
@@ -20,16 +22,24 @@ class RecipeServiceWrapper {
 
         // TODO Store the token, don't force authentication all the time
         val result = tmpService.login(LoginRequest(email, password))
-        result.onSuccess { data ->
-            recipeService = RecipeService(createHttpClient(CIO.create(), server, data.data.token))
-            return LoginState.LoginSuccess
-        }
-        // TODO fix error handling
-        result.onError {
-            return LoginState.LoginFailure(R.string.unknown_error)
-        }
 
-        return LoginState.LoginFailure(R.string.unknown_error)
+        Log.i("#network", "Login result: $result")
+        return when (result) {
+            is Result.Error -> LoginState.LoginFailure(error = result.error)
+            is Result.Success -> LoginState.LoginSuccess
+        }
+//        result.onSuccess { data ->
+//            Log.i("#network", "Successfully logged in: ${data.data.token}")
+//            recipeService = RecipeService(createHttpClient(CIO.create(), server, data.data.token))
+//            return LoginState.LoginSuccess
+//        }
+//        // TODO fix error handling
+//        result.onError { error ->
+//            Log.i("#network", "Failed to log in: ${error.name}")
+//            return LoginState.LoginFailure(error = error)
+//        }
+//
+//        return LoginState.LoginFailure(error = NetworkError.UNKNOWN)
     }
 
     suspend fun insertRecipe(recipeId: Long, recipe: Recipe): Boolean {
@@ -46,6 +56,13 @@ class RecipeServiceWrapper {
                 )
             )
 
+            Log.i("#network", "Create recipe result: $result")
+            return when (result) {
+                is Result.Error -> false
+                is Result.Success -> {
+                    true
+                }
+            }
             result.onSuccess {
                 Log.i("Recipes", "Created recipe at backend: $recipe")
                 return true
@@ -89,7 +106,7 @@ class RecipeServiceWrapper {
 
             val maybeRecipes = getRecipes()
 
-            maybeRecipes.onSuccess {recipes ->
+            maybeRecipes.onSuccess { recipes ->
                 for (r in recipes.result) {
                     dao.insertRecipe(
                         Recipe(
