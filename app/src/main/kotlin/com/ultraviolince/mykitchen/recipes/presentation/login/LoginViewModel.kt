@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import com.ultraviolince.mykitchen.recipes.domain.model.LoginException
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
@@ -98,7 +99,20 @@ class LoginViewModel(
                                 is LoginState.LoginFailure -> {
                                     _buttonLoading.value = false
                                     _eventFlow.emit(
-                                        UiEvent.ShowSnackbar(it.errorMessage)
+                                        UiEvent.ShowSnackbar(
+                                            when (it.error) {
+                                                // TODO fix all responses
+                                                NetworkError.UNKNOWN -> R.string.unknown_error
+                                                NetworkError.REQUEST_TIMEOUT -> R.string.malformed_server_uri
+                                                NetworkError.UNAUTHORIZED -> R.string.unknown_error
+                                                NetworkError.CONFLICT -> R.string.unknown_error
+                                                NetworkError.TOO_MANY_REQUESTS -> R.string.unknown_error
+                                                NetworkError.NO_INTERNET -> R.string.unknown_error
+                                                NetworkError.PAYLOAD_TOO_LARGE -> R.string.unknown_error
+                                                NetworkError.SERVER_ERROR -> R.string.malformed_server_uri
+                                                NetworkError.SERIALIZATION -> R.string.unknown_error
+                                            }
+                                        )
                                     )
                                 }
                                 LoginState.LoginPending -> {

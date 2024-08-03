@@ -1,46 +1,14 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
 import android.util.Log
-import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onSuccess
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.auth.providers.bearer
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.plugins.resources.Resources
-import io.ktor.serialization.gson.gson
-
-fun createHttpClient(engine: HttpClientEngine, server: String, token: String?): HttpClient {
-    return HttpClient(engine) {
-        expectSuccess = true
-
-        defaultRequest {
-            url(server)
-        }
-
-        if (token != null) {
-            install(Auth) {
-                bearer {
-                    loadTokens {
-                        // TODO implement real bearer
-                        BearerTokens(token, "not used")
-                    }
-                }
-            }
-        }
-
-        install(Resources)
-        install(ContentNegotiation) {
-            gson()
-        }
-    }
-}
 
 class RecipeServiceWrapper {
 
@@ -51,17 +19,15 @@ class RecipeServiceWrapper {
 
         // TODO Store the token, don't force authentication all the time
         val result = tmpService.login(LoginRequest(email, password))
-        result.onSuccess { data ->
-            recipeService = RecipeService(createHttpClient(CIO.create(), server, data.data.token))
 
-            return LoginState.LoginSuccess
+        Log.i("#network", "Login result: $result")
+        return when (result) {
+            is Result.Error -> LoginState.LoginFailure(error = result.error)
+            is Result.Success -> {
+                recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token))
+                LoginState.LoginSuccess
+            }
         }
-        // TODO fix error handling
-        result.onFailure {
-            return LoginState.LoginFailure(R.string.unknown_error)
-        }
-
-        return LoginState.LoginFailure(R.string.unknown_error)
     }
 
     suspend fun insertRecipe(recipeId: Long, recipe: Recipe): Boolean {
@@ -78,13 +44,12 @@ class RecipeServiceWrapper {
                 )
             )
 
-            result.onSuccess {
-                Log.i("Recipes", "Created recipe at backend: $recipe")
-                return true
-            }
-            result.onFailure {
-                Log.i("Recipes", "Failed to create recipe on backend: $recipe")
-                return false
+            Log.i("#network", "Create recipe result: $result")
+            return when (result) {
+                is Result.Error -> false
+                is Result.Success -> {
+                    true
+                }
             }
         }
 
@@ -100,13 +65,10 @@ class RecipeServiceWrapper {
                 recipeId = recipeId
             )
 
-            result.onSuccess {
-                Log.i("Recipes", "Deleted recipe from backend: $recipeId")
-                return true
-            }
-            result.onFailure {
-                Log.i("Recipes", "Failed to delete recipe from backend: $recipeId")
-                return false
+            Log.i("#network", "Delete recipe result: $result")
+            return when (result) {
+                is Result.Error -> false
+                is Result.Success -> true
             }
         }
 
@@ -117,9 +79,9 @@ class RecipeServiceWrapper {
         recipeService?.apply {
             val existingRecipes = mutableSetOf<Long>()
 
-            val maybeRecipes = getRecipes().getOrNull()
-            maybeRecipes?.let { recipes ->
+            val maybeRecipes = getRecipes()
 
+            maybeRecipes.onSuccess { recipes ->
                 for (r in recipes) {
                     dao.insertRecipe(
                         Recipe(
@@ -131,7 +93,7 @@ class RecipeServiceWrapper {
                     )
                     existingRecipes.add(r.id)
                 }
-
+            }
                 /*val dbRecipes = dao.getRecipes()
 
                 Log.e("RECIPES", "Before1")
@@ -147,7 +109,6 @@ class RecipeServiceWrapper {
                     }
                 }
                 Log.e("RECIPES", "After")*/
-            }
         }
     }
 }
