@@ -89,6 +89,7 @@ ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-serialization-gson = { module = "io.ktor:ktor-serialization-gson", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+# ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 androidx-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeLatest" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
