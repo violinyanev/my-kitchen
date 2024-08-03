@@ -5,7 +5,6 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendR
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipeResponse
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResult
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.RecipeList
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -13,6 +12,7 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
@@ -23,7 +23,7 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result a
 @SuppressWarnings("MagicNumber")
 class RecipeService(private val ktor: HttpClient) {
 
-    suspend fun getRecipes(): Result<RecipeList, NetworkError> {
+    suspend fun getRecipes(): Result<List<BackendRecipe>, NetworkError> {
         val response = try {
             ktor.get("/recipes")
         } catch (e: UnresolvedAddressException) {
@@ -34,7 +34,7 @@ class RecipeService(private val ktor: HttpClient) {
 
         return when (response.status.value) {
             in 200..299 -> {
-                val recipes = response.body<RecipeList>()
+                val recipes = response.body<List<BackendRecipe>>()
                 Result.Success(recipes)
             }
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
@@ -61,16 +61,22 @@ class RecipeService(private val ktor: HttpClient) {
             return Result.Error(NetworkError.SERIALIZATION)
         }
 
+        Log.e("#network", "DEBUG " + response.bodyAsText())
+
         return when (response.status.value) {
             in 200..299 -> {
                 Result.Success(response.body<BackendRecipeResponse>())
             }
+            400 -> Result.Error(NetworkError.UNKNOWN)  // Implementation error in the client
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             409 -> Result.Error(NetworkError.CONFLICT)
             408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
             413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
             in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
-            else -> Result.Error(NetworkError.UNKNOWN)
+            else -> {
+                Log.e("#network", "Unknown error, code: ${response.status.value}")
+                Result.Error(NetworkError.UNKNOWN)
+            }
         }
     }
 

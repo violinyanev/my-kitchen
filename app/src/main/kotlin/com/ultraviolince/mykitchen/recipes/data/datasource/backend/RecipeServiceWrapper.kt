@@ -26,7 +26,10 @@ class RecipeServiceWrapper {
         Log.i("#network", "Login result: $result")
         return when (result) {
             is Result.Error -> LoginState.LoginFailure(error = result.error)
-            is Result.Success -> LoginState.LoginSuccess
+            is Result.Success -> {
+                recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token))
+                LoginState.LoginSuccess
+            }
         }
 //        result.onSuccess { data ->
 //            Log.i("#network", "Successfully logged in: ${data.data.token}")
@@ -62,14 +65,6 @@ class RecipeServiceWrapper {
                 is Result.Success -> {
                     true
                 }
-            }
-            result.onSuccess {
-                Log.i("Recipes", "Created recipe at backend: $recipe")
-                return true
-            }
-            result.onError {
-                Log.i("Recipes", "Failed to create recipe on backend: $recipe")
-                return false
             }
         }
 
@@ -107,7 +102,7 @@ class RecipeServiceWrapper {
             val maybeRecipes = getRecipes()
 
             maybeRecipes.onSuccess { recipes ->
-                for (r in recipes.result) {
+                for (r in recipes) {
                     dao.insertRecipe(
                         Recipe(
                             id = r.id,

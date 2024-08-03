@@ -44,6 +44,29 @@ class RecipeServiceWrapperTest {
         assertEquals(LoginState.LoginFailure(NetworkError.UNAUTHORIZED), result)
     }
 
+    @Test
+    fun testRecipesCreate() = runTest {
+        val result = service.login(
+            FakeBackend.server,
+            email = FakeBackend.testUser,
+            FakeBackend.testPassword
+        )
+        assertEquals(result, LoginState.LoginSuccess)
+
+        val created = service.insertRecipe(
+            recipeId = 123L,
+            recipe = Recipe(
+                id = 0L,
+                title = "title",
+                content = "body",
+                timestamp = 5L
+            )
+        )
+
+        assertTrue(created)
+    }
+
+
     // TODO Fix the tests
     @Test
     fun testRecipesCreateDelete() = runTest {
