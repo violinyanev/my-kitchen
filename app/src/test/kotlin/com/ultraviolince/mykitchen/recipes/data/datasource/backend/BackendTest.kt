@@ -49,7 +49,7 @@ class BackendTest {
 
         assertEquals(Result.Success(LoginResult(
             LoginResultData(
-                username=USER,
+                username = USER,
                 token = TOKEN
             )
         )), response)
@@ -80,7 +80,7 @@ class BackendTest {
                     id = 1L,
                     timestamp = 11L,
                     title = "r1",
-                    body= "b"
+                    body = "b"
                 )
             )
         ))
@@ -112,7 +112,6 @@ class BackendTest {
         val response = recipeService.createRecipe(
             recipeRequest = recipe
         )
-
 
         assertEquals(response, Result.Success(
             BackendRecipeResponse(recipe)

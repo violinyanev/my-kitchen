@@ -12,7 +12,6 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
@@ -65,7 +64,7 @@ class RecipeService(private val ktor: HttpClient) {
             in 200..299 -> {
                 Result.Success(response.body<BackendRecipeResponse>())
             }
-            400 -> Result.Error(NetworkError.UNKNOWN)  // Implementation error in the client
+            400 -> Result.Error(NetworkError.UNKNOWN) // Implementation error in the client
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             409 -> Result.Error(NetworkError.CONFLICT)
             408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)

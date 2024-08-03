@@ -100,7 +100,7 @@ class LoginViewModel(
                                     _buttonLoading.value = false
                                     _eventFlow.emit(
                                         UiEvent.ShowSnackbar(
-                                            when(it.error) {
+                                            when (it.error) {
                                                 // TODO fix all responses
                                                 NetworkError.UNKNOWN -> R.string.unknown_error
                                                 NetworkError.REQUEST_TIMEOUT -> R.string.malformed_server_uri
