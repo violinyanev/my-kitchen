@@ -23,7 +23,7 @@ import org.junit.Test
 class BackendTest {
 
     companion object {
-        const val HOST = "https://test.com"
+        const val MOCK_HOST = "https://test.com"
         const val USER = "User"
         const val TOKEN = "MyToken"
         const val EMAIL = "me@example.com"
