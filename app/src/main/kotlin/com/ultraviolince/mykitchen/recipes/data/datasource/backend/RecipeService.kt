@@ -61,8 +61,6 @@ class RecipeService(private val ktor: HttpClient) {
             return Result.Error(NetworkError.SERIALIZATION)
         }
 
-        Log.e("#network", "DEBUG " + response.bodyAsText())
-
         return when (response.status.value) {
             in 200..299 -> {
                 Result.Success(response.body<BackendRecipeResponse>())

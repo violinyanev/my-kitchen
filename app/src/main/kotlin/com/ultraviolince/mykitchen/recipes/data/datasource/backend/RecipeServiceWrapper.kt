@@ -75,24 +75,19 @@ class RecipeServiceWrapper {
         Log.i("Recipes", "Deleting recipe from backend: $recipeId")
         // TODO make this safe by design
 
-        return recipeId == 1L
+        recipeService?.apply {
+            val result = deleteRecipe(
+                recipeId = recipeId
+            )
 
-//        recipeService?.apply {
-//            val result = deleteRecipe(
-//                recipeId = recipeId
-//            )
-//
-//            result.onSuccess {
-//                Log.i("Recipes", "Deleted recipe from backend: $recipeId")
-//                return true
-//            }
-//            result.onFailure {
-//                Log.i("Recipes", "Failed to delete recipe from backend: $recipeId")
-//                return false
-//            }
-//        }
-//
-//        return false
+            Log.i("#network", "Delete recipe result: $result")
+            return when (result) {
+                is Result.Error -> false
+                is Result.Success -> true
+            }
+        }
+
+        return false
     }
 
     suspend fun sync(dao: RecipeDao) {

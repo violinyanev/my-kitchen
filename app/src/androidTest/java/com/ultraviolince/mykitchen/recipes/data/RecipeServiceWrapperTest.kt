@@ -45,31 +45,9 @@ class RecipeServiceWrapperTest {
     }
 
     @Test
-    fun testRecipesCreate() = runTest {
-        val result = service.login(
-            FakeBackend.server,
-            email = FakeBackend.testUser,
-            FakeBackend.testPassword
-        )
-        assertEquals(result, LoginState.LoginSuccess)
-
-        val created = service.insertRecipe(
-            recipeId = 123L,
-            recipe = Recipe(
-                id = 0L,
-                title = "title",
-                content = "body",
-                timestamp = 5L
-            )
-        )
-
-        assertTrue(created)
-    }
-
-
-    // TODO Fix the tests
-    @Test
     fun testRecipesCreateDelete() = runTest {
+        val fakeId = 5L
+
         val result = service.login(
             FakeBackend.server,
             email = FakeBackend.testUser,
@@ -78,9 +56,9 @@ class RecipeServiceWrapperTest {
         assertEquals(result, LoginState.LoginSuccess)
 
         val created = service.insertRecipe(
-            recipeId = 123L,
+            recipeId = fakeId,
             recipe = Recipe(
-                id = 0L,
+                id = fakeId,
                 title = "title",
                 content = "body",
                 timestamp = 5L
@@ -90,7 +68,7 @@ class RecipeServiceWrapperTest {
         assertTrue(created)
 
         val deleted = service.deleteRecipe(
-            recipeId = 123L
+            recipeId = fakeId
         )
         assertTrue(deleted)
     }
