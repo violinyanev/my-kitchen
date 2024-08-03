@@ -22,7 +22,7 @@ class RecipeServiceWrapperTest {
                 FakeBackend.server,
                 email = FakeBackend.testUser,
                 FakeBackend.testPassword
-            ),
+            )
         )
     }
 
