@@ -2,6 +2,7 @@ package com.ultraviolince.mykitchen.recipes.data.repository
 
 import app.cash.turbine.test
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import io.mockk.coEvery
@@ -50,13 +51,13 @@ class RepositoryImplTest {
     fun `fails to log in to backend when the backend reports errors`() = runTest {
         val loginState = repository.getLoginState()
 
-        coEvery { serviceMock.login(any(), any(), any()) } returns LoginState.LoginFailure(5)
+        coEvery { serviceMock.login(any(), any(), any()) } returns LoginState.LoginFailure(NetworkError.NO_INTERNET)
 
         loginState.test {
             repository.login("a", "b", "c")
             assertEquals(awaitItem(), LoginState.LoginEmpty)
             assertEquals(awaitItem(), LoginState.LoginPending)
-            assertEquals(awaitItem(), LoginState.LoginFailure(5))
+            assertEquals(awaitItem(), LoginState.LoginFailure(NetworkError.NO_INTERNET))
         }
 
         coVerify { serviceMock.login("a", "b", "c") }
