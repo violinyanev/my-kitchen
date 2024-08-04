@@ -6,14 +6,16 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.resources.Resources
+import io.ktor.http.HttpHeaders
 import io.ktor.serialization.gson.gson
 
-fun createHttpClient(engine: HttpClientEngine, server: String, token: String?): HttpClient {
+fun createHttpClient(engine: HttpClientEngine, server: String, token: String?, customLogger: Logger?): HttpClient {
     return HttpClient(engine) {
-        // expectSuccess = true
-
         defaultRequest {
             url(server)
         }
@@ -29,14 +31,13 @@ fun createHttpClient(engine: HttpClientEngine, server: String, token: String?): 
             }
         }
 
-//        install(Logging) {
-//            logger = object: Logger {
-//                override fun log(message: String) {
-//                    Log.d("KTOR", message)
-//                }
-//            }
-//            level = LogLevel.ALL
-//        }
+        if (customLogger != null) {
+            install(Logging) {
+                logger = customLogger
+                level = LogLevel.ALL
+                sanitizeHeader { header -> header == HttpHeaders.Authorization }
+            }
+        }
 
         install(Resources)
         install(ContentNegotiation) {

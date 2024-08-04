@@ -31,7 +31,7 @@ class BackendTest {
     }
 
     private fun createHttpClientForTests(mockEngine: MockEngine): HttpClient {
-        return createHttpClient(mockEngine, MOCK_HOST, null)
+        return createHttpClient(mockEngine, MOCK_HOST, null, null)
     }
 
     @Test
