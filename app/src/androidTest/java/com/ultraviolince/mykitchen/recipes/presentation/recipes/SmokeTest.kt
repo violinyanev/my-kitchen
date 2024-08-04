@@ -14,6 +14,7 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import com.ultraviolince.mykitchen.recipes.presentation.MainActivity
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 
 // @OptIn(ExperimentalTestApi::class)
 class SmokeTest {
@@ -74,15 +75,16 @@ class SmokeTest {
     }
 
     // TODO Fix the tests
-//    @Test fun createRecipe_WithoutLogin() {
-//        // By default, no cloud sync
-//        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
-//            assertExists()
-//            assertIsDisplayed()
-//        }
-//
-//        createRecipe("recipe1", "content1")
-//    }
+    @Test
+    fun createRecipe_WithoutLogin() {
+        // By default, no cloud sync
+        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
+            assertExists()
+            assertIsDisplayed()
+        }
+
+        createRecipe("recipe1", "content1")
+    }
 
 //    @Test fun loginToBackend_ThenCreateRecipe() {
 //        // By default, no cloud sync
