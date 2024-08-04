@@ -11,6 +11,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.resources.Resources
+import io.ktor.http.HttpHeaders
 import io.ktor.serialization.gson.gson
 
 fun createHttpClient(engine: HttpClientEngine, server: String, token: String?, _logger: Logger?): HttpClient {
@@ -34,6 +35,7 @@ fun createHttpClient(engine: HttpClientEngine, server: String, token: String?, _
             install(Logging) {
                 logger = _logger
                 level = LogLevel.ALL
+                sanitizeHeader { header -> header == HttpHeaders.Authorization }
             }
         }
 
