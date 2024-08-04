@@ -9,13 +9,20 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.logging.Logger
 
 class RecipeServiceWrapper {
 
     private var recipeService: RecipeService? = null
 
+    private val logger = object : Logger {
+        override fun log(message: String) {
+            Log.d("#network #ktor", message)
+        }
+    }
+
     suspend fun login(server: String, email: String, password: String): LoginState {
-        val tmpService = RecipeService(createHttpClient(CIO.create(), server, null))
+        val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
 
         // TODO Store the token, don't force authentication all the time
         val result = tmpService.login(LoginRequest(email, password))
@@ -24,7 +31,7 @@ class RecipeServiceWrapper {
         return when (result) {
             is Result.Error -> LoginState.LoginFailure(error = result.error)
             is Result.Success -> {
-                recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token))
+                recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token, logger))
                 LoginState.LoginSuccess
             }
         }
