@@ -23,7 +23,10 @@ jobs:
       uses: gradle/gradle-build-action@v2
 
     - name: Build APKs
-      run: ./gradlew :app:assembleRelease
+      run: |
+        ./gradlew :app:assembleRelease \
+          -PversionCode=$(git rev-list --count HEAD) \
+          -PversionName=$(git describe --tags --abbrev=0)
 
     - name: Publish release
       uses: softprops/action-gh-release@v2

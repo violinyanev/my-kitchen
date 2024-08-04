@@ -14,6 +14,9 @@ plugins {
     alias(libs.plugins.compose)
 }
 
+val vName = project.findProperty("versionName") as String? ?: "1.0.0"
+val vCode = project.findProperty("versionCode") as String? ?: "1"
+
 android {
     namespace = "com.ultraviolince.mykitchen"
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -22,8 +25,8 @@ android {
         applicationId = "com.ultraviolince.mykitchen"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = vCode.toInt()
+        versionName = vName
 
         testInstrumentationRunner = "com.ultraviolince.mykitchen.recipes.utils.TestRunner"
         vectorDrawables {
