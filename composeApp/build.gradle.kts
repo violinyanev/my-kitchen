@@ -124,7 +124,7 @@ val excludedPackages = listOf(
     // Presentation not unit test(able) currently, could revisit later (maybe try paparazzi + compose?)
     "com.ultraviolince.mykitchen.recipes.presentation",
     // Theme values are generated, no need to unit test
-    "com.ultraviolince.mykitchen.ui.theme",
+    "com.ultraviolince.mykitchen.ui.theme"
 )
 
 kover {
@@ -141,4 +141,10 @@ kover {
 detekt {
     autoCorrect = true
     config.setFrom("${project.rootDir}/gradle/detekt.yml")
+}
+
+ktlint {
+    filter {
+        exclude("**/generated/**")
+    }
 }
