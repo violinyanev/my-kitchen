@@ -5,11 +5,9 @@ import assertk.assertions.isEqualTo
 import getSomething
 import kotlin.test.Test
 
-
-class SomethingTest {
+class SomeTest {
     @Test
     fun testGetInitials() {
-
         assertThat("Something").isEqualTo(getSomething())
     }
 }

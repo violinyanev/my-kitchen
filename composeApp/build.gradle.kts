@@ -7,6 +7,12 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kover)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
+    // alias(libs.plugins.room)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -102,5 +108,43 @@ compose.desktop {
             packageName = "com.ultraviolince.mykitchen"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+val excludedClasses = listOf(
+    "*Activity",
+    "*Activity\$*",
+    "*.BuildConfig",
+    "ComposableSingletons\$*"
+)
+
+val excludedPackages = listOf(
+    // Dependency injection itself doesn't need to be tested
+    "com.ultraviolince.mykitchen.di",
+    // Presentation not unit test(able) currently, could revisit later (maybe try paparazzi + compose?)
+    "com.ultraviolince.mykitchen.recipes.presentation",
+    // Theme values are generated, no need to unit test
+    "com.ultraviolince.mykitchen.ui.theme"
+)
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(excludedClasses)
+                packages(excludedPackages)
+            }
+        }
+    }
+}
+
+detekt {
+    autoCorrect = true
+    config.setFrom("${project.rootDir}/gradle/detekt.yml")
+}
+
+ktlint {
+    filter {
+        exclude("**/generated/**")
     }
 }
