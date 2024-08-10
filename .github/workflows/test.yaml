@@ -3,9 +3,9 @@ name: Tests
 # Only pushes and PRs against the main branch are built
 on:
   push:
-    branches: [ main ]
+    branches: [ main, kmp ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, kmp ]
 
 concurrency:
     group: ${{ github.head_ref || github.run_id }}
