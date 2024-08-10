@@ -32,15 +32,14 @@ jobs:
       run: ./gradlew buildHealth
 
     - name: Build APKs
-      run: ./gradlew build
-      #run: ./gradlew :app:assembleDebug :app:testDebug ktlintCheck :app:koverXmlReportDebug detekt
+      run: ./gradlew build :composeApp:koverXmlReportDebug
 
     - name: Add coverage report to PR
       id: kover
       uses: mi-kas/kover-report@v1.7
       with:
         path: |
-          ${{ github.workspace }}/app/build/reports/kover/reportDebug.xml
+          ${{ github.workspace }}/composeApp/build/reports/kover/reportDebug.xml
         token: ${{ secrets.COMMENTS_TOKEN }}
         title: Code Coverage
         update-comment: true
