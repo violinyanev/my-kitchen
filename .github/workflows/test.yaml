@@ -28,27 +28,25 @@ jobs:
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
 
-    # TODO KMP: restore this
-    # - name: Check build health
-    #   run: ./gradlew buildHealth
+    - name: Check build health
+      run: ./gradlew buildHealth
 
     - name: Build APKs
       run: ./gradlew build
       #run: ./gradlew :app:assembleDebug :app:testDebug ktlintCheck :app:koverXmlReportDebug detekt
 
-    # TODO KMP: restore this
-    # - name: Add coverage report to PR
-    #   id: kover
-    #   uses: mi-kas/kover-report@v1.7
-    #   with:
-    #     path: |
-    #       ${{ github.workspace }}/app/build/reports/kover/reportDebug.xml
-    #     token: ${{ secrets.COMMENTS_TOKEN }}
-    #     title: Code Coverage
-    #     update-comment: true
-    #     min-coverage-overall: 10
-    #     min-coverage-changed-files: 80
-    #     coverage-counter-type: LINE
+    - name: Add coverage report to PR
+      id: kover
+      uses: mi-kas/kover-report@v1.7
+      with:
+        path: |
+          ${{ github.workspace }}/app/build/reports/kover/reportDebug.xml
+        token: ${{ secrets.COMMENTS_TOKEN }}
+        title: Code Coverage
+        update-comment: true
+        min-coverage-overall: 10
+        min-coverage-changed-files: 80
+        coverage-counter-type: LINE
 
 
   instrumentedtests:
