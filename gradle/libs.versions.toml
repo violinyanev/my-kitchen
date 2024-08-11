@@ -1,8 +1,8 @@
 [versions]
 # Unused
-javaTargetVersion = "VERSION_11"
-javaSourceVersion = "VERSION_11"
-jvmToolchain = "11"
+javaTargetVersion = "VERSION_17"
+javaSourceVersion = "VERSION_17"
+jvmToolchain = "17"
 
 agp = "8.5.2"
 android-compileSdk = "34"
