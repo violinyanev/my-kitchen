@@ -15,11 +15,12 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+
 kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmToolchain.get()))
         }
     }
 
@@ -84,12 +85,13 @@ android {
     }
     buildTypes {
         getByName("release") {
+            // TODO Fix this...
             isMinifyEnabled = false
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.valueOf(libs.versions.javaSourceVersion.get())
+        targetCompatibility = JavaVersion.valueOf(libs.versions.javaTargetVersion.get())
     }
     buildFeatures {
         compose = true
