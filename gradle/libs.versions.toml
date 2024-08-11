@@ -50,7 +50,8 @@ buildHealth = "1.33.0"
 # monitor = "1.7.1"
 navigation = "2.7.7"
 # pagingCompose = "3.3.1"
-room = "2.6.1"
+room = "2.7.0-alpha01"
+sqlite = "2.5.0-SNAPSHOT"
 
 # @keep
 # testExtJunit = "1.2.1"
@@ -61,6 +62,9 @@ kover = "0.8.2"
 runner = "1.6.1"
 
 [libraries]
+
+# Basic/standard
+
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 # kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -75,6 +79,14 @@ assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assert
 # compose-ui-test-junit4-android = { module = "androidx.compose.ui:ui-test-junit4-android", version.ref = "composeLatest" }
 # compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeLatest" }
 # core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtx" }
+
+# Room
+
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+# room-runtime-android = { module = "androidx.room:room-runtime-android", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+# androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 
 # Ours
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
@@ -97,8 +109,6 @@ androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling
 # androidx-monitor = { module = "androidx.test:monitor", version.ref = "monitor" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 # androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "work" }
 # androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
