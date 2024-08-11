@@ -13,7 +13,7 @@ compose-plugin = "1.6.11"
 junit = "4.13.2"
 kotlin = "2.0.0"
 assertk = "0.28.1"
-# coreKtx = "1.6.1"
+coreKtx = "1.6.1"
 composeLatest = "1.6.8"
 
 # Ours
@@ -67,9 +67,9 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 # androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
-# compose-ui-test-junit4-android = { module = "androidx.compose.ui:ui-test-junit4-android", version.ref = "composeLatest" }
-# compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeLatest" }
-# core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtx" }
+compose-ui-test-junit4-android = { module = "androidx.compose.ui:ui-test-junit4-android", version.ref = "composeLatest" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeLatest" }
+core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtx" }
 
 # Ours
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }

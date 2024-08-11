@@ -1,5 +1,6 @@
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
@@ -21,18 +22,27 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text(getSomething())
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
-        }
+        AppContent()
     }
+}
+
+@Composable
+@Preview
+fun AppContent() {
+    var showContent by remember { mutableStateOf(false) }
+    Box {
+        Text("Something")
+    }
+//    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+//        Button(onClick = { showContent = !showContent }) {
+//            Text("Hello")
+//        }
+//        AnimatedVisibility(showContent) {
+//            val greeting = remember { Greeting().greet() }
+//            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+//                Image(painterResource(Res.drawable.compose_multiplatform), null)
+//                Text("Compose: $greeting")
+//            }
+//        }
+//    }
 }
