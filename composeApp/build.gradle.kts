@@ -15,7 +15,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-
 kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
