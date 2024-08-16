@@ -151,12 +151,11 @@ fun LoginScreenContent(
                     },
                     placeholder = {
                         if (serverState.hintStringId != Res.string.empty) {
-                            // Text(text = stringResource(serverState.hintStringId), style = MaterialTheme.typography.headlineMedium)
-                            Text(text = stringResource(serverState.hintStringId), style = MaterialTheme.typography.h2) // TODO FIX KMP
+                            Text(text = stringResource(serverState.hintStringId), style = MaterialTheme.typography.subtitle1)
                         }
                     },
                     singleLine = true,
-                    textStyle = MaterialTheme.typography.h2, // TODO KMP MaterialTheme.typography.headlineMedium
+                    textStyle = MaterialTheme.typography.subtitle1,
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged {
@@ -176,11 +175,11 @@ fun LoginScreenContent(
                     },
                     placeholder = {
                         if (usernameState.hintStringId != Res.string.empty) {
-                            Text(text = stringResource(usernameState.hintStringId), style = MaterialTheme.typography.h2) // TODO FIX KMP headlineMedium
+                            Text(text = stringResource(usernameState.hintStringId), style = MaterialTheme.typography.subtitle1)
                         }
                     },
                     singleLine = true,
-                    textStyle = MaterialTheme.typography.h2, // TODO FIX KMP headlineMedium
+                    textStyle = MaterialTheme.typography.subtitle1,
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged {
@@ -200,11 +199,11 @@ fun LoginScreenContent(
                     },
                     placeholder = {
                         if (passwordState.hintStringId != Res.string.empty) {
-                            Text(text = stringResource(passwordState.hintStringId), style = MaterialTheme.typography.h2) // TODO FIX KMP headlineMedium
+                            Text(text = stringResource(passwordState.hintStringId), style = MaterialTheme.typography.subtitle1)
                         }
                     },
                     singleLine = true,
-                    textStyle = MaterialTheme.typography.h2, // TODO FIX KMP headlineMedium
+                    textStyle = MaterialTheme.typography.subtitle1,
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged {
