@@ -25,4 +25,5 @@
     <string name="wrong_credentials">Falscher login/passwort</string>
     <string name="unknown_error">Unerwarter Fehler! Bitte als melden</string>
     <string name="delete">Löschen</string>
+    <string name="empty"></string>
 </resources>

@@ -29,4 +29,5 @@
     <string name="missing_title" translation_description="Snack-bar error being shown when the title of a recipe is empty">The title of the recipe can\'t be empty</string>
     <string name="missing_body" translation_description="Snack-bar error being shown when the body of a recipe is empty">The body of the recipe can\'t be empty</string>
 
+    <string name="empty" translation_description="Empty string"></string>
 </resources>
