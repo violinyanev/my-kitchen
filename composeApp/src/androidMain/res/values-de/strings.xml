@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="title_hint">Titel</string>
+    <string name="content_hint">Rezept</string>
+    <string name="save">Speichern</string>
+    <string name="sort_title">Titel</string>
+    <string name="sort_date">Datum</string>
+    <string name="sort_descending">Absteigend</string>
+    <string name="sort_ascending">Aufsteigend</string>
+    <string name="add_recipe">Neues Rezept</string>
+    <string name="sort">Sortieren</string>
+    <string name="your_recipes">Rezepte</string>
+    <string name="missing_title">Der Rezepttitel darf nicht leer sein</string>
+    <string name="missing_body">Der Rezepinhalt darf nicht leer sein</string>
+    <string name="server_hint">Server, z.B. https://myserver.com:8019</string>
+    <string name="username_hint">Benutzername</string>
+    <string name="password_hint">Passwort</string>
+    <string name="sync_enabled">Backup an</string>
+    <string name="sync_disabled">Backup aus</string>
+    <string name="sync_loading">Backup wird geladen</string>
+    <string name="missing_username">Benutzername ist leer</string>
+    <string name="malformed_server_uri">Falsche Server addresse! Erwartetes format http(s)://yourdomain.com(:port)</string>
+    <string name="missing_password">Passwort fehlt</string>
+    <string name="wrong_credentials">Falscher login/passwort</string>
+    <string name="unknown_error">Unerwarter Fehler! Bitte als melden</string>
+    <string name="delete">Löschen</string>
+</resources>
