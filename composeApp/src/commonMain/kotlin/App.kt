@@ -14,7 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import mykitchen.composeapp.generated.resources.Res
 import mykitchen.composeapp.generated.resources.compose_multiplatform
+import mykitchen.composeapp.generated.resources.your_recipes
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -30,7 +32,10 @@ fun App() {
                 val greeting = remember { Greeting().greet() }
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+                    Column {
+                        Text("Compose: $greeting")
+                        Text(stringResource(Res.string.your_recipes))
+                    }
                 }
             }
         }
