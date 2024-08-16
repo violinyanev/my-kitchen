@@ -1,3 +1,35 @@
 <resources>
-    <string name="app_name">My Kitchen</string>
+    <string name="app_name" translatable="false">My Kitchen</string>
+
+    <!-- Recipes main screen -->
+    <string name="your_recipes" translation_description="Text shown on top of the recipes main screen">Recipes</string>
+    <string name="add_recipe" translation_description="Content description for the add recipe button">Sort</string>
+    <string name="sort_title" translation_description="The text shown when sorting by title">Title</string>
+    <string name="sort_date" translation_description="The text shown when sorting by date">Date</string>
+    <string name="sort" translation_description="Content description for the sort button">Sort</string>
+    <string name="sort_descending" translation_description="The text shown when sorting in descending order">Descending</string>
+    <string name="sort_ascending" translation_description="The text shown when sorting in ascending order">Ascending</string>
+    <string name="sync_enabled" translation_description="The text shown when sync is enabled">Synchronisation with the backend is enabled</string>
+    <string name="sync_disabled" translation_description="The text shown when sync is disabled">Synchronisation with the backend is disabled</string>
+    <string name="sync_loading" translation_description="The text shown when sync status is being loaded">Synchronising with the backend</string>
+
+    <!-- Login screen -->
+    <string name="server_hint" translation_description="The placeholder text shown when the server in the login screen is empty">Server URL, e.g. https://myserver.com:8019</string>
+    <string name="username_hint" translation_description="The placeholder text shown when the username in the login screen is empty">Username</string>
+    <string name="password_hint" translation_description="The placeholder text shown when the password in the login screen is empty">Password</string>
+    <string name="malformed_server_uri" translation_description="Error text shown when the server URI is empty or malformed">"Malformed server URL! Use http(s)://yourdomain.com(:port)"</string>
+    <string name="missing_username" translation_description="Error text shown when the username is empty">Missing username</string>
+    <string name="missing_password" translation_description="Error text shown when the password is empty">Missing password</string>
+    <string name="wrong_credentials" translation_description="Error text shown when username and password don't match">Bad credentials!</string>
+    <string name="unknown_error" translation_description="Error text shown when an unexpected error happened">Unexpected internal error! Please report a bug</string>
+
+    <!-- Recipes add/edit screen -->
+    <string name="title_hint" translation_description="The placeholder text shown when the title of a recipe is empty">Title</string>
+    <string name="content_hint" translation_description="The placeholder text shown when the text content of a recipe is empty">Recipe</string>
+    <string name="save" translation_description="The content description for the save button">Save</string>
+    <string name="delete" translation_description="The content description for the delete button">Delete</string>
+    <string name="missing_title" translation_description="Snack-bar error being shown when the title of a recipe is empty">The title of the recipe can\'t be empty</string>
+    <string name="missing_body" translation_description="Snack-bar error being shown when the body of a recipe is empty">The body of the recipe can\'t be empty</string>
+
 </resources>
+    
