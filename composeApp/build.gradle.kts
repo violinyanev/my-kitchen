@@ -54,7 +54,8 @@ kotlin {
             implementation(libs.napier.logging)
 
             // Koin
-            api(libs.koin.core)
+            implementation(libs.koin.core)
+            implementation(libs.koin.annotations)
             implementation(libs.koin.compose)
 
             // Viewmodels
@@ -128,7 +129,8 @@ room {
 }
 
 dependencies {
-    add("kspCommonMainMetadata", libs.androidx.room.compiler)
+    //add("kspCommonMainMetadata", libs.androidx.room.compiler)
+    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
 }
 
 val excludedClasses = listOf(
