@@ -1,8 +1,9 @@
 package com.ultraviolince.mykitchen.recipes.domain.model
 
-import androidx.annotation.StringRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import mykitchen.composeapp.generated.resources.Res
+import org.jetbrains.compose.resources.StringResource
 
 @Entity
 class Recipe(
@@ -13,5 +14,3 @@ class Recipe(
 ) {
     override fun toString() = "Recipe[$id] $title (ts $timestamp)"
 }
-
-class InvalidRecipeException(val errorString: StringResource) : Exception()

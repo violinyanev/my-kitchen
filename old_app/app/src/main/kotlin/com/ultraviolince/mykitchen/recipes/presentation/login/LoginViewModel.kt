@@ -52,7 +52,7 @@ class LoginViewModel(
     fun onEvent(event: LoginEvent) {
         when (event) {
             is LoginEvent.EnteredServer -> {
-                Log.i("Recipes", "User entered server name ${event.value}")
+                Log.i("User entered server name ${event.value}")
                 _server.value = server.value.copy(text = event.value)
             }
             is LoginEvent.ChangeServerFocus -> {
@@ -61,7 +61,7 @@ class LoginViewModel(
                 )
             }
             is LoginEvent.EnteredUsername -> {
-                Log.i("Recipes", "User entered user name ${event.value}")
+                Log.i("User entered user name ${event.value}")
                 _username.value = username.value.copy(text = event.value)
             }
             is LoginEvent.ChangeUsernameFocus -> {
@@ -70,7 +70,7 @@ class LoginViewModel(
                 )
             }
             is LoginEvent.EnteredPassword -> {
-                Log.i("Recipes", "User entered a password with length ${event.value.length}")
+                Log.i("User entered a password with length ${event.value.length}")
                 _password.value = password.value.copy(text = event.value)
             }
             is LoginEvent.ChangePasswordFocus -> {

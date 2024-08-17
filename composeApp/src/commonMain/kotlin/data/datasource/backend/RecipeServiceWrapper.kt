@@ -1,11 +1,11 @@
-package com.ultraviolince.mykitchen.recipes.data.datasource.backend
+package data.datasource.backend
 
-import android.util.Log
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeService
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.createHttpClient
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onSuccess
-import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import io.ktor.client.engine.cio.CIO
@@ -17,7 +17,7 @@ class RecipeServiceWrapper {
 
     private val logger = object : Logger {
         override fun log(message: String) {
-            Log.d("#network #ktor", message)
+            Log.d(message)
         }
     }
 
@@ -82,40 +82,40 @@ class RecipeServiceWrapper {
         return false
     }
 
-    suspend fun sync(dao: RecipeDao) {
-        recipeService?.apply {
-            val existingRecipes = mutableSetOf<Long>()
-
-            val maybeRecipes = getRecipes()
-
-            maybeRecipes.onSuccess { recipes ->
-                for (r in recipes) {
-                    dao.insertRecipe(
-                        Recipe(
-                            id = r.id,
-                            title = r.title,
-                            content = r.body,
-                            timestamp = r.timestamp
-                        )
-                    )
-                    existingRecipes.add(r.id)
-                }
-            }
-                /*val dbRecipes = dao.getRecipes()
-
-                Log.e("Before1")
-                val currentDbRecipes = dbRecipes.last()
-
-                Log.e("Before2")
-
-                for (r in currentDbRecipes) {
-                    r.id?.let {
-                        if(!existingRecipes.contains(it)){
-                            insertRecipe(it, r)
-                        }
-                    }
-                }
-                Log.e("After")*/
-        }
-    }
+//    suspend fun sync(dao: RecipeDao) {
+//        recipeService?.apply {
+//            val existingRecipes = mutableSetOf<Long>()
+//
+//            val maybeRecipes = getRecipes()
+//
+//            maybeRecipes.onSuccess { recipes ->
+//                for (r in recipes) {
+//                    dao.insertRecipe(
+//                        Recipe(
+//                            id = r.id,
+//                            title = r.title,
+//                            content = r.body,
+//                            timestamp = r.timestamp
+//                        )
+//                    )
+//                    existingRecipes.add(r.id)
+//                }
+//            }
+//                /*val dbRecipes = dao.getRecipes()
+//
+//                Log.e("Before1")
+//                val currentDbRecipes = dbRecipes.last()
+//
+//                Log.e("Before2")
+//
+//                for (r in currentDbRecipes) {
+//                    r.id?.let {
+//                        if(!existingRecipes.contains(it)){
+//                            insertRecipe(it, r)
+//                        }
+//                    }
+//                }
+//                Log.e("After")*/
+//        }
+//    }
 }

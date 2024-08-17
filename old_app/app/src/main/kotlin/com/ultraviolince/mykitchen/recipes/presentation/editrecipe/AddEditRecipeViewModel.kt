@@ -37,13 +37,13 @@ class AddEditRecipeViewModel(
     private var currentRecipeId: Long? = null
 
     init {
-        Log.i("Recipes", "Entering the edit recipe screen")
+        Log.i("Entering the edit recipe screen")
 
         // TODO remove this?
         savedStateHandle.get<Int>("recipeId")?.let { recipeIdInt ->
             val recipeId = recipeIdInt.toLong()
             savedStateHandle["recipeId"] = recipeId
-            Log.i("Recipes", "Editing recipe with id=$recipeId")
+            Log.i("Editing recipe with id=$recipeId")
         }
 
         savedStateHandle.get<Long>("recipeId")?.let {
@@ -70,7 +70,7 @@ class AddEditRecipeViewModel(
     fun onEvent(event: AddEditRecipeEvent) {
         when (event) {
             is AddEditRecipeEvent.EnteredTitle -> {
-                Log.i("Recipes", "User entered title ${event.value}")
+                Log.i("User entered title ${event.value}")
                 _recipeTitle.value = recipeTitle.value.copy(text = event.value)
             }
             is AddEditRecipeEvent.ChangeTitleFocus -> {
@@ -79,7 +79,7 @@ class AddEditRecipeViewModel(
                 )
             }
             is AddEditRecipeEvent.EnteredContent -> {
-                Log.i("Recipes", "User entered content ${event.value}")
+                Log.i("User entered content ${event.value}")
                 _recipeContent.value = recipeContent.value.copy(text = event.value)
             }
             is AddEditRecipeEvent.ChangeContentFocus -> {
@@ -88,7 +88,7 @@ class AddEditRecipeViewModel(
                 )
             }
             is AddEditRecipeEvent.SaveRecipe -> {
-                Log.i("Recipes", "User is saving the recipe")
+                Log.i("User is saving the recipe")
                 viewModelScope.launch {
                     try {
                         recipesUseCases.addRecipe(
@@ -110,7 +110,7 @@ class AddEditRecipeViewModel(
                 }
             }
             is AddEditRecipeEvent.DeleteRecipe -> {
-                Log.i("Recipes", "User is deleting the recipe")
+                Log.i("User is deleting the recipe")
                 viewModelScope.launch {
                     // TODO id is enough to pass here
                     recipesUseCases.deleteRecipe(
