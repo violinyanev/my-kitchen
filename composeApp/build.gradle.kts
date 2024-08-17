@@ -50,6 +50,9 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
+            // Logging
+            implementation(libs.napier.logging)
+
             // Koin
             api(libs.koin.core)
             implementation(libs.koin.compose)
