@@ -8,5 +8,6 @@ class MyKitchenApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         KoinInitializer(applicationContext).init()
+        Logger.init()
     }
 }

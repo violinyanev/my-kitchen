@@ -1,6 +1,7 @@
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -14,6 +15,13 @@ import org.koin.compose.currentKoinScope
 @Composable
 @Preview
 fun App() {
+    DisposableEffect(true) {
+        Log.i("App composed")
+        onDispose {
+            Log.i("App decomposed")
+        }
+    }
+
     MaterialTheme {
         KoinContext {
             val navController = rememberNavController()
