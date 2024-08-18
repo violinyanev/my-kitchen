@@ -41,6 +41,7 @@ import mykitchen.composeapp.generated.resources.password_hint
 import mykitchen.composeapp.generated.resources.save
 import mykitchen.composeapp.generated.resources.server_hint
 import mykitchen.composeapp.generated.resources.username_hint
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import shared.state.TextFieldState
@@ -62,7 +63,7 @@ fun LoginScreen(
             when (event) {
                 is LoginViewModel.UiEvent.ShowSnackbar -> {
                     snackBarHostState.showSnackbar(
-                        message = event.message.toString()
+                        message = event.message
                     )
                 }
                 is LoginViewModel.UiEvent.LoginSuccess -> {
