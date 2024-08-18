@@ -11,12 +11,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import login.presentation.LoginEvent
 import mykitchen.composeapp.generated.resources.Res
-import mykitchen.composeapp.generated.resources.malformed_server_uri
 import mykitchen.composeapp.generated.resources.password_hint
 import mykitchen.composeapp.generated.resources.server_hint
-import mykitchen.composeapp.generated.resources.unknown_error
 import mykitchen.composeapp.generated.resources.username_hint
-import org.jetbrains.compose.resources.StringResource
 import shared.state.TextFieldState
 
 // @KoinViewModel
@@ -82,9 +79,8 @@ class LoginViewModel(
             }
             is LoginEvent.Login -> {
                 viewModelScope.launch {
-
                     UiEvent.ShowSnackbar(
-                        message = "" //Res.string.server_hint
+                        message = "" // Res.string.server_hint
                     )
 
                     try {
@@ -109,15 +105,15 @@ class LoginViewModel(
                                         UiEvent.ShowSnackbar(
                                             when (it.error) {
                                                 // TODO fix all responses
-                                                NetworkError.UNKNOWN -> "Unknown error" //Res.string.unknown_error
-                                                NetworkError.REQUEST_TIMEOUT -> "Malformed server URI" //Res.string.malformed_server_uri
-                                                NetworkError.UNAUTHORIZED -> "Unknown error" //Res.string.unknown_error
-                                                NetworkError.CONFLICT -> "Unknown error" //Res.string.unknown_error
-                                                NetworkError.TOO_MANY_REQUESTS -> "Unknown error" //Res.string.unknown_error
-                                                NetworkError.NO_INTERNET -> "Unknown error" //Res.string.unknown_error
-                                                NetworkError.PAYLOAD_TOO_LARGE -> "Unknown error" //Res.string.unknown_error
-                                                NetworkError.SERVER_ERROR -> "Malformed server URI" //Res.string.malformed_server_uri
-                                                NetworkError.SERIALIZATION -> "Unknown error" //Res.string.unknown_error
+                                                NetworkError.UNKNOWN -> "Unknown error" // Res.string.unknown_error
+                                                NetworkError.REQUEST_TIMEOUT -> "Malformed server URI" // Res.string.malformed_server_uri
+                                                NetworkError.UNAUTHORIZED -> "Unknown error" // Res.string.unknown_error
+                                                NetworkError.CONFLICT -> "Unknown error" // Res.string.unknown_error
+                                                NetworkError.TOO_MANY_REQUESTS -> "Unknown error" // Res.string.unknown_error
+                                                NetworkError.NO_INTERNET -> "Unknown error" // Res.string.unknown_error
+                                                NetworkError.PAYLOAD_TOO_LARGE -> "Unknown error" // Res.string.unknown_error
+                                                NetworkError.SERVER_ERROR -> "Malformed server URI" // Res.string.malformed_server_uri
+                                                NetworkError.SERIALIZATION -> "Unknown error" // Res.string.unknown_error
                                             }
                                         )
                                     )
@@ -130,7 +126,7 @@ class LoginViewModel(
                     } catch (e: LoginException) {
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
-                                message = "Exception happened $e"//e.errorMsg
+                                message = "Exception happened $e" // e.errorMsg
                             )
                         )
                     }

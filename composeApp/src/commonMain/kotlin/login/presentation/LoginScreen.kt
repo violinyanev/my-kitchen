@@ -41,7 +41,6 @@ import mykitchen.composeapp.generated.resources.password_hint
 import mykitchen.composeapp.generated.resources.save
 import mykitchen.composeapp.generated.resources.server_hint
 import mykitchen.composeapp.generated.resources.username_hint
-import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import shared.state.TextFieldState
@@ -56,7 +55,7 @@ fun LoginScreen(
     val usernameState = viewModel.username.value
     val passwordState = viewModel.password.value
 
-     val snackBarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
