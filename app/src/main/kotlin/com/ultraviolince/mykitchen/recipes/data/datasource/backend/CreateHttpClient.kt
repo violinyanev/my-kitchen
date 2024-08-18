@@ -43,9 +43,10 @@ fun createHttpClient(engine: HttpClientEngine, server: String, token: String?, c
         install(Resources)
         install(ContentNegotiation) {
             json(Json {
-                prettyPrint = true
-                isLenient = true
-            })
+                //prettyPrint = true
+                //isLenient = true
+                ignoreUnknownKeys = true
+            },)
         }
     }
 }
