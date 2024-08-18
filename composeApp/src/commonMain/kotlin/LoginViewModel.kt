@@ -22,7 +22,7 @@ class LoginViewModel(
 ) : ViewModel() {
     private val _server = mutableStateOf(
         TextFieldState(
-            text = "",
+            text = "https://ultraviolince.com:8019",
             hintStringId = Res.string.server_hint
         )
     )
@@ -30,7 +30,7 @@ class LoginViewModel(
     private val _username = mutableStateOf(
         TextFieldState(
             hintStringId = Res.string.username_hint,
-            text = ""
+            text = "test@user.com"
         )
     )
     val username: State<TextFieldState> = _username
@@ -40,7 +40,7 @@ class LoginViewModel(
     private val _password = mutableStateOf(
         TextFieldState(
             hintStringId = Res.string.password_hint,
-            text = ""
+            text = "TestPassword"
         )
     )
     val password: State<TextFieldState> = _password
