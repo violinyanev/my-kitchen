@@ -1,6 +1,6 @@
 package domain.usecase
 
-//TODO kmp @Single
+// TODO kmp @Single
 data class Recipes(
     val login: Login,
     val getSyncState: GetLoginState,

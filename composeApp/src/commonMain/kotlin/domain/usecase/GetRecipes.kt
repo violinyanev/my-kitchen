@@ -1,13 +1,13 @@
 package domain.usecase
 
-import domain.repository.RecipeRepository
 import com.ultraviolince.mykitchen.recipes.domain.util.OrderType
 import com.ultraviolince.mykitchen.recipes.domain.util.RecipeOrder
 import domain.model.Recipe
+import domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-//TODO kmp @Single
+// TODO kmp @Single
 class GetRecipes(private val repository: RecipeRepository) {
     operator fun invoke(recipeOrder: RecipeOrder = RecipeOrder.Date(OrderType.Descending)): Flow<List<Recipe>> {
         return repository.getRecipes().map { recipes ->

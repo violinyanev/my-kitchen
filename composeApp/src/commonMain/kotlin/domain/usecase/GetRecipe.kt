@@ -3,7 +3,7 @@ package domain.usecase
 import domain.model.Recipe
 import domain.repository.RecipeRepository
 
-//TODO kmp @Single
+// TODO kmp @Single
 class GetRecipe(
     private val repository: RecipeRepository
 ) {
