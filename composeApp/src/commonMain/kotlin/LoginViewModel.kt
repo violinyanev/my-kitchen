@@ -16,7 +16,7 @@ import shared.state.TextFieldState
 
 // @KoinViewModel
 class LoginViewModel(
-    //private val recipesUseCases: Recipes
+    private val recipesUseCases: Recipes
 ) : ViewModel() {
     private val _server = mutableStateOf(
         TextFieldState(
