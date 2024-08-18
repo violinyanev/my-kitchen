@@ -1,5 +1,4 @@
 package domain.model
 
-import org.jetbrains.compose.resources.StringResource
-
-class InvalidRecipeException(val errorString: StringResource) : Exception()
+// TODO kmp class InvalidRecipeException(val errorString: StringResource) : Exception()
+class InvalidRecipeException(val errorString: String) : Exception()

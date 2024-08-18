@@ -1,35 +1,33 @@
-package com.ultraviolince.mykitchen.recipes.presentation.editrecipe
-
-import android.util.Log
-import androidx.annotation.StringRes
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ultraviolince.mykitchen.R
-import com.ultraviolince.mykitchen.recipes.domain.model.InvalidRecipeException
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
+import domain.model.InvalidRecipeException
+import domain.model.Recipe
+import domain.usecase.Recipes
+import editrecipe.presentation.AddEditRecipeEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import mykitchen.composeapp.generated.resources.Res
+import mykitchen.composeapp.generated.resources.content_hint
+import mykitchen.composeapp.generated.resources.title_hint
+import shared.state.TextFieldState
 
-@KoinViewModel
+// @KoinViewModel
 class AddEditRecipeViewModel(
-    private val recipesUseCases: Recipes,
-    savedStateHandle: SavedStateHandle
+    private val recipesUseCases: Recipes
+    // TODO kmp savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _recipeTitle = mutableStateOf(
-        RecipeTextFieldState(
-            hintStringId = R.string.title_hint
+        TextFieldState(
+            hintStringId = Res.string.title_hint
         )
     )
-    val recipeTitle: State<RecipeTextFieldState> = _recipeTitle
+    val recipeTitle: State<TextFieldState> = _recipeTitle
 
-    private val _recipeContent = mutableStateOf(RecipeTextFieldState(hintStringId = R.string.content_hint))
-    val recipeContent: State<RecipeTextFieldState> = _recipeContent
+    private val _recipeContent = mutableStateOf(TextFieldState(hintStringId = Res.string.content_hint))
+    val recipeContent: State<TextFieldState> = _recipeContent
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -40,31 +38,31 @@ class AddEditRecipeViewModel(
         Log.i("Entering the edit recipe screen")
 
         // TODO remove this?
-        savedStateHandle.get<Int>("recipeId")?.let { recipeIdInt ->
-            val recipeId = recipeIdInt.toLong()
-            savedStateHandle["recipeId"] = recipeId
-            Log.i("Editing recipe with id=$recipeId")
-        }
-
-        savedStateHandle.get<Long>("recipeId")?.let {
-                recipeId ->
-            if (recipeId != -1L) {
-                viewModelScope.launch {
-                    recipesUseCases.getRecipe(recipeId)?.also {
-                            recipe ->
-                        currentRecipeId = recipe.id
-                        _recipeTitle.value = recipeTitle.value.copy(
-                            text = recipe.title,
-                            isHintVisible = false
-                        )
-                        _recipeContent.value = recipeContent.value.copy(
-                            text = recipe.content,
-                            isHintVisible = false
-                        )
-                    }
-                }
-            }
-        }
+//        savedStateHandle.get<Int>("recipeId")?.let { recipeIdInt ->
+//            val recipeId = recipeIdInt.toLong()
+//            savedStateHandle["recipeId"] = recipeId
+//            Log.i("Editing recipe with id=$recipeId")
+//        }
+//
+//        savedStateHandle.get<Long>("recipeId")?.let {
+//                recipeId ->
+//            if (recipeId != -1L) {
+//                viewModelScope.launch {
+//                    recipesUseCases.getRecipe(recipeId)?.also {
+//                            recipe ->
+//                        currentRecipeId = recipe.id
+//                        _recipeTitle.value = recipeTitle.value.copy(
+//                            text = recipe.title,
+//                            isHintVisible = false
+//                        )
+//                        _recipeContent.value = recipeContent.value.copy(
+//                            text = recipe.content,
+//                            isHintVisible = false
+//                        )
+//                    }
+//                }
+//            }
+//        }
     }
 
     fun onEvent(event: AddEditRecipeEvent) {
@@ -95,7 +93,7 @@ class AddEditRecipeViewModel(
                             Recipe(
                                 title = recipeTitle.value.text,
                                 content = recipeContent.value.text,
-                                timestamp = System.currentTimeMillis(),
+                                timestamp = 0L, // TODO kmp System.currentTimeMillis(),
                                 id = currentRecipeId
                             )
                         )
@@ -117,7 +115,7 @@ class AddEditRecipeViewModel(
                         Recipe(
                             title = recipeTitle.value.text,
                             content = recipeContent.value.text,
-                            timestamp = System.currentTimeMillis(),
+                            timestamp = 0L, // TODO kmp System.currentTimeMillis(),
                             id = currentRecipeId
                         )
                     )
@@ -128,7 +126,7 @@ class AddEditRecipeViewModel(
     }
 
     sealed class UiEvent {
-        data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
+        data class ShowSnackbar(val message: String) : UiEvent() // TODO kmp use string res
         object SaveRecipe : UiEvent()
         object DeleteRecipe : UiEvent()
     }

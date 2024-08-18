@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import editrecipe.presentation.AddEditRecipeScreen
 import login.presentation.LoginScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
@@ -37,6 +38,10 @@ fun App() {
                 composable(ScreenRoutes.RecipesScreen.route) {
                     val viewModel = koinViewModel<RecipeViewModel>()
                     RecipeScreen(navController, viewModel)
+                }
+                composable(ScreenRoutes.AddEditRecipeScreen.route) {
+                    val viewModel = koinViewModel<AddEditRecipeViewModel>()
+                    AddEditRecipeScreen(navController, viewModel)
                 }
             }
         }
