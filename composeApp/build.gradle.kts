@@ -103,9 +103,13 @@ android {
         }
     }
     buildTypes {
+        getByName("debug") {
+            resValue("string", "clear_text_config", "true")
+        }
         getByName("release") {
-            // TODO Fix this...
+            // TODO kmp Fix this...
             isMinifyEnabled = false
+            resValue("string", "clear_text_config", "false")
         }
     }
     compileOptions {
