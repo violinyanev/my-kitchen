@@ -11,7 +11,7 @@ import login.presentation.LoginScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 import org.koin.compose.currentKoinScope
-import recipes.presentation.RecipesScreen
+import recipes.presentation.RecipeScreen
 
 @Composable
 @Preview
@@ -35,8 +35,8 @@ fun App() {
                     LoginScreen(navController, viewModel)
                 }
                 composable(ScreenRoutes.RecipesScreen.route) {
-                    val viewModel = koinViewModel<RecipesViewModel>()
-                    RecipesScreen(navController, viewModel)
+                    val viewModel = koinViewModel<RecipeViewModel>()
+                    RecipeScreen(navController, viewModel)
                 }
             }
         }
