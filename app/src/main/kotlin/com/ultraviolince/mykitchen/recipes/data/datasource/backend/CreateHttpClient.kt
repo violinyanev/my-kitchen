@@ -12,7 +12,8 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.http.HttpHeaders
-import io.ktor.serialization.gson.gson
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 
 fun createHttpClient(engine: HttpClientEngine, server: String, token: String?, customLogger: Logger?): HttpClient {
     return HttpClient(engine) {
@@ -41,8 +42,9 @@ fun createHttpClient(engine: HttpClientEngine, server: String, token: String?, c
 
         install(Resources)
         install(ContentNegotiation) {
-            // TODO replace with plain json?
-            gson()
+            json(Json {
+                ignoreUnknownKeys = true
+            },)
         }
     }
 }
