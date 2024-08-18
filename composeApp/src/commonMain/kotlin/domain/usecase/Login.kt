@@ -1,6 +1,6 @@
-package com.ultraviolince.mykitchen.recipes.domain.usecase
+package domain.usecase
 
-import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
+import domain.repository.RecipeRepository
 
 //TODO kmp @Single
 class Login(private val repository: RecipeRepository) {

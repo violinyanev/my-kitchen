@@ -1,8 +1,8 @@
-package com.ultraviolince.mykitchen.recipes.domain.usecase
+package domain.usecase
 
-import com.ultraviolince.mykitchen.recipes.domain.model.InvalidRecipeException
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
+import domain.model.InvalidRecipeException
+import domain.model.Recipe
+import domain.repository.RecipeRepository
 import mykitchen.composeapp.generated.resources.Res
 import mykitchen.composeapp.generated.resources.missing_body
 import mykitchen.composeapp.generated.resources.missing_title

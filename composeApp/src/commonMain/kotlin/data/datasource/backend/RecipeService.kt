@@ -15,7 +15,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result as Result
 
 class RecipeService(private val ktor: HttpClient) {
 

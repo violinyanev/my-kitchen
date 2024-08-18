@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.domain.model
+package domain.model
 
 import org.jetbrains.compose.resources.StringResource
 

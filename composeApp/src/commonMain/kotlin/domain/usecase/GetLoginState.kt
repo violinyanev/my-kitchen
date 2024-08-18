@@ -1,7 +1,7 @@
-package com.ultraviolince.mykitchen.recipes.domain.usecase
+package domain.usecase
 
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
-import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
+import domain.repository.LoginState
+import domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 
 //TODO kmp @Single

@@ -1,6 +1,6 @@
-package com.ultraviolince.mykitchen.recipes.domain.repository
+package domain.repository
 
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import domain.model.Recipe
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {

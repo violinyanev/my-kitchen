@@ -4,7 +4,7 @@ import data.datasource.backend.data.BackendRecipe
 import data.datasource.backend.data.LoginRequest
 import data.datasource.backend.util.Result
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
+import domain.repository.LoginState
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.logging.Logger
 

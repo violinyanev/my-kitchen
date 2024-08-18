@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.domain.usecase
+package domain.usecase
 
 //TODO kmp @Single
 data class Recipes(

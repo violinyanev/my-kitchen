@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.domain.repository
+package domain.repository
 
 import data.datasource.backend.util.NetworkError
 

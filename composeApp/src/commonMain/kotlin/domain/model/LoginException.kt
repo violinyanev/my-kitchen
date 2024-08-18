@@ -1,5 +1,5 @@
-package com.ultraviolince.mykitchen.recipes.domain.model
+package domain.model
 
-import androidx.annotation.StringRes
+import org.jetbrains.compose.resources.StringResource
 
-class LoginException(@StringRes val errorMsg: Int) : Exception()
+class LoginException(val errorMsg: StringResource) : Exception()

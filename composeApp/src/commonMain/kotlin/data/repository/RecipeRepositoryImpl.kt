@@ -2,8 +2,8 @@ package data.repository
 
 import data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
-import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
+import domain.repository.LoginState
+import domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf

@@ -1,9 +1,7 @@
-package com.ultraviolince.mykitchen.recipes.domain.model
+package domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import mykitchen.composeapp.generated.resources.Res
-import org.jetbrains.compose.resources.StringResource
 
 @Entity
 class Recipe(

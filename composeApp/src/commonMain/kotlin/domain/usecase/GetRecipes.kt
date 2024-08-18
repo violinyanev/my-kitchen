@@ -1,9 +1,9 @@
-package com.ultraviolince.mykitchen.recipes.domain.usecase
+package domain.usecase
 
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
+import domain.repository.RecipeRepository
 import com.ultraviolince.mykitchen.recipes.domain.util.OrderType
 import com.ultraviolince.mykitchen.recipes.domain.util.RecipeOrder
+import domain.model.Recipe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

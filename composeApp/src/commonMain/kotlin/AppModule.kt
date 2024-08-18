@@ -1,11 +1,11 @@
 
-import com.ultraviolince.mykitchen.recipes.domain.usecase.AddRecipe
-import com.ultraviolince.mykitchen.recipes.domain.usecase.DeleteRecipe
-import com.ultraviolince.mykitchen.recipes.domain.usecase.GetLoginState
-import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipe
-import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipes
-import com.ultraviolince.mykitchen.recipes.domain.usecase.Login
-import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
+import domain.usecase.AddRecipe
+import domain.usecase.DeleteRecipe
+import domain.usecase.GetLoginState
+import domain.usecase.GetRecipe
+import domain.usecase.GetRecipes
+import domain.usecase.Login
+import domain.usecase.Recipes
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
