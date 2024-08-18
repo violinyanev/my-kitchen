@@ -66,7 +66,7 @@ fun LoginScreen(
                     )
                 }
                 is LoginViewModel.UiEvent.LoginSuccess -> {
-                    navController.navigateUp()
+                    navController.navigate(ScreenRoutes.RecipesScreen.route)
                 }
             }
         }
