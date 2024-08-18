@@ -1,10 +1,10 @@
-package com.ultraviolince.mykitchen.recipes.data.datasource.backend
+package data.datasource.backend
 
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipeResponse
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResult
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
+import data.datasource.backend.data.BackendRecipe
+import data.datasource.backend.data.BackendRecipeResponse
+import data.datasource.backend.data.LoginRequest
+import data.datasource.backend.data.LoginResult
+import data.datasource.backend.util.NetworkError
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -17,7 +17,6 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result as Result
 
-@SuppressWarnings("MagicNumber")
 class RecipeService(private val ktor: HttpClient) {
 
     suspend fun getRecipes(): Result<List<BackendRecipe>, NetworkError> {

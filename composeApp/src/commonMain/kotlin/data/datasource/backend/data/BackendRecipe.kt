@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.data.datasource.backend.data
+package data.datasource.backend.data
 
 import kotlinx.serialization.Serializable
 

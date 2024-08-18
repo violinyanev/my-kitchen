@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.data.datasource.backend.util
+package data.datasource.backend.util
 
 enum class NetworkError : Error {
     REQUEST_TIMEOUT,

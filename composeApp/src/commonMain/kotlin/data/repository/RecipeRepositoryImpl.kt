@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.data.repository
+package data.repository
 
 import data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe

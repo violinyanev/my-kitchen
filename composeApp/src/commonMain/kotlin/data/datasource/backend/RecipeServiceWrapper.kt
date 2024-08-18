@@ -1,11 +1,8 @@
 package data.datasource.backend
 
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeService
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.createHttpClient
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onSuccess
+import data.datasource.backend.data.BackendRecipe
+import data.datasource.backend.data.LoginRequest
+import data.datasource.backend.util.Result
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import io.ktor.client.engine.cio.CIO

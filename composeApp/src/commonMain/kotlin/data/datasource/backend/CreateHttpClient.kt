@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.data.datasource.backend
+package data.datasource.backend
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
