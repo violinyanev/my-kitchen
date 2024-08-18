@@ -1,25 +1,17 @@
 package data.repository
 
 import data.datasource.backend.RecipeServiceWrapper
+import data.datasource.localdb.RecipeDao
 import domain.model.Recipe
 import domain.repository.LoginState
 import domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 
 class RecipeRepositoryImpl(
-    // private val dao: RecipeDao,
+    private val dao: RecipeDao,
     private val recipeService: RecipeServiceWrapper
 ) : RecipeRepository {
-
-    private val r1 = Recipe(title = "test1", content = "content1", timestamp = 1L, id = 1)
-    private val r2 = Recipe(title = "test2", content = "content2", timestamp = 1L, id = 2)
-    private val staticRecipes =
-        listOf(
-            r1,
-            r2
-        )
 
     private val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
 
@@ -29,7 +21,7 @@ class RecipeRepositoryImpl(
         loginState.emit(loginResult)
 
         if (loginResult == LoginState.LoginSuccess) {
-            // TODO kmp recipeService.sync(dao)
+            recipeService.sync(dao)
         }
     }
 
@@ -38,26 +30,21 @@ class RecipeRepositoryImpl(
     }
 
     override fun getRecipes(): Flow<List<Recipe>> {
-        return flowOf(
-            listOf(
-                Recipe(title = "test1", content = "content1", timestamp = 1L, id = 1),
-                Recipe(title = "test2", content = "content2", timestamp = 1L, id = 2)
-            )
-        ) // dao.getRecipes()
+        return dao.getRecipes()
     }
 
     override suspend fun getRecipeById(id: Long): Recipe? {
-        return null // dao.getRecipeById(id)
+        return dao.getRecipeById(id)
     }
 
     override suspend fun insertRecipe(recipe: Recipe): Long {
-        val recipeId = 0L // dao.insertRecipe(recipe)
+        val recipeId = dao.insertRecipe(recipe)
         recipeService.insertRecipe(recipeId, recipe)
         return recipeId
     }
 
     override suspend fun deleteRecipe(recipe: Recipe) {
         recipeService.deleteRecipe(recipe.id!!)
-        // dao.deleteRecipe(recipe)
+        dao.deleteRecipe(recipe)
     }
 }
