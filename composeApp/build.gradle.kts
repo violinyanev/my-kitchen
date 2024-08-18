@@ -50,6 +50,9 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
+            // Extra UI
+            implementation(compose.materialIconsExtended)
+
             // Logging
             implementation(libs.napier.logging)
 
