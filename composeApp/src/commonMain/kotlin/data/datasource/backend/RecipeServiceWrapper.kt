@@ -2,8 +2,8 @@ package data.datasource.backend
 
 import data.datasource.backend.data.BackendRecipe
 import data.datasource.backend.data.LoginRequest
-import data.datasource.backend.util.Result
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import data.datasource.backend.util.NetworkResult
+import domain.model.Recipe
 import domain.repository.LoginState
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.logging.Logger
@@ -26,8 +26,8 @@ class RecipeServiceWrapper {
 
         Log.i("Login result: $result")
         return when (result) {
-            is Result.Error -> LoginState.LoginFailure(error = result.error)
-            is Result.Success -> {
+            is NetworkResult.Error -> LoginState.LoginFailure(error = result.error)
+            is NetworkResult.Success -> {
                 recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token, logger))
                 LoginState.LoginSuccess
             }
@@ -50,8 +50,8 @@ class RecipeServiceWrapper {
 
             Log.i("Create recipe result: $result")
             return when (result) {
-                is Result.Error -> false
-                is Result.Success -> {
+                is NetworkResult.Error -> false
+                is NetworkResult.Success -> {
                     true
                 }
             }
@@ -71,8 +71,8 @@ class RecipeServiceWrapper {
 
             Log.i("Delete recipe result: $result")
             return when (result) {
-                is Result.Error -> false
-                is Result.Success -> true
+                is NetworkResult.Error -> false
+                is NetworkResult.Success -> true
             }
         }
 
