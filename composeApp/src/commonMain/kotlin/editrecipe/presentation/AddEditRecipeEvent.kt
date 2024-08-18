@@ -1,4 +1,4 @@
-package com.ultraviolince.mykitchen.recipes.presentation.editrecipe
+package editrecipe.presentation
 
 import androidx.compose.ui.focus.FocusState
 
