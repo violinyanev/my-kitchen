@@ -42,7 +42,7 @@ class RecipeService(private val ktor: HttpClient) {
             413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
             in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
             else -> {
-                Log.e("#network", "${response.status}, $response")
+                Log.e("${response.status}, $response")
                 Result.Error(NetworkError.UNKNOWN)
             }
         }
@@ -71,7 +71,7 @@ class RecipeService(private val ktor: HttpClient) {
             413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
             in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
             else -> {
-                Log.e("#network", "Unknown error, code: ${response.status.value}")
+                Log.e("Unknown error, code: ${response.status.value}")
                 Result.Error(NetworkError.UNKNOWN)
             }
         }
@@ -125,7 +125,7 @@ class RecipeService(private val ktor: HttpClient) {
             413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
             in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
             else -> {
-                Log.e("#network", "${response.status}, $response")
+                Log.e("${response.status}, $response")
                 Result.Error(NetworkError.UNKNOWN)
             }
         }

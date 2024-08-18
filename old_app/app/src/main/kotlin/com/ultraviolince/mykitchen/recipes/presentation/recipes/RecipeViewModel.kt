@@ -50,7 +50,7 @@ class RecipeViewModel(
                 }
             }
             is RecipesEvent.DeleteRecipe -> {
-                Log.i("Recipes", "User deleted recipe ${event.recipe}")
+                Log.i("User deleted recipe ${event.recipe}")
                 viewModelScope.launch {
                     recipesUseCases.deleteRecipe(event.recipe)
                     recentlyDeletedRecipe = event.recipe
@@ -83,7 +83,7 @@ class RecipeViewModel(
         getLoginJob = recipesUseCases.getSyncState()
             .onEach {
                     syncState ->
-                Log.i("Recipes", "Login state changed to $syncState")
+                Log.i("Login state changed to $syncState")
                 _state.value = state.value.copy(
                     syncState = syncState
                 )

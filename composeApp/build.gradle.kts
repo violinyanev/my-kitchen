@@ -61,6 +61,15 @@ kotlin {
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.navigation.compose)
 
+            // Ktor
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.auth)
+            implementation(libs.ktor.client.resources)
+
             // Room
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
@@ -94,9 +103,13 @@ android {
         }
     }
     buildTypes {
+        getByName("debug") {
+            resValue("string", "clear_text_config", "true")
+        }
         getByName("release") {
-            // TODO Fix this...
+            // TODO kmp Fix this...
             isMinifyEnabled = false
+            resValue("string", "clear_text_config", "false")
         }
     }
     compileOptions {

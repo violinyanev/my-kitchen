@@ -27,7 +27,7 @@ class RecipeServiceWrapper {
         // TODO Store the token, don't force authentication all the time
         val result = tmpService.login(LoginRequest(email, password))
 
-        Log.i("#network", "Login result: $result")
+        Log.i("Login result: $result")
         return when (result) {
             is Result.Error -> LoginState.LoginFailure(error = result.error)
             is Result.Success -> {
@@ -38,7 +38,7 @@ class RecipeServiceWrapper {
     }
 
     suspend fun insertRecipe(recipeId: Long, recipe: Recipe): Boolean {
-        Log.i("Recipes", "Syncing recipe to backend: $recipe")
+        Log.i("Syncing recipe to backend: $recipe")
 
         // TODO make this safe by design
         recipeService?.apply {
@@ -51,7 +51,7 @@ class RecipeServiceWrapper {
                 )
             )
 
-            Log.i("#network", "Create recipe result: $result")
+            Log.i("Create recipe result: $result")
             return when (result) {
                 is Result.Error -> false
                 is Result.Success -> {
@@ -64,7 +64,7 @@ class RecipeServiceWrapper {
     }
 
     suspend fun deleteRecipe(recipeId: Long): Boolean {
-        Log.i("Recipes", "Deleting recipe from backend: $recipeId")
+        Log.i("Deleting recipe from backend: $recipeId")
         // TODO make this safe by design
 
         recipeService?.apply {
@@ -72,7 +72,7 @@ class RecipeServiceWrapper {
                 recipeId = recipeId
             )
 
-            Log.i("#network", "Delete recipe result: $result")
+            Log.i("Delete recipe result: $result")
             return when (result) {
                 is Result.Error -> false
                 is Result.Success -> true
@@ -103,10 +103,10 @@ class RecipeServiceWrapper {
             }
                 /*val dbRecipes = dao.getRecipes()
 
-                Log.e("RECIPES", "Before1")
+                Log.e("Before1")
                 val currentDbRecipes = dbRecipes.last()
 
-                Log.e("RECIPES", "Before2")
+                Log.e("Before2")
 
                 for (r in currentDbRecipes) {
                     r.id?.let {
@@ -115,7 +115,7 @@ class RecipeServiceWrapper {
                         }
                     }
                 }
-                Log.e("RECIPES", "After")*/
+                Log.e("After")*/
         }
     }
 }

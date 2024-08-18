@@ -8,4 +8,8 @@ object Log {
     fun i(msg: String) {
         Napier.i(msg)
     }
+
+    fun d(msg: String) {
+        Napier.d(msg)
+    }
 }

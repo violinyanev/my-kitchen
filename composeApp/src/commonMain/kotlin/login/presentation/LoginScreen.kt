@@ -17,6 +17,8 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
@@ -32,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import koinViewModel
+import kotlinx.coroutines.flow.collectLatest
 import mykitchen.composeapp.generated.resources.Res
 import mykitchen.composeapp.generated.resources.empty
 import mykitchen.composeapp.generated.resources.password_hint
@@ -52,31 +55,28 @@ fun LoginScreen(
     val usernameState = viewModel.username.value
     val passwordState = viewModel.password.value
 
-    // val snackBarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
 
-    // TODO better way?
-    // val context = LocalContext.current
-
-//    LaunchedEffect(key1 = true) {
-//        viewModel.eventFlow.collectLatest { event ->
-//            when (event) {
-//                is LoginViewModel.UiEvent.ShowSnackbar -> {
-//                    snackBarHostState.showSnackbar(
-//                        message = context.resources.getString(event.message)
-//                    )
-//                }
-//                is LoginViewModel.UiEvent.LoginSuccess -> {
-//                    navController.navigateUp()
-//                }
-//            }
-//        }
-//    }
+    LaunchedEffect(key1 = true) {
+        viewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                is LoginViewModel.UiEvent.ShowSnackbar -> {
+                    snackBarHostState.showSnackbar(
+                        message = event.message
+                    )
+                }
+                is LoginViewModel.UiEvent.LoginSuccess -> {
+                    navController.navigateUp()
+                }
+            }
+        }
+    }
 
     LoginScreenContent(
         serverState = serverState,
         usernameState = usernameState,
         passwordState = passwordState,
-        // snackBarHostState = snackBarHostState,
+        snackBarHostState = snackBarHostState,
         buttonLoading = viewModel.buttonLoading.value,
         eventHandler = {
             viewModel.onEvent(it)
@@ -90,13 +90,13 @@ fun LoginScreenContent(
     serverState: TextFieldState,
     usernameState: TextFieldState,
     passwordState: TextFieldState,
-    // snackBarHostState: SnackbarHostState,
+    snackBarHostState: SnackbarHostState,
     buttonLoading: Boolean,
     modifier: Modifier = Modifier,
     eventHandler: (LoginEvent) -> Unit
 ) {
     Scaffold(
-        // TODO KMP snackbarHost = { SnackbarHost(snackBarHostState) },
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -239,6 +239,7 @@ class LoginScreenPreviewParameterProvider : PreviewParameterProvider<LoginScreen
     )
 }
 
+// TODO kmp
 // @Preview(showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_UNDEFINED)
 // @Composable
 // private fun AddEditRecipeScreenPreview(
