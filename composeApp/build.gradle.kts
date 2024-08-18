@@ -85,6 +85,9 @@ kotlin {
     }
 }
 
+val vName = project.findProperty("versionName") as String? ?: "1.0.0"
+val vCode = project.findProperty("versionCode") as String? ?: "1"
+
 android {
     namespace = "com.ultraviolince.mykitchen"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -97,22 +100,38 @@ android {
         applicationId = "com.ultraviolince.mykitchen"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = vCode.toInt()
+        versionName = vName
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
     buildTypes {
-        getByName("debug") {
-            resValue("string", "clear_text_config", "true")
-        }
-        getByName("release") {
-            // TODO kmp Fix this...
-            isMinifyEnabled = false
+
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
             resValue("string", "clear_text_config", "false")
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            isMinifyEnabled = false
+            isShrinkResources = false
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            resValue("string", "clear_text_config", "true")
         }
     }
     compileOptions {
