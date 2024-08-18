@@ -22,6 +22,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -125,7 +126,7 @@ fun LoginScreenContent(
                             .then(modifier)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Done, // TODO KMP Icons.Default.Autorenew,
+                            imageVector = Icons.Default.Autorenew,
                             contentDescription = stringResource(Res.string.save)
                         )
                     }
