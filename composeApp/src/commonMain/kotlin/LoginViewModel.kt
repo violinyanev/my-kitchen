@@ -1,8 +1,11 @@
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import domain.usecase.Recipes
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import login.presentation.LoginEvent
 import mykitchen.composeapp.generated.resources.Res
 import mykitchen.composeapp.generated.resources.password_hint
@@ -13,7 +16,7 @@ import shared.state.TextFieldState
 
 // @KoinViewModel
 class LoginViewModel(
-    // private val recipesUseCases: Recipes
+    //private val recipesUseCases: Recipes
 ) : ViewModel() {
     private val _server = mutableStateOf(
         TextFieldState(
@@ -73,7 +76,12 @@ class LoginViewModel(
                 )
             }
             is LoginEvent.Login -> {
-//                viewModelScope.launch {
+                viewModelScope.launch {
+
+                    UiEvent.ShowSnackbar(
+                        message = Res.string.server_hint
+                    )
+
 //                    try {
 //                        recipesUseCases.login(
 //                            server = server.value.text,
@@ -121,7 +129,7 @@ class LoginViewModel(
 //                            )
 //                        )
 //                    }
-//                }
+                }
             }
         }
     }
