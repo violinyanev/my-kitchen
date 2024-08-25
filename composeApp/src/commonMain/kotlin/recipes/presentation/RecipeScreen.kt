@@ -72,8 +72,10 @@ fun RecipeScreen(
             viewModel.onEvent(it)
         },
         onRecipeClicked = { recipe ->
+            val route = ScreenRoutes.AddEditRecipeScreen.route + "?recipeId=${recipe.id}"
+            Log.d("Navigating to $route")
             navController.navigate(
-                ScreenRoutes.AddEditRecipeScreen.route + "?recipeId=${recipe.id}"
+                route
             )
         },
         recipeState = state
