@@ -32,7 +32,7 @@ class AddEditRecipeViewModel(
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
-    private var currentRecipeId: Long? = null
+    private var currentRecipeId: Long = -1
 
     init {
         Log.i("Editing recipe with id=$recipeId")
@@ -41,17 +41,15 @@ class AddEditRecipeViewModel(
             viewModelScope.launch {
                 recipesUseCases.getRecipe(recipeId)?.also {
                         recipe ->
-                    recipe.id?.let {
-                        currentRecipeId = recipe.id
-                        _recipeTitle.value = recipeTitle.value.copy(
-                            text = recipe.title,
-                            isHintVisible = false
-                        )
-                        _recipeContent.value = recipeContent.value.copy(
-                            text = recipe.content,
-                            isHintVisible = false
-                        )
-                    }
+                    currentRecipeId = recipe.id
+                    _recipeTitle.value = recipeTitle.value.copy(
+                        text = recipe.title,
+                        isHintVisible = false
+                    )
+                    _recipeContent.value = recipeContent.value.copy(
+                        text = recipe.content,
+                        isHintVisible = false
+                    )
                 }
             }
         }

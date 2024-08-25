@@ -26,9 +26,9 @@ class RecipeDaoImpl() : RecipeDao {
     private val recipesFlow = MutableStateFlow<List<Recipe>>(emptyList())
 
     init {
-        val r1 = Recipe(title = "test1", content = "content1", timestamp = 1L, id = 1)
-        val r2 = Recipe(title = "test2", content = "content2", timestamp = 1L, id = 2)
-        recipesFlow.value = listOf(r1, r2)
+        // val r1 = Recipe(title = "test1", content = "content1", timestamp = 1L, id = 1)
+        // val r2 = Recipe(title = "test2", content = "content2", timestamp = 1L, id = 2)
+        // .value = listOf(r1, r2)
     }
 
     override fun getRecipes(): Flow<List<Recipe>> {
@@ -40,7 +40,8 @@ class RecipeDaoImpl() : RecipeDao {
     }
 
     override suspend fun insertRecipe(recipe: Recipe): Long {
-        val newId = recipe.id!!
+        Log.i("Inserting recipe $recipe")
+        val newId = if (recipe.id <= 0L) createNewId() else recipe.id
         val updatedRecipes = recipesFlow.value.toMutableList().apply {
             add(recipe)
         }
@@ -63,5 +64,13 @@ class RecipeDaoImpl() : RecipeDao {
             }
             recipesFlow.value = updatedRecipes
         }
+    }
+
+    private fun createNewId(): Long {
+        val maxId = recipesFlow.value.maxByOrNull {
+            it.id
+        }
+
+        return maxId?.id?.let { it + 1 } ?: 1L
     }
 }

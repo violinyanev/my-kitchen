@@ -3,6 +3,7 @@ package data.datasource.backend
 import data.datasource.backend.data.BackendRecipe
 import data.datasource.backend.data.LoginRequest
 import data.datasource.backend.util.NetworkResult
+import data.datasource.backend.util.onError
 import data.datasource.backend.util.onSuccess
 import data.datasource.localdb.RecipeDao
 import domain.model.Recipe
@@ -82,7 +83,9 @@ class RecipeServiceWrapper {
     }
 
     suspend fun sync(dao: RecipeDao) {
+        Log.i("Syncing recipes with backend...")
         recipeService?.apply {
+            Log.i("Start syncing recipes with backend")
             val existingRecipes = mutableSetOf<Long>()
 
             val maybeRecipes = getRecipes()
@@ -99,6 +102,10 @@ class RecipeServiceWrapper {
                     )
                     existingRecipes.add(r.id)
                 }
+            }
+            maybeRecipes.onError {
+                Log.e("Failed to sync recipes!")
+                // TODO handle error?
             }
                 /*val dbRecipes = dao.getRecipes()
 
