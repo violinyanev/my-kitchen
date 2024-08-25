@@ -1,7 +1,10 @@
 import android.os.Build
 
-class AndroidPlatform : Platform {
-    override val name: String = "Android ${Build.VERSION.SDK_INT}"
-}
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+actual class Platform {
+    actual val name: String = "Android ${Build.VERSION.SDK_INT}"
 
-actual fun getPlatform(): Platform = AndroidPlatform()
+    init {
+        Log.i("Created platform $name")
+    }
+}
