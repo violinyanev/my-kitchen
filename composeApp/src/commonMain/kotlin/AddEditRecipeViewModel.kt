@@ -16,8 +16,8 @@ import shared.state.TextFieldState
 
 // @KoinViewModel
 class AddEditRecipeViewModel(
-    private val recipesUseCases: Recipes
-    // TODO kmp savedStateHandle: SavedStateHandle
+    private val recipesUseCases: Recipes,
+    recipeId: Long?
 ) : ViewModel() {
     private val _recipeTitle = mutableStateOf(
         TextFieldState(
@@ -35,34 +35,26 @@ class AddEditRecipeViewModel(
     private var currentRecipeId: Long? = null
 
     init {
-        Log.i("Entering the edit recipe screen")
+        Log.i("Editing recipe with id=$recipeId")
 
-        // TODO remove this?
-//        savedStateHandle.get<Int>("recipeId")?.let { recipeIdInt ->
-//            val recipeId = recipeIdInt.toLong()
-//            savedStateHandle["recipeId"] = recipeId
-//            Log.i("Editing recipe with id=$recipeId")
-//        }
-//
-//        savedStateHandle.get<Long>("recipeId")?.let {
-//                recipeId ->
-//            if (recipeId != -1L) {
-//                viewModelScope.launch {
-//                    recipesUseCases.getRecipe(recipeId)?.also {
-//                            recipe ->
-//                        currentRecipeId = recipe.id
-//                        _recipeTitle.value = recipeTitle.value.copy(
-//                            text = recipe.title,
-//                            isHintVisible = false
-//                        )
-//                        _recipeContent.value = recipeContent.value.copy(
-//                            text = recipe.content,
-//                            isHintVisible = false
-//                        )
-//                    }
-//                }
-//            }
-//        }
+        recipeId?.let {
+            viewModelScope.launch {
+                recipesUseCases.getRecipe(recipeId)?.also {
+                        recipe ->
+                    recipe.id?.let {
+                        currentRecipeId = recipe.id
+                        _recipeTitle.value = recipeTitle.value.copy(
+                            text = recipe.title,
+                            isHintVisible = false
+                        )
+                        _recipeContent.value = recipeContent.value.copy(
+                            text = recipe.content,
+                            isHintVisible = false
+                        )
+                    }
+                }
+            }
+        }
     }
 
     fun onEvent(event: AddEditRecipeEvent) {
