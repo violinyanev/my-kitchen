@@ -67,6 +67,7 @@ lifecycleViewModel = "2.8.4"
 koinCompose = "3.6.0-alpha3"
 koinComposeMultiplatform = "1.2.0-alpha3"
 navigationCompose = "2.7.0-alpha03"
+datastore = "1.1.1"
 
 [libraries]
 
@@ -99,6 +100,8 @@ napier-logging = { module = "io.github.aakira:napier", version.ref = "napierLogg
 # koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinAnnotations" }
 # koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koinAnnotations" }
 # koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
+datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
 # Room
 
