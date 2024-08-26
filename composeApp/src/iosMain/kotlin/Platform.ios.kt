@@ -1,7 +1,10 @@
 import platform.UIKit.UIDevice
 
-class IOSPlatform : Platform {
-    override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
-}
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+actual class Platform {
+    actual val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
 
-actual fun getPlatform(): Platform = IOSPlatform()
+    init {
+        Log.i("Created platform $name")
+    }
+}

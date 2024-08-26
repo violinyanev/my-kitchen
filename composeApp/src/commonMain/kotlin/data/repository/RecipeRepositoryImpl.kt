@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class RecipeRepositoryImpl(
     private val dao: RecipeDao,
-    private val recipeService: RecipeServiceWrapper
+    private val recipeService: RecipeServiceWrapper,
+    private val preferences: RecipePreferences
 ) : RecipeRepository {
 
     private val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
