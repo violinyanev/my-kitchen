@@ -6,6 +6,7 @@ import data.datasource.backend.util.NetworkResult
 import data.datasource.backend.util.onError
 import data.datasource.backend.util.onSuccess
 import data.datasource.localdb.RecipeDao
+import data.repository.RecipePreferences
 import domain.model.Recipe
 import domain.repository.LoginState
 import io.ktor.client.engine.cio.CIO
@@ -21,19 +22,29 @@ class RecipeServiceWrapper {
         }
     }
 
-    suspend fun login(server: String, email: String, password: String): LoginState {
-        val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
+    suspend fun login(server: String, email: String, password: String, preferences: RecipePreferences): LoginState {
+        val maybeToken = preferences.getLoginToken()
 
-        // TODO Store the token, don't force authentication all the time
-        val result = tmpService.login(LoginRequest(email, password))
+        if (maybeToken == null) {
+            val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
 
-        Log.i("Login result: $result")
-        return when (result) {
-            is NetworkResult.Error -> LoginState.LoginFailure(error = result.error)
-            is NetworkResult.Success -> {
-                recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token, logger))
-                LoginState.LoginSuccess
+            // TODO Store the token, don't force authentication all the time
+            val result = tmpService.login(LoginRequest(email, password))
+
+            Log.i("Login result: $result")
+            return when (result) {
+                is NetworkResult.Error -> LoginState.LoginFailure(error = result.error)
+                is NetworkResult.Success -> {
+                    val token = result.data.data.token
+                    preferences.storeLoginToken(token)
+                    recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token, logger))
+                    LoginState.LoginSuccess
+                }
             }
+        }
+        else {
+            recipeService = RecipeService(createHttpClient(CIO.create(), server, maybeToken, logger))
+            return LoginState.LoginSuccess
         }
     }
 
