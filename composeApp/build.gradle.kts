@@ -73,6 +73,10 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.resources)
 
+            // DataStore
+            api(libs.datastore.preferences)
+            api(libs.datastore)
+
             // Room
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
