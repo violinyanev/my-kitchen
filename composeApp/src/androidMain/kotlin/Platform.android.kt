@@ -20,7 +20,7 @@ actual class Platform : KoinComponent {
     }
 
     actual fun createDataStore(): DataStore<Preferences> {
-        val path =  context.filesDir.resolve(preferencesPath).absolutePath
+        val path = context.filesDir.resolve(preferencesPath).absolutePath
 
         return PreferenceDataStoreFactory.createWithPath(
             produceFile = { path.toPath() }

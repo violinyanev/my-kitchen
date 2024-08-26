@@ -41,8 +41,7 @@ class RecipeServiceWrapper {
                     LoginState.LoginSuccess
                 }
             }
-        }
-        else {
+        } else {
             recipeService = RecipeService(createHttpClient(CIO.create(), server, maybeToken, logger))
             return LoginState.LoginSuccess
         }

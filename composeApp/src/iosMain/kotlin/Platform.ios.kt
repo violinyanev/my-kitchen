@@ -19,7 +19,6 @@ actual class Platform : KoinComponent {
         Log.i("Created platform $name")
     }
 
-
     @OptIn(ExperimentalForeignApi::class)
     actual fun createDataStore(): DataStore<Preferences> {
         val directory = NSFileManager.defaultManager.URLForDirectory(

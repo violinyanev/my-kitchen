@@ -10,7 +10,7 @@ class RecipePreferences(platform: Platform) {
     private val dataStore = platform.createDataStore()
     private val tokenKey = stringPreferencesKey("token")
 
-    fun getLoginToken() : String? {
+    fun getLoginToken(): String? {
         return runBlocking {
             val preferences = dataStore.data.last()
             preferences[tokenKey]
