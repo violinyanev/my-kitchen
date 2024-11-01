@@ -1,10 +1,10 @@
 
 [versions]
 activityCompose = "1.9.3"
-androidGradlePlugin = "8.5.2"
+androidGradlePlugin = "8.7.2"
 
 # @keep
-compileSdk = "34"
+compileSdk = "35"
 composeLatest = "1.7.5"
 composeBom = "2024.10.01"
 compose-compiler = "1.5.13"
