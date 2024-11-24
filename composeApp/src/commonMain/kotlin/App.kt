@@ -33,7 +33,7 @@ fun App() {
             val navController = rememberNavController()
             NavHost(
                 navController = navController,
-                startDestination = ScreenRoutes.LoginScreen.route
+                startDestination = ScreenRoutes.LoginScreen.route,
             ) {
                 composable(route = ScreenRoutes.LoginScreen.route) {
                     val viewModel = koinViewModel<LoginViewModel>()
@@ -45,17 +45,19 @@ fun App() {
                 }
                 composable(
                     route = ScreenRoutes.AddEditRecipeScreen.route + "?recipeId={recipeId}",
-                    arguments = listOf(
-                        navArgument(name = "recipeId") {
-                            type = NavType.LongType
-                            defaultValue = -1L
-                        }
-                    )
+                    arguments =
+                        listOf(
+                            navArgument(name = "recipeId") {
+                                type = NavType.LongType
+                                defaultValue = -1L
+                            },
+                        ),
                 ) { backStackEntry ->
                     val recipeId = backStackEntry.arguments?.getLong("recipeId")
-                    val viewModel = koinViewModel<AddEditRecipeViewModel>() {
-                        parametersOf(recipeId)
-                    }
+                    val viewModel =
+                        koinViewModel<AddEditRecipeViewModel> {
+                            parametersOf(recipeId)
+                        }
                     AddEditRecipeScreen(navController, viewModel)
                 }
             }

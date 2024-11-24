@@ -12,16 +12,20 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.logging.Logger
 
 class RecipeServiceWrapper {
-
     private var recipeService: RecipeService? = null
 
-    private val logger = object : Logger {
-        override fun log(message: String) {
-            Log.d(message)
+    private val logger =
+        object : Logger {
+            override fun log(message: String) {
+                Log.d(message)
+            }
         }
-    }
 
-    suspend fun login(server: String, email: String, password: String): LoginState {
+    suspend fun login(
+        server: String,
+        email: String,
+        password: String,
+    ): LoginState {
         val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
 
         // TODO Store the token, don't force authentication all the time
@@ -37,19 +41,23 @@ class RecipeServiceWrapper {
         }
     }
 
-    suspend fun insertRecipe(recipeId: Long, recipe: Recipe): Boolean {
+    suspend fun insertRecipe(
+        recipeId: Long,
+        recipe: Recipe,
+    ): Boolean {
         Log.i("Syncing recipe to backend: $recipe")
 
         // TODO make this safe by design
         recipeService?.apply {
-            val result = createRecipe(
-                BackendRecipe(
-                    id = recipeId,
-                    title = recipe.title,
-                    body = recipe.content,
-                    timestamp = recipe.timestamp
+            val result =
+                createRecipe(
+                    BackendRecipe(
+                        id = recipeId,
+                        title = recipe.title,
+                        body = recipe.content,
+                        timestamp = recipe.timestamp,
+                    ),
                 )
-            )
 
             Log.i("Create recipe result: $result")
             return when (result) {
@@ -68,9 +76,10 @@ class RecipeServiceWrapper {
         // TODO make this safe by design
 
         recipeService?.apply {
-            val result = deleteRecipe(
-                recipeId = recipeId
-            )
+            val result =
+                deleteRecipe(
+                    recipeId = recipeId,
+                )
 
             Log.i("Delete recipe result: $result")
             return when (result) {
@@ -97,8 +106,8 @@ class RecipeServiceWrapper {
                             id = r.id,
                             title = r.title,
                             content = r.body,
-                            timestamp = r.timestamp
-                        )
+                            timestamp = r.timestamp,
+                        ),
                     )
                     existingRecipes.add(r.id)
                 }

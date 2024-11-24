@@ -25,7 +25,7 @@ kotlin {
     listOf(
         iosX64(),
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
@@ -117,7 +117,7 @@ android {
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("debug")
             resValue("string", "clear_text_config", "false")
@@ -129,7 +129,7 @@ android {
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             resValue("string", "clear_text_config", "true")
         }
@@ -166,21 +166,23 @@ dependencies {
     add("kspCommonMainMetadata", libs.androidx.room.compiler)
 }
 
-val excludedClasses = listOf(
-    "*Activity",
-    "*Activity\$*",
-    "*.BuildConfig",
-    "ComposableSingletons\$*"
-)
+val excludedClasses =
+    listOf(
+        "*Activity",
+        "*Activity\$*",
+        "*.BuildConfig",
+        "ComposableSingletons\$*",
+    )
 
-val excludedPackages = listOf(
-    // Dependency injection itself doesn't need to be tested
-    "com.ultraviolince.mykitchen.di",
-    // Presentation not unit test(able) currently, could revisit later (maybe try paparazzi + compose?)
-    "com.ultraviolince.mykitchen.recipes.presentation",
-    // Theme values are generated, no need to unit test
-    "com.ultraviolince.mykitchen.ui.theme"
-)
+val excludedPackages =
+    listOf(
+        // Dependency injection itself doesn't need to be tested
+        "com.ultraviolince.mykitchen.di",
+        // Presentation not unit test(able) currently, could revisit later (maybe try paparazzi + compose?)
+        "com.ultraviolince.mykitchen.recipes.presentation",
+        // Theme values are generated, no need to unit test
+        "com.ultraviolince.mykitchen.ui.theme",
+    )
 
 kover {
     reports {

@@ -2,6 +2,7 @@ package data.datasource.backend.util
 
 sealed interface NetworkResult<out D, out E : Error> {
     data class Success<out D>(val data: D) : NetworkResult<D, Nothing>
+
     data class Error<out E : data.datasource.backend.util.Error>(val error: E) : NetworkResult<Nothing, E>
 }
 
@@ -25,6 +26,7 @@ inline fun <T, E : Error> NetworkResult<T, E>.onSuccess(action: (T) -> Unit): Ne
         }
     }
 }
+
 inline fun <T, E : Error> NetworkResult<T, E>.onError(action: (E) -> Unit): NetworkResult<T, E> {
     return when (this) {
         is NetworkResult.Error -> {

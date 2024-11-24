@@ -7,5 +7,5 @@ import org.jetbrains.compose.resources.StringResource
 data class TextFieldState(
     val text: String = "",
     val isHintVisible: Boolean = false,
-    val hintStringId: StringResource = Res.string.empty
+    val hintStringId: StringResource = Res.string.empty,
 )

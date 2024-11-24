@@ -14,9 +14,8 @@ import recipes.presentation.RecipesState
 
 // @KoinViewModel
 class RecipeViewModel(
-    private val recipesUseCases: Recipes
+    private val recipesUseCases: Recipes,
 ) : ViewModel() {
-
     private val _state = mutableStateOf(RecipesState())
     val state: State<RecipesState> = _state
 
@@ -55,37 +54,42 @@ class RecipeViewModel(
                 }
             }
             is RecipesEvent.ToggleOrderSection -> {
-                _state.value = state.value.copy(
-                    isOrderSelectionVisible =
-                    !state.value.isOrderSelectionVisible
-                )
+                _state.value =
+                    state.value.copy(
+                        isOrderSelectionVisible =
+                            !state.value.isOrderSelectionVisible,
+                    )
             }
         }
     }
 
     private fun getRecipes(recipesOrder: RecipeOrder) {
         getRecipesJob?.cancel()
-        getRecipesJob = recipesUseCases.getRecipes(recipesOrder)
-            .onEach {
-                    recipes ->
-                _state.value = state.value.copy(
-                    recipes = recipes,
-                    recipeOrder = recipesOrder
-                )
-            }
-            .launchIn(viewModelScope)
+        getRecipesJob =
+            recipesUseCases.getRecipes(recipesOrder)
+                .onEach {
+                        recipes ->
+                    _state.value =
+                        state.value.copy(
+                            recipes = recipes,
+                            recipeOrder = recipesOrder,
+                        )
+                }
+                .launchIn(viewModelScope)
     }
 
     private fun getLoginStatus() {
         getLoginJob?.cancel()
-        getLoginJob = recipesUseCases.getSyncState()
-            .onEach {
-                    syncState ->
-                Log.i("Login state changed to $syncState")
-                _state.value = state.value.copy(
-                    syncState = syncState
-                )
-            }
-            .launchIn(viewModelScope)
+        getLoginJob =
+            recipesUseCases.getSyncState()
+                .onEach {
+                        syncState ->
+                    Log.i("Login state changed to $syncState")
+                    _state.value =
+                        state.value.copy(
+                            syncState = syncState,
+                        )
+                }
+                .launchIn(viewModelScope)
     }
 }

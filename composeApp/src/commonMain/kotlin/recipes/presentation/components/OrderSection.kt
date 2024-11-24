@@ -19,18 +19,18 @@ import org.jetbrains.compose.resources.stringResource
 fun OrderSection(
     modifier: Modifier = Modifier,
     recipeOrder: RecipeOrder = RecipeOrder.Date(OrderType.Descending),
-    onOrderChange: (RecipeOrder) -> Unit
+    onOrderChange: (RecipeOrder) -> Unit,
 ) {
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             DefaultRadioButton(
                 text = stringResource(Res.string.title_hint),
                 selected = recipeOrder is RecipeOrder.Title,
                 onSelect = {
                     onOrderChange(RecipeOrder.Title(recipeOrder.orderType))
-                }
+                },
             )
             Spacer(modifier = Modifier.width(8.dp))
             DefaultRadioButton(
@@ -38,20 +38,20 @@ fun OrderSection(
                 selected = recipeOrder is RecipeOrder.Date,
                 onSelect = {
                     onOrderChange(RecipeOrder.Date(recipeOrder.orderType))
-                }
+                },
             )
             Spacer(modifier = Modifier.width(8.dp))
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             DefaultRadioButton(
                 text = "Ascending",
                 selected = recipeOrder.orderType is OrderType.Ascending,
                 onSelect = {
                     onOrderChange(recipeOrder.copy(OrderType.Ascending))
-                }
+                },
             )
             Spacer(modifier = Modifier.width(8.dp))
             DefaultRadioButton(
@@ -59,7 +59,7 @@ fun OrderSection(
                 selected = recipeOrder.orderType is OrderType.Descending,
                 onSelect = {
                     onOrderChange(recipeOrder.copy(OrderType.Descending))
-                }
+                },
             )
         }
     }

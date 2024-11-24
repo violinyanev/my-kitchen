@@ -17,13 +17,14 @@ import shared.state.TextFieldState
 // @KoinViewModel
 class AddEditRecipeViewModel(
     private val recipesUseCases: Recipes,
-    recipeId: Long?
+    recipeId: Long?,
 ) : ViewModel() {
-    private val _recipeTitle = mutableStateOf(
-        TextFieldState(
-            hintStringId = Res.string.title_hint
+    private val _recipeTitle =
+        mutableStateOf(
+            TextFieldState(
+                hintStringId = Res.string.title_hint,
+            ),
         )
-    )
     val recipeTitle: State<TextFieldState> = _recipeTitle
 
     private val _recipeContent = mutableStateOf(TextFieldState(hintStringId = Res.string.content_hint))
@@ -42,14 +43,16 @@ class AddEditRecipeViewModel(
                 recipesUseCases.getRecipe(recipeId)?.also {
                         recipe ->
                     currentRecipeId = recipe.id
-                    _recipeTitle.value = recipeTitle.value.copy(
-                        text = recipe.title,
-                        isHintVisible = false
-                    )
-                    _recipeContent.value = recipeContent.value.copy(
-                        text = recipe.content,
-                        isHintVisible = false
-                    )
+                    _recipeTitle.value =
+                        recipeTitle.value.copy(
+                            text = recipe.title,
+                            isHintVisible = false,
+                        )
+                    _recipeContent.value =
+                        recipeContent.value.copy(
+                            text = recipe.content,
+                            isHintVisible = false,
+                        )
                 }
             }
         }
@@ -62,18 +65,20 @@ class AddEditRecipeViewModel(
                 _recipeTitle.value = recipeTitle.value.copy(text = event.value)
             }
             is AddEditRecipeEvent.ChangeTitleFocus -> {
-                _recipeTitle.value = recipeTitle.value.copy(
-                    isHintVisible = !event.focusState.isFocused && recipeTitle.value.text.isBlank()
-                )
+                _recipeTitle.value =
+                    recipeTitle.value.copy(
+                        isHintVisible = !event.focusState.isFocused && recipeTitle.value.text.isBlank(),
+                    )
             }
             is AddEditRecipeEvent.EnteredContent -> {
                 Log.i("User entered content ${event.value}")
                 _recipeContent.value = recipeContent.value.copy(text = event.value)
             }
             is AddEditRecipeEvent.ChangeContentFocus -> {
-                _recipeContent.value = recipeContent.value.copy(
-                    isHintVisible = !event.focusState.isFocused && recipeContent.value.text.isBlank()
-                )
+                _recipeContent.value =
+                    recipeContent.value.copy(
+                        isHintVisible = !event.focusState.isFocused && recipeContent.value.text.isBlank(),
+                    )
             }
             is AddEditRecipeEvent.SaveRecipe -> {
                 Log.i("User is saving the recipe")
@@ -84,15 +89,15 @@ class AddEditRecipeViewModel(
                                 title = recipeTitle.value.text,
                                 content = recipeContent.value.text,
                                 timestamp = 0L, // TODO kmp System.currentTimeMillis(),
-                                id = currentRecipeId
-                            )
+                                id = currentRecipeId,
+                            ),
                         )
                         _eventFlow.emit(UiEvent.SaveRecipe)
                     } catch (e: InvalidRecipeException) {
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
-                                message = e.errorString
-                            )
+                                message = e.errorString,
+                            ),
                         )
                     }
                 }
@@ -106,8 +111,8 @@ class AddEditRecipeViewModel(
                             title = recipeTitle.value.text,
                             content = recipeContent.value.text,
                             timestamp = 0L, // TODO kmp System.currentTimeMillis(),
-                            id = currentRecipeId
-                        )
+                            id = currentRecipeId,
+                        ),
                     )
                     _eventFlow.emit(UiEvent.DeleteRecipe)
                 }
@@ -117,7 +122,9 @@ class AddEditRecipeViewModel(
 
     sealed class UiEvent {
         data class ShowSnackbar(val message: String) : UiEvent() // TODO kmp use string res
+
         object SaveRecipe : UiEvent()
+
         object DeleteRecipe : UiEvent()
     }
 }

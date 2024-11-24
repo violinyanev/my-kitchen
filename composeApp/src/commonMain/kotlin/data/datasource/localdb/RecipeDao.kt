@@ -42,9 +42,10 @@ class RecipeDaoImpl() : RecipeDao {
     override suspend fun insertRecipe(recipe: Recipe): Long {
         Log.i("Inserting recipe $recipe")
         val newId = if (recipe.id <= 0L) createNewId() else recipe.id
-        val updatedRecipes = recipesFlow.value.toMutableList().apply {
-            add(recipe)
-        }
+        val updatedRecipes =
+            recipesFlow.value.toMutableList().apply {
+                add(recipe)
+            }
         recipesFlow.value = updatedRecipes
         return newId
     }
@@ -59,17 +60,19 @@ class RecipeDaoImpl() : RecipeDao {
         val existingRecipe = getRecipeById(recipe.id!!)
 
         existingRecipe?.apply {
-            val updatedRecipes = recipesFlow.value.toMutableList().apply {
-                remove(existingRecipe)
-            }
+            val updatedRecipes =
+                recipesFlow.value.toMutableList().apply {
+                    remove(existingRecipe)
+                }
             recipesFlow.value = updatedRecipes
         }
     }
 
     private fun createNewId(): Long {
-        val maxId = recipesFlow.value.maxByOrNull {
-            it.id
-        }
+        val maxId =
+            recipesFlow.value.maxByOrNull {
+                it.id
+            }
 
         return maxId?.id?.let { it + 1 } ?: 1L
     }
