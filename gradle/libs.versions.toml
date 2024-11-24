@@ -51,7 +51,7 @@ buildHealth = "1.33.0"
 # monitor = "1.7.1"
 navigation = "2.8.3"
 # pagingCompose = "3.3.1"
-room = "2.7.0-alpha06"
+room = "2.7.0-alpha11"
 sqlite = "2.5.0-SNAPSHOT"
 
 # @keep
