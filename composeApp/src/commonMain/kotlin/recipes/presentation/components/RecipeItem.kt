@@ -11,22 +11,25 @@ import androidx.compose.ui.unit.dp
 import domain.model.Recipe
 
 @Composable
-fun RecipeItem(recipe: Recipe, modifier: Modifier = Modifier) {
+fun RecipeItem(
+    recipe: Recipe,
+    modifier: Modifier = Modifier,
+) {
     Surface(
         modifier = modifier.padding(16.dp),
-        color = MaterialTheme.colors.surface
+        color = MaterialTheme.colors.surface,
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             Text(
                 text = recipe.title,
-                style = MaterialTheme.typography.body1
+                style = MaterialTheme.typography.body1,
             )
             Text(
                 text = recipe.content,
                 style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 8.dp),
             )
         }
     }

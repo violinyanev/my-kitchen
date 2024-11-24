@@ -50,7 +50,7 @@ import shared.state.TextFieldState
 fun LoginScreen(
     navController: NavController,
     viewModel: LoginViewModel = koinViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val serverState = viewModel.server.value
     val usernameState = viewModel.username.value
@@ -63,7 +63,7 @@ fun LoginScreen(
             when (event) {
                 is LoginViewModel.UiEvent.ShowSnackbar -> {
                     snackBarHostState.showSnackbar(
-                        message = event.message
+                        message = event.message,
                     )
                 }
                 is LoginViewModel.UiEvent.LoginSuccess -> {
@@ -82,7 +82,7 @@ fun LoginScreen(
         eventHandler = {
             viewModel.onEvent(it)
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -94,7 +94,7 @@ fun LoginScreenContent(
     snackBarHostState: SnackbarHostState,
     buttonLoading: Boolean,
     modifier: Modifier = Modifier,
-    eventHandler: (LoginEvent) -> Unit
+    eventHandler: (LoginEvent) -> Unit,
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
@@ -105,29 +105,32 @@ fun LoginScreenContent(
                         eventHandler(LoginEvent.Login)
                     }
                 },
-                modifier = Modifier.semantics { contentDescription = "Login" }
+                modifier = Modifier.semantics { contentDescription = "Login" },
             ) {
                 if (buttonLoading) {
-                    val rotationAnimatable = remember {
-                        Animatable(0f)
-                    }
+                    val rotationAnimatable =
+                        remember {
+                            Animatable(0f)
+                        }
                     LaunchedEffect(Unit) {
                         rotationAnimatable.animateTo(
                             targetValue = 360f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(durationMillis = 1000, easing = LinearEasing),
-                                repeatMode = RepeatMode.Restart
-                            )
+                            animationSpec =
+                                infiniteRepeatable(
+                                    animation = tween(durationMillis = 1000, easing = LinearEasing),
+                                    repeatMode = RepeatMode.Restart,
+                                ),
                         )
                     }
                     Box(
-                        modifier = Modifier
-                            .rotate(rotationAnimatable.value)
-                            .then(modifier)
+                        modifier =
+                            Modifier
+                                .rotate(rotationAnimatable.value)
+                                .then(modifier),
                     ) {
                         Icon(
                             imageVector = Icons.Default.Autorenew,
-                            contentDescription = stringResource(Res.string.save)
+                            contentDescription = stringResource(Res.string.save),
                         )
                     }
                 } else {
@@ -135,12 +138,13 @@ fun LoginScreenContent(
                 }
             }
         },
-        modifier = modifier
+        modifier = modifier,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -157,12 +161,13 @@ fun LoginScreenContent(
                     },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.subtitle1,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(LoginEvent.ChangeServerFocus(it))
-                        }
-                        .semantics { contentDescription = "Server URI" }
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged {
+                                eventHandler(LoginEvent.ChangeServerFocus(it))
+                            }
+                            .semantics { contentDescription = "Server URI" },
                 )
             }
 
@@ -181,12 +186,13 @@ fun LoginScreenContent(
                     },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.subtitle1,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(LoginEvent.ChangeUsernameFocus(it))
-                        }
-                        .semantics { contentDescription = "User name" }
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged {
+                                eventHandler(LoginEvent.ChangeUsernameFocus(it))
+                            }
+                            .semantics { contentDescription = "User name" },
                 )
             }
 
@@ -205,12 +211,13 @@ fun LoginScreenContent(
                     },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.subtitle1,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(LoginEvent.ChangePasswordFocus(it))
-                        }
-                        .semantics { contentDescription = "Password" }
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged {
+                                eventHandler(LoginEvent.ChangePasswordFocus(it))
+                            }
+                            .semantics { contentDescription = "Password" },
                 )
             }
         }
@@ -221,23 +228,24 @@ data class LoginScreenState(
     val server: TextFieldState,
     val username: TextFieldState,
     val password: TextFieldState,
-    val buttonLoading: Boolean = false
+    val buttonLoading: Boolean = false,
 )
 
 class LoginScreenPreviewParameterProvider : PreviewParameterProvider<LoginScreenState> {
-    override val values = sequenceOf(
-        LoginScreenState(
-            server = TextFieldState(text = "", hintStringId = Res.string.server_hint, isHintVisible = true),
-            username = TextFieldState(text = "", hintStringId = Res.string.username_hint, isHintVisible = true),
-            password = TextFieldState(text = "", hintStringId = Res.string.password_hint, isHintVisible = true)
-        ),
-        LoginScreenState(
-            server = TextFieldState(),
-            username = TextFieldState(),
-            password = TextFieldState(),
-            buttonLoading = true
+    override val values =
+        sequenceOf(
+            LoginScreenState(
+                server = TextFieldState(text = "", hintStringId = Res.string.server_hint, isHintVisible = true),
+                username = TextFieldState(text = "", hintStringId = Res.string.username_hint, isHintVisible = true),
+                password = TextFieldState(text = "", hintStringId = Res.string.password_hint, isHintVisible = true),
+            ),
+            LoginScreenState(
+                server = TextFieldState(),
+                username = TextFieldState(),
+                password = TextFieldState(),
+                buttonLoading = true,
+            ),
         )
-    )
 }
 
 // TODO kmp

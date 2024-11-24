@@ -41,7 +41,7 @@ import shared.state.TextFieldState
 fun AddEditRecipeScreen(
     navController: NavController,
     viewModel: AddEditRecipeViewModel, // TODO kmp = koinViewModel()
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val titleState = viewModel.recipeTitle.value
     val contentState = viewModel.recipeContent.value
@@ -53,7 +53,7 @@ fun AddEditRecipeScreen(
             when (event) {
                 is AddEditRecipeViewModel.UiEvent.ShowSnackbar -> {
                     snackBarHostState.showSnackbar(
-                        message = event.message
+                        message = event.message,
                     )
                 }
                 is AddEditRecipeViewModel.UiEvent.SaveRecipe -> {
@@ -73,7 +73,7 @@ fun AddEditRecipeScreen(
         eventHandler = {
             viewModel.onEvent(it)
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -83,7 +83,7 @@ fun AddEditRecipeScreenContent(
     contentState: TextFieldState,
     snackBarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    eventHandler: (AddEditRecipeEvent) -> Unit
+    eventHandler: (AddEditRecipeEvent) -> Unit,
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
@@ -94,7 +94,7 @@ fun AddEditRecipeScreenContent(
                         eventHandler(AddEditRecipeEvent.DeleteRecipe)
                     },
                     // TODO can we reuse the string from below?
-                    modifier = Modifier.semantics { contentDescription = "Delete recipe" }
+                    modifier = Modifier.semantics { contentDescription = "Delete recipe" },
                 ) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(resource = Res.string.delete))
                 }
@@ -104,17 +104,18 @@ fun AddEditRecipeScreenContent(
                         eventHandler(AddEditRecipeEvent.SaveRecipe)
                     },
                     // TODO can we reuse the string from below?
-                    modifier = Modifier.semantics { contentDescription = "Save recipe" }
+                    modifier = Modifier.semantics { contentDescription = "Save recipe" },
                 ) {
                     Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(resource = Res.string.save))
                 }
             }
         },
-        modifier = modifier
+        modifier = modifier,
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .padding(innerPadding)
+            modifier =
+                Modifier
+                    .padding(innerPadding),
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -131,12 +132,13 @@ fun AddEditRecipeScreenContent(
                     },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.h4,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
-                        }
-                        .semantics { contentDescription = "Enter recipe title" }
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged {
+                                eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
+                            }
+                            .semantics { contentDescription = "Enter recipe title" },
                 )
             }
 
@@ -153,18 +155,19 @@ fun AddEditRecipeScreenContent(
                         if (titleState.hintStringId != Res.string.empty) {
                             Text(
                                 text = stringResource(contentState.hintStringId),
-                                style = MaterialTheme.typography.body1
+                                style = MaterialTheme.typography.body1,
                             )
                         }
                     },
                     singleLine = false,
                     textStyle = MaterialTheme.typography.body2,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
-                        }
-                        .semantics { contentDescription = "Enter recipe content" }
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged {
+                                eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
+                            }
+                            .semantics { contentDescription = "Enter recipe content" },
                 )
             }
         }

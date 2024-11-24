@@ -12,7 +12,11 @@ interface RecipeRepository {
 
     suspend fun deleteRecipe(recipe: Recipe)
 
-    suspend fun login(server: String, email: String, password: String)
+    suspend fun login(
+        server: String,
+        email: String,
+        password: String,
+    )
 
     fun getLoginState(): Flow<LoginState>
 }

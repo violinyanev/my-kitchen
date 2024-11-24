@@ -52,7 +52,7 @@ import recipes.presentation.components.RecipeItem
 @Composable
 fun RecipeScreen(
     navController: NavController,
-    viewModel: RecipeViewModel // TODO kmp  = koinViewModel()
+    viewModel: RecipeViewModel, // TODO kmp  = koinViewModel()
 ) {
     val state = viewModel.state.value
 
@@ -62,7 +62,7 @@ fun RecipeScreen(
         },
         onLoginClick = {
             navController.navigate(
-                ScreenRoutes.LoginScreen.route // TODO fix?
+                ScreenRoutes.LoginScreen.route, // TODO fix?
             )
         },
         onSortClick = {
@@ -75,10 +75,10 @@ fun RecipeScreen(
             val route = ScreenRoutes.AddEditRecipeScreen.route + "?recipeId=${recipe.id}"
             Log.d("Navigating to $route")
             navController.navigate(
-                route
+                route,
             )
         },
-        recipeState = state
+        recipeState = state,
     )
 }
 
@@ -89,69 +89,70 @@ private fun RecipeScreenContent(
     onLoginClick: () -> Unit,
     onEvent: (RecipesEvent) -> Unit,
     onRecipeClicked: (Recipe) -> Unit,
-    recipeState: RecipesState
+    recipeState: RecipesState,
 ) {
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddRecipe,
-                modifier = Modifier.semantics { contentDescription = "New recipe" }
+                modifier = Modifier.semantics { contentDescription = "New recipe" },
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(resource = Res.string.add_recipe)
+                    contentDescription = stringResource(resource = Res.string.add_recipe),
                 )
             }
-        }
+        },
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = stringResource(Res.string.your_recipes),
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.body1,
                 )
                 IconButton(
-                    onClick = onSortClick
+                    onClick = onSortClick,
                 ) {
                     Icon(
                         imageVector = Icons.Default.FilterList,
-                        contentDescription = stringResource(resource = Res.string.sort)
+                        contentDescription = stringResource(resource = Res.string.sort),
                     )
                 }
                 IconButton(
-                    onClick = onLoginClick
+                    onClick = onLoginClick,
                 ) {
                     when (recipeState.syncState) {
                         LoginState.LoginEmpty ->
                             Icon(
                                 imageVector = Icons.Default.SyncProblem,
-                                contentDescription = stringResource(resource = Res.string.sync_disabled)
+                                contentDescription = stringResource(resource = Res.string.sync_disabled),
                             )
 
                         LoginState.LoginPending ->
                             Icon(
                                 imageVector = Icons.Default.Sync,
-                                contentDescription = stringResource(resource = Res.string.sync_loading)
+                                contentDescription = stringResource(resource = Res.string.sync_loading),
                             )
 
                         LoginState.LoginSuccess ->
                             Icon(
                                 imageVector = Icons.Default.CloudSync,
-                                contentDescription = stringResource(resource = Res.string.sync_enabled)
+                                contentDescription = stringResource(resource = Res.string.sync_enabled),
                             )
 
                         is LoginState.LoginFailure ->
                             Icon(
                                 imageVector = Icons.Default.SyncProblem,
-                                contentDescription = stringResource(resource = Res.string.sync_disabled)
+                                contentDescription = stringResource(resource = Res.string.sync_disabled),
                             )
                     }
                 }
@@ -159,16 +160,17 @@ private fun RecipeScreenContent(
             AnimatedVisibility(
                 visible = recipeState.isOrderSelectionVisible,
                 enter = fadeIn() + slideInVertically(),
-                exit = fadeOut() + slideOutVertically()
+                exit = fadeOut() + slideOutVertically(),
             ) {
                 OrderSection(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
                     recipeOrder = recipeState.recipeOrder,
                     onOrderChange = {
                         onEvent(RecipesEvent.Order(it))
-                    }
+                    },
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -176,11 +178,12 @@ private fun RecipeScreenContent(
                 items(recipeState.recipes) { recipe ->
                     RecipeItem(
                         recipe = recipe,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                onRecipeClicked(recipe)
-                            }
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onRecipeClicked(recipe)
+                                },
                     )
                 }
             }

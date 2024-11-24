@@ -9,5 +9,5 @@ data class RecipesState(
     val recipes: List<Recipe> = emptyList(),
     val recipeOrder: RecipeOrder = RecipeOrder.Date(OrderType.Descending),
     val isOrderSelectionVisible: Boolean = false,
-    val syncState: LoginState = LoginState.LoginEmpty
+    val syncState: LoginState = LoginState.LoginEmpty,
 )

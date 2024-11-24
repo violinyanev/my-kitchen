@@ -15,7 +15,12 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-fun createHttpClient(engine: HttpClientEngine, server: String, token: String?, customLogger: Logger?): HttpClient {
+fun createHttpClient(
+    engine: HttpClientEngine,
+    server: String,
+    token: String?,
+    customLogger: Logger?,
+): HttpClient {
     return HttpClient(engine) {
         defaultRequest {
             url(server)
@@ -43,9 +48,10 @@ fun createHttpClient(engine: HttpClientEngine, server: String, token: String?, c
         install(Resources)
         install(ContentNegotiation) {
             json(
-                json = Json {
-                    ignoreUnknownKeys = true
-                }
+                json =
+                    Json {
+                        ignoreUnknownKeys = true
+                    },
             )
         }
     }

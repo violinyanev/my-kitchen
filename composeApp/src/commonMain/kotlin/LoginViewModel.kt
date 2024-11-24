@@ -18,31 +18,34 @@ import shared.state.TextFieldState
 
 // @KoinViewModel
 class LoginViewModel(
-    private val recipesUseCases: Recipes
+    private val recipesUseCases: Recipes,
 ) : ViewModel() {
-    private val _server = mutableStateOf(
-        TextFieldState(
-            text = "https://ultraviolince.com:8019",
-            hintStringId = Res.string.server_hint
+    private val _server =
+        mutableStateOf(
+            TextFieldState(
+                text = "https://ultraviolince.com:8019",
+                hintStringId = Res.string.server_hint,
+            ),
         )
-    )
     val server: State<TextFieldState> = _server
-    private val _username = mutableStateOf(
-        TextFieldState(
-            hintStringId = Res.string.username_hint,
-            text = "test@user.com"
+    private val _username =
+        mutableStateOf(
+            TextFieldState(
+                hintStringId = Res.string.username_hint,
+                text = "test@user.com",
+            ),
         )
-    )
     val username: State<TextFieldState> = _username
     private val _buttonLoading = mutableStateOf(false)
     val buttonLoading: State<Boolean> = _buttonLoading
 
-    private val _password = mutableStateOf(
-        TextFieldState(
-            hintStringId = Res.string.password_hint,
-            text = "TestPassword"
+    private val _password =
+        mutableStateOf(
+            TextFieldState(
+                hintStringId = Res.string.password_hint,
+                text = "TestPassword",
+            ),
         )
-    )
     val password: State<TextFieldState> = _password
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
@@ -55,45 +58,48 @@ class LoginViewModel(
                 _server.value = server.value.copy(text = event.value)
             }
             is LoginEvent.ChangeServerFocus -> {
-                _server.value = server.value.copy(
-                    isHintVisible = !event.focusState.isFocused && server.value.text.isBlank()
-                )
+                _server.value =
+                    server.value.copy(
+                        isHintVisible = !event.focusState.isFocused && server.value.text.isBlank(),
+                    )
             }
             is LoginEvent.EnteredUsername -> {
                 Log.i("User entered user name ${event.value}")
                 _username.value = username.value.copy(text = event.value)
             }
             is LoginEvent.ChangeUsernameFocus -> {
-                _username.value = username.value.copy(
-                    isHintVisible = !event.focusState.isFocused && username.value.text.isBlank()
-                )
+                _username.value =
+                    username.value.copy(
+                        isHintVisible = !event.focusState.isFocused && username.value.text.isBlank(),
+                    )
             }
             is LoginEvent.EnteredPassword -> {
                 Log.i("User entered a password with length ${event.value.length}")
                 _password.value = password.value.copy(text = event.value)
             }
             is LoginEvent.ChangePasswordFocus -> {
-                _password.value = password.value.copy(
-                    isHintVisible = !event.focusState.isFocused && password.value.text.isBlank()
-                )
+                _password.value =
+                    password.value.copy(
+                        isHintVisible = !event.focusState.isFocused && password.value.text.isBlank(),
+                    )
             }
             is LoginEvent.Login -> {
                 viewModelScope.launch {
                     UiEvent.ShowSnackbar(
-                        message = "" // Res.string.server_hint
+                        message = "", // Res.string.server_hint
                     )
 
                     try {
                         recipesUseCases.login(
                             server = server.value.text,
                             username = username.value.text,
-                            password = password.value.text
+                            password = password.value.text,
                         )
                         recipesUseCases.getSyncState().collect {
                             when (it) {
                                 is LoginState.LoginSuccess -> {
                                     _eventFlow.emit(
-                                        UiEvent.LoginSuccess
+                                        UiEvent.LoginSuccess,
                                     )
                                 }
                                 LoginState.LoginEmpty -> {
@@ -114,8 +120,8 @@ class LoginViewModel(
                                                 NetworkError.PAYLOAD_TOO_LARGE -> "Unknown error" // Res.string.unknown_error
                                                 NetworkError.SERVER_ERROR -> "Malformed server URI" // Res.string.malformed_server_uri
                                                 NetworkError.SERIALIZATION -> "Unknown error" // Res.string.unknown_error
-                                            }
-                                        )
+                                            },
+                                        ),
                                     )
                                 }
                                 LoginState.LoginPending -> {
@@ -126,8 +132,8 @@ class LoginViewModel(
                     } catch (e: LoginException) {
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
-                                message = "Exception happened $e" // e.errorMsg
-                            )
+                                message = "Exception happened $e", // e.errorMsg
+                            ),
                         )
                     }
                 }
@@ -138,6 +144,7 @@ class LoginViewModel(
     sealed class UiEvent {
         // data class ShowSnackbar(val message: StringResource) : UiEvent() // TODO kmp
         data class ShowSnackbar(val message: String) : UiEvent()
+
         data object LoginSuccess : UiEvent()
     }
 }

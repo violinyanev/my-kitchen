@@ -11,12 +11,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class RecipeRepositoryImpl(
     private val dao: RecipeDao,
     private val recipeService: RecipeServiceWrapper,
-    private val preferences: RecipePreferences
+    private val preferences: RecipePreferences,
 ) : RecipeRepository {
-
     private val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
 
-    override suspend fun login(server: String, email: String, password: String) {
+    override suspend fun login(
+        server: String,
+        email: String,
+        password: String,
+    ) {
         loginState.emit(LoginState.LoginPending)
         val loginResult = recipeService.login(server = server, email = email, password = password)
         loginState.emit(loginResult)
