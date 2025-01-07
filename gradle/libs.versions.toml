@@ -33,7 +33,7 @@ buildHealth = "1.33.0"
 minSdk = "28"
 monitor = "1.7.2"
 navigation = "2.8.5"
-pagingCompose = "3.3.2"
+pagingCompose = "3.3.5"
 room = "2.6.1"
 
 # @keep
