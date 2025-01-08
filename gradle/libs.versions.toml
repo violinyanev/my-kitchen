@@ -41,7 +41,7 @@ targetSdk = "33"
 testExtJunit = "1.2.1"
 viewModelCompose = "2.8.7"
 work = "2.10.0"
-ksp = "2.0.0-1.0.21"
+ksp = "2.1.0-1.0.29"
 kover = "0.9.1"
 runner = "1.6.2"
 
