@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ultraviolince.mykitchen.BuildConfig
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import com.ultraviolince.mykitchen.recipes.domain.model.LoginException
@@ -23,15 +24,16 @@ class LoginViewModel(
 ) : ViewModel() {
     private val _server = mutableStateOf(
         RecipeTextFieldState(
-            text = "",
-            hintStringId = R.string.server_hint
+            text = BuildConfig.DEFAULT_SERVER,
+            hintStringId = R.string.server_hint,
+
         )
     )
     val server: State<RecipeTextFieldState> = _server
     private val _username = mutableStateOf(
         RecipeTextFieldState(
             hintStringId = R.string.username_hint,
-            text = ""
+            text = BuildConfig.DEFAULT_USERNAME
         )
     )
     val username: State<RecipeTextFieldState> = _username
@@ -41,7 +43,7 @@ class LoginViewModel(
     private val _password = mutableStateOf(
         RecipeTextFieldState(
             hintStringId = R.string.password_hint,
-            text = ""
+            text = BuildConfig.DEFAULT_PASSWORD
         )
     )
     val password: State<RecipeTextFieldState> = _password
