@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kover)
-    alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.room)
     alias(libs.plugins.kotlin.serialization)
