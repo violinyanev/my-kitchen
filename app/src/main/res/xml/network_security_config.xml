@@ -5,4 +5,8 @@
             <certificates src="system" />
         </trust-anchors>
     </base-config>
+
+    <domain-config cleartextTrafficPermitted="@string/clear_text_config">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
 </network-security-config>
