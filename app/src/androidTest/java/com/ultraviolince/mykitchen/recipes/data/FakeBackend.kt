@@ -1,9 +1,8 @@
 package com.ultraviolince.mykitchen.recipes.data
 
 class FakeBackend {
-    // TODO use real test server
     companion object {
-        val server = "https://ultraviolince.com:8019"
+        val server = "http://10.0.2.2:5000"
         val testUser = "test@user.com"
         val testPassword = "TestPassword"
     }
