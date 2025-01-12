@@ -13,7 +13,6 @@ class RecipeServiceWrapperTest {
 
     private val service = RecipeServiceWrapper()
 
-    // TODO Fix the tests
     @Test
     fun logsInToServerSuccessfully() = runTest {
         assertEquals(
