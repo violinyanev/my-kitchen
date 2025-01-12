@@ -413,16 +413,16 @@ style:
   LoopWithTooManyJumpStatements:
     active: false
     maxJumpCount: 1
-  #MagicNumber:
-  #  active: true
-  #  ignoreNumbers: '-1,0,1,2'
-  #  ignoreHashCodeFunction: true
-  #  ignorePropertyDeclaration: false
-  #  ignoreConstantDeclaration: true
-  #  ignoreCompanionObjectPropertyDeclaration: true
-  #  ignoreAnnotation: false
-  #  ignoreNamedArgument: true
-  #  ignoreEnums: false
+  MagicNumber:
+   active: false
+   ignoreNumbers: '-1,0,1,2'
+   ignoreHashCodeFunction: true
+   ignorePropertyDeclaration: false
+   ignoreConstantDeclaration: true
+   ignoreCompanionObjectPropertyDeclaration: true
+   ignoreAnnotation: false
+   ignoreNamedArgument: true
+   ignoreEnums: false
   MaxLineLength:
     active: true
     maxLineLength: 180

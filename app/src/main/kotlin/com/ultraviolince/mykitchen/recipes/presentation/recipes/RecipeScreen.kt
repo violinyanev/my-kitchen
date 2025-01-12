@@ -9,6 +9,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,8 +25,10 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.SyncProblem
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -45,7 +48,6 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkE
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.OrderSection
-import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.RecipeItem
 import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import org.koin.androidx.compose.koinViewModel
@@ -82,7 +84,6 @@ fun RecipeScreen(
     )
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 private fun RecipeScreenContent(
     onAddRecipe: () -> Unit,
@@ -104,7 +105,7 @@ private fun RecipeScreenContent(
                 )
             }
         }
-    ) {
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -173,37 +174,73 @@ private fun RecipeScreenContent(
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn {
-                items(recipeState.recipes) { recipe ->
-                    RecipeItem(
-                        recipe = recipe,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                onRecipeClicked(recipe)
-                            })
-                }
-            }
+            LazyRecipesList(innerPadding, recipeState.recipes, onRecipeClicked)
+        }
+    }
+}
+
+@Composable
+fun LazyRecipesList(
+    innerPadding: PaddingValues,
+    recipes: ImmutableRecipesList,
+    onRecipeClicked: (Recipe) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize(),
+        contentPadding = innerPadding
+    ) {
+        items(items = recipes.items, key = { it.title }) { recipe ->
+            ListItem(
+                headlineContent = {
+                    Text(recipe.title)
+                },
+                supportingContent = {
+                    Text(recipe.content.lines()
+                        .take(2)
+                        .joinToString("\n"))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onRecipeClicked(recipe)
+                    }
+            )
+            HorizontalDivider()
         }
     }
 }
 
 class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<RecipesState> {
+
     override val values = sequenceOf(
-        RecipesState(),
-        RecipesState(syncState = LoginState.LoginEmpty),
-        RecipesState(syncState = LoginState.LoginPending),
-        RecipesState(syncState = LoginState.LoginSuccess),
-        RecipesState(syncState = LoginState.LoginFailure(error = NetworkError.UNAUTHORIZED)),
         RecipesState(
-            recipes = List(10) { index ->
+            ImmutableRecipesList(
+                listOf(
+                    Recipe(
+                        "Recipe title",
+                        content = "This is a long\nmultipline\ntext\nwith\nmany\nlines\nreally",
+                        timestamp = 5
+                    )
+                )
+            )
+        ),
+        RecipesState(),
+        RecipesState(
+            recipes = ImmutableRecipesList(List(10) { index ->
                 Recipe(
                     "Recipe $index",
                     content = "Lorem ipsum dolor sit amet $index",
                     timestamp = 5
                 )
             }
-        )
+            )
+        ),
+        RecipesState(syncState = LoginState.LoginEmpty),
+        RecipesState(syncState = LoginState.LoginPending),
+        RecipesState(syncState = LoginState.LoginSuccess),
+        RecipesState(syncState = LoginState.LoginFailure(error = NetworkError.UNAUTHORIZED)),
     )
 }
 

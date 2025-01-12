@@ -71,7 +71,7 @@ class RecipeViewModel(
             .onEach {
                     recipes ->
                 _state.value = state.value.copy(
-                    recipes = recipes,
+                    recipes = ImmutableRecipesList(recipes),
                     recipeOrder = recipesOrder
                 )
             }
