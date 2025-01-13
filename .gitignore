@@ -3,6 +3,9 @@
 .kotlin/
 build/
 
+# Traces
+scripts/traces/
+
 # Local configuration file (sdk path, etc)
 local.properties
 
