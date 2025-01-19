@@ -119,6 +119,7 @@ dependencies {
     // Database local storage
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.datastore.preferences)
     // Ktor - backend interaction
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
