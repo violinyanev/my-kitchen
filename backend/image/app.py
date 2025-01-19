@@ -35,7 +35,10 @@ def version(current_user):
 if __name__ == '__main__':
     print(f"API version: {get_api_version()}")
 
-    app.config['SECRET_KEY'] = os.environ['RECIPES_SECRET_KEY']
+    if app.config['DEBUG']:
+        app.config['SECRET_KEY'] = "Test key"
+    else:
+        app.config['SECRET_KEY'] = os.environ['RECIPES_SECRET_KEY']
 
     app.config['DATA_FOLDER'] = '/tmp/data'
 
