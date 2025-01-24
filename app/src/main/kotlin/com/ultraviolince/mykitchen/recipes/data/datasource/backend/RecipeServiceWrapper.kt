@@ -12,12 +12,15 @@ import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.logging.Logger
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
 
     private var recipeService: RecipeService? = null
+
+    val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
 
     private val logger = object : Logger {
         override fun log(message: String) {
@@ -38,6 +41,14 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
     }
 
     suspend fun login(server: String, email: String, password: String): LoginState {
+        loginState.emit(LoginState.LoginPending)
+        val loginResult = loginInternal(server = server, email = email, password = password)
+        loginState.emit(loginResult)
+
+        return loginResult
+    }
+
+    private suspend fun loginInternal(server: String, email: String, password: String): LoginState {
         val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
 
         // TODO wipe pref data?

@@ -14,12 +14,9 @@ class RecipeRepositoryImpl(
     private val recipeService: RecipeServiceWrapper,
 ) : RecipeRepository {
 
-    private val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
-
     override suspend fun login(server: String, email: String, password: String) {
-        loginState.emit(LoginState.LoginPending)
         val loginResult = recipeService.login(server = server, email = email, password = password)
-        loginState.emit(loginResult)
+        recipeService.login(server = server, email = email, password = password)
 
         if (loginResult == LoginState.LoginSuccess) {
             recipeService.sync(dao)
@@ -27,7 +24,7 @@ class RecipeRepositoryImpl(
     }
 
     override fun getLoginState(): Flow<LoginState> {
-        return loginState
+        return recipeService.loginState
     }
 
     override fun getRecipes(): Flow<List<Recipe>> {
