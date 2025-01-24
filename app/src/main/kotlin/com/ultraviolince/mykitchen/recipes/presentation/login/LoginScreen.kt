@@ -208,7 +208,7 @@ fun LoginScreenContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if(isLoggedIn) {
+            if (isLoggedIn) {
                 Button(
                     onClick = {
                         eventHandler(LoginEvent.Logout)
@@ -216,8 +216,7 @@ fun LoginScreenContent(
                 ) {
                     Text("Logout")
                 }
-            }
-            else {
+            } else {
                 Box {
                     TextField(
                         value = passwordState.text,

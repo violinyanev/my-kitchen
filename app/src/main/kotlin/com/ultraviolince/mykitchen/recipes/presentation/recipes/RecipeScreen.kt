@@ -1,6 +1,5 @@
 package com.ultraviolince.mykitchen.recipes.presentation.recipes
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
