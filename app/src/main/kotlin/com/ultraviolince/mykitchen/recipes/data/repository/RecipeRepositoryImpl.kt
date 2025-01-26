@@ -14,7 +14,6 @@ class RecipeRepositoryImpl(
 
     override suspend fun login(server: String, email: String, password: String) {
         val loginResult = recipeService.login(server = server, email = email, password = password)
-//        recipeService.login(server = server, email = email, password = password)
 
         if (loginResult == LoginState.LoginSuccess) {
             recipeService.sync(dao)

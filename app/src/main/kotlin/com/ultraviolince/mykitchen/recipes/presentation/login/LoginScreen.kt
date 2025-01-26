@@ -212,9 +212,10 @@ fun LoginScreenContent(
                 Button(
                     onClick = {
                         eventHandler(LoginEvent.Logout)
-                    }
+                    },
+                    modifier = Modifier.semantics { contentDescription = "Logout" }
                 ) {
-                    Text("Logout")
+                    Text(text = stringResource(R.string.logout))
                 }
             } else {
                 Box {
