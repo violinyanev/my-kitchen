@@ -24,7 +24,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
 
     private val logger = object : Logger {
         override fun log(message: String) {
-            Log.d("#network #ktor", message)
+            Log.d("#network #ktor #data", message)
         }
     }
 
@@ -34,8 +34,13 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
         GlobalScope.launch {
             val prefs = dataStore.preferences.first()
 
-            if(prefs.server != null && prefs.token != null) {
+            logger.log("Checking stored preferences")
+            if (prefs.server != null && prefs.token != null) {
+                logger.log("Restoring data, server=${prefs.server}")
                 recipeService = RecipeService(createHttpClient(CIO.create(), prefs.server, prefs.token, logger))
+
+                // TODO: check if token still valid
+                loginState.emit(LoginState.LoginSuccess)
             }
         }
     }
@@ -46,6 +51,11 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
         loginState.emit(loginResult)
 
         return loginResult
+    }
+
+    suspend fun logout() {
+        dataStore.write("", "")
+        loginState.emit(LoginState.LoginEmpty)
     }
 
     private suspend fun loginInternal(server: String, email: String, password: String): LoginState {

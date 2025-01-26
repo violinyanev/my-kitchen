@@ -1,13 +1,11 @@
 package com.ultraviolince.mykitchen.recipes.data.repository
 
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
-import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class RecipeRepositoryImpl(
     private val dao: RecipeDao,
@@ -16,11 +14,15 @@ class RecipeRepositoryImpl(
 
     override suspend fun login(server: String, email: String, password: String) {
         val loginResult = recipeService.login(server = server, email = email, password = password)
-        recipeService.login(server = server, email = email, password = password)
+//        recipeService.login(server = server, email = email, password = password)
 
         if (loginResult == LoginState.LoginSuccess) {
             recipeService.sync(dao)
         }
+    }
+
+    override suspend fun logout() {
+        recipeService.logout()
     }
 
     override fun getLoginState(): Flow<LoginState> {

@@ -14,7 +14,10 @@ import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -22,6 +25,14 @@ import org.koin.android.annotation.KoinViewModel
 class LoginViewModel(
     private val recipesUseCases: Recipes
 ) : ViewModel() {
+
+    val isLoggedIn = recipesUseCases.getSyncState().map { it == LoginState.LoginSuccess }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = false
+        )
+
     private val _server = mutableStateOf(
         RecipeTextFieldState(
             text = BuildConfig.DEFAULT_SERVER,
@@ -131,11 +142,20 @@ class LoginViewModel(
                     }
                 }
             }
+            LoginEvent.Logout -> {
+                viewModelScope.launch {
+                    recipesUseCases.logout()
+                    _eventFlow.emit(
+                        UiEvent.LogoutSuccess
+                    )
+                }
+            }
         }
     }
 
     sealed class UiEvent {
         data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
         data object LoginSuccess : UiEvent()
+        data object LogoutSuccess : UiEvent()
     }
 }

@@ -13,6 +13,7 @@ import com.ultraviolince.mykitchen.recipes.domain.usecase.GetLoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipes
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Login
+import com.ultraviolince.mykitchen.recipes.domain.usecase.Logout
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
@@ -47,6 +48,7 @@ class AppModule {
     fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
         return Recipes(
             login = Login(repository),
+            logout = Logout(repository),
             getSyncState = GetLoginState(repository),
             getRecipes = GetRecipes(repository),
             deleteRecipe = DeleteRecipe(repository),

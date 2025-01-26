@@ -36,7 +36,7 @@ object Crypto {
                     KeyGenParameterSpec.Builder(
                         KEY_ALIAS,
                         KeyProperties.PURPOSE_ENCRYPT or
-                        KeyProperties.PURPOSE_DECRYPT
+                            KeyProperties.PURPOSE_DECRYPT
                     )
                         .setBlockModes(BLOCK_MODE)
                         .setEncryptionPaddings(PADDING)

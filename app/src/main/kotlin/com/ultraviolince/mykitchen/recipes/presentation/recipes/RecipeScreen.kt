@@ -52,7 +52,6 @@ import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import org.koin.androidx.compose.koinViewModel
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RecipeScreen(
     navController: NavController,

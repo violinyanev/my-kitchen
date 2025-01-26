@@ -16,7 +16,7 @@ data class UserPreferences(
     val token: String? = null
 )
 
-object UserPreferencesSerializer: Serializer<UserPreferences> {
+object UserPreferencesSerializer : Serializer<UserPreferences> {
     override val defaultValue: UserPreferences
         get() = UserPreferences()
 

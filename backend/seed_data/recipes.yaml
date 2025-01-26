@@ -1,8 +1,11 @@
 recipes:
-- body: 'asdsdf
-
-    '
+- body: content2
   id: 1
-  timestamp: 1737291370305
-  title: dfdfd
+  timestamp: 1737893141269
+  title: recipe2
+  user: TestUser
+- body: content2
+  id: 2
+  timestamp: 1737914883740
+  title: recipe2
   user: TestUser
