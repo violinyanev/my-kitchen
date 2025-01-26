@@ -37,7 +37,7 @@ pagingCompose = "3.3.5"
 room = "2.6.1"
 
 # @keep
-targetSdk = "33"
+targetSdk = "35"
 testExtJunit = "1.2.1"
 viewModelCompose = "2.8.7"
 work = "2.10.0"
