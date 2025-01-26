@@ -5,26 +5,64 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendR
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onSuccess
+import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.logging.Logger
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-class RecipeServiceWrapper {
+class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
 
     private var recipeService: RecipeService? = null
 
+    val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
+
     private val logger = object : Logger {
         override fun log(message: String) {
-            Log.d("#network #ktor", message)
+            Log.d("#network #ktor #data", message)
+        }
+    }
+
+    init {
+        // TODO is a better way possible?
+        @Suppress("OPT_IN_USAGE")
+        GlobalScope.launch {
+            val prefs = dataStore.preferences.first()
+
+            logger.log("Checking stored preferences")
+            if (prefs.server != null && prefs.token != null) {
+                logger.log("Restoring data, server=${prefs.server}")
+                recipeService = RecipeService(createHttpClient(CIO.create(), prefs.server, prefs.token, logger))
+
+                // TODO: check if token still valid
+                loginState.emit(LoginState.LoginSuccess)
+            }
         }
     }
 
     suspend fun login(server: String, email: String, password: String): LoginState {
+        loginState.emit(LoginState.LoginPending)
+        val loginResult = loginInternal(server = server, email = email, password = password)
+        loginState.emit(loginResult)
+
+        return loginResult
+    }
+
+    suspend fun logout() {
+        dataStore.write("", "")
+        loginState.emit(LoginState.LoginEmpty)
+    }
+
+    private suspend fun loginInternal(server: String, email: String, password: String): LoginState {
         val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
 
-        // TODO Store the token, don't force authentication all the time
+        // TODO wipe pref data?
+
         val result = tmpService.login(LoginRequest(email, password))
 
         Log.i("#network", "Login result: $result")
@@ -32,6 +70,7 @@ class RecipeServiceWrapper {
             is Result.Error -> LoginState.LoginFailure(error = result.error)
             is Result.Success -> {
                 recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token, logger))
+                dataStore.write(server = server, token = result.data.data.token)
                 LoginState.LoginSuccess
             }
         }

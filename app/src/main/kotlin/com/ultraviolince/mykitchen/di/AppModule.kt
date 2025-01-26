@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.di
 import android.app.Application
 import androidx.room.Room
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
+import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDatabase
 import com.ultraviolince.mykitchen.recipes.data.repository.RecipeRepositoryImpl
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
@@ -12,6 +13,7 @@ import com.ultraviolince.mykitchen.recipes.domain.usecase.GetLoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipes
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Login
+import com.ultraviolince.mykitchen.recipes.domain.usecase.Logout
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
@@ -30,9 +32,14 @@ class AppModule {
     }
 
     @Single
+    fun provideSafeDataStore(app: Application): SafeDataStore {
+        return SafeDataStore(app)
+    }
+
+    @Single
     fun provideRecipeRepository(
         db: RecipeDatabase,
-        service: RecipeServiceWrapper
+        service: RecipeServiceWrapper,
     ): RecipeRepository {
         return RecipeRepositoryImpl(db.recipeDao, service)
     }
@@ -41,6 +48,7 @@ class AppModule {
     fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
         return Recipes(
             login = Login(repository),
+            logout = Logout(repository),
             getSyncState = GetLoginState(repository),
             getRecipes = GetRecipes(repository),
             deleteRecipe = DeleteRecipe(repository),
@@ -50,7 +58,7 @@ class AppModule {
     }
 
     @Single
-    fun provideRecipeServiceWrapper(): RecipeServiceWrapper {
-        return RecipeServiceWrapper()
+    fun provideRecipeServiceWrapper(dataStore: SafeDataStore): RecipeServiceWrapper {
+        return RecipeServiceWrapper(dataStore)
     }
 }

@@ -30,4 +30,5 @@
     <string name="delete" translation_description="The content description for the delete button">Delete</string>
     <string name="missing_title" translation_description="Snack-bar error being shown when the title of a recipe is empty">The title of the recipe can\'t be empty</string>
     <string name="missing_body" translation_description="Snack-bar error being shown when the body of a recipe is empty">The body of the recipe can\'t be empty</string>
+    <string name="logout">Logout</string>
 </resources>

@@ -6,27 +6,26 @@ import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class RecipeRepositoryImpl(
     private val dao: RecipeDao,
-    private val recipeService: RecipeServiceWrapper
+    private val recipeService: RecipeServiceWrapper,
 ) : RecipeRepository {
 
-    private val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
-
     override suspend fun login(server: String, email: String, password: String) {
-        loginState.emit(LoginState.LoginPending)
         val loginResult = recipeService.login(server = server, email = email, password = password)
-        loginState.emit(loginResult)
 
         if (loginResult == LoginState.LoginSuccess) {
             recipeService.sync(dao)
         }
     }
 
+    override suspend fun logout() {
+        recipeService.logout()
+    }
+
     override fun getLoginState(): Flow<LoginState> {
-        return loginState
+        return recipeService.loginState
     }
 
     override fun getRecipes(): Flow<List<Recipe>> {

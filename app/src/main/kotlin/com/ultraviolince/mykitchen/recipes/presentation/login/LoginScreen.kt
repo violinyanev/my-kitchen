@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +41,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat.ID_NULL
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
@@ -53,6 +55,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = koinViewModel()
 ) {
+    val isLoggedIn = viewModel.isLoggedIn.collectAsStateWithLifecycle()
     val serverState = viewModel.server.value
     val usernameState = viewModel.username.value
     val passwordState = viewModel.password.value
@@ -73,11 +76,15 @@ fun LoginScreen(
                 is LoginViewModel.UiEvent.LoginSuccess -> {
                     navController.navigateUp()
                 }
+                is LoginViewModel.UiEvent.LogoutSuccess -> {
+                    navController.navigateUp()
+                }
             }
         }
     }
 
     LoginScreenContent(
+        isLoggedIn = isLoggedIn.value,
         serverState = serverState,
         usernameState = usernameState,
         passwordState = passwordState,
@@ -93,6 +100,7 @@ fun LoginScreen(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreenContent(
+    isLoggedIn: Boolean,
     serverState: RecipeTextFieldState,
     usernameState: RecipeTextFieldState,
     passwordState: RecipeTextFieldState,
@@ -101,6 +109,7 @@ fun LoginScreenContent(
     modifier: Modifier = Modifier,
     eventHandler: (LoginEvent) -> Unit
 ) {
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
@@ -152,6 +161,7 @@ fun LoginScreenContent(
             Box {
                 TextField(
                     value = serverState.text,
+                    readOnly = isLoggedIn,
                     onValueChange = {
                         eventHandler(LoginEvent.EnteredServer(it))
                     },
@@ -176,6 +186,7 @@ fun LoginScreenContent(
             Box {
                 TextField(
                     value = usernameState.text,
+                    readOnly = isLoggedIn,
                     onValueChange = {
                         eventHandler(LoginEvent.EnteredUsername(it))
                     },
@@ -197,32 +208,44 @@ fun LoginScreenContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Box {
-                TextField(
-                    value = passwordState.text,
-                    onValueChange = {
-                        eventHandler(LoginEvent.EnteredPassword(it))
+            if (isLoggedIn) {
+                Button(
+                    onClick = {
+                        eventHandler(LoginEvent.Logout)
                     },
-                    placeholder = {
-                        if (passwordState.hintStringId != ID_NULL) {
-                            Text(text = stringResource(passwordState.hintStringId), style = MaterialTheme.typography.headlineMedium)
-                        }
-                    },
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(LoginEvent.ChangePasswordFocus(it))
-                        }
-                        .semantics { contentDescription = "Password" }
-                )
+                    modifier = Modifier.semantics { contentDescription = "Logout" }
+                ) {
+                    Text(text = stringResource(R.string.logout))
+                }
+            } else {
+                Box {
+                    TextField(
+                        value = passwordState.text,
+                        onValueChange = {
+                            eventHandler(LoginEvent.EnteredPassword(it))
+                        },
+                        placeholder = {
+                            if (passwordState.hintStringId != ID_NULL) {
+                                Text(text = stringResource(passwordState.hintStringId), style = MaterialTheme.typography.headlineMedium)
+                            }
+                        },
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged {
+                                eventHandler(LoginEvent.ChangePasswordFocus(it))
+                            }
+                            .semantics { contentDescription = "Password" }
+                    )
+                }
             }
         }
     }
 }
 
 data class LoginScreenState(
+    val isLoggedIn: Boolean = false,
     val server: RecipeTextFieldState,
     val username: RecipeTextFieldState,
     val password: RecipeTextFieldState,
@@ -231,6 +254,12 @@ data class LoginScreenState(
 
 class LoginScreenPreviewParameterProvider : PreviewParameterProvider<LoginScreenState> {
     override val values = sequenceOf(
+        LoginScreenState(
+            isLoggedIn = true,
+            server = RecipeTextFieldState(text = "", hintStringId = R.string.server_hint, isHintVisible = true),
+            username = RecipeTextFieldState(text = "", hintStringId = R.string.username_hint, isHintVisible = true),
+            password = RecipeTextFieldState(text = "", hintStringId = R.string.password_hint, isHintVisible = true)
+        ),
         LoginScreenState(
             server = RecipeTextFieldState(text = "", hintStringId = R.string.server_hint, isHintVisible = true),
             username = RecipeTextFieldState(text = "", hintStringId = R.string.username_hint, isHintVisible = true),
@@ -252,6 +281,7 @@ private fun AddEditRecipeScreenPreview(
 ) {
     MyApplicationTheme {
         LoginScreenContent(
+            isLoggedIn = state.isLoggedIn,
             serverState = state.server,
             usernameState = state.username,
             passwordState = state.password,
