@@ -46,7 +46,6 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("debug")
-            resValue("string", "clear_text_config", "false")
             buildConfigField("String", "DEFAULT_SERVER", "\"\"")
             buildConfigField ("String", "DEFAULT_USERNAME", "\"\"")
             buildConfigField("String", "DEFAULT_PASSWORD", "\"\"")
@@ -60,7 +59,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            resValue("string", "clear_text_config", "true")
             buildConfigField("String", "DEFAULT_SERVER", "\"http://10.0.2.2:5000\"")
             buildConfigField ("String", "DEFAULT_USERNAME", "\"test@user.com\"")
             buildConfigField("String", "DEFAULT_PASSWORD", "\"TestPassword\"")
