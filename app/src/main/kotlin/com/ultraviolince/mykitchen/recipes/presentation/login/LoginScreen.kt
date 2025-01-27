@@ -76,9 +76,6 @@ fun LoginScreen(
                 is LoginViewModel.UiEvent.LoginSuccess -> {
                     navController.navigateUp()
                 }
-                is LoginViewModel.UiEvent.LogoutSuccess -> {
-                    navController.navigateUp()
-                }
             }
         }
     }

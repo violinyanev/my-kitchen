@@ -145,9 +145,6 @@ class LoginViewModel(
             LoginEvent.Logout -> {
                 viewModelScope.launch {
                     recipesUseCases.logout()
-                    _eventFlow.emit(
-                        UiEvent.LogoutSuccess
-                    )
                 }
             }
         }
@@ -156,6 +153,5 @@ class LoginViewModel(
     sealed class UiEvent {
         data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
         data object LoginSuccess : UiEvent()
-        data object LogoutSuccess : UiEvent()
     }
 }
