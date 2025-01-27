@@ -11,23 +11,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.AddEditRecipeScreen
 import com.ultraviolince.mykitchen.recipes.presentation.login.LoginScreen
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.RecipeScreen
+import com.ultraviolince.mykitchen.recipes.presentation.util.AddEditRecipeScreenTarget
+import com.ultraviolince.mykitchen.recipes.presentation.util.LoginScreenTarget
 import com.ultraviolince.mykitchen.recipes.presentation.util.PerfTracer
-import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
+import com.ultraviolince.mykitchen.recipes.presentation.util.RecipesScreenTarget
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -61,23 +61,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
         val navController = rememberNavController()
         NavHost(
             navController = navController,
-            startDestination = Screen.RecipesScreen.route
+            startDestination = RecipesScreenTarget
         ) {
-            composable(route = Screen.LoginScreen.route) {
+            composable<LoginScreenTarget> {
                 LoginScreen(navController = navController)
             }
-            composable(route = Screen.RecipesScreen.route) {
+            composable<RecipesScreenTarget> {
                 RecipeScreen(navController = navController)
             }
-            composable(
-                route = Screen.AddEditRecipeScreen.route + "?recipeId={recipeId}",
-                arguments = listOf(
-                    navArgument(name = "recipeId") {
-                        type = NavType.IntType
-                        defaultValue = -1
-                    }
-                )
-            ) {
+            composable<AddEditRecipeScreenTarget>
+            {
                 AddEditRecipeScreen(
                     navController = navController
                 )
