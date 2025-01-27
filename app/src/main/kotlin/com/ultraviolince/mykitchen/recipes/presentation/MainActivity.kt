@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.AddEditRecipeScreen
 import com.ultraviolince.mykitchen.recipes.presentation.login.LoginScreen
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.RecipeScreen
@@ -27,7 +26,6 @@ import com.ultraviolince.mykitchen.recipes.presentation.util.RecipesScreenTarget
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
 
