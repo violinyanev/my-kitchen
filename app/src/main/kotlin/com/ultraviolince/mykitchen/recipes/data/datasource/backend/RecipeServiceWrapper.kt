@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
+class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao: RecipeDao) {
 
     private var recipeService: RecipeService? = null
 
@@ -45,20 +45,9 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
         }
     }
 
-    suspend fun login(server: String, email: String, password: String): LoginState {
+    suspend fun login(server: String, email: String, password: String) {
         loginState.emit(LoginState.LoginPending)
-        val loginResult = loginInternal(server = server, email = email, password = password)
-        loginState.emit(loginResult)
 
-        return loginResult
-    }
-
-    suspend fun logout() {
-        dataStore.write("", "")
-        loginState.emit(LoginState.LoginEmpty)
-    }
-
-    private suspend fun loginInternal(server: String, email: String, password: String): LoginState {
         val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
 
         // TODO wipe pref data?
@@ -66,14 +55,20 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
         val result = tmpService.login(LoginRequest(email, password))
 
         Log.i("#network", "Login result: $result")
-        return when (result) {
-            is Result.Error -> LoginState.LoginFailure(error = result.error)
+        when (result) {
+            is Result.Error -> loginState.emit(LoginState.LoginFailure(error = result.error))
             is Result.Success -> {
                 recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token, logger))
                 dataStore.write(server = server, token = result.data.data.token)
-                LoginState.LoginSuccess
+                sync()
+                loginState.emit(LoginState.LoginSuccess)
             }
         }
+    }
+
+    suspend fun logout() {
+        dataStore.write("", "")
+        loginState.emit(LoginState.LoginEmpty)
     }
 
     suspend fun insertRecipe(recipeId: Long, recipe: Recipe): Boolean {
@@ -121,7 +116,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore) {
         return false
     }
 
-    suspend fun sync(dao: RecipeDao) {
+    private suspend fun sync() {
         recipeService?.apply {
             val existingRecipes = mutableSetOf<Long>()
 
