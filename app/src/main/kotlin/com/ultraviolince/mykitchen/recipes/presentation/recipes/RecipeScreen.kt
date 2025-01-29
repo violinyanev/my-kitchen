@@ -189,7 +189,7 @@ fun LazyRecipesList(
             .fillMaxSize(),
         contentPadding = innerPadding
     ) {
-        items(items = recipes.items, key = { it.title }) { recipe ->
+        items(items = recipes.items, key = { it.id!! }) { recipe ->
             ListItem(
                 headlineContent = {
                     Text(recipe.title)

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
+import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDatabase
 import com.ultraviolince.mykitchen.recipes.data.repository.RecipeRepositoryImpl
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
@@ -32,16 +33,21 @@ class AppModule {
     }
 
     @Single
+    fun provideRecipeDao(db: RecipeDatabase): RecipeDao {
+        return db.recipeDao
+    }
+
+    @Single
     fun provideSafeDataStore(app: Application): SafeDataStore {
         return SafeDataStore(app)
     }
 
     @Single
     fun provideRecipeRepository(
-        db: RecipeDatabase,
+        dao: RecipeDao,
         service: RecipeServiceWrapper,
     ): RecipeRepository {
-        return RecipeRepositoryImpl(db.recipeDao, service)
+        return RecipeRepositoryImpl(dao, service)
     }
 
     @Single
@@ -58,7 +64,7 @@ class AppModule {
     }
 
     @Single
-    fun provideRecipeServiceWrapper(dataStore: SafeDataStore): RecipeServiceWrapper {
-        return RecipeServiceWrapper(dataStore)
+    fun provideRecipeServiceWrapper(dao: RecipeDao, dataStore: SafeDataStore): RecipeServiceWrapper {
+        return RecipeServiceWrapper(dataStore, dao)
     }
 }

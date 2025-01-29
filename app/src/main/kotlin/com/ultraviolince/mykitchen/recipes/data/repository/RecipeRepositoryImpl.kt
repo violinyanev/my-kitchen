@@ -13,11 +13,7 @@ class RecipeRepositoryImpl(
 ) : RecipeRepository {
 
     override suspend fun login(server: String, email: String, password: String) {
-        val loginResult = recipeService.login(server = server, email = email, password = password)
-
-        if (loginResult == LoginState.LoginSuccess) {
-            recipeService.sync(dao)
-        }
+        recipeService.login(server = server, email = email, password = password)
     }
 
     override suspend fun logout() {
