@@ -32,7 +32,7 @@ datastorePreferences = "1.1.2"
 # @keep
 minSdk = "28"
 monitor = "1.7.2"
-navigation = "2.8.5"
+navigation = "2.8.6"
 pagingCompose = "3.3.5"
 room = "2.6.1"
 
