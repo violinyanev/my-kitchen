@@ -5,7 +5,7 @@ androidGradlePlugin = "8.7.3"
 
 # @keep
 compileSdk = "35"
-composeLatest = "1.7.7"
+composeLatest = "1.7.8"
 composeBom = "2025.02.00"
 compose-compiler = "1.5.13"
 constraintLayoutCompose = "1.1.0"
