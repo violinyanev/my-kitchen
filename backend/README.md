@@ -1,17 +1,15 @@
-# A backend for a personal app
+# Backend implementation
 
 This repository contains a simple backend for the application which can be self-hosted on your own server.
 
 ## Running the latest image version
 
 ```bash
+# From docker (emulates release mode)
 python3 ./scripts/dev.py start
-```
 
-## Running the flask backend outside docker
-
-```bash
-python3 ./image/app.py
+# From flask directly (for debugging)
+./scripts/dev.sh
 ```
 
 ## Building the docker image locally
