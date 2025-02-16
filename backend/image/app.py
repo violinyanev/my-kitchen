@@ -2,6 +2,7 @@
 
 import os
 import sys
+import logging
 from flask import Flask, request, jsonify, abort
 from pathlib import Path
 from auth.authentication import token_required
@@ -13,12 +14,24 @@ import sys
 
 app = Flask(__name__)
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 def get_api_version():
     return {
         "api_version_major": 0,
         "api_version_minor": 5,
         "api_version_patch": 2,
     }
+
+@app.before_request
+def log_request():
+    app.logger.info(f"Incoming request: {request.method} {request.url} - Body: {request.get_data()}")
+
+@app.after_request
+def log_response(response):
+    app.logger.info(f"Response: {response.status} - Body: {response.get_data(as_text=True)}")
+    return response
 
 
 @app.route('/health', methods=['GET'])
