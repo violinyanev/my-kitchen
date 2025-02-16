@@ -1,14 +1,11 @@
 
 [versions]
-activityCompose = "1.10.0"
-androidGradlePlugin = "8.8.1"
+androidGradlePlugin = "8.7.3"
 
 # @keep
 compileSdk = "35"
 composeLatest = "1.7.8"
 composeBom = "2025.02.00"
-compose-compiler = "1.5.13"
-constraintLayoutCompose = "1.1.0"
 coreTesting = "2.2.0"
 coroutines = "1.10.1"
 espressoCore = "3.6.1"
@@ -23,7 +20,6 @@ kotlin = "2.1.10"
 detekt = "1.23.7"
 twitterDetekt = "0.0.26"
 ktx = "1.15.0"
-lifecycle = "2.8.7"
 material = "1.12.0"
 material3 = "1.3.1"
 buildHealth = "2.8.2"
@@ -31,49 +27,33 @@ datastorePreferences = "1.1.2"
 
 # @keep
 minSdk = "28"
-monitor = "1.7.2"
 navigation = "2.8.7"
-pagingCompose = "3.3.6"
 room = "2.6.1"
 
 # @keep
 targetSdk = "35"
 testExtJunit = "1.2.1"
-viewModelCompose = "2.8.7"
 work = "2.10.0"
 ksp = "2.1.10-1.0.30"
 kover = "0.9.1"
 runner = "1.6.2"
 
 [libraries]
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
-androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "composeLatest" }
-androidx-compose-foundation-layout = { module = "androidx.compose.foundation:foundation-layout", version.ref = "composeLatest" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 androidx-compose-material-icons-ext = { module = "androidx.compose.material:material-icons-extended", version.ref = "composeLatest" }
 androidx-compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "composeLatest" }
-androidx-compose-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "composeLatest" }
-androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "composeLatest" }
 androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeLatest" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-androidx-compose-ui-viewbinding = { module = "androidx.compose.ui:ui-viewbinding" }
-androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintLayoutCompose" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "ktx" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
-androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
-androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "viewModelCompose" }
-androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
-androidx-monitor = { module = "androidx.test:monitor", version.ref = "monitor" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
-androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "testExtJunit" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "work" }
-androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinAnnotations" }
@@ -88,13 +68,10 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
-ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
-androidx-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeLatest" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
