@@ -124,14 +124,11 @@ dependencies {
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.json)
-    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.resources)
 
     // Debug dependencies
-    // debugImplementation(libs.androidx.monitor)
     debugImplementation(libs.androidx.compose.ui.tooling) // For previews
-    // debugImplementation(libs.androidx.test.manifest)    // For tests
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.arch.core.testing)
