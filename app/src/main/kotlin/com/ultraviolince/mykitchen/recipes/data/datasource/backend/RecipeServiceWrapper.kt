@@ -4,6 +4,7 @@ import android.util.Log
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onError
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onSuccess
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
@@ -13,6 +14,7 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.logging.Logger
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -41,6 +43,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
 
                 // TODO: check if token still valid
                 loginState.emit(LoginState.LoginSuccess)
+                sync()
             }
         }
     }
@@ -117,39 +120,30 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
     }
 
     private suspend fun sync() {
+        Log.i("#sync", "Synchronizing recipes")
         recipeService?.apply {
-            val existingRecipes = mutableSetOf<Long>()
-
+            Log.i("#sync", "Getting local recipes")
             val maybeRecipes = getRecipes()
 
-            maybeRecipes.onSuccess { recipes ->
-                for (r in recipes) {
-                    dao.insertRecipe(
-                        Recipe(
-                            id = r.id,
-                            title = r.title,
-                            content = r.body,
-                            timestamp = r.timestamp
-                        )
-                    )
-                    existingRecipes.add(r.id)
-                }
-            }
-                /*val dbRecipes = dao.getRecipes()
+            maybeRecipes.onSuccess { backendRecipes ->
+                Log.i("#sync", "Stuff")
+                dao.getRecipes().collectLatest { dbRecipes ->
+                    val diff = RecipeMerger.getDiff(dbRecipes, backendRecipes)
 
-                Log.e("RECIPES", "Before1")
-                val currentDbRecipes = dbRecipes.last()
+                    for (r in diff.localRecipes) {
+                        dao.insertRecipe(r)
+                    }
 
-                Log.e("RECIPES", "Before2")
-
-                for (r in currentDbRecipes) {
-                    r.id?.let {
-                        if(!existingRecipes.contains(it)){
-                            insertRecipe(it, r)
-                        }
+                    for (r in diff.backendRecipes) {
+                        insertRecipe(r.id, r.toRecipe())
                     }
                 }
-                Log.e("RECIPES", "After")*/
+            }
+            maybeRecipes.onError { error ->
+                Log.e("#sync", "Failed to obtain backend recipes: $error")
+            }
+        } ?: {
+            Log.e("#sync", "Can't sync recipes currently")
         }
     }
 }
