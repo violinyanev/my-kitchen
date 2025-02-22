@@ -126,7 +126,6 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
             val maybeRecipes = getRecipes()
 
             maybeRecipes.onSuccess { backendRecipes ->
-                Log.i("#sync", "Stuff")
                 dao.getRecipes().collectLatest { dbRecipes ->
                     val diff = RecipeMerger.getDiff(dbRecipes, backendRecipes)
 
