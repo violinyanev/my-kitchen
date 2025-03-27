@@ -11,5 +11,5 @@ MarkupSafe==3.0.2
 PyJWT==2.10.1
 PyYAML==6.0.2
 referencing==0.36.2
-rpds-py==0.23.1
+rpds-py==0.24.0
 Werkzeug==3.1.3
