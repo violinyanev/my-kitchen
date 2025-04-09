@@ -28,7 +28,7 @@ datastorePreferences = "1.1.4"
 # @keep
 minSdk = "28"
 navigation = "2.8.9"
-room = "2.6.1"
+room = "2.7.0"
 
 # @keep
 targetSdk = "35"
