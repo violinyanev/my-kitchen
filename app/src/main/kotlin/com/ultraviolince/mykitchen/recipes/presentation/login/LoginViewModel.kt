@@ -6,32 +6,45 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ultraviolince.mykitchen.BuildConfig
 import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import com.ultraviolince.mykitchen.recipes.domain.model.LoginException
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
-@HiltViewModel
-class LoginViewModel @Inject constructor(
+@KoinViewModel
+class LoginViewModel(
     private val recipesUseCases: Recipes
 ) : ViewModel() {
+
+    val isLoggedIn = recipesUseCases.getSyncState().map { it == LoginState.LoginSuccess }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = false
+        )
+
     private val _server = mutableStateOf(
         RecipeTextFieldState(
-            text = "",
-            hintStringId = R.string.server_hint
+            text = BuildConfig.DEFAULT_SERVER,
+            hintStringId = R.string.server_hint,
+
         )
     )
     val server: State<RecipeTextFieldState> = _server
     private val _username = mutableStateOf(
         RecipeTextFieldState(
             hintStringId = R.string.username_hint,
-            text = ""
+            text = BuildConfig.DEFAULT_USERNAME
         )
     )
     val username: State<RecipeTextFieldState> = _username
@@ -41,7 +54,7 @@ class LoginViewModel @Inject constructor(
     private val _password = mutableStateOf(
         RecipeTextFieldState(
             hintStringId = R.string.password_hint,
-            text = ""
+            text = BuildConfig.DEFAULT_PASSWORD
         )
     )
     val password: State<RecipeTextFieldState> = _password
@@ -86,7 +99,7 @@ class LoginViewModel @Inject constructor(
                             username = username.value.text,
                             password = password.value.text
                         )
-                        recipesUseCases.getSyncState().collect() {
+                        recipesUseCases.getSyncState().collect {
                             when (it) {
                                 is LoginState.LoginSuccess -> {
                                     _eventFlow.emit(
@@ -99,7 +112,20 @@ class LoginViewModel @Inject constructor(
                                 is LoginState.LoginFailure -> {
                                     _buttonLoading.value = false
                                     _eventFlow.emit(
-                                        UiEvent.ShowSnackbar(it.errorMessage)
+                                        UiEvent.ShowSnackbar(
+                                            when (it.error) {
+                                                // TODO fix all responses
+                                                NetworkError.UNKNOWN -> R.string.unknown_error
+                                                NetworkError.REQUEST_TIMEOUT -> R.string.malformed_server_uri
+                                                NetworkError.UNAUTHORIZED -> R.string.unknown_error
+                                                NetworkError.CONFLICT -> R.string.unknown_error
+                                                NetworkError.TOO_MANY_REQUESTS -> R.string.unknown_error
+                                                NetworkError.NO_INTERNET -> R.string.unknown_error
+                                                NetworkError.PAYLOAD_TOO_LARGE -> R.string.unknown_error
+                                                NetworkError.SERVER_ERROR -> R.string.malformed_server_uri
+                                                NetworkError.SERIALIZATION -> R.string.unknown_error
+                                            }
+                                        )
                                     )
                                 }
                                 LoginState.LoginPending -> {
@@ -114,6 +140,11 @@ class LoginViewModel @Inject constructor(
                             )
                         )
                     }
+                }
+            }
+            LoginEvent.Logout -> {
+                viewModelScope.launch {
+                    recipesUseCases.logout()
                 }
             }
         }

@@ -6,7 +6,9 @@ import com.ultraviolince.mykitchen.recipes.domain.util.OrderType
 import com.ultraviolince.mykitchen.recipes.domain.util.RecipeOrder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.koin.core.annotation.Single
 
+@Single
 class GetRecipes(private val repository: RecipeRepository) {
     operator fun invoke(recipeOrder: RecipeOrder = RecipeOrder.Date(OrderType.Descending)): Flow<List<Recipe>> {
         return repository.getRecipes().map { recipes ->

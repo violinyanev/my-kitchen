@@ -6,24 +6,31 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.kover)
-    alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.room)
     alias(libs.plugins.screenshot)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.compose)
 }
+
+val vName = project.findProperty("versionName") as String? ?: "1.0.0"
+val vCode = project.findProperty("versionCode") as String? ?: "1"
 
 android {
     namespace = "com.ultraviolince.mykitchen"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.ultraviolince.mykitchen"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = vCode.toInt()
+        versionName = vName
 
         testInstrumentationRunner = "com.ultraviolince.mykitchen.recipes.utils.TestRunner"
         vectorDrawables {
@@ -40,9 +47,12 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("debug")
-            resValue("string", "clear_text_config", "false")
+            buildConfigField("String", "DEFAULT_SERVER", "\"\"")
+            buildConfigField ("String", "DEFAULT_USERNAME", "\"\"")
+            buildConfigField("String", "DEFAULT_PASSWORD", "\"\"")
         }
         debug {
+            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
             isShrinkResources = false
 
@@ -50,7 +60,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            resValue("string", "clear_text_config", "true")
+            buildConfigField("String", "DEFAULT_SERVER", "\"http://10.0.2.2:5000\"")
+            buildConfigField ("String", "DEFAULT_USERNAME", "\"test@user.com\"")
+            buildConfigField("String", "DEFAULT_PASSWORD", "\"TestPassword\"")
         }
     }
     compileOptions {
@@ -61,15 +73,16 @@ android {
         jvmTarget = "17"
         allWarningsAsErrors = true
     }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    // This is needed for koin+KSP
+    applicationVariants.forEach { variant ->
+        variant.sourceSets.forEach {
+            it.javaDirectories += files("build/generated/ksp/${variant.name}/kotlin")
         }
     }
 
@@ -80,68 +93,63 @@ android {
     buildToolsVersion = "34.0.0"
 
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
+    ksp {
+        arg("KOIN_CONFIG_CHECK", "true")
+        arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
+    }
 }
 
 dependencies {
-    ksp(libs.androidx.room.compiler)
-    ksp(libs.hilt.android.compiler)
+    // Standard android
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.paging.compose)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.compose.material.icons.ext)
     implementation(libs.material)
-    implementation(libs.gson)
-    implementation(libs.okhttp3.logging.interceptor)
-    implementation(libs.retrofit2.converter.gson)
-    implementation(libs.retrofit2)
-    implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
-    // implementation(libs.androidx.profileinstaller)
-
     // Compose
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.ui.viewbinding)
+    implementation(libs.androidx.compose.material.icons.ext) // For custom icons
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.runtime.livedata)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.test.manifest)
+    // Koin - dependency injection
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.annotations)
+    ksp(libs.koin.ksp.compiler)
+    // Database local storage
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.datastore.preferences)
+    // Ktor - backend interaction
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.client.auth)
+    implementation(libs.ktor.client.resources)
 
-    // Testing dependencies
-    debugImplementation(libs.androidx.monitor)
-    kspAndroidTest(libs.hilt.android.compiler)
+    // Debug dependencies
+    debugImplementation(libs.androidx.compose.ui.tooling) // For previews
+
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.arch.core.testing)
-    androidTestImplementation(libs.androidx.espresso.contrib)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.espresso.intents)
     androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.uiautomator)
     androidTestImplementation(libs.androidx.work.testing)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.okhttp3.mockwebserver)
+    androidTestImplementation(libs.androidx.runner)
+    // Needed to fix a bug in ui-test (pins espresso to 3.5.0 which has a bug)
+    androidTestImplementation(libs.androidx.espresso.core)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.mockk)
+    // For better coroutine tests
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.okhttp3.mockwebserver)
+    testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.koin.test.junit4)
 
     screenshotTestImplementation(libs.androidx.compose.ui.tooling)
 

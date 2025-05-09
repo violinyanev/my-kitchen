@@ -1,121 +1,147 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipeResponse
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResult
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResultData
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.toByteArray
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.Url
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
 import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class BackendTest {
 
     companion object {
+        const val MOCK_HOST = "https://test.com"
         const val USER = "User"
         const val TOKEN = "MyToken"
         const val EMAIL = "me@example.com"
         const val PASSWORD = "123456 :)"
     }
 
-    private val mockWebServer = MockWebServer()
-    private lateinit var recipeService: RecipeService
-
-    @Before
-    fun setup() {
-        mockWebServer.start()
-        recipeService = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("/"))
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(RecipeService::class.java)
-    }
-
-    @After
-    fun teardown() {
-        mockWebServer.shutdown()
+    private fun createHttpClientForTests(mockEngine: MockEngine): HttpClient {
+        return createHttpClient(mockEngine, MOCK_HOST, null, null)
     }
 
     @Test
     fun `logs in successfully`() = runTest {
-        mockWebServer.enqueue(
-            MockResponse().setBody("{\"data\":{\"email\":\"$EMAIL\",\"token\":\"$TOKEN\",\"username\":\"$USER\"}}")
-        )
+        val mockEngine = MockEngine {
+            respond(
+                content = ByteReadChannel("""{"data":{"email":"$EMAIL","token":"$TOKEN","username":"$USER"}}"""),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val recipeService = RecipeService(createHttpClientForTests(mockEngine))
 
-        val response = recipeService.login(LoginRequest(email = USER, password = PASSWORD))
+        val response = recipeService.login(LoginRequest(email = EMAIL, password = PASSWORD))
 
-        assertEquals(response.data.username, USER)
-        assertEquals(response.data.token, TOKEN)
+        assertEquals(Result.Success(LoginResult(
+            LoginResultData(
+                username = USER,
+                token = TOKEN
+            )
+        )), response)
 
-        val request = mockWebServer.takeRequest()
-        assertEquals("/users/login", request.path)
-        assertEquals("POST", request.method)
-        assertEquals("{\"email\":\"$USER\",\"password\":\"$PASSWORD\"}", request.body.readUtf8())
-        assertNull(request.getHeader("Authorization"))
+        assertEquals(mockEngine.requestHistory.size, 1)
+        val request = mockEngine.requestHistory[0]
+        assertEquals(Url("$MOCK_HOST/users/login"), request.url)
+        assertEquals(HttpMethod.Post, request.method)
+        assertEquals("""{"email":"$EMAIL","password":"$PASSWORD"}""", request.body.toByteArray().toString(Charsets.UTF_8))
     }
 
     @Test
     fun `gets list of recipes`() = runTest {
-        mockWebServer.enqueue(
-            MockResponse().setBody(
-                "[{\"body\":\"b\",\"id\":1,\"timestamp\":11,\"title\":\"r1\",\"user\":\"u1\"}]"
+        val mockEngine = MockEngine {
+            respond(
+                content = ByteReadChannel("""[{"body":"b","id":1,"timestamp":11,"title":"r1","user":"u1"}]"""),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
-        )
+        }
+        val recipeService = RecipeService(createHttpClientForTests(mockEngine))
 
         val response = recipeService.getRecipes()
 
-        assertEquals(response.size, 1)
-        assertEquals(response[0].body, "b")
-        assertEquals(response[0].title, "r1")
-        assertEquals(response[0].timestamp, 11L)
-        assertEquals(response[0].id, 1L)
-        // TODO: test author?
+        assertEquals(response, Result.Success(
+            listOf(
+                BackendRecipe(
+                    id = 1L,
+                    timestamp = 11L,
+                    title = "r1",
+                    body = "b"
+                )
+            )
+        ))
 
-        val request = mockWebServer.takeRequest()
-        assertEquals("/recipes", request.path)
-        assertEquals("GET", request.method)
-        assertEquals("", request.body.readUtf8())
+        assertEquals(mockEngine.requestHistory.size, 1)
+        val request = mockEngine.requestHistory[0]
+        assertEquals(Url("$MOCK_HOST/recipes"), request.url)
+        assertEquals(HttpMethod.Get, request.method)
+        assertEquals(0L, request.body.contentLength)
     }
 
     @Test
     fun `creates a recipe`() = runTest {
-        mockWebServer.enqueue(
-            MockResponse().setBody("{\"message\":\"Recipe created successfully\",\"recipe\":{\"body\":\"body\",\"id\":1,\"timestamp\":5,\"title\":\"title\",\"user\":\"u\"}}")
-        )
-        val response = recipeService.createRecipe(
-            recipeRequest = BackendRecipe(
-                id = 1L,
-                title = "title",
-                body = "body",
-                timestamp = 5L
+        val mockEngine = MockEngine {
+            respond(
+                content = ByteReadChannel("""{"message":"Recipe created successfully","recipe":{"body":"body","id":1,"timestamp":5,"title":"title","user":"u"}}"""),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
+        }
+        val recipeService = RecipeService(createHttpClientForTests(mockEngine))
+        val recipe = BackendRecipe(
+            id = 1L,
+            title = "title",
+            body = "body",
+            timestamp = 5L
         )
 
-        assertEquals(response.recipe.title, "title")
-        assertEquals(response.recipe.body, "body")
-        assertEquals(response.recipe.timestamp, 5L)
-        assertEquals(response.recipe.id, 1L)
+        val response = recipeService.createRecipe(
+            recipeRequest = recipe
+        )
 
-        val request = mockWebServer.takeRequest()
-        assertEquals("/recipes", request.path)
-        assertEquals("POST", request.method)
-        assertEquals("{\"id\":1,\"title\":\"title\",\"body\":\"body\",\"timestamp\":5}", request.body.readUtf8())
+        assertEquals(response, Result.Success(
+            BackendRecipeResponse(recipe)
+        ))
+
+        assertEquals(mockEngine.requestHistory.size, 1)
+        val request = mockEngine.requestHistory[0]
+        assertEquals(Url("$MOCK_HOST/recipes"), request.url)
+        assertEquals(HttpMethod.Post, request.method)
+        assertEquals("""{"id":1,"title":"title","body":"body","timestamp":5}""", request.body.toByteArray().toString(Charsets.UTF_8))
     }
 
     @Test
     fun `deletes a recipe`() = runTest {
-        mockWebServer.enqueue(
-            MockResponse().setBody("").setResponseCode(204)
-        )
+        val mockEngine = MockEngine {
+            respond(
+                content = ByteReadChannel(""),
+                status = HttpStatusCode.NoContent,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val recipeService = RecipeService(createHttpClientForTests(mockEngine))
         val response = recipeService.deleteRecipe(recipeId = 5L)
 
-        assertEquals(response.body(), null)
+        assertEquals(response, Result.Success(Unit))
 
-        val request = mockWebServer.takeRequest()
-        assertEquals("/recipes/5", request.path)
-        assertEquals("", request.body.readUtf8())
-        assertEquals("DELETE", request.method)
+        assertEquals(mockEngine.requestHistory.size, 1)
+        val request = mockEngine.requestHistory[0]
+        assertEquals(Url("$MOCK_HOST/recipes/5"), request.url)
+        assertEquals(HttpMethod.Delete, request.method)
+        assertEquals(0L, request.body.contentLength)
     }
 }

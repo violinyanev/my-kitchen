@@ -8,29 +8,22 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
+import com.ultraviolince.mykitchen.recipes.data.FakeBackend
 import com.ultraviolince.mykitchen.recipes.presentation.MainActivity
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.RuleChain
 
 @OptIn(ExperimentalTestApi::class)
-@HiltAndroidTest
 class SmokeTest {
-    private val hiltRule = HiltAndroidRule(this)
-    private val composeTestRule = createAndroidComposeRule<MainActivity>()
-
     @get:Rule
-    val rule: RuleChain = RuleChain
-        .outerRule(hiltRule)
-        .around(composeTestRule)
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Before
     fun setup() {
@@ -85,7 +78,9 @@ class SmokeTest {
         }
     }
 
-    @Test fun createRecipe_WithoutLogin() {
+    // TODO Fix the tests
+    @Test
+    fun createRecipe_WithoutLogin() {
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
             assertExists()
@@ -95,7 +90,6 @@ class SmokeTest {
         createRecipe("recipe1", "content1")
     }
 
-    // TODO Fix the test
     @Test fun loginToBackend_ThenCreateRecipe() {
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
@@ -108,17 +102,20 @@ class SmokeTest {
         with(composeTestRule.onNodeWithContentDescription("Server URI")) {
             assertExists()
             assertIsDisplayed()
-            performTextInput("https://ultraviolince.com:8019")
+            performTextClearance()
+            performTextInput(FakeBackend.server)
         }
         with(composeTestRule.onNodeWithContentDescription("User name")) {
             assertExists()
             assertIsDisplayed()
-            performTextInput("test@user.com")
+            performTextClearance()
+            performTextInput(FakeBackend.testUser)
         }
         with(composeTestRule.onNodeWithContentDescription("Password")) {
             assertExists()
             assertIsDisplayed()
-            performTextInput("TestPassword")
+            performTextClearance()
+            performTextInput(FakeBackend.testPassword)
         }
 
         // Login

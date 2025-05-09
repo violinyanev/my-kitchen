@@ -8,15 +8,14 @@ import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import com.ultraviolince.mykitchen.recipes.domain.util.RecipeOrder
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
-@HiltViewModel
-class RecipeViewModel @Inject constructor(
+@KoinViewModel
+class RecipeViewModel(
     private val recipesUseCases: Recipes
 ) : ViewModel() {
 
@@ -72,7 +71,7 @@ class RecipeViewModel @Inject constructor(
             .onEach {
                     recipes ->
                 _state.value = state.value.copy(
-                    recipes = recipes,
+                    recipes = ImmutableRecipesList(recipes),
                     recipeOrder = recipesOrder
                 )
             }

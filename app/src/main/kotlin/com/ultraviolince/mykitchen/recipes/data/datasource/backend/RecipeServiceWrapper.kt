@@ -1,59 +1,82 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
 import android.util.Log
-import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
+import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onSuccess
+import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.HttpException
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.logging.Logger
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-class RecipeServiceWrapper {
+class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao: RecipeDao) {
 
     private var recipeService: RecipeService? = null
 
-    suspend fun login(server: String, email: String, password: String): LoginState {
-        try {
-            val tmpService = Retrofit.Builder()
-                .baseUrl(server)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(RecipeService::class.java)
+    val loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
 
-            // TODO Store the token, don't force authentication all the time
-            val token = tmpService.login(LoginRequest(email, password)).data.token
-
-            val logger = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }
-
-            recipeService = Retrofit.Builder()
-                .baseUrl(server)
-                .client(OkHttpClient.Builder().addInterceptor(AuthInterceptor(token)).addInterceptor(logger).build())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(RecipeService::class.java)
-        } catch (e: java.lang.IllegalArgumentException) {
-            return LoginState.LoginFailure(R.string.malformed_server_uri)
-        } catch (e: HttpException) {
-            return LoginState.LoginFailure(R.string.wrong_credentials)
-        }
-
-        return if (recipeService != null) {
-            LoginState.LoginSuccess
-        } else {
-            LoginState.LoginFailure(R.string.unknown_error)
+    private val logger = object : Logger {
+        override fun log(message: String) {
+            Log.d("#network #ktor #data", message)
         }
     }
 
-    suspend fun insertRecipe(recipeId: Long, recipe: Recipe) {
-        // TODO check response
+    init {
+        // TODO is a better way possible?
+        @Suppress("OPT_IN_USAGE")
+        GlobalScope.launch {
+            val prefs = dataStore.preferences.first()
+
+            logger.log("Checking stored preferences")
+            if (prefs.server != null && prefs.token != null) {
+                logger.log("Restoring data, server=${prefs.server}")
+                recipeService = RecipeService(createHttpClient(CIO.create(), prefs.server, prefs.token, logger))
+
+                // TODO: check if token still valid
+                loginState.emit(LoginState.LoginSuccess)
+            }
+        }
+    }
+
+    suspend fun login(server: String, email: String, password: String) {
+        loginState.emit(LoginState.LoginPending)
+
+        val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
+
+        // TODO wipe pref data?
+
+        val result = tmpService.login(LoginRequest(email, password))
+
+        Log.i("#network", "Login result: $result")
+        when (result) {
+            is Result.Error -> loginState.emit(LoginState.LoginFailure(error = result.error))
+            is Result.Success -> {
+                recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token, logger))
+                dataStore.write(server = server, token = result.data.data.token)
+                sync()
+                loginState.emit(LoginState.LoginSuccess)
+            }
+        }
+    }
+
+    suspend fun logout() {
+        dataStore.write("", "")
+        loginState.emit(LoginState.LoginEmpty)
+    }
+
+    suspend fun insertRecipe(recipeId: Long, recipe: Recipe): Boolean {
         Log.i("Recipes", "Syncing recipe to backend: $recipe")
-        try {
-            recipeService?.createRecipe(
+
+        // TODO make this safe by design
+        recipeService?.apply {
+            val result = createRecipe(
                 BackendRecipe(
                     id = recipeId,
                     title = recipe.title,
@@ -61,56 +84,72 @@ class RecipeServiceWrapper {
                     timestamp = recipe.timestamp
                 )
             )
-        } catch (e: HttpException) {
-            // TODO better error handling
-            Log.e("Recipes", "Failed to sync recipe $recipe. Reason: ${e.message()} req: ${e.response()}")
-        }
-        Log.i("Recipes", "Recipe synced to backend: $recipe")
-    }
 
-    suspend fun deleteRecipe(recipeId: Long) {
-        Log.i("Recipes", "Deleting recipe from backend: $recipeId")
-        try {
-            // TODO check response
-            recipeService?.deleteRecipe(recipeId = recipeId)
-        } catch (e: HttpException) {
-            // TODO better error handling
-            Log.e("Recipes", "Failed to delete recipe $recipeId. Reason: ${e.message()} req: ${e.response()}")
-        }
-        Log.i("Recipes", "Deleted recipe from backend: $recipeId")
-    }
-
-    suspend fun sync(dao: RecipeDao) {
-        recipeService?.let { service ->
-            val existingRecipes = mutableSetOf<Long>()
-
-            for (r in service.getRecipes()) {
-                dao.insertRecipe(
-                    Recipe(
-                        id = r.id,
-                        title = r.title,
-                        content = r.body,
-                        timestamp = r.timestamp
-                    )
-                )
-                existingRecipes.add(r.id)
-            }
-
-            /*val dbRecipes = dao.getRecipes()
-
-            Log.e("RECIPES", "Before1")
-            val currentDbRecipes = dbRecipes.last()
-
-            Log.e("RECIPES", "Before2")
-
-            for (r in currentDbRecipes) {
-                r.id?.let {
-                    if(!existingRecipes.contains(it)){
-                        insertRecipe(it, r)
-                    }
+            Log.i("#network", "Create recipe result: $result")
+            return when (result) {
+                is Result.Error -> false
+                is Result.Success -> {
+                    true
                 }
             }
-            Log.e("RECIPES", "After")*/
+        }
+
+        return false
+    }
+
+    suspend fun deleteRecipe(recipeId: Long): Boolean {
+        Log.i("Recipes", "Deleting recipe from backend: $recipeId")
+        // TODO make this safe by design
+
+        recipeService?.apply {
+            val result = deleteRecipe(
+                recipeId = recipeId
+            )
+
+            Log.i("#network", "Delete recipe result: $result")
+            return when (result) {
+                is Result.Error -> false
+                is Result.Success -> true
+            }
+        }
+
+        return false
+    }
+
+    private suspend fun sync() {
+        recipeService?.apply {
+            val existingRecipes = mutableSetOf<Long>()
+
+            val maybeRecipes = getRecipes()
+
+            maybeRecipes.onSuccess { recipes ->
+                for (r in recipes) {
+                    dao.insertRecipe(
+                        Recipe(
+                            id = r.id,
+                            title = r.title,
+                            content = r.body,
+                            timestamp = r.timestamp
+                        )
+                    )
+                    existingRecipes.add(r.id)
+                }
+            }
+                /*val dbRecipes = dao.getRecipes()
+
+                Log.e("RECIPES", "Before1")
+                val currentDbRecipes = dbRecipes.last()
+
+                Log.e("RECIPES", "Before2")
+
+                for (r in currentDbRecipes) {
+                    r.id?.let {
+                        if(!existingRecipes.contains(it)){
+                            insertRecipe(it, r)
+                        }
+                    }
+                }
+                Log.e("RECIPES", "After")*/
         }
     }
 }

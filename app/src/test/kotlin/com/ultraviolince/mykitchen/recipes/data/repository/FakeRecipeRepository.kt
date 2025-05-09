@@ -53,6 +53,9 @@ class FakeRecipeRepository : RecipeRepository {
     override suspend fun login(server: String, email: String, password: String) {
     }
 
+    override suspend fun logout() {
+    }
+
     override fun getLoginState(): Flow<LoginState> {
         return flow {
             emit(LoginState.LoginEmpty)
