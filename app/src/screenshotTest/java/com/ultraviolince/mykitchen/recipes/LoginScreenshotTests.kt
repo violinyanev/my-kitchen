@@ -21,7 +21,8 @@ class LoginScreenshotTests {
                 passwordState = state.password,
                 snackBarHostState = SnackbarHostState(),
                 buttonLoading = state.buttonLoading,
-                eventHandler = {}
+                eventHandler = {},
+                isLoggedIn = true
             )
         }
     }
