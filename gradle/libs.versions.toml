@@ -34,6 +34,8 @@ room = "2.7.1"
 # @keep
 targetSdk = "35"
 testExtJunit = "1.2.1"
+
+screenshot = "0.0.1-alpha09"
 work = "2.10.1"
 ksp = "2.1.20-2.0.1"
 kover = "0.9.1"
@@ -90,6 +92,7 @@ room = { id = "androidx.room", version.ref = "room" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"}
+screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
 compose = {id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
 build-health = {id = "com.autonomousapps.dependency-analysis", version.ref = "buildHealth"}

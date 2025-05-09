@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
     alias(libs.plugins.room)
+    alias(libs.plugins.screenshot)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose)
 }
@@ -91,6 +92,7 @@ android {
 
     buildToolsVersion = "34.0.0"
 
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
     ksp {
         arg("KOIN_CONFIG_CHECK", "true")
         arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
@@ -148,6 +150,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.koin.test.junit4)
+
+    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
 
     detektPlugins(libs.detektTwitterPlugin)
     detektPlugins(libs.detektFormattingPlugin)
