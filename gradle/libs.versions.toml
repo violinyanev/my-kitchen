@@ -35,7 +35,7 @@ room = "2.7.1"
 targetSdk = "35"
 testExtJunit = "1.2.1"
 work = "2.10.1"
-ksp = "2.1.20-2.0.1"
+ksp = "2.1.21-2.0.1"
 kover = "0.9.1"
 runner = "1.6.2"
 
