@@ -47,7 +47,8 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkE
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.OrderSection
-import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
+import com.ultraviolince.mykitchen.recipes.presentation.util.AddEditRecipeScreenTarget
+import com.ultraviolince.mykitchen.recipes.presentation.util.LoginScreenTarget
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -60,11 +61,11 @@ fun RecipeScreen(
 
     RecipeScreenContent(
         onAddRecipe = {
-            navController.navigate(Screen.AddEditRecipeScreen.route)
+            navController.navigate(AddEditRecipeScreenTarget)
         },
         onLoginClick = {
             navController.navigate(
-                Screen.LoginScreen.route
+                LoginScreenTarget
             )
         },
         onSortClick = {
@@ -75,7 +76,7 @@ fun RecipeScreen(
         },
         onRecipeClicked = { recipe ->
             navController.navigate(
-                Screen.AddEditRecipeScreen.route + "?recipeId=${recipe.id}"
+                AddEditRecipeScreenTarget(recipe.id)
             )
         },
         recipeState = state
