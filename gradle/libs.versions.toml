@@ -23,7 +23,7 @@ ktx = "1.16.0"
 material = "1.12.0"
 material3 = "1.3.2"
 materialIcons = "1.7.8"  # Not sure this is not included in latest compose (1.8)
-buildHealth = "2.18.0"
+buildHealth = "2.19.0"
 datastorePreferences = "1.1.7"
 
 # @keep
