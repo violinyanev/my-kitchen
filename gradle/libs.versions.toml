@@ -3,7 +3,7 @@
 androidGradlePlugin = "8.11.1"
 
 # @keep
-compileSdk = "35"
+compileSdk = "36"
 composeLatest = "1.8.3"
 composeBom = "2025.06.01"
 coreTesting = "2.2.0"
