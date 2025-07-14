@@ -151,7 +151,7 @@ class LoginViewModel(
     }
 
     sealed class UiEvent {
-        data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
+        data class ShowSnackbar(@param:StringRes val message: Int) : UiEvent()
         data object LoginSuccess : UiEvent()
     }
 }
