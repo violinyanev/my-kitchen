@@ -14,4 +14,4 @@ data class Recipe(
     override fun toString() = "Recipe[$id] $title (ts $timestamp)"
 }
 
-class InvalidRecipeException(@StringRes val errorString: Int) : Exception()
+class InvalidRecipeException(@param:StringRes val errorString: Int) : Exception()
