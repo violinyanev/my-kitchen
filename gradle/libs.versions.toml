@@ -3,7 +3,7 @@
 androidGradlePlugin = "8.11.1"
 
 # @keep
-compileSdk = "35"
+compileSdk = "36"
 composeLatest = "1.8.3"
 composeBom = "2025.07.00"
 coreTesting = "2.2.0"
@@ -32,7 +32,7 @@ navigation = "2.9.2"
 room = "2.7.2"
 
 # @keep
-targetSdk = "35"
+targetSdk = "36"
 testExtJunit = "1.2.1"
 work = "2.10.2"
 ksp = "2.2.0-2.0.2"
