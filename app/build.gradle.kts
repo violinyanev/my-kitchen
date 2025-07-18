@@ -90,9 +90,8 @@ android {
         schemaDirectory("$projectDir/schemas")
     }
 
-    buildToolsVersion = "34.0.0"
-
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
     ksp {
         arg("KOIN_CONFIG_CHECK", "true")
         arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")

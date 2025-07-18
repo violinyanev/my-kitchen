@@ -128,7 +128,7 @@ class AddEditRecipeViewModel(
     }
 
     sealed class UiEvent {
-        data class ShowSnackbar(@StringRes val message: Int) : UiEvent()
+        data class ShowSnackbar(@param:StringRes val message: Int) : UiEvent()
         object SaveRecipe : UiEvent()
         object DeleteRecipe : UiEvent()
     }
