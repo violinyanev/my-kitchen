@@ -5,7 +5,7 @@ colorama==0.4.6
 Flask==3.1.1
 itsdangerous==2.2.0
 Jinja2==3.1.6
-jsonschema==4.24.0
+jsonschema==4.24.1
 jsonschema-specifications==2025.4.1
 MarkupSafe==3.0.2
 PyJWT==2.10.1
