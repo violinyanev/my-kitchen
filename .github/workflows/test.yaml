@@ -20,6 +20,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        lfs: 'true'
 
     - uses: actions/setup-java@v4
       with:
@@ -33,7 +35,7 @@ jobs:
       run: ./gradlew buildHealth
 
     - name: Build APKs
-      run: ./gradlew :app:assembleDebug :app:testDebug :app:koverXmlReportDebug detekt
+      run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:validateDebugScreenshotTest :app:koverXmlReportDebug detekt
 
     - name: Add coverage report to PR
       id: kover

@@ -34,10 +34,13 @@ room = "2.7.2"
 # @keep
 targetSdk = "36"
 testExtJunit = "1.2.1"
+
 work = "2.10.2"
 ksp = "2.2.0-2.0.2"
 kover = "0.9.1"
 runner = "1.6.2"
+
+screenshot = "0.0.1-alpha10"
 
 [libraries]
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
@@ -90,6 +93,7 @@ room = { id = "androidx.room", version.ref = "room" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"}
+screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
 compose = {id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
 build-health = {id = "com.autonomousapps.dependency-analysis", version.ref = "buildHealth"}
