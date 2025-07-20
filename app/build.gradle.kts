@@ -150,6 +150,7 @@ dependencies {
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.koin.test.junit4)
 
+    screenshotTestImplementation(libs.screenshot.validation.api)
     screenshotTestImplementation(libs.androidx.compose.ui.tooling)
 
     detektPlugins(libs.detektTwitterPlugin)
