@@ -14,8 +14,18 @@ plugins {
     alias(libs.plugins.compose)
 }
 
-val vName = project.findProperty("versionName") as String? ?: "1.0.0"
-val vCode = project.findProperty("versionCode") as String? ?: "1"
+val vName = project.findProperty("versionName") as String? ?: "v1.0.0"
+
+val versionParts = vName.removePrefix("v").split(".")
+val major = versionParts.getOrNull(0)?.toIntOrNull() ?: 0
+val minor = versionParts.getOrNull(1)?.toIntOrNull() ?: 0
+val patch = versionParts.getOrNull(2)?.toIntOrNull() ?: 0
+
+// This is not ideal, but easier than using a custom versioning scheme
+val vCode = major * 10000 + minor * 100 + patch
+
+println("Version Name: $vName")
+println("Version Code: $vCode")
 
 android {
     namespace = "com.ultraviolince.mykitchen"
