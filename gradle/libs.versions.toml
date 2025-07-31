@@ -1,6 +1,6 @@
 
 [versions]
-androidGradlePlugin = "8.11.1"
+androidGradlePlugin = "8.12.0"
 
 # @keep
 compileSdk = "36"
