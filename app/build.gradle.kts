@@ -137,6 +137,8 @@ dependencies {
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.resources)
+    // Profile installer for baseline profiles
+    implementation(libs.androidx.profileinstaller)
 
     // Debug dependencies
     debugImplementation(libs.androidx.compose.ui.tooling) // For previews
