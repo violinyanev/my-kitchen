@@ -23,7 +23,11 @@ The container automatically caches:
 
 1. **Open in VS Code**: The container will automatically build when you open the project
 2. **Wait for setup**: Dependencies will install automatically via `postCreateCommand`
-3. **Validate environment**: Run `.devcontainer/setup-dev.sh` to test all components
+3. **Validate environment**: 
+   - Run `.devcontainer/quick-check.sh` for fast core component validation
+   - Run `.devcontainer/setup-dev.sh` for comprehensive testing (includes Android builds)
+
+**Note**: If you encounter Android Gradle Plugin version issues, this may be due to version compatibility in the current environment. The development environment is fully functional for Python backend development and GitHub Copilot workflows.
 
 ## Development Workflow
 
