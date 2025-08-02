@@ -48,10 +48,22 @@ python3 ./backend/scripts/dev.py start
 
 ## Development
 
+### Quick Setup for GitHub Agents
+
+For automated development environment setup (GitHub coding agents):
+
+```bash
+git clone https://github.com/violinyanev/my-kitchen.git
+cd my-kitchen
+./setup-github-agent.sh
+```
+
+See [GitHub Agent Setup Guide](github-agent-setup.md) for complete documentation.
+
 ### Prerequisites
 
-- **For Android app**: Android Studio, JDK 11+, Android SDK
-- **For backend**: Python 3.8+, Docker (optional)
+- **For Android app**: Android Studio, JDK 17+, Android SDK
+- **For backend**: Python 3.13+, Docker (optional)
 
 ### Building the Android App
 
