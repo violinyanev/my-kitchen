@@ -1,15 +1,132 @@
-# MyKitchen
+# My Kitchen
 
-![Tests](https://github.com/violinyanev/my-app/actions/workflows/test.yaml/badge.svg) ![Release](https://github.com/violinyanev/my-app/actions/workflows/release.yaml/badge.svg) [![GitHub License](https://img.shields.io/github/license/violinyanev/my-app?label=License)](https://github.com/violinyanev/my-app/blob/main/LICENSE)
+![Tests](https://github.com/violinyanev/my-kitchen/actions/workflows/test.yaml/badge.svg) ![Release](https://github.com/violinyanev/my-kitchen/actions/workflows/release.yaml/badge.svg) [![GitHub License](https://img.shields.io/github/license/violinyanev/my-kitchen?label=License)](https://github.com/violinyanev/my-kitchen/blob/main/LICENSE)
 
-This is a free and open source recipe for storing and sharing recipes with your family. It supports a
-[self-hosted server](./backend/README.md) which allows backing up the data on your own premises.
+My Kitchen is a free and open source application for storing and sharing recipes with your family. It features both an Android mobile app and a [self-hosted backend server](./backend/README.md) that allows you to back up your recipe data on your own premises, ensuring complete control over your culinary collection.
 
-## Contribution
+## Features
 
-Everyone is welcome to contribute to the project! If you found a bug, feel free to report it using the Github issues
-system.
+- 📱 **Android Mobile App**: Native Android application built with Kotlin and Jetpack Compose
+- 🖥️ **Self-hosted Backend**: Python Flask server that you can run on your own infrastructure
+- 🔒 **Privacy First**: Keep your recipes on your own server, no third-party data collection
+- 👨‍👩‍👧‍👦 **Family Sharing**: Share your favorite recipes with family members
+- 📝 **Recipe Management**: Store, organize, and manage your recipe collection
+- 🐳 **Docker Support**: Easy deployment with Docker containers
+
+## Project Structure
+
+```
+my-kitchen/
+├── app/              # Android mobile application (Kotlin)
+├── backend/          # Self-hosted server (Python Flask)
+│   └── scripts/      # Backend development scripts
+├── .github/          # CI/CD workflows and actions
+└── scripts/          # General development scripts
+```
+
+## Installation
+
+### Android App
+
+The Android app can be built from source or installed from releases:
+
+1. **From source**: Clone this repository and build using Android Studio or Gradle
+2. **From releases**: Download the APK from the [Releases page](https://github.com/violinyanev/my-kitchen/releases)
+
+**Requirements:**
+- Android 7.0 (API level 24) or higher
+- ~50MB storage space
+
+### Backend Server
+
+See the [backend README](./backend/README.md) for detailed installation and setup instructions.
+
+**Quick start with Docker:**
+```bash
+python3 ./backend/scripts/dev.py start
+```
+
+## Development
+
+### Prerequisites
+
+- **For Android app**: Android Studio, JDK 11+, Android SDK
+- **For backend**: Python 3.8+, Docker (optional)
+
+### Building the Android App
+
+```bash
+# Clone the repository
+git clone https://github.com/violinyanev/my-kitchen.git
+cd my-kitchen
+
+# Build the app
+./gradlew build
+
+# Run tests
+./gradlew test
+```
+
+### Running the Backend
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Run development server
+./scripts/dev.sh
+
+# Or with Docker
+python3 ./scripts/dev.py start
+```
+
+## Contributing
+
+We welcome contributions from everyone! Here's how you can help:
+
+### Reporting Issues
+
+- Found a bug? Please [open an issue](https://github.com/violinyanev/my-kitchen/issues) with:
+  - Clear description of the problem
+  - Steps to reproduce
+  - Expected vs actual behavior
+  - Device/platform information (for Android issues)
+
+### Contributing Code
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Add tests if applicable
+5. Ensure all tests pass (`./gradlew test` for Android, see backend README for backend tests)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+### Development Areas
+
+- 🐛 Bug fixes and improvements
+- ✨ New features for recipe management
+- 🎨 UI/UX improvements
+- 📱 Android app enhancements
+- 🖥️ Backend API improvements
+- 📚 Documentation updates
+- 🧪 Test coverage improvements
+
+## Support
+
+- 📖 Check the [backend documentation](./backend/README.md) for server setup
+- 🐛 [Report issues](https://github.com/violinyanev/my-kitchen/issues) on GitHub
+- 💬 Discuss ideas and ask questions in GitHub Discussions
+
+## Roadmap
+
+See the [backend README](./backend/README.md) for current development priorities and open TODOs.
 
 ## License
 
-Apache 2.0
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Made with ❤️ for home cooks and recipe enthusiasts
