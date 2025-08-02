@@ -36,3 +36,9 @@ google-services.json
 # Android Profiling
 *.hprof
 .vscode/
+
+# GitHub Agent Setup temporary files
+android-sdk/
+.android/
+*.tmp
+setup.log
