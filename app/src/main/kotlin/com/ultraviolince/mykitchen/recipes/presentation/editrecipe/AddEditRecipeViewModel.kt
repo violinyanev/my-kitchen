@@ -1,5 +1,7 @@
 package com.ultraviolince.mykitchen.recipes.presentation.editrecipe
 
+import android.app.Application
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.State
@@ -11,6 +13,7 @@ import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.InvalidRecipeException
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
+import com.ultraviolince.mykitchen.recipes.domain.util.ImageUtils
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -19,6 +22,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class AddEditRecipeViewModel(
     private val recipesUseCases: Recipes,
+    private val context: Application,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _recipeTitle = mutableStateOf(
@@ -93,7 +97,10 @@ class AddEditRecipeViewModel(
             }
             is AddEditRecipeEvent.ImageSelected -> {
                 Log.i("Recipes", "User selected image ${event.imageUri}")
-                _recipeImagePath.value = event.imageUri
+                viewModelScope.launch {
+                    val internalPath = ImageUtils.copyImageToInternalStorage(context, Uri.parse(event.imageUri))
+                    _recipeImagePath.value = internalPath
+                }
             }
             is AddEditRecipeEvent.SaveRecipe -> {
                 Log.i("Recipes", "User is saving the recipe")
@@ -121,16 +128,20 @@ class AddEditRecipeViewModel(
             is AddEditRecipeEvent.DeleteRecipe -> {
                 Log.i("Recipes", "User is deleting the recipe")
                 viewModelScope.launch {
-                    // TODO id is enough to pass here
-                    recipesUseCases.deleteRecipe(
-                        Recipe(
-                            title = recipeTitle.value.text,
-                            content = recipeContent.value.text,
-                            timestamp = System.currentTimeMillis(),
-                            imagePath = recipeImagePath.value,
-                            id = currentRecipeId
-                        )
+                    val recipe = Recipe(
+                        title = recipeTitle.value.text,
+                        content = recipeContent.value.text,
+                        timestamp = System.currentTimeMillis(),
+                        imagePath = recipeImagePath.value,
+                        id = currentRecipeId
                     )
+                    
+                    // Delete associated image if it exists
+                    recipe.imagePath?.let { imagePath ->
+                        ImageUtils.deleteImageFromInternalStorage(imagePath)
+                    }
+                    
+                    recipesUseCases.deleteRecipe(recipe)
                     _eventFlow.emit(UiEvent.DeleteRecipe)
                 }
             }

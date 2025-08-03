@@ -187,7 +187,7 @@ fun AddEditRecipeScreenContent(
                     contentAlignment = Alignment.Center
                 ) {
                     AsyncImage(
-                        model = Uri.parse(path),
+                        model = path,
                         contentDescription = "Recipe image",
                         modifier = Modifier
                             .fillMaxWidth()
