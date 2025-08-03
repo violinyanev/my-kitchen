@@ -18,7 +18,7 @@ concurrency:
 
 env:
   JAVA_VERSION: 17
-  PYTHON_VERSION: '3.13'
+  PYTHON_VERSION: '3.12'
 
 jobs:
   # Python Backend Security Analysis
@@ -45,7 +45,7 @@ jobs:
 
       - name: Install security analysis tools
         run: |
-          pip install bandit[toml] safety pip-audit semgrep
+          pip install --timeout 60 --retries 3 bandit[toml] safety pip-audit semgrep
 
       - name: Run Bandit (Python Security Linter)
         run: |
@@ -71,8 +71,8 @@ jobs:
       - name: Run Semgrep (Static Analysis)
         run: |
           echo "::group::Semgrep - Static Application Security Testing"
-          python -m semgrep --config=auto --json --output=semgrep-report.json backend/image/ || true
-          python -m semgrep --config=auto backend/image/
+          python -m semgrep --config=.semgrep.yml --json --output=semgrep-report.json backend/image/ || true
+          python -m semgrep --config=.semgrep.yml backend/image/
           echo "::endgroup::"
 
       - name: Upload Backend Security Reports
