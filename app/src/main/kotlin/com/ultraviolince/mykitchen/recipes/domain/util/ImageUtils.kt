@@ -10,7 +10,7 @@ import java.io.IOException
 import java.util.UUID
 
 object ImageUtils {
-    
+
     /**
      * Copies an image from URI to internal storage and returns the internal file path
      */
@@ -19,21 +19,21 @@ object ImageUtils {
             val inputStream = context.contentResolver.openInputStream(imageUri)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream?.close()
-            
+
             val filename = "recipe_${UUID.randomUUID()}.jpg"
             val file = File(context.filesDir, filename)
-            
+
             val outputStream = FileOutputStream(file)
             bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
             outputStream.close()
-            
+
             file.absolutePath
         } catch (e: IOException) {
             e.printStackTrace()
             null
         }
     }
-    
+
     /**
      * Deletes an image file from internal storage
      */

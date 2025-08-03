@@ -1,6 +1,5 @@
 package com.ultraviolince.mykitchen.recipes.presentation.recipes.components
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,7 +28,7 @@ fun RecipeItem(recipe: Recipe, modifier: Modifier = Modifier) {
                 text = recipe.title,
                 style = MaterialTheme.typography.bodyMedium
             )
-            
+
             // Display image if available
             recipe.imagePath?.let { imagePath ->
                 AsyncImage(
@@ -42,7 +41,7 @@ fun RecipeItem(recipe: Recipe, modifier: Modifier = Modifier) {
                     contentScale = ContentScale.Crop
                 )
             }
-            
+
             Text(
                 text = recipe.content,
                 style = MaterialTheme.typography.bodySmall,

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -60,7 +59,7 @@ fun AddEditRecipeScreen(
     val imagePath = viewModel.recipeImagePath.value
 
     val snackBarHostState = remember { SnackbarHostState() }
-    
+
     // Image picker launcher
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -177,7 +176,7 @@ fun AddEditRecipeScreenContent(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Image display section
             imagePath?.let { path ->
                 Box(

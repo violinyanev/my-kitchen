@@ -17,8 +17,8 @@ abstract class RecipeDatabase : RoomDatabase() {
 
     companion object {
         const val DATABASE_NAME = "recipedb"
-        
-        val MIGRATION_1_2 = object : Migration(1, 2) {
+
+        val migration1To2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE Recipe ADD COLUMN imagePath TEXT")
             }

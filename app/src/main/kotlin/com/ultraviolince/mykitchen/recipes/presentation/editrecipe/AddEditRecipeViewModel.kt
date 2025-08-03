@@ -1,6 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.presentation.editrecipe
 
-import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.StringRes
@@ -22,7 +22,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class AddEditRecipeViewModel(
     private val recipesUseCases: Recipes,
-    private val context: Application,
+    private val context: Context,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _recipeTitle = mutableStateOf(
@@ -135,12 +135,12 @@ class AddEditRecipeViewModel(
                         imagePath = recipeImagePath.value,
                         id = currentRecipeId
                     )
-                    
+
                     // Delete associated image if it exists
                     recipe.imagePath?.let { imagePath ->
                         ImageUtils.deleteImageFromInternalStorage(imagePath)
                     }
-                    
+
                     recipesUseCases.deleteRecipe(recipe)
                     _eventFlow.emit(UiEvent.DeleteRecipe)
                 }
