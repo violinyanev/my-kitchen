@@ -1,7 +1,9 @@
-@file:Suppress("DEPRECATION")
-
 kotlin {
     jvmToolchain(17)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        allWarningsAsErrors.set(true)
+    }
 }
 
 plugins {
@@ -81,11 +83,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        // Using legacy kotlinOptions - compilerOptions DSL not yet available in this AGP version
-        jvmTarget = "17"
-        allWarningsAsErrors = true
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -107,9 +104,8 @@ android {
 
     ksp {
         arg("KOIN_CONFIG_CHECK", "true")
-        arg("KOIN_USE_COMPOSE_VIEWMODEL", "true") 
-        // Added to address KSP deprecation warning for default module generation
-        arg("KOIN_DEFAULT_MODULE", "true")
+        arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
+        arg("KOIN_DEFAULT_MODULE", "false")
     }
 }
 
