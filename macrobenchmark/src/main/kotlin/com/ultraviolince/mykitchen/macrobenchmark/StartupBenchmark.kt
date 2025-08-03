@@ -49,7 +49,7 @@ class StartupBenchmark {
         metrics = listOf(StartupTimingMetric()),
         iterations = 5,
         startupMode = StartupMode.COLD,
-        compilationMode = CompilationMode.SpeedProfile()
+        compilationMode = CompilationMode.Partial()
     ) {
         pressHome()
         startActivityAndWait()

@@ -31,7 +31,7 @@ class InteractionBenchmark {
         metrics = listOf(FrameTimingMetric()),
         iterations = 5,
         startupMode = StartupMode.WARM,
-        compilationMode = CompilationMode.SpeedProfile(),
+        compilationMode = CompilationMode.Partial(),
         setupBlock = {
             pressHome()
             startActivityAndWait()
@@ -47,7 +47,7 @@ class InteractionBenchmark {
         metrics = listOf(FrameTimingMetric(), StartupTimingMetric()),
         iterations = 5,
         startupMode = StartupMode.WARM,
-        compilationMode = CompilationMode.SpeedProfile(),
+        compilationMode = CompilationMode.Partial(),
         setupBlock = {
             pressHome()
             startActivityAndWait()
@@ -63,7 +63,7 @@ class InteractionBenchmark {
         metrics = listOf(FrameTimingMetric()),
         iterations = 3, // Fewer iterations for complex interactions
         startupMode = StartupMode.WARM,
-        compilationMode = CompilationMode.SpeedProfile(),
+        compilationMode = CompilationMode.Partial(),
         setupBlock = {
             pressHome()
             startActivityAndWait()
@@ -122,7 +122,7 @@ class InteractionBenchmark {
         device.wait(Until.hasObject(By.pkg(packageName)), 3_000)
         
         // Look for text input fields
-        val textFields = device.findObjects(By.className("android.widget.EditText"))
+        val textFields = device.findObjects(By.clazz("android.widget.EditText"))
         
         if (textFields.isNotEmpty()) {
             textFields.take(2).forEach { textField ->
@@ -146,7 +146,7 @@ class InteractionBenchmark {
         } else {
             // If no form fields, look for floating action buttons or add buttons
             val fabButton = device.findObject(By.desc("Add")) 
-                ?: device.findObject(By.className("android.widget.ImageButton"))
+                ?: device.findObject(By.clazz("android.widget.ImageButton"))
             
             fabButton?.click()
             device.waitForIdle(500)

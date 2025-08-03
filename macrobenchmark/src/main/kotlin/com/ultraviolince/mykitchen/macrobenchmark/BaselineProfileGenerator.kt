@@ -54,13 +54,9 @@ class BaselineProfileGenerator {
                 device.waitForIdle(500)
             }
         } else {
-            // Fallback scrolling
-            val displayMetrics = device.displayMetrics
-            val width = displayMetrics.widthPixels
-            val height = displayMetrics.heightPixels
-            
+            // Fallback scrolling with fixed dimensions
             repeat(3) {
-                device.swipe(width / 2, height * 3 / 4, width / 2, height / 4, 10)
+                device.swipe(500, 1200, 500, 400, 10)
                 device.waitForIdle(500)
             }
         }

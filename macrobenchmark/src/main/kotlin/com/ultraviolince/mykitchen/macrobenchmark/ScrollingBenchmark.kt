@@ -30,7 +30,7 @@ class ScrollingBenchmark {
         metrics = listOf(FrameTimingMetric()),
         iterations = 5,
         startupMode = StartupMode.WARM,
-        compilationMode = CompilationMode.SpeedProfile(),
+        compilationMode = CompilationMode.Partial(),
         setupBlock = {
             // Navigate to the app and ensure we're on a screen with scrollable content
             pressHome()
@@ -64,7 +64,7 @@ class ScrollingBenchmark {
         metrics = listOf(FrameTimingMetric()),
         iterations = 5,
         startupMode = StartupMode.WARM,
-        compilationMode = CompilationMode.SpeedProfile(),
+        compilationMode = CompilationMode.Partial(),
         setupBlock = {
             pressHome()
             startActivityAndWait()
@@ -91,15 +91,11 @@ class ScrollingBenchmark {
                 device.waitForIdle(100)
             }
         } else {
-            // Fallback: try scrolling the entire screen
-            val displayMetrics = device.displayMetrics
-            val width = displayMetrics.widthPixels
-            val height = displayMetrics.heightPixels
-            
+            // Fallback: try scrolling the entire screen with fixed dimensions
             repeat(5) {
-                device.swipe(width / 2, height * 3 / 4, width / 2, height / 4, 10)
+                device.swipe(500, 1200, 500, 400, 10)
                 device.waitForIdle(100)
-                device.swipe(width / 2, height / 4, width / 2, height * 3 / 4, 10)
+                device.swipe(500, 400, 500, 1200, 10)
                 device.waitForIdle(100)
             }
         }
