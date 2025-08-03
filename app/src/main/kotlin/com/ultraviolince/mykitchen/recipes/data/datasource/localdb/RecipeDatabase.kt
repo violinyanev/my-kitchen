@@ -2,11 +2,13 @@ package com.ultraviolince.mykitchen.recipes.data.datasource.localdb
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 
 @Database(
     entities = [Recipe::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 
 )
@@ -15,5 +17,11 @@ abstract class RecipeDatabase : RoomDatabase() {
 
     companion object {
         const val DATABASE_NAME = "recipedb"
+        
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE Recipe ADD COLUMN imagePath TEXT")
+            }
+        }
     }
 }

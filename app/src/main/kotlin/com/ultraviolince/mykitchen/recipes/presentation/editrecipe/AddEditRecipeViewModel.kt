@@ -31,6 +31,9 @@ class AddEditRecipeViewModel(
     private val _recipeContent = mutableStateOf(RecipeTextFieldState(hintStringId = R.string.content_hint))
     val recipeContent: State<RecipeTextFieldState> = _recipeContent
 
+    private val _recipeImagePath = mutableStateOf<String?>(null)
+    val recipeImagePath: State<String?> = _recipeImagePath
+
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
@@ -61,6 +64,7 @@ class AddEditRecipeViewModel(
                             text = recipe.content,
                             isHintVisible = false
                         )
+                        _recipeImagePath.value = recipe.imagePath
                     }
                 }
             }
@@ -87,6 +91,10 @@ class AddEditRecipeViewModel(
                     isHintVisible = !event.focusState.isFocused && recipeContent.value.text.isBlank()
                 )
             }
+            is AddEditRecipeEvent.ImageSelected -> {
+                Log.i("Recipes", "User selected image ${event.imageUri}")
+                _recipeImagePath.value = event.imageUri
+            }
             is AddEditRecipeEvent.SaveRecipe -> {
                 Log.i("Recipes", "User is saving the recipe")
                 viewModelScope.launch {
@@ -96,6 +104,7 @@ class AddEditRecipeViewModel(
                                 title = recipeTitle.value.text,
                                 content = recipeContent.value.text,
                                 timestamp = System.currentTimeMillis(),
+                                imagePath = recipeImagePath.value,
                                 id = currentRecipeId
                             )
                         )
@@ -118,6 +127,7 @@ class AddEditRecipeViewModel(
                             title = recipeTitle.value.text,
                             content = recipeContent.value.text,
                             timestamp = System.currentTimeMillis(),
+                            imagePath = recipeImagePath.value,
                             id = currentRecipeId
                         )
                     )

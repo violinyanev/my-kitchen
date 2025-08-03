@@ -28,6 +28,7 @@
     <string name="content_hint" translation_description="The placeholder text shown when the text content of a recipe is empty">Recipe</string>
     <string name="save" translation_description="The content description for the save button">Save</string>
     <string name="delete" translation_description="The content description for the delete button">Delete</string>
+    <string name="add_image" translation_description="The content description for the add image button">Add Image</string>
     <string name="missing_title" translation_description="Snack-bar error being shown when the title of a recipe is empty">The title of the recipe can\'t be empty</string>
     <string name="missing_body" translation_description="Snack-bar error being shown when the body of a recipe is empty">The body of the recipe can\'t be empty</string>
     <string name="logout">Logout</string>

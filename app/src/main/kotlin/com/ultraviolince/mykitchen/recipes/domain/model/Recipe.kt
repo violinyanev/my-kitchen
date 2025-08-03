@@ -9,6 +9,7 @@ data class Recipe(
     val title: String,
     val content: String,
     val timestamp: Long,
+    val imagePath: String? = null,
     @PrimaryKey val id: Long? = null
 ) {
     override fun toString() = "Recipe[$id] $title (ts $timestamp)"

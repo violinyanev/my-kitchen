@@ -29,7 +29,7 @@ class AppModule {
             app,
             RecipeDatabase::class.java,
             RecipeDatabase.DATABASE_NAME
-        ).build()
+        ).addMigrations(RecipeDatabase.MIGRATION_1_2).build()
     }
 
     @Single
