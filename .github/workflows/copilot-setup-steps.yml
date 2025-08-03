@@ -1,0 +1,88 @@
+name: "Copilot Setup Steps"
+
+# Automatically run the setup steps when they are changed to allow for easy validation, and
+# allow manual testing through the repository's "Actions" tab
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+env:
+    JAVA_VERSION: 17
+    GRADLE_VERSION: '8.14.3'
+    PYTHON_VERSION: '3.13'
+
+    # TODO use all of these variables in the steps below
+    ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
+    ANDROID_HOME: ${{ github.workspace }}/android-sdk
+    ANDROID_NDK_HOME: ${{ github.workspace }}/android-ndk
+    ANDROID_SDK_TOOLS: ${{ github.workspace }}/android-sdk/tools
+    ANDROID_SDK_BUILD_TOOLS: ${{ github.workspace }}/android-sdk/build-tools
+    ANDROID_SDK_PLATFORM_TOOLS: ${{ github.workspace }}/android-sdk/platform-tools
+    ANDROID_SDK_LIBRARIES: ${{ github.workspace }}/android-sdk/licenses
+    ANDROID_SDK_REPOSITORIES: ${{ github.workspace }}/android-sdk/repositories.cfg
+    ANDROID_SDK_AVD_HOME: ${{ github.workspace }}/android-sdk/avd
+    ANDROID_SDK_EMULATOR: ${{ github.workspace }}/android-sdk/emulator
+    ANDROID_SDK_SYSTEM_IMAGES: ${{ github.workspace }}/android-sdk/system-images
+    ANDROID_SDK_PLATFORM: 'android-34' # Adjust as needed
+    ANDROID_SDK_API_LEVEL: 34 # Adjust as needed
+    ANDROID_SDK_BUILD_TOOLS_VERSION: '34.0.0' # Adjust
+    ANDROID_SDK_TARGET: 'android-34' # Adjust as needed
+    ANDROID_SDK_TESTING: ${{ github.workspace }}/android-sdk/testing
+    ANDROID_SDK_TESTING_TOOLS: ${{ github.workspace }}/android-sdk/testing/tools
+    ANDROID_SDK_TESTING_PLATFORM_TOOLS: ${{ github.workspace }}/android-sdk/testing/platform-tools
+    ANDROID_SDK_TESTING_BUILD_TOOLS: ${{ github.workspace }}/android-sdk/testing/build-tools
+    ANDROID_SDK_TESTING_SYSTEM_IMAGES: ${{ github.workspace }}/
+    PYTHON_REQUIREMENTS: 'backend/image/requirements.txt'
+    GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
+    GRADLE_CACHE: ${{ github.workspace }}/.gradle/caches
+    GRADLE_WRAPPER: ${{ github.workspace }}/gradlew # Ensure the Gradle wrapper is used
+    GRADLE_PROPERTIES: ${{ github.workspace }}/gradle.properties # Ensure the Gradle properties file is used
+    GRADLE_BUILD_DIR: ${{ github.workspace }}/app/build
+    KOVER_REPORT_PATH: ${{ github.workspace }}/app/build/reports/kover/reportDebug.xml
+    COMMENTS_TOKEN: ${{ secrets.COMMENTS_TOKEN }} # Ensure the token is set for comments
+    MIN_COVERAGE_OVERALL: 10
+    MIN_COVERAGE_CHANGED_FILES: 80
+    COVERAGE_COUNTER_TYPE: LINE
+
+jobs:
+  # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    # Set the permissions to the lowest permissions possible needed for your steps.
+    # Copilot will be given its own token for its operations.
+    permissions:
+      # If you want to clone the repository as part of your setup steps, for example to install dependencies, you'll need the `contents: read` permission. If you don't clone the repository in your setup steps, Copilot will do this for you automatically after the steps complete.
+      contents: read
+
+    # You can define any steps you want, and they will run before the agent starts.
+    # If you do not check out your code, Copilot will do this for you.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup Java et al
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
+      # Setup the test backend
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ${{ env.PYTHON_REQUIREMENTS }}
