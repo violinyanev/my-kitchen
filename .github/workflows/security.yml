@@ -71,8 +71,8 @@ jobs:
       - name: Run Semgrep (Static Analysis)
         run: |
           echo "::group::Semgrep - Static Application Security Testing"
-          python -m semgrep --config=.semgrep.yml --json --output=semgrep-report.json backend/image/ || true
-          python -m semgrep --config=.semgrep.yml backend/image/
+          semgrep --config=.semgrep.yml --json --output=semgrep-report.json backend/image/ || true
+          semgrep --config=.semgrep.yml backend/image/
           echo "::endgroup::"
 
       - name: Upload Backend Security Reports
