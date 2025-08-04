@@ -29,7 +29,7 @@ class ImageUtilsTest {
 
     @Test
     fun `copyImageToInternalStorage returns null on IOException`() {
-        // Arrange  
+        // Arrange
         every { mockContentResolver.openInputStream(mockUri) } throws IOException("Test exception")
 
         // Act

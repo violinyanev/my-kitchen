@@ -26,7 +26,7 @@ class RecipeTest {
         val imagePath = "/path/to/image.jpg"
         val recipe = Recipe(
             title = "test",
-            content = "content", 
+            content = "content",
             timestamp = 100,
             imagePath = imagePath,
             id = 1L
