@@ -10,6 +10,7 @@ from flask import Flask
 from unittest.mock import patch, MagicMock, Mock
 from io import BytesIO
 from werkzeug.datastructures import FileStorage
+import jwt
 
 from recipes import database, blueprint
 
@@ -35,6 +36,14 @@ class TestRecipesBlueprint(unittest.TestCase):
         self.recipes_db = database.Database(self.recipes_db_file)
         self.app.config['recipes_db'] = self.recipes_db
         
+        # Set up users database for authentication
+        from users import database as users_database
+        self.users_db_file = Path(self.test_data_folder) / 'test_users.yaml'
+        self.users_db = users_database.Database(self.users_db_file)
+        # Create a test user
+        self.users_db.create('test@user.com', 'testuser', 'testpassword')
+        self.app.config['users_db'] = self.users_db
+        
         # Register the blueprint
         self.app.register_blueprint(blueprint.RecipesBlueprint)
         
@@ -42,7 +51,10 @@ class TestRecipesBlueprint(unittest.TestCase):
         self.client = self.app.test_client()
         
         # Mock user for authentication
-        self.test_user = {'name': 'testuser'}
+        self.test_user = {'name': 'testuser', 'email': 'test@user.com'}
+        
+        # Create a valid JWT token for testing
+        self.test_token = jwt.encode({'username': 'testuser'}, 'test-secret-key', algorithm='HS256')
 
     def tearDown(self):
         # Clean up temporary directories
@@ -73,73 +85,60 @@ class TestRecipesBlueprint(unittest.TestCase):
             self.assertTrue(os.path.exists(images_folder))
             self.assertEqual(images_folder, self.test_images_folder)
 
-    def test_upload_recipe_image_success(self):
-        """Test successful image upload functionality"""
-        # Create a test recipe first
+    def test_upload_recipe_image_endpoint_success(self):
+        """Test the actual image upload endpoint with a valid file"""
+        # Create a test recipe first  
         recipe_data = {"id": 1, "title": "Test Recipe", "body": "Test body"}
         self.recipes_db.put(self.test_user, recipe_data)
         
-        with self.app.test_request_context():
-            self.app.config['recipes_db'] = self.recipes_db
-            # Create a real image file for testing
-            test_image_data = b'fake image data'
-            test_image_file = BytesIO(test_image_data)
-            test_image_file.filename = 'test.jpg'
-            
-            # Mock Flask's request.files
-            with patch('recipes.blueprint.request') as mock_request:
-                mock_file = FileStorage(
-                    stream=test_image_file,
-                    filename='test.jpg',
-                    content_type='image/jpeg'
-                )
-                mock_request.files = {'file': mock_file}
-                
-                # Test that the function would work (we test logic, not actual file saving)
-                self.assertTrue(blueprint.allowed_file('test.jpg'))
-                
-                # Test filename generation pattern
-                import uuid
-                extension = 'jpg'
-                expected_pattern = f"1_{uuid.uuid4().hex}.{extension}"
-                # Since UUID is random, just test the pattern structure
-                filename_parts = expected_pattern.split('_')
-                self.assertEqual(filename_parts[0], '1')  # recipe_id
-                self.assertTrue(filename_parts[1].endswith('.jpg'))
-
-    def test_upload_recipe_image_no_file(self):
-        """Test image upload with no file"""
-        # Test the validation logic directly
-        files_dict = {}
-        self.assertNotIn('file', files_dict)
+        # Create test image data
+        test_image_data = b'fake image data for testing'
         
-        # This simulates the condition check in the upload function
-        has_file = 'file' in files_dict
-        self.assertFalse(has_file)
-
-    def test_upload_recipe_image_empty_filename(self):
-        """Test image upload with empty filename"""
-        # Test the validation logic for empty filename
-        mock_file = Mock()
-        mock_file.filename = ''
+        # Test successful upload
+        response = self.client.post(
+            '/recipes/1/image',
+            data={'file': (BytesIO(test_image_data), 'test.jpg')},
+            content_type='multipart/form-data',
+            headers={'Authorization': f'Bearer {self.test_token}'}
+        )
         
-        # This simulates the condition check in the upload function
-        is_empty_filename = mock_file.filename == ''
-        self.assertTrue(is_empty_filename)
+        self.assertEqual(response.status_code, 201)
+        response_data = json.loads(response.data)
+        self.assertIn('message', response_data)
+        self.assertIn('filename', response_data)
+        self.assertTrue(response_data['filename'].startswith('1_'))
+        self.assertTrue(response_data['filename'].endswith('.jpg'))
 
-    def test_upload_recipe_image_invalid_file_type(self):
-        """Test image upload with invalid file type"""
-        # Test the allowed_file function directly
-        self.assertFalse(blueprint.allowed_file('test.txt'))
-        self.assertFalse(blueprint.allowed_file('malware.exe'))
-        self.assertFalse(blueprint.allowed_file('document.pdf'))
+    def test_upload_recipe_image_endpoint_no_file(self):
+        """Test image upload endpoint with no file"""
+        response = self.client.post(
+            '/recipes/1/image',
+            data={},
+            content_type='multipart/form-data',
+            headers={'Authorization': f'Bearer {self.test_token}'}
+        )
+        
+        self.assertEqual(response.status_code, 400)
 
-    def test_get_recipe_image_success(self):
-        """Test successful image retrieval"""
+    def test_upload_recipe_image_endpoint_invalid_file_type(self):
+        """Test image upload endpoint with invalid file type"""
+        test_file_data = b'some text data'
+        
+        response = self.client.post(
+            '/recipes/1/image',
+            data={'file': (BytesIO(test_file_data), 'test.txt')},
+            content_type='multipart/form-data',
+            headers={'Authorization': f'Bearer {self.test_token}'}
+        )
+        
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_recipe_image_endpoint_success(self):
+        """Test the actual image retrieval endpoint"""
         # Create a test image file
         test_filename = 'test_image.jpg'
         test_image_path = os.path.join(self.test_images_folder, test_filename)
-        test_image_data = b'fake image data'
+        test_image_data = b'fake image data for testing'
         
         with open(test_image_path, 'wb') as f:
             f.write(test_image_data)
@@ -149,14 +148,70 @@ class TestRecipesBlueprint(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, test_image_data)
 
-    def test_get_recipe_image_not_found(self):
-        """Test image retrieval for non-existent file"""
+    def test_get_recipe_image_endpoint_not_found(self):
+        """Test image retrieval endpoint for non-existent file"""
         response = self.client.get('/recipes/images/nonexistent.jpg')
         
         self.assertEqual(response.status_code, 404)
 
-    def test_delete_recipe_with_image_cleanup(self):
-        """Test that deleting a recipe also removes associated image file"""
+    def test_get_recipes_endpoint(self):
+        """Test the get recipes endpoint works"""
+        # Create a test recipe
+        recipe_data = {"id": 1, "title": "Test Recipe", "body": "Test body"}
+        self.recipes_db.put(self.test_user, recipe_data)
+        
+        response = self.client.get(
+            '/recipes',
+            headers={'Authorization': f'Bearer {self.test_token}'}
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        recipes = json.loads(response.data)
+        self.assertEqual(len(recipes), 1)
+        self.assertEqual(recipes[0]['title'], 'Test Recipe')
+
+    def test_create_recipe_endpoint(self):
+        """Test the create recipe endpoint works"""
+        recipe_data = {"title": "New Recipe", "body": "Recipe body"}
+        
+        response = self.client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json',
+            headers={'Authorization': f'Bearer {self.test_token}'}
+        )
+        
+        self.assertEqual(response.status_code, 201)
+        response_data = json.loads(response.data)
+        self.assertIn('recipe', response_data)
+        self.assertEqual(response_data['recipe']['title'], 'New Recipe')
+
+    def test_delete_recipe_endpoint_with_image_cleanup(self):
+        """Test that deleting a recipe via endpoint also removes associated image file"""
+        # Create a test recipe with image
+        recipe_data = {"id": 1, "title": "Test Recipe", "body": "Test body", "image_filename": "test_image.jpg"}
+        self.recipes_db.put(self.test_user, recipe_data)
+        
+        # Create the image file
+        test_image_path = os.path.join(self.test_images_folder, "test_image.jpg")
+        with open(test_image_path, 'wb') as f:
+            f.write(b'fake image data')
+        
+        # Verify file exists
+        self.assertTrue(os.path.exists(test_image_path))
+        
+        response = self.client.delete(
+            '/recipes/1',
+            headers={'Authorization': f'Bearer {self.test_token}'}
+        )
+        
+        self.assertEqual(response.status_code, 204)
+        
+        # Verify image file was deleted
+        self.assertFalse(os.path.exists(test_image_path))
+
+    def test_database_delete_recipe_with_image_cleanup(self):
+        """Test that database delete method removes associated image file"""
         # Create a test recipe with image
         recipe_data = {"id": 1, "title": "Test Recipe", "body": "Test body", "image_filename": "test_image.jpg"}
         self.recipes_db.put(self.test_user, recipe_data)
@@ -178,8 +233,8 @@ class TestRecipesBlueprint(unittest.TestCase):
         # Verify image file was deleted
         self.assertFalse(os.path.exists(test_image_path))
 
-    def test_delete_recipe_without_image(self):
-        """Test that deleting a recipe without image works normally"""
+    def test_database_delete_recipe_without_image(self):
+        """Test that database delete method works normally for recipes without images"""
         # Create a test recipe without image
         recipe_data = {"id": 1, "title": "Test Recipe", "body": "Test body"}
         self.recipes_db.put(self.test_user, recipe_data)
@@ -189,7 +244,7 @@ class TestRecipesBlueprint(unittest.TestCase):
         self.assertTrue(success)
         self.assertEqual(result['id'], 1)
 
-    def test_delete_recipe_nonexistent_image_file(self):
+    def test_database_delete_recipe_nonexistent_image_file(self):
         """Test deleting recipe with image_filename but file doesn't exist"""
         # Create a test recipe with image filename but no actual file
         recipe_data = {"id": 1, "title": "Test Recipe", "body": "Test body", "image_filename": "nonexistent.jpg"}
@@ -200,27 +255,6 @@ class TestRecipesBlueprint(unittest.TestCase):
         
         self.assertTrue(success)
         self.assertEqual(result['id'], 1)
-
-    def test_get_recipes_functionality(self):
-        """Test that the get recipes functionality still works"""
-        # Create a test recipe
-        recipe_data = {"id": 1, "title": "Test Recipe", "body": "Test body"}
-        self.recipes_db.put(self.test_user, recipe_data)
-        
-        recipes = self.recipes_db.get(self.test_user, False)
-        
-        self.assertEqual(len(recipes), 1)
-        self.assertEqual(recipes[0]['title'], 'Test Recipe')
-
-    def test_create_recipe_functionality(self):
-        """Test that the create recipe functionality still works"""
-        recipe_data = {"id": 1, "title": "New Recipe", "body": "Recipe body"}
-        
-        result, error = self.recipes_db.put(self.test_user, recipe_data)
-        
-        self.assertIsNone(error)
-        self.assertEqual(result['title'], 'New Recipe')
-        self.assertEqual(result['user'], 'testuser')
 
     def test_upload_image_generates_unique_filename(self):
         """Test that uploaded images get unique filenames based on UUID logic"""
