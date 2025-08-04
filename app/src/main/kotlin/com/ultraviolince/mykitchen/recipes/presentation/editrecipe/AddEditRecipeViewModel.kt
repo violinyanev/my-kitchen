@@ -1,5 +1,7 @@
 package com.ultraviolince.mykitchen.recipes.presentation.editrecipe
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.State
@@ -11,6 +13,7 @@ import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.InvalidRecipeException
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
+import com.ultraviolince.mykitchen.recipes.domain.util.ImageUtils
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -19,6 +22,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class AddEditRecipeViewModel(
     private val recipesUseCases: Recipes,
+    private val context: Context,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _recipeTitle = mutableStateOf(
@@ -30,6 +34,9 @@ class AddEditRecipeViewModel(
 
     private val _recipeContent = mutableStateOf(RecipeTextFieldState(hintStringId = R.string.content_hint))
     val recipeContent: State<RecipeTextFieldState> = _recipeContent
+
+    private val _recipeImagePath = mutableStateOf<String?>(null)
+    val recipeImagePath: State<String?> = _recipeImagePath
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -61,6 +68,7 @@ class AddEditRecipeViewModel(
                             text = recipe.content,
                             isHintVisible = false
                         )
+                        _recipeImagePath.value = recipe.imagePath
                     }
                 }
             }
@@ -87,6 +95,13 @@ class AddEditRecipeViewModel(
                     isHintVisible = !event.focusState.isFocused && recipeContent.value.text.isBlank()
                 )
             }
+            is AddEditRecipeEvent.ImageSelected -> {
+                Log.i("Recipes", "User selected image ${event.imageUri}")
+                viewModelScope.launch {
+                    val internalPath = ImageUtils.copyImageToInternalStorage(context, Uri.parse(event.imageUri))
+                    _recipeImagePath.value = internalPath
+                }
+            }
             is AddEditRecipeEvent.SaveRecipe -> {
                 Log.i("Recipes", "User is saving the recipe")
                 viewModelScope.launch {
@@ -96,6 +111,7 @@ class AddEditRecipeViewModel(
                                 title = recipeTitle.value.text,
                                 content = recipeContent.value.text,
                                 timestamp = System.currentTimeMillis(),
+                                imagePath = recipeImagePath.value,
                                 id = currentRecipeId
                             )
                         )
@@ -112,15 +128,20 @@ class AddEditRecipeViewModel(
             is AddEditRecipeEvent.DeleteRecipe -> {
                 Log.i("Recipes", "User is deleting the recipe")
                 viewModelScope.launch {
-                    // TODO id is enough to pass here
-                    recipesUseCases.deleteRecipe(
-                        Recipe(
-                            title = recipeTitle.value.text,
-                            content = recipeContent.value.text,
-                            timestamp = System.currentTimeMillis(),
-                            id = currentRecipeId
-                        )
+                    val recipe = Recipe(
+                        title = recipeTitle.value.text,
+                        content = recipeContent.value.text,
+                        timestamp = System.currentTimeMillis(),
+                        imagePath = recipeImagePath.value,
+                        id = currentRecipeId
                     )
+
+                    // Delete associated image if it exists
+                    recipe.imagePath?.let { imagePath ->
+                        ImageUtils.deleteImageFromInternalStorage(imagePath)
+                    }
+
+                    recipesUseCases.deleteRecipe(recipe)
                     _eventFlow.emit(UiEvent.DeleteRecipe)
                 }
             }

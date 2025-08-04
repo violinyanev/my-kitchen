@@ -40,6 +40,7 @@ ksp = "2.2.0-2.0.2"
 kover = "0.9.1"
 runner = "1.7.0"
 
+coil = "2.7.0"
 screenshot = "0.0.1-alpha10"
 
 [libraries]
@@ -63,7 +64,6 @@ koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", versi
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinAnnotations" }
 koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koinAnnotations" }
 koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
-screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot"}
 
 junit = { module = "junit:junit", version.ref = "junit" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
@@ -86,6 +86,8 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 detektFormattingPlugin = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detektTwitterPlugin = { module = "com.twitter.compose.rules:detekt", version.ref = "twitterDetekt" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
