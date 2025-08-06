@@ -1,6 +1,7 @@
 package com.ultraviolince.mykitchen.recipes.data.service
 
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
+import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.UserPreferences
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.service.NetworkService
@@ -16,22 +17,22 @@ import org.junit.Test
 
 class RecipeNetworkServiceImplTest {
 
-    private val dataStore = mockk<SafeDataStore>()
-    private val dao = mockk<RecipeDao>()
-    private val networkService = mockk<NetworkService>()
-    private val httpClient = mockk<HttpClient>()
+    private val dataStore = mockk<SafeDataStore>(relaxed = true)
+    private val dao = mockk<RecipeDao>(relaxed = true)
+    private val networkService = mockk<NetworkService>(relaxed = true)
+    private val httpClient = mockk<HttpClient>(relaxed = true)
 
-    private val recipeNetworkService: RecipeNetworkService = RecipeNetworkServiceImpl(
-        dataStore, dao, networkService
-    )
+    private fun createServiceWithMockedPrefs(server: String?, token: String?): RecipeNetworkService {
+        every { dataStore.preferences } returns flowOf(
+            UserPreferences(server = server, token = token)
+        )
+        return RecipeNetworkServiceImpl(dataStore, dao, networkService)
+    }
 
     @Test
     fun `insertRecipe should handle no service gracefully`() = runTest {
         // Given
-        every { dataStore.preferences } returns flowOf(mockk {
-            every { server } returns null
-            every { token } returns null
-        })
+        val recipeNetworkService = createServiceWithMockedPrefs(server = null, token = null)
 
         // When
         val result = recipeNetworkService.insertRecipe(1L, mockk())
@@ -43,10 +44,7 @@ class RecipeNetworkServiceImplTest {
     @Test
     fun `deleteRecipe should handle no service gracefully`() = runTest {
         // Given
-        every { dataStore.preferences } returns flowOf(mockk {
-            every { server } returns null
-            every { token } returns null
-        })
+        val recipeNetworkService = createServiceWithMockedPrefs(server = null, token = null)
 
         // When
         val result = recipeNetworkService.deleteRecipe(1L)
@@ -58,10 +56,7 @@ class RecipeNetworkServiceImplTest {
     @Test
     fun `syncRecipes should handle no service gracefully`() = runTest {
         // Given
-        every { dataStore.preferences } returns flowOf(mockk {
-            every { server } returns null
-            every { token } returns null
-        })
+        val recipeNetworkService = createServiceWithMockedPrefs(server = null, token = null)
 
         // When
         recipeNetworkService.syncRecipes()
