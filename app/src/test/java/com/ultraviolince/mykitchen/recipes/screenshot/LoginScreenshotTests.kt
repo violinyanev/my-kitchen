@@ -20,7 +20,7 @@ import org.robolectric.annotation.Config
 class LoginScreenshotTests {
 
     @Test
-    fun loginScreen_loggedIn() {
+    fun loginScreenLoggedIn() {
         val state = LoginScreenState(
             isLoggedIn = true,
             server = RecipeTextFieldState(text = "", hintStringId = R.string.server_hint, isHintVisible = true),
@@ -31,7 +31,7 @@ class LoginScreenshotTests {
     }
 
     @Test
-    fun loginScreen_notLoggedIn() {
+    fun loginScreenNotLoggedIn() {
         val state = LoginScreenState(
             server = RecipeTextFieldState(text = "", hintStringId = R.string.server_hint, isHintVisible = true),
             username = RecipeTextFieldState(text = "", hintStringId = R.string.username_hint, isHintVisible = true),
@@ -41,7 +41,7 @@ class LoginScreenshotTests {
     }
 
     @Test
-    fun loginScreen_loading() {
+    fun loginScreenLoading() {
         val state = LoginScreenState(
             server = RecipeTextFieldState(),
             username = RecipeTextFieldState(),

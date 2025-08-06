@@ -21,7 +21,7 @@ import org.robolectric.annotation.Config
 class RecipesScreenshotTests {
 
     @Test
-    fun recipeScreen_withSingleRecipe() {
+    fun recipeScreenWithSingleRecipe() {
         val state = RecipesState(
             ImmutableRecipesList(
                 listOf(
@@ -37,13 +37,13 @@ class RecipesScreenshotTests {
     }
 
     @Test
-    fun recipeScreen_empty() {
+    fun recipeScreenEmpty() {
         val state = RecipesState()
         captureRecipeScreen(state, "recipeScreen_empty")
     }
 
     @Test
-    fun recipeScreen_withMultipleRecipes() {
+    fun recipeScreenWithMultipleRecipes() {
         val state = RecipesState(
             recipes = ImmutableRecipesList(List(10) { index ->
                 Recipe(
@@ -57,25 +57,25 @@ class RecipesScreenshotTests {
     }
 
     @Test
-    fun recipeScreen_syncStateLoginEmpty() {
+    fun recipeScreenSyncStateLoginEmpty() {
         val state = RecipesState(syncState = LoginState.LoginEmpty)
         captureRecipeScreen(state, "recipeScreen_syncStateLoginEmpty")
     }
 
     @Test
-    fun recipeScreen_syncStateLoginPending() {
+    fun recipeScreenSyncStateLoginPending() {
         val state = RecipesState(syncState = LoginState.LoginPending)
         captureRecipeScreen(state, "recipeScreen_syncStateLoginPending")
     }
 
     @Test
-    fun recipeScreen_syncStateLoginSuccess() {
+    fun recipeScreenSyncStateLoginSuccess() {
         val state = RecipesState(syncState = LoginState.LoginSuccess)
         captureRecipeScreen(state, "recipeScreen_syncStateLoginSuccess")
     }
 
     @Test
-    fun recipeScreen_syncStateLoginFailure() {
+    fun recipeScreenSyncStateLoginFailure() {
         val state = RecipesState(syncState = LoginState.LoginFailure(error = NetworkError.UNAUTHORIZED))
         captureRecipeScreen(state, "recipeScreen_syncStateLoginFailure")
     }
