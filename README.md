@@ -1,6 +1,6 @@
 # My Kitchen
 
-![Tests](https://github.com/violinyanev/my-kitchen/actions/workflows/test.yaml/badge.svg) ![Release](https://github.com/violinyanev/my-kitchen/actions/workflows/release.yaml/badge.svg) [![GitHub License](https://img.shields.io/github/license/violinyanev/my-kitchen?label=License)](https://github.com/violinyanev/my-kitchen/blob/main/LICENSE)
+![Tests](https://github.com/violinyanev/my-kitchen/actions/workflows/test.yaml/badge.svg) ![Upgrade Test](https://github.com/violinyanev/my-kitchen/actions/workflows/upgrade-test.yaml/badge.svg) ![Release](https://github.com/violinyanev/my-kitchen/actions/workflows/release.yaml/badge.svg) [![GitHub License](https://img.shields.io/github/license/violinyanev/my-kitchen?label=License)](https://github.com/violinyanev/my-kitchen/blob/main/LICENSE)
 
 My Kitchen is a free and open source application for storing and sharing recipes with your family. It features both an Android mobile app and a [self-hosted backend server](./backend/README.md) that allows you to back up your recipe data on your own premises, ensuring complete control over your culinary collection.
 
@@ -99,6 +99,8 @@ We welcome contributions from everyone! Here's how you can help:
 3. Make your changes
 4. Add tests if applicable
 5. Ensure all tests pass (`./gradlew test` for Android, see backend README for backend tests)
+   - Unit tests and instrumented tests run automatically on PRs
+   - Upgrade tests verify that new versions can be installed over previous releases
 6. Commit your changes (`git commit -m 'Add amazing feature'`)
 7. Push to the branch (`git push origin feature/amazing-feature`)
 8. Open a Pull Request
