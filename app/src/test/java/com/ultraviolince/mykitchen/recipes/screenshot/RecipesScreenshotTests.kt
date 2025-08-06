@@ -2,7 +2,6 @@ package com.ultraviolince.mykitchen.recipes.screenshot
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.SnackbarHostState
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
@@ -83,7 +82,7 @@ class RecipesScreenshotTests {
 
     private fun captureRecipeScreen(state: RecipesState, fileName: String) {
         val activity = Robolectric.buildActivity(ComponentActivity::class.java).create().resume().get()
-        
+
         activity.setContent {
             MyApplicationTheme {
                 RecipeScreenContent(
@@ -96,10 +95,10 @@ class RecipesScreenshotTests {
                 )
             }
         }
-        
+
         // Let compose settle and make sure the view hierarchy is ready
         Thread.sleep(100)
-        
+
         val contentView = activity.findViewById<android.view.View>(android.R.id.content)
         requireNotNull(contentView) { "Content view is null" }
         contentView.captureRoboImage(filePath = "src/test/screenshots/$fileName.png")

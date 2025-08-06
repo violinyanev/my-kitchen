@@ -35,7 +35,7 @@ jobs:
       run: ./gradlew buildHealth
 
     - name: Build APKs and run tests
-      run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:recordRoborazziDebug :app:koverXmlReportDebug detekt
+      run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:koverXmlReportDebug detekt
 
     - name: Add coverage report to PR
       id: kover
