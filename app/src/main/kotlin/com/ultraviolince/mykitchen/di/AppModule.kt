@@ -2,7 +2,6 @@ package com.ultraviolince.mykitchen.di
 
 import android.app.Application
 import androidx.room.Room
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDatabase
@@ -10,10 +9,12 @@ import com.ultraviolince.mykitchen.recipes.data.repository.AuthRepositoryImpl
 import com.ultraviolince.mykitchen.recipes.data.repository.RecipeRepositoryImpl
 import com.ultraviolince.mykitchen.recipes.data.service.AuthServiceImpl
 import com.ultraviolince.mykitchen.recipes.data.service.NetworkServiceImpl
+import com.ultraviolince.mykitchen.recipes.data.service.RecipeNetworkServiceImpl
 import com.ultraviolince.mykitchen.recipes.domain.repository.AuthRepository
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import com.ultraviolince.mykitchen.recipes.domain.service.AuthService
 import com.ultraviolince.mykitchen.recipes.domain.service.NetworkService
+import com.ultraviolince.mykitchen.recipes.domain.service.RecipeNetworkService
 import com.ultraviolince.mykitchen.recipes.domain.usecase.AddRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.DeleteRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetLoginState
@@ -64,11 +65,20 @@ class AppModule {
     }
 
     @Single
+    fun provideRecipeNetworkService(
+        dataStore: SafeDataStore,
+        dao: RecipeDao,
+        networkService: NetworkService
+    ): RecipeNetworkService {
+        return RecipeNetworkServiceImpl(dataStore, dao, networkService)
+    }
+
+    @Single
     fun provideRecipeRepository(
         dao: RecipeDao,
-        service: RecipeServiceWrapper,
+        recipeNetworkService: RecipeNetworkService,
     ): RecipeRepository {
-        return RecipeRepositoryImpl(dao, service)
+        return RecipeRepositoryImpl(dao, recipeNetworkService)
     }
 
     @Single
@@ -85,10 +95,5 @@ class AppModule {
             addRecipe = AddRecipe(recipeRepository),
             getRecipe = GetRecipe(recipeRepository)
         )
-    }
-
-    @Single
-    fun provideRecipeServiceWrapper(dao: RecipeDao, dataStore: SafeDataStore): RecipeServiceWrapper {
-        return RecipeServiceWrapper(dataStore, dao)
     }
 }
