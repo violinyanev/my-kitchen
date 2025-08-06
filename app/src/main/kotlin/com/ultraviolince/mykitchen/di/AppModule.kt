@@ -6,8 +6,14 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeService
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDatabase
+import com.ultraviolince.mykitchen.recipes.data.repository.AuthRepositoryImpl
 import com.ultraviolince.mykitchen.recipes.data.repository.RecipeRepositoryImpl
+import com.ultraviolince.mykitchen.recipes.data.service.AuthServiceImpl
+import com.ultraviolince.mykitchen.recipes.data.service.NetworkServiceImpl
+import com.ultraviolince.mykitchen.recipes.domain.repository.AuthRepository
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
+import com.ultraviolince.mykitchen.recipes.domain.service.AuthService
+import com.ultraviolince.mykitchen.recipes.domain.service.NetworkService
 import com.ultraviolince.mykitchen.recipes.domain.usecase.AddRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.DeleteRecipe
 import com.ultraviolince.mykitchen.recipes.domain.usecase.GetLoginState
@@ -43,6 +49,21 @@ class AppModule {
     }
 
     @Single
+    fun provideNetworkService(): NetworkService {
+        return NetworkServiceImpl()
+    }
+
+    @Single
+    fun provideAuthService(dataStore: SafeDataStore, networkService: NetworkService): AuthService {
+        return AuthServiceImpl(dataStore, networkService)
+    }
+
+    @Single
+    fun provideAuthRepository(authService: AuthService): AuthRepository {
+        return AuthRepositoryImpl(authService)
+    }
+
+    @Single
     fun provideRecipeRepository(
         dao: RecipeDao,
         service: RecipeServiceWrapper,
@@ -51,15 +72,18 @@ class AppModule {
     }
 
     @Single
-    fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
+    fun provideRecipesUseCases(
+        recipeRepository: RecipeRepository,
+        authRepository: AuthRepository
+    ): Recipes {
         return Recipes(
-            login = Login(repository),
-            logout = Logout(repository),
-            getSyncState = GetLoginState(repository),
-            getRecipes = GetRecipes(repository),
-            deleteRecipe = DeleteRecipe(repository),
-            addRecipe = AddRecipe(repository),
-            getRecipe = GetRecipe(repository)
+            login = Login(authRepository),
+            logout = Logout(authRepository),
+            getSyncState = GetLoginState(authRepository),
+            getRecipes = GetRecipes(recipeRepository),
+            deleteRecipe = DeleteRecipe(recipeRepository),
+            addRecipe = AddRecipe(recipeRepository),
+            getRecipe = GetRecipe(recipeRepository)
         )
     }
 

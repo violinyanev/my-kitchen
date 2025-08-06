@@ -1,11 +1,11 @@
 package com.ultraviolince.mykitchen.recipes.domain.usecase
 
-import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
+import com.ultraviolince.mykitchen.recipes.domain.repository.AuthRepository
 import org.koin.core.annotation.Single
 
 @Single
-class Logout(private val repository: RecipeRepository) {
+class Logout(private val authRepository: AuthRepository) {
     suspend operator fun invoke() {
-        repository.logout()
+        authRepository.logout()
     }
 }
