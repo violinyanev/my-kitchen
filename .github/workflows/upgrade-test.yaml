@@ -1,0 +1,273 @@
+name: Upgrade Test
+
+# Test that the current version can be installed over the latest release
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+    group: upgrade-test-${{ github.head_ref || github.run_id }}
+    cancel-in-progress: true
+
+env:
+    JAVA_VERSION: 17
+
+jobs:
+  upgrade-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+          api-level: [28, 34]  # Test on a subset of API levels for upgrade testing
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Get the latest release APK
+      - name: Get latest release info
+        id: latest-release
+        run: |
+          # First try using GitHub CLI if available
+          if command -v gh >/dev/null 2>&1; then
+            echo "Using GitHub CLI to get release info"
+            if RELEASE_INFO=$(gh release view --json tagName,assets --repo violinyanev/my-kitchen 2>/dev/null); then
+              TAG_NAME=$(echo "$RELEASE_INFO" | jq -r '.tagName')
+              DOWNLOAD_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name | endswith(".apk")) | .url' | head -1)
+              
+              if [ "$TAG_NAME" != "null" ] && [ "$DOWNLOAD_URL" != "null" ] && [ -n "$TAG_NAME" ] && [ -n "$DOWNLOAD_URL" ]; then
+                echo "download_url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
+                echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+                echo "skip=false" >> $GITHUB_OUTPUT
+                echo "use_gh=true" >> $GITHUB_OUTPUT
+                echo "Latest release: $TAG_NAME (via gh CLI)"
+                exit 0
+              fi
+            fi
+          fi
+          
+          # Fallback to curl and GitHub API
+          echo "Using curl to get release info"
+          if ! LATEST_RELEASE=$(curl -f -s https://api.github.com/repos/violinyanev/my-kitchen/releases/latest 2>/dev/null); then
+            echo "Failed to fetch release info from GitHub API, skipping upgrade test"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          if [ "$LATEST_RELEASE" = "null" ] || [ -z "$LATEST_RELEASE" ]; then
+            echo "No releases found, skipping upgrade test"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          DOWNLOAD_URL=$(echo "$LATEST_RELEASE" | jq -r '.assets[] | select(.name | endswith(".apk")) | .browser_download_url' | head -1)
+          TAG_NAME=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
+          
+          if [ "$DOWNLOAD_URL" = "null" ] || [ -z "$DOWNLOAD_URL" ]; then
+            echo "No APK found in latest release, skipping upgrade test"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "download_url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+          echo "use_gh=false" >> $GITHUB_OUTPUT
+          echo "Latest release: $TAG_NAME (via API)"
+
+      - name: Download latest release APK
+        if: steps.latest-release.outputs.skip == 'false'
+        run: |
+          mkdir -p release-apk
+          echo "Downloading APK from: ${{ steps.latest-release.outputs.download_url }}"
+          
+          # Use different download method based on how we got the URL
+          if [ "${{ steps.latest-release.outputs.use_gh }}" = "true" ]; then
+            echo "Using GitHub CLI to download APK"
+            if ! gh release download ${{ steps.latest-release.outputs.tag_name }} --pattern "*.apk" --dir release-apk --repo violinyanev/my-kitchen; then
+              echo "Failed to download APK using gh CLI, skipping upgrade test"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            # Rename the downloaded file to a consistent name
+            mv release-apk/*.apk release-apk/app-release-latest.apk
+          else
+            echo "Using curl to download APK"
+            if ! curl -f -L -o release-apk/app-release-latest.apk "${{ steps.latest-release.outputs.download_url }}"; then
+              echo "Failed to download APK using curl, skipping upgrade test"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+          fi
+          
+          # Verify the file was downloaded
+          if [ ! -f release-apk/app-release-latest.apk ]; then
+            echo "APK file not found after download"
+            exit 1
+          fi
+          
+          # Check file size (should be > 0)
+          FILE_SIZE=$(stat -c%s release-apk/app-release-latest.apk)
+          if [ "$FILE_SIZE" -eq 0 ]; then
+            echo "Downloaded APK file is empty"
+            exit 1
+          fi
+          
+          echo "Successfully downloaded APK (${FILE_SIZE} bytes)"
+          ls -la release-apk/
+
+      # Setup the test backend (copied from test.yaml)
+      - name: Set up Python
+        if: steps.latest-release.outputs.skip == 'false'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install python dependencies
+        if: steps.latest-release.outputs.skip == 'false'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/image/requirements.txt
+
+      - name: Start Flask server
+        if: steps.latest-release.outputs.skip == 'false'
+        run: |
+          export RECIPES_SECRET_KEY=TestKey
+          python3 backend/image/app.py backend/seed_data &
+        env:
+          FLASK_ENV: development
+
+      - name: Wait for Flask server to start
+        if: steps.latest-release.outputs.skip == 'false'
+        run: |
+          sleep 5
+          curl --fail http://localhost:5000/health
+
+      # Setup Android build environment
+      - name: Get AVD info
+        if: steps.latest-release.outputs.skip == 'false'
+        uses: ./.github/actions/get-avd-info
+        id: avd-info
+        with:
+            api-level: ${{ matrix.api-level }}
+
+      - name: Enable KVM group perms
+        if: steps.latest-release.outputs.skip == 'false'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls /dev/kvm
+
+      - uses: actions/setup-java@v4
+        if: steps.latest-release.outputs.skip == 'false'
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.latest-release.outputs.skip == 'false'
+
+      # Build current version APK
+      - name: Build current version APK
+        if: steps.latest-release.outputs.skip == 'false'
+        run: |
+          ./gradlew :app:assembleDebug
+          mkdir -p current-apk
+          cp app/build/outputs/apk/debug/app-debug.apk current-apk/
+          ls -la current-apk/
+
+      # Run upgrade test
+      - name: Run upgrade test
+        if: steps.latest-release.outputs.skip == 'false'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: ${{ steps.avd-info.outputs.arch }}
+          target: ${{ steps.avd-info.outputs.target }}
+          script: |
+            set -e  # Exit on any error
+            
+            echo "=== Upgrade Test Started ==="
+            echo "Release version: ${{ steps.latest-release.outputs.tag_name }}"
+            echo "API Level: ${{ matrix.api-level }}"
+            echo "Emulator arch: ${{ steps.avd-info.outputs.arch }}"
+            echo "Target: ${{ steps.avd-info.outputs.target }}"
+            
+            # Wait for emulator to be ready
+            adb wait-for-device
+            echo "Emulator is ready"
+            
+            # Clear any existing installations
+            echo "Clearing any existing app installations..."
+            adb uninstall com.ultraviolince.mykitchen || true
+            
+            echo "=== Installing latest release APK ==="
+            if ! adb install release-apk/app-release-latest.apk; then
+              echo "ERROR: Failed to install latest release APK"
+              exit 1
+            fi
+            
+            echo "=== Verifying app is installed ==="
+            if ! adb shell pm list packages | grep com.ultraviolince.mykitchen; then
+              echo "ERROR: App not found after installation"
+              exit 1
+            fi
+            echo "App successfully installed"
+            
+            echo "=== Testing app launch (release version) ==="
+            adb shell am start -n com.ultraviolince.mykitchen/.recipes.presentation.MainActivity
+            sleep 5
+            
+            # Check if app is running
+            if ! adb shell pidof com.ultraviolince.mykitchen; then
+              echo "WARNING: App may not be running, but continuing with upgrade test"
+            else
+              echo "App is running successfully"
+            fi
+            
+            # Stop the app before upgrade
+            adb shell am force-stop com.ultraviolince.mykitchen
+            
+            echo "=== Upgrading to current version ==="
+            if ! adb install -r current-apk/app-debug.apk; then
+              echo "ERROR: Failed to upgrade to current version"
+              exit 1
+            fi
+            
+            echo "=== Verifying upgrade was successful ==="
+            if ! adb shell pm list packages | grep com.ultraviolince.mykitchen; then
+              echo "ERROR: App not found after upgrade"
+              exit 1
+            fi
+            echo "App still installed after upgrade"
+            
+            echo "=== Testing app launch (upgraded version) ==="
+            adb shell am start -n com.ultraviolince.mykitchen/.recipes.presentation.MainActivity
+            sleep 5
+            
+            # Check if upgraded app is running
+            if ! adb shell pidof com.ultraviolince.mykitchen; then
+              echo "ERROR: Upgraded app is not running properly"
+              exit 1
+            fi
+            echo "Upgraded app is running successfully"
+            
+            # Get version info if possible
+            adb shell dumpsys package com.ultraviolince.mykitchen | grep versionName || true
+            
+            echo "=== Upgrade Test Completed Successfully ==="
+        env:
+          API_LEVEL: ${{ matrix.api-level }}
+
+      - name: Upgrade test summary
+        if: always() && steps.latest-release.outputs.skip == 'false'
+        run: |
+          echo "Upgrade test completed for API level ${{ matrix.api-level }}"
+          echo "Tested upgrade from release ${{ steps.latest-release.outputs.tag_name }} to current version"
+
+      - name: Skip message
+        if: steps.latest-release.outputs.skip == 'true'
+        run: |
+          echo "Upgrade test skipped - no suitable release APK found"
