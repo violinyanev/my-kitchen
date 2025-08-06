@@ -9,9 +9,9 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
     alias(libs.plugins.room)
-    alias(libs.plugins.screenshot)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose)
+    alias(libs.plugins.roborazzi)
 }
 
 val vName = project.findProperty("versionName") as String? ?: "v1.0.0"
@@ -89,6 +89,10 @@ android {
         }
     }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     // This is needed for koin+KSP
     applicationVariants.forEach { variant ->
         variant.sourceSets.forEach {
@@ -99,8 +103,6 @@ android {
     room {
         schemaDirectory("$projectDir/schemas")
     }
-
-    experimentalProperties["android.experimental.enableScreenshotTest"] = true
 
     ksp {
         arg("KOIN_CONFIG_CHECK", "true")
@@ -160,8 +162,11 @@ dependencies {
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.koin.test.junit4)
 
-    screenshotTestImplementation(libs.screenshot.validation.api)
-    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.junit.rule)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
 
     detektPlugins(libs.detektTwitterPlugin)
     detektPlugins(libs.detektFormattingPlugin)

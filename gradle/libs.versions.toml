@@ -39,8 +39,8 @@ work = "2.10.3"
 ksp = "2.2.0-2.0.2"
 kover = "0.9.1"
 runner = "1.7.0"
-
-screenshot = "0.0.1-alpha10"
+roborazzi = "1.28.0"
+robolectric = "4.14.1"
 
 [libraries]
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
@@ -63,7 +63,6 @@ koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", versi
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinAnnotations" }
 koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koinAnnotations" }
 koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
-screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot"}
 
 junit = { module = "junit:junit", version.ref = "junit" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
@@ -87,6 +86,11 @@ detektFormattingPlugin = { module = "io.gitlab.arturbosch.detekt:detekt-formatti
 detektTwitterPlugin = { module = "com.twitter.compose.rules:detekt", version.ref = "twitterDetekt" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 
+roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
+roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazzi" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
@@ -94,7 +98,7 @@ room = { id = "androidx.room", version.ref = "room" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"}
-screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
 compose = {id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
 build-health = {id = "com.autonomousapps.dependency-analysis", version.ref = "buildHealth"}
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
