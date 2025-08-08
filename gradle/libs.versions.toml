@@ -40,7 +40,7 @@ ksp = "2.2.0-2.0.2"
 kover = "0.9.1"
 runner = "1.7.0"
 
-screenshot = "0.0.1-alpha10"
+screenshot = "0.0.1-alpha11"
 
 [libraries]
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
