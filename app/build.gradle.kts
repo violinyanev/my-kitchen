@@ -1,3 +1,5 @@
+import java.util.Properties
+
 kotlin {
     jvmToolchain(17)
 }
@@ -35,6 +37,24 @@ android {
         buildConfig = true
     }
 
+    // Load keystore properties
+    val keystorePropertiesFile = rootProject.file("keystore.properties")
+    val keystoreProperties = Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(keystorePropertiesFile.inputStream())
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.ultraviolince.mykitchen"
         minSdk = libs.versions.minSdk.get().toInt()
@@ -56,7 +76,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
             buildConfigField("String", "DEFAULT_SERVER", "\"\"")
             buildConfigField ("String", "DEFAULT_USERNAME", "\"\"")
             buildConfigField("String", "DEFAULT_PASSWORD", "\"\"")
