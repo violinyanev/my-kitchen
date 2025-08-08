@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      first_release:
+        description: 'Create first release (v1.0.0)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   create-release:
@@ -39,6 +44,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
+      - name: Create first release
+        if: ${{ inputs.first_release && !inputs.dry_run }}
+        run: |
+          echo "Creating first release v1.0.0"
+          git tag v1.0.0
+          git push origin v1.0.0
+      
       - name: Run semantic-release (dry run)
         if: ${{ inputs.dry_run }}
         run: npx semantic-release --dry-run
@@ -46,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Run semantic-release
-        if: ${{ !inputs.dry_run }}
+        if: ${{ !inputs.dry_run && !inputs.first_release }}
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

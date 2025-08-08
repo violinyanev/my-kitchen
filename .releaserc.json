@@ -19,7 +19,10 @@
           { "type": "ci", "release": false },
           { "type": "chore", "release": false },
           { "scope": "breaking", "release": "major" }
-        ]
+        ],
+        "parserOpts": {
+          "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+        }
       }
     ],
     [
