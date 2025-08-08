@@ -42,7 +42,7 @@ jobs:
           -name "*.json" -o \
           -name "*.txt" -o \
           -name "*.sh" \
-        \) ! -path "./.git/*" ! -path "./build/*" ! -path "./.gradle/*" -print0)
+        \) ! -path "./.git/*" ! -path "./build/*" ! -path "./*/build/*" ! -path "./.gradle/*" -print0)
         
         if [ ${#files_without_newlines[@]} -gt 0 ]; then
           echo "❌ The following files do not end with a newline:"
