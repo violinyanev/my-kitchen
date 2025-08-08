@@ -37,33 +37,20 @@ android {
         buildConfig = true
     }
 
-    // Load keystore properties from file or environment variables
+    // Load keystore properties
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties()
     if (keystorePropertiesFile.exists()) {
         keystoreProperties.load(keystorePropertiesFile.inputStream())
     }
 
-    // Helper function to get property from file or environment
-    fun getKeystoreProperty(key: String, envKey: String): String? {
-        return keystoreProperties.getProperty(key) ?: System.getenv(envKey)
-    }
-
     signingConfigs {
         create("release") {
-            val storeFilePath = getKeystoreProperty("storeFile", "KEYSTORE_FILE") ?: "app/keystore/release.keystore"
-            val storePass = getKeystoreProperty("storePassword", "KEYSTORE_PASSWORD")
-            val alias = getKeystoreProperty("keyAlias", "KEY_ALIAS") ?: "mykitchen"
-            val keyPass = getKeystoreProperty("keyPassword", "KEY_PASSWORD")
-            
-            if (storePass != null && keyPass != null) {
-                keyAlias = alias
-                keyPassword = keyPass
-                storeFile = rootProject.file(storeFilePath)
-                storePassword = storePass
-            } else {
-                // Fall back to debug signing if release credentials are not available
-                println("Warning: Release keystore credentials not found. Using debug signing.")
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
             }
         }
     }
@@ -89,18 +76,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            
-            // Use release signing if available, otherwise fall back to debug
-            val releaseSigningConfig = signingConfigs.findByName("release")
-            val storePass = getKeystoreProperty("storePassword", "KEYSTORE_PASSWORD")
-            val keyPass = getKeystoreProperty("keyPassword", "KEY_PASSWORD")
-            
-            signingConfig = if (releaseSigningConfig != null && storePass != null && keyPass != null) {
-                releaseSigningConfig
-            } else {
-                signingConfigs.getByName("debug")
-            }
-            
+            signingConfig = signingConfigs.getByName("release")
             buildConfigField("String", "DEFAULT_SERVER", "\"\"")
             buildConfigField ("String", "DEFAULT_USERNAME", "\"\"")
             buildConfigField("String", "DEFAULT_PASSWORD", "\"\"")
