@@ -9,8 +9,8 @@ scripts/traces/
 # Local configuration file (sdk path, etc)
 local.properties
 
-# Keystore properties (include this in repo for consistent signing)
-# keystore.properties
+# Keystore properties (exclude from repo for security)
+keystore.properties
 
 # Log/OS Files
 *.log
