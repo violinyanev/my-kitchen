@@ -109,6 +109,12 @@ android {
         }
     }
 
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
+    }
+
     // This is needed for koin+KSP
     applicationVariants.forEach { variant ->
         variant.sourceSets.forEach {
