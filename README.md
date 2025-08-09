@@ -18,6 +18,7 @@ My Kitchen is a free and open source application for storing and sharing recipes
 ```
 my-kitchen/
 ├── app/              # Android mobile application (Kotlin)
+├── macrobenchmark/   # Performance benchmarks for Android app
 ├── backend/          # Self-hosted server (Python Flask)
 │   └── scripts/      # Backend development scripts
 ├── .github/          # CI/CD workflows and actions
@@ -65,6 +66,9 @@ cd my-kitchen
 
 # Run tests
 ./gradlew test
+
+# Run performance benchmarks (requires physical device)
+./scripts/run_benchmarks.sh all
 ```
 
 ### Running the Backend

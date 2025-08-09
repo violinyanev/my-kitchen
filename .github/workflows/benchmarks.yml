@@ -1,0 +1,78 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run benchmarks weekly on Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+jobs:
+  benchmark:
+    name: Run Macrobenchmarks
+    runs-on: ubuntu-latest
+    # Only run on physical devices, skip for now as it requires device setup
+    if: false  # Enable when physical device runner is available
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Grant execute permission to gradlew
+      run: chmod +x gradlew
+
+    - name: Disable animations for benchmarking
+      run: |
+        adb shell settings put global window_animation_scale 0
+        adb shell settings put global transition_animation_scale 0
+        adb shell settings put global animator_duration_scale 0
+
+    - name: Build app
+      run: ./gradlew :app:assembleBenchmark
+
+    - name: Run startup benchmarks
+      run: |
+        ./gradlew :macrobenchmark:connectedBenchmarkAndroidTest \
+          -Pandroid.testInstrumentationRunnerArguments.class=com.ultraviolince.mykitchen.macrobenchmark.StartupBenchmark
+
+    - name: Run scrolling benchmarks
+      run: |
+        ./gradlew :macrobenchmark:connectedBenchmarkAndroidTest \
+          -Pandroid.testInstrumentationRunnerArguments.class=com.ultraviolince.mykitchen.macrobenchmark.ScrollingBenchmark
+
+    - name: Run interaction benchmarks
+      run: |
+        ./gradlew :macrobenchmark:connectedBenchmarkAndroidTest \
+          -Pandroid.testInstrumentationRunnerArguments.class=com.ultraviolince.mykitchen.macrobenchmark.InteractionBenchmark
+
+    - name: Generate baseline profile
+      run: |
+        ./gradlew :macrobenchmark:connectedBenchmarkAndroidTest \
+          -Pandroid.testInstrumentationRunnerArguments.class=com.ultraviolince.mykitchen.macrobenchmark.BaselineProfileGenerator
+
+    - name: Upload benchmark reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: benchmark-reports
+        path: |
+          macrobenchmark/build/reports/androidTests/
+          macrobenchmark/build/outputs/connected_android_test_additional_output/
+
+    - name: Upload baseline profiles
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: baseline-profiles
+        path: app/src/main/baseline-prof.txt
