@@ -35,7 +35,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -118,10 +121,16 @@ fun RecipeScreenContent(
             ) {
                 Text(
                     text = stringResource(R.string.your_recipes),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.semantics {
+                        heading()
+                    }
                 )
                 IconButton(
-                    onClick = onSortClick
+                    onClick = onSortClick,
+                    modifier = Modifier.semantics {
+                        contentDescription = "Sort recipes"
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.FilterList,
@@ -129,7 +138,10 @@ fun RecipeScreenContent(
                     )
                 }
                 IconButton(
-                    onClick = onLoginClick
+                    onClick = onLoginClick,
+                    modifier = Modifier.semantics {
+                        contentDescription = "Sync settings"
+                    }
                 ) {
                     when (recipeState.syncState) {
                         LoginState.LoginEmpty ->
@@ -188,7 +200,11 @@ fun LazyRecipesList(
 ) {
     LazyColumn(
         modifier = modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .semantics {
+                role = Role.RadioButton
+                contentDescription = "Recipes list, ${recipes.items.size} recipes"
+            },
         contentPadding = innerPadding
     ) {
         items(items = recipes.items, key = { it.id!! }) { recipe ->
@@ -205,6 +221,10 @@ fun LazyRecipesList(
                     .fillMaxWidth()
                     .clickable {
                         onRecipeClicked(recipe)
+                    }
+                    .semantics {
+                        role = Role.Button
+                        contentDescription = "Recipe: ${recipe.title}. Tap to edit."
                     }
             )
             HorizontalDivider()

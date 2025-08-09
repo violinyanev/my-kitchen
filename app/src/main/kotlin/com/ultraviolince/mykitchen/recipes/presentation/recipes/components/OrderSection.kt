@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -24,12 +26,20 @@ fun OrderSection(
     recipeOrder: RecipeOrder = RecipeOrder.Date(OrderType.Descending),
     onOrderChange: (RecipeOrder) -> Unit
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier.semantics {
+            contentDescription = "Sort options"
+        }
+    ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics {
+                    contentDescription = "Sort by criteria"
+                }
         ) {
             DefaultRadioButton(
-                text = stringResource(R.string.title_hint),
+                text = stringResource(R.string.sort_title),
                 selected = recipeOrder is RecipeOrder.Title,
                 onSelect = {
                     onOrderChange(RecipeOrder.Title(recipeOrder.orderType))
@@ -37,7 +47,7 @@ fun OrderSection(
             )
             Spacer(modifier = Modifier.width(8.dp))
             DefaultRadioButton(
-                text = "Date",
+                text = stringResource(R.string.sort_date),
                 selected = recipeOrder is RecipeOrder.Date,
                 onSelect = {
                     onOrderChange(RecipeOrder.Date(recipeOrder.orderType))
@@ -47,10 +57,14 @@ fun OrderSection(
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics {
+                    contentDescription = "Sort order"
+                }
         ) {
             DefaultRadioButton(
-                text = "Ascending",
+                text = stringResource(R.string.sort_ascending),
                 selected = recipeOrder.orderType is OrderType.Ascending,
                 onSelect = {
                     onOrderChange(recipeOrder.copy(OrderType.Ascending))
@@ -58,7 +72,7 @@ fun OrderSection(
             )
             Spacer(modifier = Modifier.width(8.dp))
             DefaultRadioButton(
-                text = "Descending",
+                text = stringResource(R.string.sort_descending),
                 selected = recipeOrder.orderType is OrderType.Descending,
                 onSelect = {
                     onOrderChange(recipeOrder.copy(OrderType.Descending))

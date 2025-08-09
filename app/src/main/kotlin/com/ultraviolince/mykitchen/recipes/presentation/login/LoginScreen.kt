@@ -34,8 +34,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -116,7 +119,11 @@ fun LoginScreenContent(
                         eventHandler(LoginEvent.Login)
                     }
                 },
-                modifier = Modifier.semantics { contentDescription = "Login" }
+                modifier = Modifier.semantics {
+                    contentDescription = if (buttonLoading) "Logging in, please wait" else "Login"
+                    stateDescription = if (buttonLoading) "Loading" else "Ready"
+                    liveRegion = LiveRegionMode.Polite
+                }
             ) {
                 if (buttonLoading) {
                     val rotationAnimatable = remember {
@@ -134,6 +141,10 @@ fun LoginScreenContent(
                     Box(
                         modifier = Modifier
                             .rotate(rotationAnimatable.value)
+                            .semantics {
+                                contentDescription = "Loading animation"
+                                stateDescription = "Logging in"
+                            }
                             .then(modifier)
                     ) {
                         Icon(
