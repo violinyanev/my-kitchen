@@ -1,0 +1,64 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Perform a dry run (no actual release)'
+        required: false
+        default: false
+        type: boolean
+      first_release:
+        description: 'Create first release (v1.0.0)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for semantic-release
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Create first release
+        if: ${{ inputs.first_release && !inputs.dry_run }}
+        run: |
+          echo "Creating first release v1.0.0"
+          git tag v1.0.0
+          git push origin v1.0.0
+      
+      - name: Run semantic-release (dry run)
+        if: ${{ inputs.dry_run }}
+        run: npx semantic-release --dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Run semantic-release
+        if: ${{ !inputs.dry_run && !inputs.first_release }}
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
