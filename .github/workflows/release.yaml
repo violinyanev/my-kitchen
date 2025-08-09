@@ -15,7 +15,7 @@ name: Release
 #
 # No manual intervention needed - just merge the release PR when ready to release.
 
-on:
+'on':
   # Trigger on every push to main to check for release-worthy changes
   push:
     branches: [main]
