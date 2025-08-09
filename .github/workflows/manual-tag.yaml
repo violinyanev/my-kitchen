@@ -1,0 +1,92 @@
+name: Manual Tag Creation
+
+# This workflow allows manually creating tags on the default branch.
+# It can be used for creating custom tags, hotfix tags, or tags that don't follow the automated release cycle.
+
+on:
+  # Allow manual triggering with tag name input
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name to create (e.g., v1.2.3, hotfix-v1.2.4, custom-tag)'
+        required: true
+        type: string
+      tag_message:
+        description: 'Optional tag message/annotation'
+        required: false
+        type: string
+        default: 'Manual tag created via GitHub Actions'
+
+# Grant necessary permissions for creating tags
+permissions:
+  contents: write
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history to ensure we can create tags properly
+          fetch-depth: 0
+          
+      - name: Validate tag name
+        run: |
+          TAG_NAME="${{ inputs.tag_name }}"
+          
+          # Check if tag name is not empty
+          if [ -z "$TAG_NAME" ]; then
+            echo "❌ Error: Tag name cannot be empty"
+            exit 1
+          fi
+          
+          # Check if tag already exists
+          if git tag -l | grep -q "^${TAG_NAME}$"; then
+            echo "❌ Error: Tag '$TAG_NAME' already exists"
+            exit 1
+          fi
+          
+          # Basic validation for tag name format (no spaces, valid characters)
+          if [[ ! "$TAG_NAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "❌ Error: Tag name '$TAG_NAME' contains invalid characters. Only letters, numbers, dots, hyphens, and underscores are allowed."
+            exit 1
+          fi
+          
+          echo "✅ Tag name '$TAG_NAME' is valid"
+          
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Create and push tag
+        run: |
+          TAG_NAME="${{ inputs.tag_name }}"
+          TAG_MESSAGE="${{ inputs.tag_message }}"
+          
+          echo "Creating tag: $TAG_NAME"
+          
+          # Create annotated tag with message
+          git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
+          
+          # Push the tag to origin
+          git push origin "$TAG_NAME"
+          
+          echo "✅ Successfully created and pushed tag: $TAG_NAME"
+          
+      - name: Create summary
+        run: |
+          TAG_NAME="${{ inputs.tag_name }}"
+          TAG_MESSAGE="${{ inputs.tag_message }}"
+          COMMIT_SHA=$(git rev-parse HEAD)
+          
+          echo "## 🏷️ Tag Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag Name:** \`$TAG_NAME\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag Message:** $TAG_MESSAGE" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit SHA:** \`$COMMIT_SHA\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The tag has been created and pushed to the repository." >> $GITHUB_STEP_SUMMARY

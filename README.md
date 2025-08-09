@@ -109,6 +109,21 @@ To ensure proper version bumping, use conventional commit messages:
 4. **APK Build**: The existing release workflow builds and publishes the Android APK
 5. **GitHub Release**: Creates a GitHub release with the APK attached
 
+#### Manual Tag Creation
+
+For cases where you need to create custom tags outside the automated release process (such as hotfix tags, custom tags, or testing tags), you can use the Manual Tag Creation workflow:
+
+1. Go to the [Actions tab](https://github.com/violinyanev/my-kitchen/actions) → "Manual Tag Creation" workflow
+2. Click "Run workflow"
+3. Enter the tag name (e.g., `v1.2.3`, `hotfix-v1.2.4`, `custom-tag`)
+4. Optionally add a tag message/annotation
+5. Click "Run workflow" to create the tag
+
+**Tag Name Requirements:**
+- Must not be empty
+- Can only contain letters, numbers, dots, hyphens, and underscores
+- Must not already exist in the repository
+
 For more details about the release process, see [RELEASE.md](./RELEASE.md).
 
 ## Contributing
