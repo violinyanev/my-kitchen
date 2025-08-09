@@ -109,7 +109,7 @@ To ensure proper version bumping, use conventional commit messages:
 4. **APK Build**: The existing release workflow builds and publishes the Android APK
 5. **GitHub Release**: Creates a GitHub release with the APK attached
 
-For manual releases or advanced usage, see the [semantic-release documentation](https://semantic-release.gitbook.io/).
+For more details about the release process, see [RELEASE.md](./RELEASE.md).
 
 ## Contributing
 
