@@ -1,0 +1,57 @@
+{
+    "name": "My Kitchen Development Environment",
+    "image": "mcr.microsoft.com/devcontainers/ubuntu:22.04",
+    
+    "features": {
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "17",
+            "jdkDistro": "tem",
+            "installGradle": "true"
+        },
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.13"
+        },
+        "ghcr.io/devcontainers/features/android-sdk:1": {
+            "installAndroidStudio": false,
+            "acceptLicenseDebian": true,
+            "apiLevel": "35,34,31,28",
+            "buildToolsVersion": "35.0.0"
+        }
+    },
+    
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.pylint",
+                "vscjava.vscode-java-pack",
+                "vscjava.vscode-gradle",
+                "ms-vscode.vscode-json",
+                "GitHub.copilot",
+                "GitHub.copilot-chat"
+            ]
+        }
+    },
+    
+    "mounts": [
+        "source=my-kitchen-gradle-cache,target=/home/vscode/.gradle,type=volume",
+        "source=my-kitchen-android-cache,target=/home/vscode/.android,type=volume", 
+        "source=my-kitchen-pip-cache,target=/home/vscode/.cache/pip,type=volume",
+        "source=my-kitchen-m2-cache,target=/home/vscode/.m2,type=volume"
+    ],
+    
+    "containerEnv": {
+        "JAVA_VERSION": "17",
+        "GRADLE_USER_HOME": "/home/vscode/.gradle",
+        "FLASK_ENV": "development"
+    },
+    
+    "postCreateCommand": [
+        "bash", "-c", 
+        "pip install --upgrade pip && pip install -r backend/image/requirements.txt && ./gradlew buildHealth && echo 'Development environment ready!'"
+    ],
+    
+    "forwardPorts": [5000],
+    
+    "remoteUser": "vscode"
+}
