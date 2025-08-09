@@ -131,9 +131,9 @@ android {
 
 dependencies {
     // Standard android
-    implementation(libs.androidx.core.ktx)
+
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.material)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.core)
     // Compose
     implementation(platform(libs.androidx.compose.bom))
@@ -149,7 +149,7 @@ dependencies {
     // Database local storage
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.datastore.preferences)
+
     // Ktor - backend interaction
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
@@ -163,23 +163,23 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling) // For previews
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.arch.core.testing)
+
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.work.testing)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.runner)
     // Needed to fix a bug in ui-test (pins espresso to 3.5.0 which has a bug)
-    androidTestImplementation(libs.androidx.espresso.core)
+
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.mockk)
     // For better coroutine tests
-    testImplementation(libs.turbine)
+
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.client.mock)
-    testImplementation(libs.koin.test.junit4)
+
 
     screenshotTestImplementation(libs.screenshot.validation.api)
     screenshotTestImplementation(libs.androidx.compose.ui.tooling)
