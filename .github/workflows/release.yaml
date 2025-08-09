@@ -39,11 +39,9 @@ jobs:
         uses: google-github-actions/release-please-action@v4
         id: release
         with:
-          # Release type for Android projects - handles version.properties and build.gradle files
-          release-type: simple
-          # Customize which commit types trigger releases
-          extra-files: |
-            app/build.gradle.kts
+          # Use manifest-based configuration for better release management
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json
 
   # Step 2: Build and publish APKs when a release is actually created
   build-and-publish:
