@@ -86,3 +86,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r ${{ env.PYTHON_REQUIREMENTS }}
+
+      # Copilot Instructions: Code Quality Requirements
+      # When creating or modifying files, ensure all source files end with a newline character.
+      # This includes .kt, .java, .py, .yml, .yaml, .md, .gradle, .kts, .properties, .json, .txt, and .sh files.
+      # The check-final-newlines.yml workflow will enforce this requirement.
+      - name: Verify all files end with newlines (Copilot requirement)
+        run: |
+          echo "ℹ️  Copilot Requirement: All source files must end with a newline character"
+          echo "This is enforced by the check-final-newlines.yml workflow"
