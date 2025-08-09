@@ -1,6 +1,6 @@
 # My Kitchen
 
-![Tests](https://github.com/violinyanev/my-kitchen/actions/workflows/test.yaml/badge.svg) ![Release](https://github.com/violinyanev/my-kitchen/actions/workflows/release.yaml/badge.svg) [![GitHub License](https://img.shields.io/github/license/violinyanev/my-kitchen?label=License)](https://github.com/violinyanev/my-kitchen/blob/main/LICENSE)
+![Tests](https://github.com/violinyanev/my-kitchen/actions/workflows/test.yaml/badge.svg) ![Release](https://github.com/violinyanev/my-kitchen/actions/workflows/release.yaml/badge.svg) ![Security](https://github.com/violinyanev/my-kitchen/actions/workflows/security.yml/badge.svg) [![GitHub License](https://img.shields.io/github/license/violinyanev/my-kitchen?label=License)](https://github.com/violinyanev/my-kitchen/blob/main/LICENSE)
 
 My Kitchen is a free and open source application for storing and sharing recipes with your family. It features both an Android mobile app and a [self-hosted backend server](./backend/README.md) that allows you to back up your recipe data on your own premises, ensuring complete control over your culinary collection.
 
@@ -144,9 +144,22 @@ We welcome contributions from everyone! Here's how you can help:
 - 📚 Documentation updates
 - 🧪 Test coverage improvements
 
+## Security
+
+This project includes comprehensive automated security analysis:
+
+- 🔒 **Static Security Analysis**: Automated scanning of Python and Kotlin code for security vulnerabilities
+- 🛡️ **Dependency Vulnerability Scanning**: Regular checks for known vulnerabilities in project dependencies
+- 🐳 **Container Security**: Docker image scanning for security issues
+- 🔑 **Secrets Detection**: Automated detection of accidentally committed secrets and credentials
+- 📜 **License Compliance**: Monitoring of dependency licenses for compliance
+
+Security scans run automatically on every pull request and weekly on the main branch. For detailed information about the security analysis system, see [SECURITY.md](SECURITY.md).
+
 ## Support
 
 - 📖 Check the [backend documentation](./backend/README.md) for server setup
+- 🔒 Review [security documentation](SECURITY.md) for security practices
 - 🐛 [Report issues](https://github.com/violinyanev/my-kitchen/issues) on GitHub
 - 💬 Discuss ideas and ask questions in GitHub Discussions
 
