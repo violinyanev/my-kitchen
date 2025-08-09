@@ -14,6 +14,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -61,7 +65,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
         val navController = rememberNavController()
         NavHost(
             navController = navController,
-            startDestination = Screen.RecipesScreen.route
+            startDestination = Screen.RecipesScreen.route,
+            modifier = Modifier.semantics {
+                role = Role.Button
+                contentDescription = "Main navigation"
+            }
         ) {
             composable(route = Screen.LoginScreen.route) {
                 LoginScreen(navController = navController)

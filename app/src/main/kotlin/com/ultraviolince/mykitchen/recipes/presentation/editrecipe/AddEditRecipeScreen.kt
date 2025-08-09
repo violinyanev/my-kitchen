@@ -27,7 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -94,13 +96,17 @@ fun AddEditRecipeScreenContent(
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
-            Row {
+            Row(modifier = Modifier.semantics {
+                contentDescription = "Recipe actions"
+            }) {
                 FloatingActionButton(
                     onClick = {
                         eventHandler(AddEditRecipeEvent.DeleteRecipe)
                     },
-                    // TODO can we reuse the string from below?
-                    modifier = Modifier.semantics { contentDescription = "Delete recipe" }
+                    modifier = Modifier.semantics {
+                        role = Role.Button
+                        contentDescription = "Delete recipe"
+                    }
                 ) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(id = R.string.delete))
                 }
@@ -109,8 +115,10 @@ fun AddEditRecipeScreenContent(
                     onClick = {
                         eventHandler(AddEditRecipeEvent.SaveRecipe)
                     },
-                    // TODO can we reuse the string from below?
-                    modifier = Modifier.semantics { contentDescription = "Save recipe" }
+                    modifier = Modifier.semantics {
+                        role = Role.Button
+                        contentDescription = "Save recipe"
+                    }
                 ) {
                     Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
                 }
@@ -142,7 +150,10 @@ fun AddEditRecipeScreenContent(
                         .onFocusChanged {
                             eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
                         }
-                        .semantics { contentDescription = "Enter recipe title" }
+                        .semantics {
+                            role = Role.Button
+                            contentDescription = "Recipe title"
+                        }
                 )
             }
 
@@ -170,7 +181,10 @@ fun AddEditRecipeScreenContent(
                         .onFocusChanged {
                             eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
                         }
-                        .semantics { contentDescription = "Enter recipe content" }
+                        .semantics {
+                            role = Role.Button
+                            contentDescription = "Recipe content"
+                        }
                 )
             }
         }
