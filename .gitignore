@@ -43,4 +43,3 @@ google-services.json
 
 # Node.js (for release tooling)
 node_modules/
-package-lock.json
