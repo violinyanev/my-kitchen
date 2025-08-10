@@ -40,7 +40,3 @@ google-services.json
 # Android Profiling
 *.hprof
 .vscode/
-
-# Node.js (for release tooling)
-node_modules/
-package-lock.json
