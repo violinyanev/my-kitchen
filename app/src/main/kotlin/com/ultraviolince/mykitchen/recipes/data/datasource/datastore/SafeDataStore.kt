@@ -3,13 +3,14 @@ package com.ultraviolince.mykitchen.recipes.data.datasource.datastore
 import android.content.Context
 import android.util.Log
 import androidx.datastore.dataStore
+import org.koin.core.annotation.InjectedParam
 
 val Context.dataStore by dataStore(
     fileName = "user-preferences",
     serializer = UserPreferencesSerializer
 )
 
-class SafeDataStore(context: Context) {
+class SafeDataStore(@InjectedParam context: Context) {
     private val store = context.dataStore
 
     val preferences = store.data
