@@ -38,14 +38,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyApplicationTheme {
-                MainScreen()
+                AppNavigationHost()
             }
         }
     }
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun AppNavigationHost(modifier: Modifier = Modifier) {
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Main) {
             Choreographer.getInstance().postFrameCallback {
@@ -88,8 +88,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun AppNavigationHostPreview() {
     MyApplicationTheme {
-        MainScreen()
+        AppNavigationHost()
     }
 }
