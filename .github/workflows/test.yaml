@@ -111,7 +111,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: ${{ steps.avd-info.outputs.arch }}
           target: ${{ steps.avd-info.outputs.target }}
-          script: ./gradlew connectedCheck --stacktrace
+          script: ./gradlew :app:connectedDebugAndroidTest --stacktrace
         env:
           API_LEVEL: ${{ matrix.api-level }}
 
