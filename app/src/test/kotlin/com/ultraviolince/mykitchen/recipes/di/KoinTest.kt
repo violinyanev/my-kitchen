@@ -12,8 +12,6 @@ class KoinTest : KoinTest {
     @OptIn(KoinExperimentalAPI::class)
     @Test
     fun checkAllModules() {
-        AppModule().module.verify(extraTypes = listOf(
-            androidx.lifecycle.SavedStateHandle::class,
-            android.content.Context::class))
+        AppModule().module.verify()
     }
 }

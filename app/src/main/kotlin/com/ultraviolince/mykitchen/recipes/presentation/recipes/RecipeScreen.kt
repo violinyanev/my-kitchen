@@ -6,10 +6,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,20 +17,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CloudSync
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.SyncProblem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -47,6 +38,7 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkE
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.OrderSection
+import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.RecipeListHeader
 import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import org.koin.androidx.compose.koinViewModel
@@ -111,53 +103,11 @@ fun RecipeScreenContent(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.your_recipes),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                IconButton(
-                    onClick = onSortClick
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FilterList,
-                        contentDescription = stringResource(id = R.string.sort)
-                    )
-                }
-                IconButton(
-                    onClick = onLoginClick
-                ) {
-                    when (recipeState.syncState) {
-                        LoginState.LoginEmpty ->
-                            Icon(
-                                imageVector = Icons.Default.SyncProblem,
-                                contentDescription = stringResource(id = R.string.sync_disabled)
-                            )
-
-                        LoginState.LoginPending ->
-                            Icon(
-                                imageVector = Icons.Default.Sync,
-                                contentDescription = stringResource(id = R.string.sync_loading)
-                            )
-
-                        LoginState.LoginSuccess ->
-                            Icon(
-                                imageVector = Icons.Default.CloudSync,
-                                contentDescription = stringResource(id = R.string.sync_enabled)
-                            )
-
-                        is LoginState.LoginFailure ->
-                            Icon(
-                                imageVector = Icons.Default.SyncProblem,
-                                contentDescription = stringResource(id = R.string.sync_disabled)
-                            )
-                    }
-                }
-            }
+            RecipeListHeader(
+                syncState = recipeState.syncState,
+                onSortClick = onSortClick,
+                onSyncClick = onLoginClick
+            )
             AnimatedVisibility(
                 visible = recipeState.isOrderSelectionVisible,
                 enter = fadeIn() + slideInVertically(),

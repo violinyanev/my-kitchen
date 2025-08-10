@@ -186,6 +186,7 @@ After building, find generated files in:
 - **API Testing**: Most endpoints require authentication; use `/health` for basic connectivity testing
 - **Android Development**: Debug builds include test credentials for backend connectivity
 - **Code Quality**: Always run `detekt` before committing; use auto-correct: `./gradlew detekt --auto-correct`
+- **Commit Messages**: Follow conventional commit format for automated versioning
 
 ## Architecture Notes
 - **Android App**: Built with Kotlin, Jetpack Compose, Room database, Ktor HTTP client

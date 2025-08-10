@@ -20,7 +20,7 @@ jobs:
         java-version: 17
 
     - name: Setup Gradle
-      uses: gradle/gradle-build-action@v3
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Build APKs
       run: |
@@ -36,3 +36,10 @@ jobs:
           ${{runner.workspace}}/my-kitchen/app/build/outputs/apk/release/app-release.apk
         fail_on_unmatched_files: true
 
+    - name: Upload APK to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ needs.release-please.outputs.tag_name }}
+        files: |
+          app/build/outputs/apk/release/app-release.apk
+        fail_on_unmatched_files: true

@@ -198,16 +198,11 @@ val excludedClasses = listOf(
 val excludedPackages = listOf(
     // Dependency injection itself doesn't need to be tested
     "com.ultraviolince.mykitchen.di",
+    "org.koin.ksp.generated",
     // Presentation not unit test(able) currently, could revisit later (maybe try paparazzi + compose?)
     "com.ultraviolince.mykitchen.recipes.presentation",
     // Theme values are generated, no need to unit test
     "com.ultraviolince.mykitchen.ui.theme",
-    "dagger.hilt.internal.aggregatedroot.codegen",
-    "_HiltModules",
-    "Hilt_",
-    "dagger.hilt.internal.aggregatedroot.codegen",
-    "hilt_aggregated_deps",
-    "ViewModel_Factory"
 )
 
 kover {
