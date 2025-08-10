@@ -80,52 +80,6 @@ cd backend
 python3 ./scripts/dev.py start
 ```
 
-## Releases
-
-### Automated Release Process
-
-This project uses automated semantic versioning for releases. The release process analyzes commit messages to automatically determine the appropriate version bump (major, minor, or patch).
-
-#### Creating a Release
-
-1. **One-Click Release**: Go to the [Actions tab](https://github.com/violinyanev/my-kitchen/actions) → "Create Release" workflow → "Run workflow"
-2. **Dry Run Option**: You can perform a dry run first to see what version would be released without actually creating the release
-3. **Automatic Versioning**: The system analyzes commit messages since the last release to determine the version bump
-
-#### Commit Message Format
-
-To ensure proper version bumping, use conventional commit messages:
-
-- `feat: add new recipe search functionality` → **minor** version bump
-- `fix: resolve crash when saving recipe` → **patch** version bump  
-- `feat!: redesign recipe storage format` → **major** version bump (breaking change)
-- `docs: update installation instructions` → **no** version bump
-
-#### What Happens During Release
-
-1. **Version Calculation**: Analyzes commits since last release using conventional commit format
-2. **Tag Creation**: Creates a git tag with the new version (e.g., `v1.2.0`)
-3. **Changelog Generation**: Automatically updates `CHANGELOG.md` with release notes
-4. **APK Build**: The existing release workflow builds and publishes the Android APK
-5. **GitHub Release**: Creates a GitHub release with the APK attached
-
-#### Manual Tag Creation
-
-For cases where you need to create custom tags outside the automated release process (such as hotfix tags, custom tags, or testing tags), you can use the Manual Tag Creation workflow:
-
-1. Go to the [Actions tab](https://github.com/violinyanev/my-kitchen/actions) → "Manual Tag Creation" workflow
-2. Click "Run workflow"
-3. Enter the tag name (e.g., `v1.2.3`, `hotfix-v1.2.4`, `custom-tag`)
-4. Optionally add a tag message/annotation
-5. Click "Run workflow" to create the tag
-
-**Tag Name Requirements:**
-- Must not be empty
-- Can only contain letters, numbers, dots, hyphens, and underscores
-- Must not already exist in the repository
-
-For more details about the release process, see [RELEASE.md](./RELEASE.md).
-
 ## Contributing
 
 We welcome contributions from everyone! Here's how you can help:
@@ -145,7 +99,7 @@ We welcome contributions from everyone! Here's how you can help:
 3. Make your changes
 4. Add tests if applicable
 5. Ensure all tests pass (`./gradlew test` for Android, see backend README for backend tests)
-6. Commit your changes using conventional commit format (`git commit -m 'feat: add amazing feature'`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
 7. Push to the branch (`git push origin feature/amazing-feature`)
 8. Open a Pull Request
 
