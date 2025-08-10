@@ -179,6 +179,7 @@ dependencies {
 
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.koin.test.junit4)
 
 
     screenshotTestImplementation(libs.screenshot.validation.api)
