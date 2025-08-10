@@ -4,7 +4,7 @@ This document describes the automated release process for My Kitchen.
 
 ## Release Process
 
-The automated release system uses Google's release-please action to analyze commit messages and automatically determine version bumps.
+The automated release system uses semantic-release to analyze commit messages and automatically determine version bumps.
 
 ### Supported Commit Types
 
@@ -27,19 +27,18 @@ Add `!` after the type for breaking changes (major version bump):
 
 ## Usage
 
-The release process is now fully automated:
+1. Navigate to GitHub Actions
+2. Select "Create Release" workflow  
+3. Click "Run workflow"
+4. Choose options:
+   - **Dry run**: Preview what would be released without creating actual release
+   - **First release**: Create initial v1.0.0 tag (only needed for very first release)
 
-1. **Make changes** with conventional commit messages (see supported types above)
-2. **Push to main branch** - the workflow automatically detects releasable changes
-3. **Review the release PR** - if there are releasable changes, a PR will be created with:
-   - Updated version number
-   - Generated changelog
-   - All changes since last release
-4. **Merge the release PR** - this automatically:
-   - Creates a GitHub release with the new version tag
-   - Builds and uploads the APK to the release
-   
-No manual workflow dispatch needed - everything happens automatically based on your commits!
+The system will automatically:
+1. Analyze commits since last release using conventional commit format
+2. Determine appropriate version bump based on commit types
+3. Create git tag and changelog
+4. Trigger APK build via existing release workflow
 
 ## Examples
 

@@ -1,81 +1,40 @@
 name: Release
 
-# This workflow automates the release process using Google's release-please action.
-# It automatically:
-# 1. Analyzes conventional commits since the last release
-# 2. Computes the next version number based on commit types (feat=minor, fix=patch, breaking=major)
-# 3. Creates a release PR with changelog when changes are detected
-# 4. When the release PR is merged, creates a GitHub release and builds APKs
-#
-# Supported commit types:
-# - feat: new features (minor version bump)
-# - fix: bug fixes (patch version bump)  
-# - feat!: or fix!: breaking changes (major version bump)
-# - docs, style, refactor, perf, test, build, ci, chore: patch or no bump depending on importance
-#
-# No manual intervention needed - just merge the release PR when ready to release.
-
-'on':
-  # Trigger on every push to main to check for release-worthy changes
+on:
   push:
-    branches: [main]
-  # Allow manual triggering for immediate releases
-  workflow_dispatch:
-
-# Grant necessary permissions for creating releases and tags
-permissions:
-  contents: write
-  pull-requests: write
+    tags:
+      - 'v*.*.*'
 
 jobs:
-  # Step 1: Check for releasable changes and create release PR if needed
-  release-please:
+  build:
     runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
+
+    permissions:
+      contents: write
+
     steps:
-      - name: Create or update release PR
-        uses: google-github-actions/release-please-action@v4
-        id: release
-        with:
-          # Release type for Android projects - handles version.properties and build.gradle files
-          release-type: simple
-          # Customize which commit types trigger releases
-          extra-files: |
-            app/build.gradle.kts
+    - uses: actions/checkout@v4
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
 
-  # Step 2: Build and publish APKs when a release is actually created
-  build-and-publish:
-    # Only run when a release was actually created (not just PR creation)
-    if: ${{ needs.release-please.outputs.release_created }}
-    needs: release-please
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v3
 
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3
+    - name: Build APKs
+      run: |
+        ./gradlew :app:assembleRelease \
+          -PversionCode=$(git rev-list --count HEAD) \
+          -PversionName=$(git describe --tags --abbrev=0)
 
-      - name: Build release APK
-        run: |
-          # Extract version from the created tag and use it for APK versioning
-          VERSION_NAME="${{ needs.release-please.outputs.tag_name }}"
-          VERSION_CODE=$(git rev-list --count HEAD)
-          
-          echo "Building APK with version: $VERSION_NAME (code: $VERSION_CODE)"
-          
-          ./gradlew :app:assembleRelease \
-            -PversionCode=$VERSION_CODE \
-            -PversionName=$VERSION_NAME
+    - name: Publish release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          ${{runner.workspace}}/my-kitchen/app/build/outputs/apk/release/app-release.apk
+        fail_on_unmatched_files: true
 
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v2
