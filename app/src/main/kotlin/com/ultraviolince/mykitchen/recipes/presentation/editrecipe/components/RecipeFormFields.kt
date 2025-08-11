@@ -70,7 +70,7 @@ class RecipeFormFieldsPreviewParameterProvider : PreviewParameterProvider<Recipe
 
 @Preview(showBackground = true)
 @Composable
-private fun RecipeFormFieldsPreview(
+internal fun RecipeFormFieldsPreview(
     @PreviewParameter(RecipeFormFieldsPreviewParameterProvider::class) state: RecipeFormState
 ) {
     MyApplicationTheme {

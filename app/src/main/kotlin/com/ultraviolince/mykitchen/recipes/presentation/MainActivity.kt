@@ -76,7 +76,7 @@ fun AppNavigationHost(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun AppNavigationHostPreview() {
+private fun AppNavigationHostPreview() {
     MyApplicationTheme {
         AppNavigationHost()
     }

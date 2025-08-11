@@ -138,7 +138,7 @@ class LoginScreenPreviewParameterProvider : PreviewParameterProvider<LoginScreen
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun LoginScreenPreview(
+internal fun LoginScreenPreview(
     @PreviewParameter(LoginScreenPreviewParameterProvider::class) state: LoginScreenState
 ) {
     MyApplicationTheme {

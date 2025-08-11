@@ -161,31 +161,32 @@ fun LazyRecipesList(
     }
 }
 
+// TODO fix previews below and re-enable
 class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<RecipesState> {
 
     override val values = sequenceOf(
-        RecipesState(
-            ImmutableRecipesList(
-                listOf(
-                    Recipe(
-                        "Recipe title",
-                        content = "This is a long\nmultipline\ntext\nwith\nmany\nlines\nreally",
-                        timestamp = 5
-                    )
-                )
-            )
-        ),
+//        RecipesState(
+//            ImmutableRecipesList(
+//                listOf(
+//                    Recipe(
+//                        "Recipe title",
+//                        content = "This is a long\nmultipline\ntext\nwith\nmany\nlines\nreally",
+//                        timestamp = 5
+//                    )
+//                )
+//            )
+//        ),
         RecipesState(),
-        RecipesState(
-            recipes = ImmutableRecipesList(List(10) { index ->
-                Recipe(
-                    "Recipe $index",
-                    content = "Lorem ipsum dolor sit amet $index",
-                    timestamp = 5
-                )
-            }
-            )
-        ),
+//        RecipesState(
+//            recipes = ImmutableRecipesList(List(10) { index ->
+//                Recipe(
+//                    "Recipe $index",
+//                    content = "Lorem ipsum dolor sit amet $index",
+//                    timestamp = 5
+//                )
+//            }
+//            )
+//        ),
         RecipesState(syncState = LoginState.LoginEmpty),
         RecipesState(syncState = LoginState.LoginPending),
         RecipesState(syncState = LoginState.LoginSuccess),
@@ -195,7 +196,7 @@ class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<Recip
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun RecipeScreenPreviewRealistic(
+internal fun RecipeScreenPreviewRealistic(
     @PreviewParameter(RecipeScreenStatePreviewParameterProvider::class) recipesState: RecipesState
 ) {
     MyApplicationTheme {
