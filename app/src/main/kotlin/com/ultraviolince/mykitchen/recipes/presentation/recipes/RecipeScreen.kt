@@ -39,7 +39,8 @@ import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.OrderSection
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.RecipeListHeader
-import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
+import com.ultraviolince.mykitchen.recipes.presentation.util.AddEditRecipeScreen
+import com.ultraviolince.mykitchen.recipes.presentation.util.LoginScreen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -52,12 +53,10 @@ fun RecipeScreen(
 
     RecipeScreenContent(
         onAddRecipe = {
-            navController.navigate(Screen.AddEditRecipeScreen.route)
+            navController.navigate(AddEditRecipeScreen())
         },
         onLoginClick = {
-            navController.navigate(
-                Screen.LoginScreen.route
-            )
+            navController.navigate(LoginScreen)
         },
         onSortClick = {
             viewModel.onEvent(RecipesEvent.ToggleOrderSection)
@@ -67,7 +66,7 @@ fun RecipeScreen(
         },
         onRecipeClicked = { recipe ->
             navController.navigate(
-                Screen.AddEditRecipeScreen.route + "?recipeId=${recipe.id}"
+                AddEditRecipeScreen(recipeId = recipe.id?.toInt() ?: -1)
             )
         },
         recipeState = state
