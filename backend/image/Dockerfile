@@ -19,6 +19,10 @@ COPY auth/ ./auth/
 
 COPY users/ ./users/
 
+# Set environment variables for container deployment
+ENV FLASK_HOST=0.0.0.0
+ENV FLASK_PORT=5000
+
 # Expose port 5000 for the Flask app
 EXPOSE 5000
 
