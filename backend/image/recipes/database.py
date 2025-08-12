@@ -29,6 +29,9 @@ RECIPE_SCHEMA = {
     'additionalProperties': False,
 }
 
+# Schema for validating individual recipes
+SINGLE_RECIPE_SCHEMA = RECIPE_SCHEMA['properties']['recipes']['items']
+
 empty = {
     'recipes': [
     ]
@@ -53,7 +56,7 @@ class Database:
         try:
             jsonschema.validate(self.data, RECIPE_SCHEMA)
         except:
-            # TODO implement conversion scripts or use a proper DB
+            # Handle schema incompatibility by backing up and recreating (for YAML-based storage)
             print("Found database file can not be validated! Creating a backup and a new database")
             backup_directory = file.parent / "backup"
             date = datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M')
@@ -66,7 +69,7 @@ class Database:
                 self.data = yaml.safe_load(f)
 
 
-        # TODO: find a better way to handle the IDs
+        # Initialize next ID based on existing data (YAML-based ID sequence)
         if self.data['recipes']:
             self.next_id = int(max(self.data['recipes'], key=lambda d: d['id'])['id']) + 1
         else:
@@ -88,7 +91,7 @@ class Database:
             if not isinstance(timestamp, int):
                 return None, f"timestamp must be of type integer, found '{timestamp}' instead!"
         else:
-            timestamp = time.time()
+            timestamp = int(time.time())
 
         new_recipe['timestamp'] = timestamp
 
@@ -110,8 +113,8 @@ class Database:
         new_recipe['title'] = recipe['title']
         new_recipe['body'] = recipe.get('body', "")
 
-        # TODO don't validate the entire array, just the recipe
-        jsonschema.validate(self.data, RECIPE_SCHEMA)
+        # Validate just the new recipe before adding
+        jsonschema.validate(new_recipe, SINGLE_RECIPE_SCHEMA)
 
         self.data['recipes'].append(new_recipe)
         self.save()

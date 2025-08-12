@@ -396,10 +396,10 @@ style:
   ExpressionBodySyntax:
     active: false
     includeLineWrapping: false
-  # TODO: enable this?
-  #ForbiddenComment:
-  #  active: true
-  #  values: 'TODO:,FIXME:'
+  # Enable rule to catch remaining TODO/FIXME comments
+  ForbiddenComment:
+    active: true
+    comments: ['TODO:', 'FIXME:']
   ForbiddenImport:
     active: false
     imports: []

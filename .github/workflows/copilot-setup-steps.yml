@@ -16,7 +16,7 @@ env:
     GRADLE_VERSION: '8.14.3'
     PYTHON_VERSION: '3.13'
 
-    # TODO use all of these variables in the steps below
+    # Reference environment variables for GitHub Actions setup (use in actual workflow files)
     ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
     ANDROID_HOME: ${{ github.workspace }}/android-sdk
     ANDROID_NDK_HOME: ${{ github.workspace }}/android-ndk

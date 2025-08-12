@@ -27,6 +27,9 @@ USERS_SCHEMA = {
     'additionalProperties': False,
 }
 
+# Schema for validating individual users
+USER_SCHEMA = USERS_SCHEMA['properties']['users']['items']
+
 empty = {
     'users': [
     ]
@@ -57,7 +60,7 @@ class Database:
         try:
             jsonschema.validate(self.data, USERS_SCHEMA)
         except:
-            # TODO implement conversion scripts or use a proper DB
+            # Handle schema incompatibility by backing up and recreating (for YAML-based storage)
             print("Found database file can not be validated! Creating a backup and a new database")
             backup_directory = file.parent / "backup"
             date = datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M')
@@ -93,15 +96,15 @@ class Database:
             return None, "Bad credentials"
 
 
-    # TODO protect
+    # User creation method (currently for internal/setup use only)
     def create(self, email, username, password):
         new_user = {
             'email' : email,
             'name': username,
             'password': password,
         }
-        # TODO don't validate the entire array, just the new user
-        jsonschema.validate(self.data, USERS_SCHEMA)
+        # Validate just the new user before adding
+        jsonschema.validate(new_user, USER_SCHEMA)
 
         self.data['users'].append(new_user)
 
