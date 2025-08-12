@@ -58,7 +58,7 @@ class RecipeListHeaderPreviewParameterProvider : PreviewParameterProvider<LoginS
 
 @Preview(showBackground = true)
 @Composable
-private fun RecipeListHeaderPreview(
+internal fun RecipeListHeaderPreview(
     @PreviewParameter(RecipeListHeaderPreviewParameterProvider::class) syncState: LoginState
 ) {
     MyApplicationTheme {
