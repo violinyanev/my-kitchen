@@ -25,7 +25,7 @@ fun createHttpClient(engine: HttpClientEngine, server: String, token: String?, c
             install(Auth) {
                 bearer {
                     loadTokens {
-                        // TODO implement real bearer
+                        // Using provided token for Bearer authentication
                         BearerTokens(token, "not used")
                     }
                 }

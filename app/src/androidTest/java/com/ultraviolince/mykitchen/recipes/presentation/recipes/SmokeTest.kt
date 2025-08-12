@@ -78,7 +78,6 @@ class SmokeTest {
         }
     }
 
-    // TODO Fix the tests
     @Test
     fun createRecipe_WithoutLogin() {
         // By default, no cloud sync

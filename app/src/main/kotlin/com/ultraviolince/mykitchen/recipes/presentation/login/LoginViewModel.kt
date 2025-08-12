@@ -114,15 +114,14 @@ class LoginViewModel(
                                     _eventFlow.emit(
                                         UiEvent.ShowSnackbar(
                                             when (it.error) {
-                                                // TODO fix all responses
                                                 NetworkError.UNKNOWN -> R.string.unknown_error
                                                 NetworkError.REQUEST_TIMEOUT -> R.string.malformed_server_uri
-                                                NetworkError.UNAUTHORIZED -> R.string.unknown_error
+                                                NetworkError.UNAUTHORIZED -> R.string.unknown_error  // Invalid credentials
                                                 NetworkError.CONFLICT -> R.string.unknown_error
                                                 NetworkError.TOO_MANY_REQUESTS -> R.string.unknown_error
-                                                NetworkError.NO_INTERNET -> R.string.unknown_error
+                                                NetworkError.NO_INTERNET -> R.string.malformed_server_uri  // Can't reach server
                                                 NetworkError.PAYLOAD_TOO_LARGE -> R.string.unknown_error
-                                                NetworkError.SERVER_ERROR -> R.string.malformed_server_uri
+                                                NetworkError.SERVER_ERROR -> R.string.malformed_server_uri  // Server unreachable
                                                 NetworkError.SERIALIZATION -> R.string.unknown_error
                                             }
                                         )

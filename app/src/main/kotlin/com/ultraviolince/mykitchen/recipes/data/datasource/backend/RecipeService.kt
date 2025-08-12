@@ -110,7 +110,7 @@ class RecipeService(private val ktor: HttpClient) {
         } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
         } catch (e: ConnectException) {
-            return Result.Error(NetworkError.SERVER_ERROR) // TODO Probably need different error handling
+            return Result.Error(NetworkError.SERVER_ERROR) // Connection refused or server unreachable
         }
 
         return when (response.status.value) {
@@ -118,7 +118,7 @@ class RecipeService(private val ktor: HttpClient) {
                 val result = response.body<LoginResult>()
                 Result.Success(result)
             }
-            400 -> Result.Error(NetworkError.UNAUTHORIZED) // TODO Probably different error handling needed
+            400 -> Result.Error(NetworkError.UNKNOWN) // Bad request format or invalid parameters
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             409 -> Result.Error(NetworkError.CONFLICT)
             408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)

@@ -161,32 +161,33 @@ fun LazyRecipesList(
     }
 }
 
-// TODO fix previews below and re-enable
+// Preview providers for RecipeScreen
 class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<RecipesState> {
 
     override val values = sequenceOf(
-//        RecipesState(
-//            ImmutableRecipesList(
-//                listOf(
-//                    Recipe(
-//                        "Recipe title",
-//                        content = "This is a long\nmultipline\ntext\nwith\nmany\nlines\nreally",
-//                        timestamp = 5
-//                    )
-//                )
-//            )
-//        ),
+        RecipesState(
+            recipes = ImmutableRecipesList(
+                listOf(
+                    Recipe(
+                        title = "Recipe title",
+                        content = "This is a long\nmultipline\ntext\nwith\nmany\nlines\nreally",
+                        timestamp = 5,
+                        id = 1
+                    )
+                )
+            )
+        ),
         RecipesState(),
-//        RecipesState(
-//            recipes = ImmutableRecipesList(List(10) { index ->
-//                Recipe(
-//                    "Recipe $index",
-//                    content = "Lorem ipsum dolor sit amet $index",
-//                    timestamp = 5
-//                )
-//            }
-//            )
-//        ),
+        RecipesState(
+            recipes = ImmutableRecipesList(List(10) { index ->
+                Recipe(
+                    title = "Recipe $index",
+                    content = "Lorem ipsum dolor sit amet $index",
+                    timestamp = 5,
+                    id = index.toLong()
+                )
+            })
+        ),
         RecipesState(syncState = LoginState.LoginEmpty),
         RecipesState(syncState = LoginState.LoginPending),
         RecipesState(syncState = LoginState.LoginSuccess),

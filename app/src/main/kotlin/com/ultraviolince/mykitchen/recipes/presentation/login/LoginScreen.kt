@@ -38,7 +38,6 @@ fun LoginScreen(
 
     val snackBarHostState = remember { SnackbarHostState() }
 
-    // TODO better way?
     val context = LocalContext.current
 
     LaunchedEffect(key1 = true) {

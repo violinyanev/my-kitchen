@@ -39,7 +39,7 @@ import org.junit.Test
 //    @Test
 //    fun failsToLoginToServerWhenPasswordIsWrong() = runTest {
 //        val result = service.login(FakeBackend.server, email = FakeBackend.testUser, "bad password")
-//        // TODO Probbly needs different error handling
+//        // Probably needs different error handling
 //        assertEquals(LoginState.LoginFailure(NetworkError.UNAUTHORIZED), result)
 //    }
 //
