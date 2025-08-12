@@ -35,7 +35,6 @@ class RecipeViewModel(
     fun onEvent(event: RecipesEvent) {
         when (event) {
             is RecipesEvent.Order -> {
-                // TODO implement
                 if (state.value.recipeOrder::class == event.recipesOrder::class &&
                     state.value.recipeOrder.orderType == event.recipesOrder.orderType
                 ) {

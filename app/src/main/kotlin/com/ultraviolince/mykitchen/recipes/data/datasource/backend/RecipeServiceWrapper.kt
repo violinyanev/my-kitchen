@@ -29,7 +29,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
     }
 
     init {
-        // TODO is a better way possible?
+        // Using GlobalScope for app-wide service initialization from stored preferences
         @Suppress("OPT_IN_USAGE")
         GlobalScope.launch {
             val prefs = dataStore.preferences.first()
@@ -39,8 +39,16 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
                 logger.log("Restoring data, server=${prefs.server}")
                 recipeService = RecipeService(createHttpClient(CIO.create(), prefs.server, prefs.token, logger))
 
-                // TODO: check if token still valid
-                loginState.emit(LoginState.LoginSuccess)
+                // Validate token by making a test request
+                try {
+                    recipeService!!.getRecipes()
+                    logger.log("Token validation successful")
+                    loginState.emit(LoginState.LoginSuccess)
+                } catch (e: Exception) {
+                    logger.log("Token validation failed: ${e.message}")
+                    recipeService = null
+                    loginState.emit(LoginState.LoginEmpty)
+                }
             }
         }
     }
@@ -50,7 +58,8 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
 
         val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
 
-        // TODO wipe pref data?
+        // Clear any existing preference data before new login attempt
+        dataStore.clear()
 
         val result = tmpService.login(LoginRequest(email, password))
 
@@ -74,46 +83,44 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
     suspend fun insertRecipe(recipeId: Long, recipe: Recipe): Boolean {
         Log.i("Recipes", "Syncing recipe to backend: $recipe")
 
-        // TODO make this safe by design
-        recipeService?.apply {
-            val result = createRecipe(
-                BackendRecipe(
-                    id = recipeId,
-                    title = recipe.title,
-                    body = recipe.content,
-                    timestamp = recipe.timestamp
-                )
-            )
-
-            Log.i("#network", "Create recipe result: $result")
-            return when (result) {
-                is Result.Error -> false
-                is Result.Success -> {
-                    true
-                }
-            }
+        // Ensure we have an active service connection before proceeding
+        val service = recipeService ?: run {
+            Log.w("Recipes", "Cannot sync recipe: not logged in")
+            return false
         }
 
-        return false
+        val result = service.createRecipe(
+            BackendRecipe(
+                id = recipeId,
+                title = recipe.title,
+                body = recipe.content,
+                timestamp = recipe.timestamp
+            )
+        )
+
+        Log.i("#network", "Create recipe result: $result")
+        return when (result) {
+            is Result.Error -> false
+            is Result.Success -> true
+        }
     }
 
     suspend fun deleteRecipe(recipeId: Long): Boolean {
         Log.i("Recipes", "Deleting recipe from backend: $recipeId")
-        // TODO make this safe by design
 
-        recipeService?.apply {
-            val result = deleteRecipe(
-                recipeId = recipeId
-            )
-
-            Log.i("#network", "Delete recipe result: $result")
-            return when (result) {
-                is Result.Error -> false
-                is Result.Success -> true
-            }
+        // Ensure we have an active service connection before proceeding
+        val service = recipeService ?: run {
+            Log.w("Recipes", "Cannot delete recipe: not logged in")
+            return false
         }
 
-        return false
+        val result = service.deleteRecipe(recipeId = recipeId)
+
+        Log.i("#network", "Delete recipe result: $result")
+        return when (result) {
+            is Result.Error -> false
+            is Result.Success -> true
+        }
     }
 
     private suspend fun sync() {

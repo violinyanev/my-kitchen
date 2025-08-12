@@ -24,4 +24,14 @@ class SafeDataStore(@InjectedParam context: Context) {
             )
         }
     }
+
+    suspend fun clear() {
+        Log.i("#data", "Clearing preferences")
+        store.updateData {
+            UserPreferences(
+                server = null,
+                token = null
+            )
+        }
+    }
 }

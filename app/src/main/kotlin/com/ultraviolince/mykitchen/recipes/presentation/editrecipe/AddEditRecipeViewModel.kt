@@ -40,7 +40,7 @@ class AddEditRecipeViewModel(
     init {
         Log.i("Recipes", "Entering the edit recipe screen")
 
-        // TODO remove this?
+        // Handle Int recipeId from navigation for compatibility
         savedStateHandle.get<Int>("recipeId")?.let { recipeIdInt ->
             val recipeId = recipeIdInt.toLong()
             savedStateHandle["recipeId"] = recipeId
@@ -113,7 +113,7 @@ class AddEditRecipeViewModel(
             is AddEditRecipeEvent.DeleteRecipe -> {
                 Log.i("Recipes", "User is deleting the recipe")
                 viewModelScope.launch {
-                    // TODO id is enough to pass here
+                    // Create minimal Recipe object for deletion (repository interface requires full Recipe)
                     recipesUseCases.deleteRecipe(
                         Recipe(
                             title = recipeTitle.value.text,
