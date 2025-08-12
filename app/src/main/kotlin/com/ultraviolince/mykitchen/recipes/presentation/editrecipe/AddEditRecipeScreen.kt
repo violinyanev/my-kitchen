@@ -19,13 +19,13 @@ import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.components.Re
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.components.RecipeFormFields
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
-import org.koin.androidx.compose.koinViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun AddEditRecipeScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: AddEditRecipeViewModel = koinViewModel()
+    viewModel: AddEditRecipeViewModel = hiltViewModel()
 ) {
     val titleState = viewModel.recipeTitle.value
     val contentState = viewModel.recipeContent.value

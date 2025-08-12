@@ -16,14 +16,17 @@ import com.ultraviolince.mykitchen.recipes.domain.usecase.GetRecipes
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Login
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Logout
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
-@ComponentScan("com.ultraviolince.mykitchen")
-class AppModule {
-    @Single
+@InstallIn(SingletonComponent::class)
+object AppModule {
+    @Provides
+    @Singleton
     fun provideRecipeDatabase(app: Application): RecipeDatabase {
         return Room.databaseBuilder(
             app,
@@ -32,17 +35,20 @@ class AppModule {
         ).build()
     }
 
-    @Single
+    @Provides
+    @Singleton
     fun provideRecipeDao(db: RecipeDatabase): RecipeDao {
         return db.recipeDao
     }
 
-    @Single
+    @Provides
+    @Singleton
     fun provideSafeDataStore(app: Application): SafeDataStore {
         return SafeDataStore(app)
     }
 
-    @Single
+    @Provides
+    @Singleton
     fun provideRecipeRepository(
         dao: RecipeDao,
         service: RecipeServiceWrapper,
@@ -50,7 +56,8 @@ class AppModule {
         return RecipeRepositoryImpl(dao, service)
     }
 
-    @Single
+    @Provides
+    @Singleton
     fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
         return Recipes(
             login = Login(repository),
@@ -63,7 +70,8 @@ class AppModule {
         )
     }
 
-    @Single
+    @Provides
+    @Singleton
     fun provideRecipeServiceWrapper(dao: RecipeDao, dataStore: SafeDataStore): RecipeServiceWrapper {
         return RecipeServiceWrapper(dataStore, dao)
     }

@@ -1,17 +1,21 @@
 package com.ultraviolince.mykitchen.recipes.di
 
-import com.ultraviolince.mykitchen.di.AppModule
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Rule
 import org.junit.Test
-import org.koin.core.annotation.KoinExperimentalAPI
-import org.koin.ksp.generated.module
-import org.koin.test.KoinTest
-import org.koin.test.verify.verify
 
-class KoinTest : KoinTest {
+@HiltAndroidTest
+class HiltTest {
 
-    @OptIn(KoinExperimentalAPI::class)
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
     @Test
     fun checkAllModules() {
-        AppModule().module.verify()
+        // Hilt automatically verifies all modules during compilation
+        // This test ensures the Hilt setup works correctly
+        hiltRule.inject()
+        // If this test runs without errors, the DI setup is correct
     }
 }

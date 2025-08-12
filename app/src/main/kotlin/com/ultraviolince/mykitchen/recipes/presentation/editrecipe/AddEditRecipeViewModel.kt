@@ -14,13 +14,13 @@ import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
-import org.koin.core.annotation.InjectedParam
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-@KoinViewModel
-class AddEditRecipeViewModel(
+@HiltViewModel
+class AddEditRecipeViewModel @Inject constructor(
     private val recipesUseCases: Recipes,
-    @InjectedParam savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _recipeTitle = mutableStateOf(
         RecipeTextFieldState(

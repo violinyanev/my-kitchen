@@ -42,12 +42,12 @@ import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.Recip
 import com.ultraviolince.mykitchen.recipes.presentation.util.AddEditRecipeScreen
 import com.ultraviolince.mykitchen.recipes.presentation.util.LoginScreen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
-import org.koin.androidx.compose.koinViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun RecipeScreen(
     navController: NavController,
-    viewModel: RecipeViewModel = koinViewModel()
+    viewModel: RecipeViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
 

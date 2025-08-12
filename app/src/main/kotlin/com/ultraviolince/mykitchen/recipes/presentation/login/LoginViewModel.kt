@@ -19,10 +19,11 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-@KoinViewModel
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val recipesUseCases: Recipes
 ) : ViewModel() {
 

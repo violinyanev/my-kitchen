@@ -23,13 +23,13 @@ import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFie
 import com.ultraviolince.mykitchen.recipes.presentation.login.components.LoginFormFields
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
-import org.koin.androidx.compose.koinViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun LoginScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = koinViewModel()
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
     val isLoggedIn = viewModel.isLoggedIn.collectAsStateWithLifecycle()
     val serverState = viewModel.server.value
