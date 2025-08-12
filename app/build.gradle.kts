@@ -102,8 +102,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
-        // Disable warnings as errors for kapt compatibility with Kotlin 2.1
-        // allWarningsAsErrors = true
+        allWarningsAsErrors = true
     }
     packaging {
         resources {
@@ -116,14 +115,6 @@ android {
     }
 
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
-
-    // Configure kapt to work with Kotlin 2.1
-    kapt {
-        arguments {
-            arg("kapt.kotlin.experimental", "true")
-        }
-        correctErrorTypes = true
-    }
 }
 
 dependencies {
