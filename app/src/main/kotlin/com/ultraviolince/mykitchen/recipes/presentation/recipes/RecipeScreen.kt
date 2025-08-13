@@ -27,8 +27,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -172,6 +175,15 @@ fun LazyRecipesList(
                     .semantics(mergeDescendants = true) {
                         role = Role.Button
                         contentDescription = "Recipe: ${recipe.title}. ${recipePreview}. Tap to edit."
+                        customActions = listOf(
+                            CustomAccessibilityAction(
+                                label = "Edit recipe",
+                                action = {
+                                    onRecipeClicked(recipe)
+                                    true
+                                }
+                            )
+                        )
                     }
             )
             HorizontalDivider()

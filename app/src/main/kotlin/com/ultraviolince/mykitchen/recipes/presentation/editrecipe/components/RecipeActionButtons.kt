@@ -11,7 +11,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,7 +29,18 @@ fun RecipeActionButtons(
     Row(modifier = modifier) {
         FloatingActionButton(
             onClick = onDeleteClick,
-            modifier = Modifier.semantics { contentDescription = "Delete recipe" }
+            modifier = Modifier.semantics { 
+                contentDescription = "Delete recipe"
+                customActions = listOf(
+                    CustomAccessibilityAction(
+                        label = "Delete this recipe",
+                        action = {
+                            onDeleteClick()
+                            true
+                        }
+                    )
+                )
+            }
         ) {
             Icon(
                 imageVector = Icons.Default.Delete,
@@ -39,7 +52,18 @@ fun RecipeActionButtons(
 
         FloatingActionButton(
             onClick = onSaveClick,
-            modifier = Modifier.semantics { contentDescription = "Save recipe" }
+            modifier = Modifier.semantics { 
+                contentDescription = "Save recipe"
+                customActions = listOf(
+                    CustomAccessibilityAction(
+                        label = "Save this recipe",
+                        action = {
+                            onSaveClick()
+                            true
+                        }
+                    )
+                )
+            }
         ) {
             Icon(
                 imageVector = Icons.Default.Done,
