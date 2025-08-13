@@ -79,7 +79,7 @@ class OrderSectionPreviewParameterProvider : PreviewParameterProvider<RecipeOrde
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun OrderSectionPreview(
+internal fun OrderSectionPreview(
     @PreviewParameter(OrderSectionPreviewParameterProvider::class) recipeOrder: RecipeOrder
 ) {
     MyApplicationTheme {

@@ -86,7 +86,7 @@ fun AppTextField(
 
 @Preview(showBackground = true)
 @Composable
-private fun AppTextFieldPreview() {
+internal fun AppTextFieldPreview() {
     MyApplicationTheme {
         AppTextField(
             value = "",
@@ -102,7 +102,7 @@ private fun AppTextFieldPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun AppTextFieldWithValuePreview() {
+internal fun AppTextFieldWithValuePreview() {
     MyApplicationTheme {
         AppTextField(
             value = "Sample text content",

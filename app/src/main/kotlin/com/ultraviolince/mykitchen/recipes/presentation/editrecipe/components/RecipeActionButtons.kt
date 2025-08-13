@@ -51,7 +51,7 @@ fun RecipeActionButtons(
 
 @Preview(showBackground = true)
 @Composable
-private fun RecipeActionButtonsPreview() {
+internal fun RecipeActionButtonsPreview() {
     MyApplicationTheme {
         RecipeActionButtons(
             onSaveClick = {},

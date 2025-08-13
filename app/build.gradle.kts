@@ -1,3 +1,4 @@
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import java.util.Properties
 
 kotlin {
@@ -11,9 +12,9 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
     alias(libs.plugins.room)
-    alias(libs.plugins.screenshot)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose)
+    alias(libs.plugins.roborazzi)
 }
 
 val vName = project.findProperty("versionName") as String? ?: "v1.0.0"
@@ -109,6 +110,15 @@ android {
         }
     }
 
+    testOptions {
+        unitTests{
+            isIncludeAndroidResources = true
+            all {
+                it.systemProperties["robolectric.pixelCopyRenderMode"] = "hardware"
+            }
+        }
+    }
+
     // This is needed for koin+KSP
     applicationVariants.forEach { variant ->
         variant.sourceSets.forEach {
@@ -119,8 +129,6 @@ android {
     room {
         schemaDirectory("$projectDir/schemas")
     }
-
-    experimentalProperties["android.experimental.enableScreenshotTest"] = true
 
     ksp {
         arg("KOIN_CONFIG_CHECK", "true")
@@ -180,8 +188,14 @@ dependencies {
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.koin.test.junit4)
 
-    screenshotTestImplementation(libs.screenshot.validation.api)
-    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
+    // Roborazzi screenshot testing
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.preview.scanner)
+    testImplementation(libs.roborazzi.junit.rule)
+    testImplementation(libs.preview.scanner.compose)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
 
     detektPlugins(libs.detektTwitterPlugin)
     detektPlugins(libs.detektFormattingPlugin)
@@ -219,4 +233,14 @@ kover {
 detekt {
     autoCorrect = true
     config.setFrom("${project.rootDir}/gradle/detekt.yml")
+}
+
+roborazzi {
+    @OptIn(ExperimentalRoborazziApi::class)
+    generateComposePreviewRobolectricTests {
+        enable = true
+        includePrivatePreviews = false
+        packages = listOf("com.ultraviolince.mykitchen.recipes.presentation")
+    }
+    outputDir.set(layout.projectDirectory.dir("src/test/screenshots"))
 }

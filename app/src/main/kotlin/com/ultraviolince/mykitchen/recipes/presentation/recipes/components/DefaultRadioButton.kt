@@ -40,9 +40,9 @@ fun DefaultRadioButton(
     }
 }
 
-@Preview()
+@Preview(showBackground = true)
 @Composable
-fun ButtonPreview() {
+internal fun ButtonPreview() {
     MyApplicationTheme {
         DefaultRadioButton(
             text = "test",

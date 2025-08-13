@@ -106,7 +106,7 @@ class LoginFormFieldsPreviewParameterProvider : PreviewParameterProvider<LoginFo
 
 @Preview(showBackground = true)
 @Composable
-private fun LoginFormFieldsPreview(
+internal fun LoginFormFieldsPreview(
     @PreviewParameter(LoginFormFieldsPreviewParameterProvider::class) state: LoginFormState
 ) {
     MyApplicationTheme {

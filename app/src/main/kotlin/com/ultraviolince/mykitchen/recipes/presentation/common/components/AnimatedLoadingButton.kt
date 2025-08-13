@@ -77,7 +77,7 @@ class AnimatedLoadingButtonPreviewParameterProvider : PreviewParameterProvider<B
 
 @Preview(showBackground = true)
 @Composable
-private fun AnimatedLoadingButtonPreview(
+internal fun AnimatedLoadingButtonPreview(
     @PreviewParameter(AnimatedLoadingButtonPreviewParameterProvider::class) isLoading: Boolean
 ) {
     MyApplicationTheme {

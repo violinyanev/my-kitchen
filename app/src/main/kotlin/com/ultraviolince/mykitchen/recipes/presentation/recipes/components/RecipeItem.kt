@@ -35,7 +35,7 @@ fun RecipeItem(recipe: Recipe, modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-private fun RecipeCardPreview() {
+internal fun RecipeCardPreview() {
     val recipe = Recipe(
         title = "Delicious Chocolate Cake",
         content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor " +

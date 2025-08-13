@@ -63,7 +63,7 @@ class SyncStatusIconPreviewParameterProvider : PreviewParameterProvider<LoginSta
 
 @Preview(showBackground = true)
 @Composable
-private fun SyncStatusIconPreview(
+internal fun SyncStatusIconPreview(
     @PreviewParameter(SyncStatusIconPreviewParameterProvider::class) syncState: LoginState
 ) {
     MyApplicationTheme {
