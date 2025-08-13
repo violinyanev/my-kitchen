@@ -29,13 +29,9 @@ fun RecipeListHeader(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = stringResource(R.string.your_recipes),
-            style = MaterialTheme.typography.bodyMedium
-        )
         IconButton(onClick = onSortClick) {
             Icon(
                 imageVector = Icons.Default.FilterList,
