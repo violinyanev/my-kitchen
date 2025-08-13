@@ -15,17 +15,29 @@ kotlin {
         }
     }
     
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+    val iosX64 = iosX64()
+    val iosArm64 = iosArm64()
+    val iosSimulatorArm64 = iosSimulatorArm64()
     
-    // TODO: Re-enable JS target once repository issues are resolved
+    // Configure iOS framework
+    listOf(iosX64, iosArm64, iosSimulatorArm64).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "SharedKit"
+            isStatic = true
+        }
+    }
+    
+    // TODO: Re-enable JS target once repository configuration is resolved
+    // Currently disabled due to Node.js repository conflicts in CI environment
     // js(IR) {
     //     browser {
     //         commonWebpackConfig {
     //             cssSupport {
     //                 enabled.set(true)
     //             }
+    //         }
+    //         testTask {
+    //             enabled = false // Disable tests for now
     //         }
     //     }
     //     binaries.executable()
@@ -67,9 +79,10 @@ kotlin {
             implementation(libs.ktor.client.cio)
         }
         
-        // TODO: Re-enable JS dependencies when JS target is enabled
+        // TODO: Re-enable when JS target is enabled
         // jsMain.dependencies {
         //     implementation(libs.ktor.client.js)
+        //     implementation("org.jetbrains.kotlinx:kotlinx-html:0.9.1")
         // }
     }
 }
