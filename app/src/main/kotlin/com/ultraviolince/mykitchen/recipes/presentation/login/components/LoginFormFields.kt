@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -12,12 +13,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.recipes.presentation.common.components.AppPasswordField
 import com.ultraviolince.mykitchen.recipes.presentation.common.components.AppTextField
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
 import com.ultraviolince.mykitchen.recipes.presentation.login.LoginEvent
@@ -69,7 +75,7 @@ fun LoginFormFields(
                 Text(text = stringResource(R.string.logout))
             }
         } else {
-            AppTextField(
+            AppPasswordField(
                 state = passwordState,
                 onValueChange = { onEvent(LoginEvent.EnteredPassword(it)) },
                 onFocusChanged = { onEvent(LoginEvent.ChangePasswordFocus(it)) },

@@ -2,6 +2,7 @@ package com.ultraviolince.mykitchen.recipes.presentation.recipes.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -29,12 +30,14 @@ fun DefaultRadioButton(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.semantics(mergeDescendants = true) {
-            role = Role.RadioButton
-            contentDescription = text
-            stateDescription = if (selected) "Selected" else "Not selected"
-            this.selected = selected
-        },
+        modifier = modifier
+            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+            .semantics(mergeDescendants = true) {
+                role = Role.RadioButton
+                contentDescription = text
+                stateDescription = if (selected) "Selected" else "Not selected"
+                this.selected = selected
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
