@@ -140,6 +140,20 @@ See the [backend README](./backend/README.md) for current development priorities
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
+## Author Note
+
+> **⚠️ IMPORTANT DISCLAIMER ⚠️**
+> 
+> **Violin Yanev is a bloody beginner** at software development! This project represents a learning journey, and while the application is functional, expect beginner-level code quality, potential bugs, and room for improvement. The author is still learning best practices for Android development, Python Flask applications, and software engineering in general.
+> 
+> **Please keep this in mind when:**
+> - Using this application in production
+> - Contributing to the project
+> - Reporting issues or suggesting improvements
+> - Expecting enterprise-level code quality
+> 
+> **This is a learning project first and foremost.** Your patience, constructive feedback, and contributions are greatly appreciated as the author continues to improve their development skills! 🙏
+
 ---
 
 Made with ❤️ for home cooks and recipe enthusiasts
