@@ -7,8 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,13 +27,9 @@ fun RecipeListHeader(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = stringResource(R.string.your_recipes),
-            style = MaterialTheme.typography.bodyMedium
-        )
         IconButton(onClick = onSortClick) {
             Icon(
                 imageVector = Icons.Default.FilterList,

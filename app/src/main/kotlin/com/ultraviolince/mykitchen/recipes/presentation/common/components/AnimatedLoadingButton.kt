@@ -41,7 +41,14 @@ fun AnimatedLoadingButton(
                 onClick()
             }
         },
-        modifier = modifier.semantics { contentDescription = contentDescriptionText }
+        modifier = modifier.semantics {
+            contentDescription = buildString {
+                append(contentDescriptionText)
+                if (isLoading) {
+                    append(". Loading")
+                }
+            }
+        }
     ) {
         if (isLoading) {
             val rotationAnimatable = remember { Animatable(0f) }

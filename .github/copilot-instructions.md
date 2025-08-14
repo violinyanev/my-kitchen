@@ -46,13 +46,16 @@ python3 -m pip install -r backend/image/requirements.txt
 ./gradlew detekt    # NEVER CANCEL: ~1 minute, timeout: 5+ minutes
 
 # Run screenshot tests (UI validation)
-./gradlew :app:validateDebugScreenshotTest    # NEVER CANCEL: ~30 seconds, timeout: 5+ minutes
+./gradlew verifyRoborazziDebug    # NEVER CANCEL: ~30 seconds, timeout: 5+ minutes
+
+# Record new screenshot baselines (when UI changes are made)
+./gradlew recordRoborazziDebug    # NEVER CANCEL: ~30 seconds, timeout: 5+ minutes
 
 # Generate coverage report
 ./gradlew :app:koverXmlReportDebug    # Fast: ~2 seconds
 
 # Complete CI pipeline (run all checks)
-./gradlew :app:assembleDebug :app:testDebugUnitTest :app:validateDebugScreenshotTest :app:koverXmlReportDebug detekt
+./gradlew :app:assembleDebug :app:testDebugUnitTest :app:koverXmlReportDebug detekt
 # NEVER CANCEL: 7+ minutes cold, 2-5 seconds warm, timeout: 15+ minutes
 ```
 

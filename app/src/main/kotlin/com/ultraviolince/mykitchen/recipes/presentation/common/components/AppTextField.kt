@@ -2,6 +2,7 @@ package com.ultraviolince.mykitchen.recipes.presentation.common.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -11,8 +12,11 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.res.ResourcesCompat.ID_NULL
 import com.ultraviolince.mykitchen.R
@@ -31,7 +35,9 @@ fun AppTextField(
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
     minLines: Int = 1,
-    readOnly: Boolean = false
+    readOnly: Boolean = false,
+    isError: Boolean = false,
+    errorMessage: String? = null
 ) {
     Box(modifier = modifier) {
         TextField(
@@ -49,10 +55,18 @@ fun AppTextField(
             singleLine = singleLine,
             minLines = minLines,
             textStyle = textStyle,
+            isError = isError,
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged(onFocusChanged)
-                .semantics { contentDescription = contentDescriptionText }
+                .semantics {
+                    contentDescription = buildString {
+                        append(contentDescriptionText)
+                        if (isError && errorMessage != null) {
+                            append(". Error: $errorMessage")
+                        }
+                    }
+                }
         )
     }
 }
@@ -67,7 +81,9 @@ fun AppTextField(
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     singleLine: Boolean = true,
     minLines: Int = 1,
-    readOnly: Boolean = false
+    readOnly: Boolean = false,
+    isError: Boolean = false,
+    errorMessage: String? = null
 ) {
     AppTextField(
         value = state.text,
@@ -80,22 +96,52 @@ fun AppTextField(
         modifier = modifier,
         singleLine = singleLine,
         minLines = minLines,
-        readOnly = readOnly
+        readOnly = readOnly,
+        isError = isError,
+        errorMessage = errorMessage
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-internal fun AppTextFieldPreview() {
-    MyApplicationTheme {
-        AppTextField(
-            value = "",
-            onValueChange = {},
-            hintStringId = R.string.title_hint,
-            textStyle = MaterialTheme.typography.bodyMedium,
-            isHintVisible = true,
-            onFocusChanged = {},
-            contentDescriptionText = "Sample text field"
+fun AppPasswordField(
+    state: RecipeTextFieldState,
+    onValueChange: (String) -> Unit,
+    onFocusChanged: (FocusState) -> Unit,
+    contentDescriptionText: String,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    isError: Boolean = false,
+    errorMessage: String? = null
+) {
+    Box(modifier = modifier) {
+        TextField(
+            value = state.text,
+            onValueChange = onValueChange,
+            placeholder = {
+                if (state.hintStringId != ID_NULL && state.isHintVisible) {
+                    Text(
+                        text = stringResource(state.hintStringId),
+                        style = textStyle
+                    )
+                }
+            },
+            singleLine = true,
+            textStyle = textStyle,
+            isError = isError,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged(onFocusChanged)
+                .semantics {
+                    password()
+                    contentDescription = buildString {
+                        append(contentDescriptionText)
+                        if (isError && errorMessage != null) {
+                            append(". Error: $errorMessage")
+                        }
+                    }
+                }
         )
     }
 }
@@ -112,6 +158,19 @@ internal fun AppTextFieldWithValuePreview() {
             isHintVisible = false,
             onFocusChanged = {},
             contentDescriptionText = "Sample text field"
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+internal fun AppPasswordFieldPreview() {
+    MyApplicationTheme {
+        AppPasswordField(
+            state = RecipeTextFieldState(text = "", hintStringId = R.string.password_hint, isHintVisible = true),
+            onValueChange = {},
+            onFocusChanged = {},
+            contentDescriptionText = "Password"
         )
     }
 }

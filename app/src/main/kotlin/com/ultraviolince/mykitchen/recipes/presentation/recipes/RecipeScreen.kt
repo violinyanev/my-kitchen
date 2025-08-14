@@ -21,12 +21,18 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -102,6 +108,12 @@ fun RecipeScreenContent(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            Text(
+                text = stringResource(R.string.your_recipes),
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.semantics { heading() }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             RecipeListHeader(
                 syncState = recipeState.syncState,
                 onSortClick = onSortClick,
@@ -141,19 +153,36 @@ fun LazyRecipesList(
         contentPadding = innerPadding
     ) {
         items(items = recipes.items, key = { it.id!! }) { recipe ->
+            val recipePreview = recipe.content.lines()
+                .take(2)
+                .joinToString("\n")
+                .take(100) // Limit preview length
+                .let { if (it.length >= 100) "$it..." else it }
+
             ListItem(
                 headlineContent = {
                     Text(recipe.title)
                 },
                 supportingContent = {
-                    Text(recipe.content.lines()
-                        .take(2)
-                        .joinToString("\n"))
+                    Text(recipePreview)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
                         onRecipeClicked(recipe)
+                    }
+                    .semantics(mergeDescendants = true) {
+                        role = Role.Button
+                        contentDescription = "Recipe: ${recipe.title}. $recipePreview. Tap to edit."
+                        customActions = listOf(
+                            CustomAccessibilityAction(
+                                label = "Edit recipe",
+                                action = {
+                                    onRecipeClicked(recipe)
+                                    true
+                                }
+                            )
+                        )
                     }
             )
             HorizontalDivider()
