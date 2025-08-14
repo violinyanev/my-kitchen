@@ -12,7 +12,7 @@ data class Recipe(
     @PrimaryKey val id: Long? = null
 ) {
     override fun toString() = "Recipe[$id] $title (ts $timestamp)"
-    
+
     // Convert to shared Recipe model
     fun toSharedRecipe(): com.ultraviolince.mykitchen.recipes.domain.model.Recipe {
         return com.ultraviolince.mykitchen.recipes.domain.model.Recipe(
@@ -22,7 +22,7 @@ data class Recipe(
             id = id
         )
     }
-    
+
     companion object {
         // Convert from shared Recipe model
         fun fromSharedRecipe(recipe: com.ultraviolince.mykitchen.recipes.domain.model.Recipe): Recipe {
