@@ -26,3 +26,11 @@ python3 ./scripts/dev.py build
 * Add a check/tests for backwards compatibility
 * Provide swagger
 * Search for a better library for REST APIs
+
+## Author Note
+
+> **📝 BEGINNER ALERT 📝**
+> 
+> This backend implementation is created by **Violin Yanev, who is a bloody beginner** at Python Flask development and backend architecture! The code may not follow all best practices, and there are many areas for improvement (as evident from the TODO list above).
+> 
+> Use this backend understanding that it's primarily a learning exercise. Contributions, code reviews, and suggestions for improvements are especially welcome! 🚀
