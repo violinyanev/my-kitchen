@@ -41,7 +41,7 @@ fun AnimatedLoadingButton(
                 onClick()
             }
         },
-        modifier = modifier.semantics { 
+        modifier = modifier.semantics {
             contentDescription = buildString {
                 append(contentDescriptionText)
                 if (isLoading) {

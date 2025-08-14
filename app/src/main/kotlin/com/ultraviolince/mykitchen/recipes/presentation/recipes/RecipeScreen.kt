@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.heading
@@ -159,7 +158,7 @@ fun LazyRecipesList(
                 .joinToString("\n")
                 .take(100) // Limit preview length
                 .let { if (it.length >= 100) "$it..." else it }
-            
+
             ListItem(
                 headlineContent = {
                     Text(recipe.title)
@@ -174,7 +173,7 @@ fun LazyRecipesList(
                     }
                     .semantics(mergeDescendants = true) {
                         role = Role.Button
-                        contentDescription = "Recipe: ${recipe.title}. ${recipePreview}. Tap to edit."
+                        contentDescription = "Recipe: ${recipe.title}. $recipePreview. Tap to edit."
                         customActions = listOf(
                             CustomAccessibilityAction(
                                 label = "Edit recipe",

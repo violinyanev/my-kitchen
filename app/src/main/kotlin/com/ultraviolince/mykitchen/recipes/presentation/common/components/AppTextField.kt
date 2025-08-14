@@ -59,7 +59,7 @@ fun AppTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged(onFocusChanged)
-                .semantics { 
+                .semantics {
                     contentDescription = buildString {
                         append(contentDescriptionText)
                         if (isError && errorMessage != null) {
@@ -133,7 +133,7 @@ fun AppPasswordField(
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged(onFocusChanged)
-                .semantics { 
+                .semantics {
                     password()
                     contentDescription = buildString {
                         append(contentDescriptionText)

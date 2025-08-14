@@ -29,7 +29,7 @@ fun RecipeActionButtons(
     Row(modifier = modifier) {
         FloatingActionButton(
             onClick = onDeleteClick,
-            modifier = Modifier.semantics { 
+            modifier = Modifier.semantics {
                 contentDescription = "Delete recipe"
                 customActions = listOf(
                     CustomAccessibilityAction(
@@ -52,7 +52,7 @@ fun RecipeActionButtons(
 
         FloatingActionButton(
             onClick = onSaveClick,
-            modifier = Modifier.semantics { 
+            modifier = Modifier.semantics {
                 contentDescription = "Save recipe"
                 customActions = listOf(
                     CustomAccessibilityAction(
