@@ -86,12 +86,14 @@ fun LoginScreenContent(
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
-            AnimatedLoadingButton(
-                onClick = { eventHandler(LoginEvent.Login) },
-                isLoading = buttonLoading,
-                defaultIcon = Icons.Default.Done,
-                contentDescriptionText = "Login"
-            )
+            if (!isLoggedIn) {
+                AnimatedLoadingButton(
+                    onClick = { eventHandler(LoginEvent.Login) },
+                    isLoading = buttonLoading,
+                    defaultIcon = Icons.Default.Done,
+                    contentDescriptionText = "Login"
+                )
+            }
         },
         modifier = modifier
     ) { innerPadding ->
