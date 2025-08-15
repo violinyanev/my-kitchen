@@ -157,6 +157,51 @@ class RecipeServiceTest {
     }
 
     @Test
+    fun `createRecipe returns unknown error for 400 status`() = runBlocking {
+        // Given
+        val httpClient = createMockHttpClient(HttpStatusCode.BadRequest)
+        val recipeService = RecipeService(httpClient)
+        val recipe = BackendRecipe(1L, "Recipe 1", "Content", 123L)
+
+        // When
+        val result = recipeService.createRecipe(recipe)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.UNKNOWN)
+    }
+
+    @Test
+    fun `createRecipe returns conflict error for 409 status`() = runBlocking {
+        // Given
+        val httpClient = createMockHttpClient(HttpStatusCode.Conflict)
+        val recipeService = RecipeService(httpClient)
+        val recipe = BackendRecipe(1L, "Recipe 1", "Content", 123L)
+
+        // When
+        val result = recipeService.createRecipe(recipe)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.CONFLICT)
+    }
+
+    @Test
+    fun `createRecipe returns no internet error for UnresolvedAddressException`() = runBlocking {
+        // Given
+        val httpClient = createErrorMockHttpClient(UnresolvedAddressException())
+        val recipeService = RecipeService(httpClient)
+        val recipe = BackendRecipe(1L, "Recipe 1", "Content", 123L)
+
+        // When
+        val result = recipeService.createRecipe(recipe)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.NO_INTERNET)
+    }
+
+    @Test
     fun `deleteRecipe returns success for valid response`() = runBlocking {
         // Given
         val httpClient = createMockHttpClient(HttpStatusCode.NoContent)
@@ -168,6 +213,62 @@ class RecipeServiceTest {
         // Then
         assertThat(result).isInstanceOf(Result.Success::class.java)
         assertThat((result as Result.Success).data).isEqualTo(Unit)
+    }
+
+    @Test
+    fun `deleteRecipe returns unauthorized error for 401 status`() = runBlocking {
+        // Given
+        val httpClient = createMockHttpClient(HttpStatusCode.Unauthorized)
+        val recipeService = RecipeService(httpClient)
+
+        // When
+        val result = recipeService.deleteRecipe(1L)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.UNAUTHORIZED)
+    }
+
+    @Test
+    fun `deleteRecipe returns conflict error for 409 status`() = runBlocking {
+        // Given
+        val httpClient = createMockHttpClient(HttpStatusCode.Conflict)
+        val recipeService = RecipeService(httpClient)
+
+        // When
+        val result = recipeService.deleteRecipe(1L)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.CONFLICT)
+    }
+
+    @Test
+    fun `deleteRecipe returns server error for 500 status`() = runBlocking {
+        // Given
+        val httpClient = createMockHttpClient(HttpStatusCode.InternalServerError)
+        val recipeService = RecipeService(httpClient)
+
+        // When
+        val result = recipeService.deleteRecipe(1L)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.SERVER_ERROR)
+    }
+
+    @Test
+    fun `deleteRecipe returns unknown error for unhandled status`() = runBlocking {
+        // Given
+        val httpClient = createMockHttpClient(HttpStatusCode.Forbidden)
+        val recipeService = RecipeService(httpClient)
+
+        // When
+        val result = recipeService.deleteRecipe(1L)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.UNKNOWN)
     }
 
     @Test
@@ -186,5 +287,20 @@ class RecipeServiceTest {
         val loginResult = (result as Result.Success).data
         assertThat(loginResult.data.token).isEqualTo("abc123")
         assertThat(loginResult.data.username).isEqualTo("user@example.com")
+    }
+
+    @Test
+    fun `login returns server error for ConnectException`() = runBlocking {
+        // Given
+        val httpClient = createErrorMockHttpClient(java.net.ConnectException("Connection refused"))
+        val recipeService = RecipeService(httpClient)
+        val loginRequest = LoginRequest("user@example.com", "password")
+
+        // When
+        val result = recipeService.login(loginRequest)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.SERVER_ERROR)
     }
 }
