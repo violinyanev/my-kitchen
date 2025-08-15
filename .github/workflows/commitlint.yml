@@ -35,7 +35,8 @@ jobs:
           for commit in $COMMITS; do
             message=$(git log --format=%s -n 1 "$commit")
             # Skip validation for "initial commit" messages (case insensitive)
-            if [[ ! "$message" =~ ^[Ii]nitial[[:space:]]+commit ]]; then
+            message_lower=$(echo "$message" | tr '[:upper:]' '[:lower:]')
+            if [[ ! "$message_lower" =~ ^initial[[:space:]]+commit ]]; then
               echo "Checking commit $commit: $message"
               npx commitlint --from="$commit~1" --to="$commit"
             else
