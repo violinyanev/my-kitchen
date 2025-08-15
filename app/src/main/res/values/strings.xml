@@ -12,6 +12,10 @@
     <string name="sync_enabled" translation_description="The text shown when sync is enabled">Synchronisation with the backend is enabled</string>
     <string name="sync_disabled" translation_description="The text shown when sync is disabled">Synchronisation with the backend is disabled</string>
     <string name="sync_loading" translation_description="The text shown when sync status is being loaded">Synchronising with the backend</string>
+    <string name="recipe_not_synced" translation_description="The text shown when a recipe is not synced">Recipe not synced to server</string>
+    <string name="recipe_syncing" translation_description="The text shown when a recipe is being synced">Recipe is being synced</string>
+    <string name="recipe_synced" translation_description="The text shown when a recipe is synced">Recipe synced to server</string>
+    <string name="recipe_sync_error" translation_description="The text shown when a recipe sync failed">Recipe sync failed</string>
 
     <!-- Login screen -->
     <string name="server_hint" translation_description="The placeholder text shown when the server in the login screen is empty">Server URL, e.g. https://myserver.com:8019</string>

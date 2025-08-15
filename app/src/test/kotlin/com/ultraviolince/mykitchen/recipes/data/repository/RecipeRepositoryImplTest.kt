@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.recipes.data.repository
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.SyncStatus
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
@@ -24,8 +25,8 @@ class RecipeRepositoryImplTest {
 
     @Before
     fun setUp() {
-        dao = mockk()
-        recipeService = mockk()
+        dao = mockk(relaxed = true)
+        recipeService = mockk(relaxed = true)
         repository = RecipeRepositoryImpl(dao, recipeService)
     }
 
