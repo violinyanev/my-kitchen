@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
+import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.MIGRATION_1_2
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDatabase
 import com.ultraviolince.mykitchen.recipes.data.repository.RecipeRepositoryImpl
@@ -29,7 +30,7 @@ class AppModule {
             app,
             RecipeDatabase::class.java,
             RecipeDatabase.DATABASE_NAME
-        ).build()
+        ).addMigrations(MIGRATION_1_2).build()
     }
 
     @Single

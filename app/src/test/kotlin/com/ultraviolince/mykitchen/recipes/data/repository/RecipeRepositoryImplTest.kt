@@ -65,8 +65,8 @@ class RecipeRepositoryImplTest {
     @Test
     fun `getRecipes returns dao recipes`() = runBlocking {
         val expectedRecipes = listOf(
-            Recipe("Recipe 1", "Content 1", 123L, 1L),
-            Recipe("Recipe 2", "Content 2", 456L, 2L)
+            Recipe("Recipe 1", "Content 1", 123L, id = 1L),
+            Recipe("Recipe 2", "Content 2", 456L, id = 2L)
         )
         every { dao.getRecipes() } returns flowOf(expectedRecipes)
 
@@ -78,7 +78,7 @@ class RecipeRepositoryImplTest {
 
     @Test
     fun `getRecipeById returns dao recipe`() = runBlocking {
-        val expectedRecipe = Recipe("Test Recipe", "Content", 123L, 1L)
+        val expectedRecipe = Recipe("Test Recipe", "Content", 123L, id = 1L)
         coEvery { dao.getRecipeById(1L) } returns expectedRecipe
 
         val result = repository.getRecipeById(1L)
@@ -114,7 +114,7 @@ class RecipeRepositoryImplTest {
 
     @Test
     fun `deleteRecipe deletes from service and dao`() = runBlocking {
-        val recipe = Recipe("Delete Me", "Content", 123L, 42L)
+        val recipe = Recipe("Delete Me", "Content", 123L, id = 42L)
 
         coEvery { recipeService.deleteRecipe(42L) } returns true
         coEvery { dao.deleteRecipe(recipe) } returns Unit
