@@ -8,17 +8,17 @@ enum class SyncStatus {
      * Recipe has not been synced to the backend yet
      */
     NOT_SYNCED,
-    
+
     /**
      * Recipe is currently being synced to the backend
      */
     SYNCING,
-    
+
     /**
      * Recipe has been successfully synced to the backend
      */
     SYNCED,
-    
+
     /**
      * Recipe sync failed due to an error
      */

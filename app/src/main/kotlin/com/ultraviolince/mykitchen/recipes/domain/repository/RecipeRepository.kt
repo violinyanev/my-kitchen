@@ -18,18 +18,18 @@ interface RecipeRepository {
     suspend fun logout()
 
     fun getLoginState(): Flow<LoginState>
-    
+
     // Sync-related methods
     suspend fun getRecipesBySyncStatus(syncStatus: SyncStatus): List<Recipe>
-    
+
     suspend fun updateRecipeSyncStatus(
         recipeId: Long,
         syncStatus: SyncStatus,
         lastSyncTimestamp: Long? = null,
         syncErrorMessage: String? = null
     )
-    
+
     suspend fun syncAllRecipes()
-    
+
     suspend fun syncRecipe(recipeId: Long): Boolean
 }

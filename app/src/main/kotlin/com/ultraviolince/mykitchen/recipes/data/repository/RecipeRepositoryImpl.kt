@@ -38,14 +38,14 @@ class RecipeRepositoryImpl(
         // Mark as syncing and attempt to sync to backend
         dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCING, System.currentTimeMillis())
         val syncSuccess = recipeService.insertRecipe(recipeId, recipe)
-        
+
         // Update sync status based on result
         if (syncSuccess) {
             dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCED, System.currentTimeMillis())
         } else {
             dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNC_ERROR, syncErrorMessage = "Failed to sync to server")
         }
-        
+
         return recipeId
     }
 
@@ -74,15 +74,15 @@ class RecipeRepositoryImpl(
     override suspend fun syncRecipe(recipeId: Long): Boolean {
         val recipe = dao.getRecipeById(recipeId) ?: return false
         dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCING, System.currentTimeMillis())
-        
+
         val syncSuccess = recipeService.insertRecipe(recipeId, recipe)
-        
+
         if (syncSuccess) {
             dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCED, System.currentTimeMillis())
         } else {
             dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNC_ERROR, syncErrorMessage = "Failed to sync to server")
         }
-        
+
         return syncSuccess
     }
 }

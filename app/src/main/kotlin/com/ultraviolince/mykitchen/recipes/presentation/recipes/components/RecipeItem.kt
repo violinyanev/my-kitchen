@@ -50,7 +50,7 @@ fun RecipeItem(recipe: Recipe, modifier: Modifier = Modifier) {
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
-            
+
             RecipeSyncStatusIcon(
                 syncStatus = recipe.syncStatus,
                 modifier = Modifier
@@ -67,14 +67,14 @@ fun RecipeSyncStatusIcon(
     modifier: Modifier = Modifier
 ) {
     when (syncStatus) {
-        SyncStatus.NOT_SYNCED -> 
+        SyncStatus.NOT_SYNCED ->
             Icon(
                 imageVector = Icons.Default.CloudQueue,
                 contentDescription = stringResource(id = R.string.recipe_not_synced),
                 modifier = modifier,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        
+
         SyncStatus.SYNCING ->
             Icon(
                 imageVector = Icons.Default.CloudSync,
@@ -82,7 +82,7 @@ fun RecipeSyncStatusIcon(
                 modifier = modifier,
                 tint = MaterialTheme.colorScheme.primary
             )
-        
+
         SyncStatus.SYNCED ->
             Icon(
                 imageVector = Icons.Default.CloudDone,
@@ -90,7 +90,7 @@ fun RecipeSyncStatusIcon(
                 modifier = modifier,
                 tint = MaterialTheme.colorScheme.primary
             )
-        
+
         SyncStatus.SYNC_ERROR ->
             Icon(
                 imageVector = Icons.Default.CloudOff,

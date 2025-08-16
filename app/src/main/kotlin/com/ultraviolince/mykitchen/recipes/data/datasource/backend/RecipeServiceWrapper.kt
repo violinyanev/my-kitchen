@@ -42,7 +42,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
 
                 // TODO: check if token still valid
                 loginState.emit(LoginState.LoginSuccess)
-                
+
                 // Trigger comprehensive sync on app start when already logged in
                 syncAllRecipes()
             }
@@ -161,113 +161,133 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
 
     suspend fun syncAllRecipes() {
         Log.i("Recipes", "Starting comprehensive sync of all recipes")
-        
-        recipeService?.apply {
-            try {
-                // Get recipes from server
-                val serverRecipesResult = getRecipes()
-                
-                serverRecipesResult.onSuccess { serverRecipes ->
-                    Log.i("Recipes", "Got ${serverRecipes.size} recipes from server")
-                    
-                    // Create a map of server recipes by ID for easy lookup
-                    val serverRecipesMap = serverRecipes.associateBy { it.id }
-                    
-                    // Get all local recipes
-                    val localRecipes = dao.getRecipesBySyncStatuses(listOf(
-                        SyncStatus.NOT_SYNCED,
-                        SyncStatus.SYNCED,
-                        SyncStatus.SYNC_ERROR
-                    ))
-                    
-                    Log.i("Recipes", "Got ${localRecipes.size} local recipes")
-                    
-                    // Process server recipes
-                    for (serverRecipe in serverRecipes) {
-                        val localRecipe = localRecipes.find { it.id == serverRecipe.id }
-                        
-                        if (localRecipe == null) {
-                            // Recipe exists on server but not locally - add it
-                            Log.i("Recipes", "Adding recipe from server: ${serverRecipe.title}")
-                            dao.insertRecipe(
-                                Recipe(
-                                    id = serverRecipe.id,
-                                    title = serverRecipe.title,
-                                    content = serverRecipe.body,
-                                    timestamp = serverRecipe.timestamp,
-                                    syncStatus = SyncStatus.SYNCED,
-                                    lastSyncTimestamp = System.currentTimeMillis()
-                                )
-                            )
-                        } else if (serverRecipe.timestamp > localRecipe.timestamp) {
-                            // Server version is newer - update local
-                            Log.i("Recipes", "Updating local recipe with server version: ${serverRecipe.title}")
-                            dao.updateRecipe(
-                                localRecipe.copy(
-                                    title = serverRecipe.title,
-                                    content = serverRecipe.body,
-                                    timestamp = serverRecipe.timestamp,
-                                    syncStatus = SyncStatus.SYNCED,
-                                    lastSyncTimestamp = System.currentTimeMillis(),
-                                    syncErrorMessage = null
-                                )
-                            )
-                        } else if (localRecipe.syncStatus != SyncStatus.SYNCED) {
-                            // Local and server are same version, mark as synced
-                            dao.updateRecipeSyncStatus(
-                                localRecipe.id!!, 
-                                SyncStatus.SYNCED, 
-                                System.currentTimeMillis()
-                            )
-                        }
-                    }
-                    
-                    // Process local recipes that might need to be uploaded
-                    for (localRecipe in localRecipes) {
-                        if (localRecipe.syncStatus == SyncStatus.NOT_SYNCED && 
-                            !serverRecipesMap.containsKey(localRecipe.id)) {
-                            // Recipe exists locally but not on server - upload it
-                            Log.i("Recipes", "Uploading local recipe to server: ${localRecipe.title}")
-                            localRecipe.id?.let { syncRecipeToServer(it, localRecipe) }
-                        }
-                    }
-                    
-                    Log.i("Recipes", "Comprehensive sync completed successfully")
-                }
-            } catch (e: Exception) {
-                Log.e("Recipes", "Error during comprehensive sync", e)
-                // Mark any SYNCING recipes as SYNC_ERROR
-                val syncingRecipes = dao.getRecipesBySyncStatus(SyncStatus.SYNCING)
-                syncingRecipes.forEach { recipe ->
-                    recipe.id?.let { 
-                        dao.updateRecipeSyncStatus(
-                            it, 
-                            SyncStatus.SYNC_ERROR, 
-                            syncErrorMessage = "Sync failed: ${e.message}"
-                        )
-                    }
-                }
-            }
-        } ?: run {
+
+        val service = recipeService
+        if (service == null) {
             Log.w("Recipes", "Cannot sync - not logged in")
+            return
+        }
+
+        try {
+            performSync(service)
+        } catch (e: Exception) {
+            handleSyncError(e)
+        }
+    }
+
+    private suspend fun performSync(service: RecipeService) {
+        val serverRecipesResult = service.getRecipes()
+
+        serverRecipesResult.onSuccess { serverRecipes ->
+            Log.i("Recipes", "Got ${serverRecipes.size} recipes from server")
+
+            val serverRecipesMap = serverRecipes.associateBy { it.id }
+            val localRecipes = getLocalRecipesForSync()
+
+            Log.i("Recipes", "Got ${localRecipes.size} local recipes")
+
+            processServerRecipes(serverRecipes, localRecipes)
+            processLocalRecipes(localRecipes, serverRecipesMap)
+
+            Log.i("Recipes", "Comprehensive sync completed successfully")
+        }
+    }
+
+    private suspend fun getLocalRecipesForSync(): List<Recipe> {
+        return dao.getRecipesBySyncStatuses(listOf(
+            SyncStatus.NOT_SYNCED,
+            SyncStatus.SYNCED,
+            SyncStatus.SYNC_ERROR
+        ))
+    }
+
+    private suspend fun processServerRecipes(serverRecipes: List<BackendRecipe>, localRecipes: List<Recipe>) {
+        for (serverRecipe in serverRecipes) {
+            val localRecipe = localRecipes.find { it.id == serverRecipe.id }
+
+            when {
+                localRecipe == null -> addRecipeFromServer(serverRecipe)
+                serverRecipe.timestamp > localRecipe.timestamp -> updateLocalWithServer(serverRecipe, localRecipe)
+                localRecipe.syncStatus != SyncStatus.SYNCED -> markAsSynced(localRecipe)
+            }
+        }
+    }
+
+    private suspend fun addRecipeFromServer(serverRecipe: BackendRecipe) {
+        Log.i("Recipes", "Adding recipe from server: ${serverRecipe.title}")
+        dao.insertRecipe(
+            Recipe(
+                id = serverRecipe.id,
+                title = serverRecipe.title,
+                content = serverRecipe.body,
+                timestamp = serverRecipe.timestamp,
+                syncStatus = SyncStatus.SYNCED,
+                lastSyncTimestamp = System.currentTimeMillis()
+            )
+        )
+    }
+
+    private suspend fun updateLocalWithServer(serverRecipe: BackendRecipe, localRecipe: Recipe) {
+        Log.i("Recipes", "Updating local recipe with server version: ${serverRecipe.title}")
+        dao.updateRecipe(
+            localRecipe.copy(
+                title = serverRecipe.title,
+                content = serverRecipe.body,
+                timestamp = serverRecipe.timestamp,
+                syncStatus = SyncStatus.SYNCED,
+                lastSyncTimestamp = System.currentTimeMillis(),
+                syncErrorMessage = null
+            )
+        )
+    }
+
+    private suspend fun markAsSynced(localRecipe: Recipe) {
+        dao.updateRecipeSyncStatus(
+            localRecipe.id!!,
+            SyncStatus.SYNCED,
+            System.currentTimeMillis()
+        )
+    }
+
+    private suspend fun processLocalRecipes(localRecipes: List<Recipe>, serverRecipesMap: Map<Long, BackendRecipe>) {
+        for (localRecipe in localRecipes) {
+            if (localRecipe.syncStatus == SyncStatus.NOT_SYNCED &&
+                !serverRecipesMap.containsKey(localRecipe.id)) {
+                Log.i("Recipes", "Uploading local recipe to server: ${localRecipe.title}")
+                localRecipe.id?.let { syncRecipeToServer(it, localRecipe) }
+            }
+        }
+    }
+
+    private suspend fun handleSyncError(e: Exception) {
+        Log.e("Recipes", "Error during comprehensive sync", e)
+        val syncingRecipes = dao.getRecipesBySyncStatus(SyncStatus.SYNCING)
+        syncingRecipes.forEach { recipe ->
+            recipe.id?.let {
+                dao.updateRecipeSyncStatus(
+                    it,
+                    SyncStatus.SYNC_ERROR,
+                    syncErrorMessage = "Sync failed: ${e.message}"
+                )
+            }
         }
     }
 
     private suspend fun syncRecipeToServer(recipeId: Long, recipe: Recipe): Boolean {
         dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCING, System.currentTimeMillis())
-        
+
         val success = insertRecipe(recipeId, recipe)
-        
+
         if (success) {
             dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCED, System.currentTimeMillis())
         } else {
             dao.updateRecipeSyncStatus(
-                recipeId, 
-                SyncStatus.SYNC_ERROR, 
+                recipeId,
+                SyncStatus.SYNC_ERROR,
                 syncErrorMessage = "Failed to upload to server"
             )
         }
-        
+
         return success
     }
 }

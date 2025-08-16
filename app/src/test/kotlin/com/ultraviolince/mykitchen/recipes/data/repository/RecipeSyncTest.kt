@@ -39,7 +39,7 @@ class RecipeSyncTest {
         val result = repository.insertRecipe(recipe)
 
         assertThat(result).isEqualTo(recipeId)
-        
+
         // Verify the dao was called to insert and update sync status
         coVerify { dao.insertRecipe(recipe) }
         coVerify { recipeService.insertRecipe(recipeId, recipe) }
@@ -56,7 +56,7 @@ class RecipeSyncTest {
         val result = repository.insertRecipe(recipe)
 
         assertThat(result).isEqualTo(recipeId)
-        
+
         // Verify calls were made
         coVerify { dao.insertRecipe(recipe) }
         coVerify { recipeService.insertRecipe(recipeId, recipe) }
