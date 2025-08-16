@@ -22,7 +22,7 @@ jobs:
           MERGE_BASE=$(git merge-base HEAD "$BASE_BRANCH")
 
           # Collect commit SHAs in the PR range
-          COMMITS=$(git log --format=%H $BASE_BRANCH..$MERGE_BASE)
+          COMMITS=$(git log --format=%H $MERGE_BASE..HEAD)
 
           for COMMIT in $COMMITS; do
             MESSAGE=$(git log -1 --pretty=format:%s $COMMIT)
