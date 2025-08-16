@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with: 
+           fetch-depth: 0  # Needed so we can access all commits
 
       - name: Install Commitlint
         run: |
@@ -16,8 +18,11 @@ jobs:
 
       - name: Run Commitlint (skip "initial commit")
         run: |
+          BASE_BRANCH=origin/${{ github.event.pull_request.base.ref }} 
+          MERGE_BASE=$(git merge-base HEAD "$BASE_BRANCH")
+
           # Collect commit SHAs in the PR range
-          COMMITS=$(git log --format=%H ${{ github.event.pull_request.base.ref }}..HEAD)
+          COMMITS=$(git log --format=%H $BASE_BRANCH..$MERGE_BASE)
 
           for COMMIT in $COMMITS; do
             MESSAGE=$(git log -1 --pretty=format:%s $COMMIT)
