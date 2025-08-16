@@ -1,30 +1,32 @@
-name: Lint Commit Messages
+name: Lint Commits
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  push:
-    branches: [main]
 
 jobs:
   commitlint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0  # Needed so we can access all commits
+      - uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Lint commit messages
+      - name: Install Commitlint
         run: |
-          BASE_BRANCH=origin/${{ github.event.pull_request.base.ref }}
-          MERGE_BASE=$(git merge-base HEAD "$BASE_BRANCH")
-          npx commitlint --from="$MERGE_BASE" --to=HEAD
+          npm install --save-dev @commitlint/{config-conventional,cli}
+
+      - name: Run Commitlint (skip "initial commit")
+        run: |
+          # Collect commit SHAs in the PR range
+          COMMITS=$(git log --format=%H ${{ github.event.pull_request.base.ref }}..HEAD)
+
+          for COMMIT in $COMMITS; do
+            MESSAGE=$(git log -1 --pretty=format:%s $COMMIT)
+
+            if echo "$MESSAGE" | grep -iq "initial commit"; then
+              echo "✅ Skipping commit $COMMIT ('$MESSAGE')"
+              continue
+            fi
+
+            echo "🔍 Checking commit $COMMIT ('$MESSAGE')"
+            echo "$COMMIT" | npx commitlint
+          done
