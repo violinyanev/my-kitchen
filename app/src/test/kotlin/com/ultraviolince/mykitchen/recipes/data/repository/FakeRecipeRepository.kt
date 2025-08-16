@@ -1,6 +1,7 @@
 package com.ultraviolince.mykitchen.recipes.data.repository
 
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.SyncStatus
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
@@ -60,5 +61,36 @@ class FakeRecipeRepository : RecipeRepository {
         return flow {
             emit(LoginState.LoginEmpty)
         }
+    }
+
+    override suspend fun getRecipesBySyncStatus(syncStatus: SyncStatus): List<Recipe> {
+        return recipes.filter { it.syncStatus == syncStatus }
+    }
+
+    override suspend fun updateRecipeSyncStatus(
+        recipeId: Long,
+        syncStatus: SyncStatus,
+        lastSyncTimestamp: Long?,
+        syncErrorMessage: String?
+    ) {
+        val recipeIndex = recipes.indexOfFirst { it.id == recipeId }
+        if (recipeIndex != -1) {
+            val recipe = recipes[recipeIndex]
+            recipes[recipeIndex] = recipe.copy(
+                syncStatus = syncStatus,
+                lastSyncTimestamp = lastSyncTimestamp,
+                syncErrorMessage = syncErrorMessage
+            )
+        }
+    }
+
+    override suspend fun syncAllRecipes() {
+        // Mock implementation - do nothing for tests
+    }
+
+    override suspend fun syncRecipe(recipeId: Long): Boolean {
+        // Mock implementation - return true for tests
+        updateRecipeSyncStatus(recipeId, SyncStatus.SYNCED, System.currentTimeMillis())
+        return true
     }
 }
