@@ -67,4 +67,30 @@ class GetRecipesTest {
         assertThat(recipe?.id).isEqualTo(recipeId.id!!)
         assertThat(recipe?.title).isEqualTo(recipeId.title)
     }
+
+    @Test
+    fun `invoke with default parameters uses Date Descending order`() = runBlocking {
+        // When - calling with no parameters (default)
+        val recipes = getRecipes().first()
+
+        // Then - should be sorted by date descending (most recent first)
+        for (i in 0..recipes.size - 2) {
+            assertThat(recipes[i].timestamp).isGreaterThan(recipes[i + 1].timestamp)
+        }
+    }
+
+    @Test
+    fun `invoke returns Flow that emits sorted recipes`() = runBlocking {
+        // Given
+        val expectedRecipes = fakeRepository.getTestRecipes()
+
+        // When
+        val recipesFlow = getRecipes(RecipeOrder.Title(OrderType.Ascending))
+        val firstEmission = recipesFlow.first()
+
+        // Then
+        assertThat(firstEmission).hasSize(expectedRecipes.size)
+        assertThat(firstEmission.first().title).isEqualTo("a") // alphabetically first
+        assertThat(firstEmission.last().title).isEqualTo("z") // alphabetically last
+    }
 }

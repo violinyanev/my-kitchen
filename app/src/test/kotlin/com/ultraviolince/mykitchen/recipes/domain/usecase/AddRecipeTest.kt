@@ -65,4 +65,52 @@ class AddRecipeTest {
         addRecipe(recipe)
         assertThat(true).isTrue() // Test passes if no exception thrown
     }
+
+    @Test
+    fun `add recipe with blank title throws exception`() {
+        val recipe = Recipe(title = "   ", content = "content", id = null, timestamp = 456L)
+
+        try {
+            runBlocking { addRecipe(recipe) }
+            assertThat(false).isTrue() // Should not reach here
+        } catch (e: InvalidRecipeException) {
+            assertThat(true).isTrue() // Expected exception
+        }
+    }
+
+    @Test
+    fun `add recipe with blank content throws exception`() {
+        val recipe = Recipe(title = "Title", content = "   ", id = null, timestamp = 789L)
+
+        try {
+            runBlocking { addRecipe(recipe) }
+            assertThat(false).isTrue() // Should not reach here
+        } catch (e: InvalidRecipeException) {
+            assertThat(true).isTrue() // Expected exception
+        }
+    }
+
+    @Test
+    fun `add recipe with whitespace-only title throws exception`() {
+        val recipe = Recipe(title = "\t\n ", content = "content", id = null, timestamp = 123L)
+
+        try {
+            runBlocking { addRecipe(recipe) }
+            assertThat(false).isTrue() // Should not reach here
+        } catch (e: InvalidRecipeException) {
+            assertThat(true).isTrue() // Expected exception
+        }
+    }
+
+    @Test
+    fun `add recipe with whitespace-only content throws exception`() {
+        val recipe = Recipe(title = "Title", content = "\t\n ", id = null, timestamp = 123L)
+
+        try {
+            runBlocking { addRecipe(recipe) }
+            assertThat(false).isTrue() // Should not reach here
+        } catch (e: InvalidRecipeException) {
+            assertThat(true).isTrue() // Expected exception
+        }
+    }
 }
