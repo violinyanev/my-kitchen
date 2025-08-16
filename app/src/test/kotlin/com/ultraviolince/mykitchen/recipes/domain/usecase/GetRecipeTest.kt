@@ -2,7 +2,6 @@ package com.ultraviolince.mykitchen.recipes.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
 import com.ultraviolince.mykitchen.recipes.data.repository.FakeRecipeRepository
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test

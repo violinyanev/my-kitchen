@@ -2,10 +2,7 @@ package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
 import com.google.common.truth.Truth.assertThat
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipeResponse
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResult
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginResultData
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
 import io.ktor.client.HttpClient
