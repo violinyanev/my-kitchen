@@ -2,250 +2,92 @@ name: Snapshot Release
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     branches: [ main ]
-    types: [opened, synchronize, reopened, closed]
-
-concurrency:
-  group: snapshot-${{ github.head_ref }}
-  cancel-in-progress: true
-
-env:
-  JAVA_VERSION: 17
 
 jobs:
   build-snapshot:
     runs-on: ubuntu-latest
-    if: github.event.action != 'closed'
 
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
 
     steps:
     - uses: actions/checkout@v5
-      with:
-        lfs: 'true'
 
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: ${{ env.JAVA_VERSION }}
+        java-version: 17
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    - name: Get PR info
-      id: pr_info
-      run: |
-        # Generate version info for PR
-        PR_NUMBER=${{ github.event.number }}
-        COMMIT_SHORT=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)
-        VERSION_NAME="pr-${PR_NUMBER}-${COMMIT_SHORT}"
-        VERSION_CODE=${{ github.run_number }}
-
-        echo "version_name=${VERSION_NAME}" >> $GITHUB_OUTPUT
-        echo "version_code=${VERSION_CODE}" >> $GITHUB_OUTPUT
-        echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
-        echo "commit_short=${COMMIT_SHORT}" >> $GITHUB_OUTPUT
-
-    - name: Build Release APK
+    - name: Build APK
       run: |
         ./gradlew :app:assembleRelease \
-          -PversionCode=${{ steps.pr_info.outputs.version_code }} \
-          -PversionName=${{ steps.pr_info.outputs.version_name }} \
+          -PversionCode=$(git rev-list --count HEAD) \
+          -PversionName="snapshot-pr${{ github.event.pull_request.number }}-${{ github.sha }}" \
           -PsnapshotBuild=true
 
-    - name: Upload APK as artifact
+    - name: Store APK in temporary storage
       uses: actions/upload-artifact@v4
       with:
-        name: snapshot-apk-pr-${{ steps.pr_info.outputs.pr_number }}
+        name: snapshot-apk-pr-${{ github.event.pull_request.number }}
         path: app/build/outputs/apk/release/app-release.apk
-        retention-days: 30
+        retention-days: 7
 
-    - name: Create temporary release for direct APK download
-      id: create_release
+    - name: Comment PR with APK download link
       uses: actions/github-script@v7
       with:
         script: |
-          const fs = require('fs');
-          const path = require('path');
-
-          const tagName = 'snapshot-pr-${{ steps.pr_info.outputs.pr_number }}-${{ steps.pr_info.outputs.commit_short }}';
-          const releaseName = 'Snapshot APK for PR #${{ steps.pr_info.outputs.pr_number }}';
-
-          // First, delete any existing release with this tag to avoid conflicts
-          try {
-            const existingRelease = await github.rest.repos.getReleaseByTag({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag: tagName
-            });
-
-            await github.rest.repos.deleteRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: existingRelease.data.id
-            });
-
-            // Also delete the tag
-            try {
-              await github.rest.git.deleteRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `tags/${tagName}`
-              });
-            } catch (error) {
-              console.log('Tag deletion failed (may not exist):', error.message);
-            }
-          } catch (error) {
-            console.log('No existing release found to delete');
-          }
-
-          // Create new release
-          const release = await github.rest.repos.createRelease({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            tag_name: tagName,
-            name: releaseName,
-            body: `🔧 **Snapshot APK for testing PR #${{ steps.pr_info.outputs.pr_number }}**\n\n` +
-                  `Version: ${{ steps.pr_info.outputs.version_name }}\n` +
-                  `Commit: ${{ github.event.pull_request.head.sha }}\n\n` +
-                  `⚠️ **This is a temporary snapshot build** - it will be automatically deleted when the PR is closed or merged.\n\n` +
-                  `Application ID: \`com.ultraviolince.mykitchen.preview\` (can be installed alongside regular builds)`,
-            draft: false,
-            prerelease: true
-          });
-
-          // Upload APK as release asset
-          const apkPath = 'app/build/outputs/apk/release/app-release.apk';
-          const apkName = `MyKitchen-${{ steps.pr_info.outputs.version_name }}.apk`;
-
-          const uploadResponse = await github.rest.repos.uploadReleaseAsset({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            release_id: release.data.id,
-            name: apkName,
-            data: fs.readFileSync(apkPath),
-            headers: {
-              'content-type': 'application/vnd.android.package-archive'
-            }
-          });
-
-          return {
-            release_url: release.data.html_url,
-            apk_download_url: uploadResponse.data.browser_download_url,
-            apk_name: apkName
-          };
-
-    - name: Comment on PR with download link
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const prNumber = ${{ steps.pr_info.outputs.pr_number }};
-          const versionName = '${{ steps.pr_info.outputs.version_name }}';
+          const prNumber = context.payload.pull_request.number;
           const runId = context.runId;
-          const releaseData = ${{ steps.create_release.outputs.result }};
+          const repoOwner = context.repo.owner;
+          const repoName = context.repo.repo;
+          const commitSha = context.sha.substring(0, 7);
 
-          // Create comment body with direct download link
-          const body = `## 📱 Snapshot Release Available
+          const downloadUrl = `https://github.com/${repoOwner}/${repoName}/actions/runs/${runId}`;
 
-          A snapshot APK has been built for this PR and is ready for download:
+          const comment = `## 📱 Snapshot APK Ready
 
-          **Version:** \`${versionName}\`
-          **Application ID:** \`com.ultraviolince.mykitchen.preview\` (can be installed alongside regular builds)
+          A preview APK has been built for this PR:
 
-          ### 🚀 Direct Download (Recommended):
-          **[📱 Download ${releaseData.apk_name}](${releaseData.apk_download_url})**
+          **📥 Download:** [snapshot-apk-pr-${prNumber}](${downloadUrl})
 
-          ### Alternative Download Methods:
-          - **GitHub Release:** [View Release](${releaseData.release_url})
-          - **Workflow Artifact:** [Workflow Run ${runId}](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}) → Artifacts section → \`snapshot-apk-pr-${prNumber}\`
+          **📦 Version:** \`snapshot-pr${prNumber}-${context.sha}\`
+          **🔗 Commit:** ${commitSha}
+          **⏰ Available for:** 7 days
 
-          ### 📋 Installation Instructions:
-          1. **Download** the APK file using the direct download link above
-          2. **Enable "Install unknown apps"** in your Android settings:
-             - Settings → Apps → [Browser/Files app] → Install unknown apps → Allow
-          3. **Open** the downloaded APK file to install
-          4. **Allow installation** when prompted
+          To download:
+          1. Click the download link above
+          2. Go to "Artifacts" section
+          3. Download \`snapshot-apk-pr-${prNumber}\``;
 
-          ### ✨ Features:
-          - ✅ **Side-by-side installation**: This preview build uses a different application ID (\`com.ultraviolince.mykitchen.preview\`) so it won't conflict with regular My Kitchen installations
-          - ✅ **Signed APK**: Uses the same signing certificate as release builds
-          - ✅ **Direct download**: No need to extract ZIP files
-
-          > 🔄 This comment will be updated when new commits are pushed to this PR.
-          >
-          > 🗑️ The snapshot release will be automatically deleted when this PR is closed or merged.`;
-
-          // Check if there's already a comment from this bot
-          const comments = await github.rest.issues.listComments({
+          // Find and update existing comment or create new one
+          const { data: comments } = await github.rest.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: prNumber,
           });
 
-          const existingComment = comments.data.find(comment =>
-            comment.user.login === 'github-actions[bot]' &&
-            comment.body.includes('📱 Snapshot Release Available')
+          const existingComment = comments.find(comment =>
+            comment.body.includes('## 📱 Snapshot APK Ready')
           );
 
           if (existingComment) {
-            // Update existing comment
             await github.rest.issues.updateComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               comment_id: existingComment.id,
-              body: body
+              body: comment
             });
           } else {
-            // Create new comment
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body: body
+              body: comment
             });
-          }
-
-  cleanup-snapshot:
-    runs-on: ubuntu-latest
-    if: github.event.action == 'closed'
-
-    permissions:
-      contents: write
-
-    steps:
-    - name: Delete snapshot release
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const prNumber = ${{ github.event.number }};
-          const commitShort = '${{ github.event.pull_request.head.sha }}'.substring(0, 7);
-          const tagName = `snapshot-pr-${prNumber}-${commitShort}`;
-
-          try {
-            // Get the release by tag
-            const release = await github.rest.repos.getReleaseByTag({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag: tagName
-            });
-
-            // Delete the release
-            await github.rest.repos.deleteRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: release.data.id
-            });
-
-            // Delete the tag
-            await github.rest.git.deleteRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `tags/${tagName}`
-            });
-
-            console.log(`Successfully deleted snapshot release: ${tagName}`);
-          } catch (error) {
-            console.log(`No snapshot release found to delete for tag: ${tagName}`);
           }
