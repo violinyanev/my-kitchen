@@ -48,9 +48,19 @@ python3 ./backend/scripts/dev.py start
 
 ## Development
 
+### Quick Setup (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/violinyanev/my-kitchen.git
+cd my-kitchen
+
+# Run automated setup (installs dependencies, sets up hooks, runs initial build)
+./scripts/setup-dev.sh
+```
+
 ### Prerequisites
 
-- **For Android app**: Android Studio, JDK 11+, Android SDK
+- **For Android app**: JDK 17+, Android Studio, Android SDK
 - **For backend**: Python 3.8+, Docker (optional)
 
 ### Building the Android App
@@ -60,11 +70,14 @@ python3 ./backend/scripts/dev.py start
 git clone https://github.com/violinyanev/my-kitchen.git
 cd my-kitchen
 
-# Build the app
-./gradlew build
+# Automated setup (recommended)
+./scripts/setup-dev.sh
+
+# Manual build (if needed)
+./gradlew :app:assembleDebug
 
 # Run tests
-./gradlew test
+./gradlew :app:testDebugUnitTest
 ```
 
 ### Running the Backend
@@ -79,6 +92,25 @@ cd backend
 # Or with Docker
 python3 ./scripts/dev.py start
 ```
+
+### Development Workflow
+
+Before committing any changes, ensure all checks pass:
+
+```bash
+# Run comprehensive validation (recommended)
+./scripts/validate-pr.sh
+
+# Or run individual checks
+./gradlew buildHealth
+./gradlew :app:assembleDebug :app:testDebugUnitTest :app:verifyRoborazziDebug :app:koverXmlReportDebug detekt
+```
+
+The project includes:
+- **Pre-commit hooks**: Automatically validate code quality and format
+- **Comprehensive testing**: Unit tests, screenshot tests, and coverage reporting  
+- **Code quality checks**: Detekt linting with auto-correction
+- **CI/CD validation**: All checks must pass for PR approval
 
 ## Contributing
 
@@ -96,12 +128,22 @@ We welcome contributions from everyone! Here's how you can help:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add tests if applicable
-5. Ensure all tests pass (`./gradlew test` for Android, see backend README for backend tests)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
+3. Run setup: `./scripts/setup-dev.sh` (sets up hooks and validation)
+4. Make your changes
+5. Add tests if applicable
+5. Ensure all checks pass: `./scripts/validate-pr.sh`
+6. Commit with conventional format: `git commit -m 'feat: add amazing feature'`
 7. Push to the branch (`git push origin feature/amazing-feature`)
 8. Open a Pull Request
+
+**Important**: All PRs must pass GitHub Actions checks including:
+- Build health and compilation
+- Unit tests with 80% coverage on changed files  
+- Code quality checks (Detekt)
+- Screenshot tests validation
+- Backend tests (if applicable)
+
+The setup script installs Git hooks that will catch common issues before commit.
 
 ### Development Areas
 
