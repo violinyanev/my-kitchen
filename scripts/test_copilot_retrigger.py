@@ -148,10 +148,12 @@ class TestCopilotRetrigger(unittest.TestCase):
     def setUp(self):
         self.mock_api = Mock(spec=GitHubAPI)
         self.retrigger = CopilotRetrigger(self.mock_api)
+        self.retrigger_dry_run = CopilotRetrigger(self.mock_api, dry_run=True)
     
     def test_init(self):
         """Test CopilotRetrigger initialization."""
         self.assertEqual(self.retrigger.github_api, self.mock_api)
+        self.assertFalse(self.retrigger.dry_run)
         self.assertEqual(self.retrigger.MERGE_CONFLICT_COMMENT, 
                          "@copilot can you update the branch and fix the conflicts?")
         self.assertEqual(self.retrigger.FAILING_CHECKS_COMMENT,
@@ -442,6 +444,83 @@ class TestCopilotRetrigger(unittest.TestCase):
         self.mock_api.add_comment.assert_not_called()
     
     @patch('builtins.print')
+    def test_process_pr_dry_run_merge_conflicts(self, mock_print):
+        """Test processing PR with merge conflicts in dry run mode."""
+        pr = {
+            "number": 123,
+            "title": "Test PR",
+            "user": {"login": "copilot"},
+            "assignees": [],
+            "head": {"sha": "abc123"}
+        }
+        
+        self.mock_api.get_pull_request_comments.return_value = []
+        self.mock_api.get_pr_status.return_value = {"mergeable": False}
+        
+        self.retrigger_dry_run.process_pr(pr)
+        
+        mock_print.assert_any_call("Processing PR #123: Test PR")
+        mock_print.assert_any_call("  [DRY RUN] Would add merge conflict comment: @copilot can you update the branch and fix the conflicts?")
+        self.mock_api.add_comment.assert_not_called()
+    
+    @patch('builtins.print')
+    def test_process_pr_dry_run_failing_checks(self, mock_print):
+        """Test processing PR with failing checks in dry run mode."""
+        pr = {
+            "number": 123,
+            "title": "Test PR",
+            "user": {"login": "copilot"},
+            "assignees": [],
+            "head": {"sha": "abc123"}
+        }
+        
+        self.mock_api.get_pull_request_comments.return_value = []
+        self.mock_api.get_pr_status.return_value = {"mergeable": True}
+        self.mock_api.get_check_runs.return_value = [{"conclusion": "failure"}]
+        
+        self.retrigger_dry_run.process_pr(pr)
+        
+        mock_print.assert_any_call("Processing PR #123: Test PR")
+        mock_print.assert_any_call("  [DRY RUN] Would add failing checks comment: @copilot can you fix the failing github actions?")
+        self.mock_api.add_comment.assert_not_called()
+    
+    @patch('builtins.print')
+    def test_run_dry_run(self, mock_print):
+        """Test dry run mode shows appropriate messages."""
+        prs = [
+            {
+                "number": 123,
+                "title": "Test PR",
+                "user": {"login": "copilot"},
+                "assignees": [],
+                "head": {"sha": "abc123"}
+            }
+        ]
+        
+        self.mock_api.get_pull_requests.return_value = prs
+        self.mock_api.get_pull_request_comments.return_value = []
+        self.mock_api.get_pr_status.return_value = {"mergeable": True}
+        self.mock_api.get_check_runs.return_value = []
+        
+        self.retrigger_dry_run.run()
+        
+        # Check that dry run messages are printed
+        printed_calls = [call.args[0] for call in mock_print.call_args_list]
+        self.assertTrue(any("[DRY RUN]" in call for call in printed_calls))
+        self.mock_api.add_comment.assert_not_called()
+    
+    def test_init_with_dry_run(self):
+        """Test CopilotRetrigger initialization with dry run enabled."""
+        retrigger = CopilotRetrigger(self.mock_api, dry_run=True)
+        self.assertTrue(retrigger.dry_run)
+        
+        retrigger_no_dry_run = CopilotRetrigger(self.mock_api, dry_run=False)
+        self.assertFalse(retrigger_no_dry_run.dry_run)
+        
+        retrigger_default = CopilotRetrigger(self.mock_api)
+        self.assertFalse(retrigger_default.dry_run)
+    
+    @patch('builtins.print')
     def test_run_success(self, mock_print):
         """Test successful run of the retrigger process."""
         prs = [
@@ -496,6 +575,7 @@ class TestCopilotRetrigger(unittest.TestCase):
 class TestMainFunction(unittest.TestCase):
     """Test cases for the main function and script entry point."""
     
+    @patch('sys.argv', ['copilot_retrigger.py'])
     @patch('os.getenv')
     @patch('copilot_retrigger.CopilotRetrigger')
     @patch('copilot_retrigger.GitHubAPI')
@@ -521,9 +601,10 @@ class TestMainFunction(unittest.TestCase):
         copilot_retrigger.main()
         
         mock_github_api.assert_called_once_with("test_token", "owner", "repo")
-        mock_retrigger.assert_called_once_with(mock_api_instance)
+        mock_retrigger.assert_called_once_with(mock_api_instance, dry_run=False)
         mock_retrigger_instance.run.assert_called_once()
     
+    @patch('sys.argv', ['copilot_retrigger.py'])
     @patch('os.getenv')
     @patch('copilot_retrigger.CopilotRetrigger')
     @patch('copilot_retrigger.GitHubAPI')
@@ -549,6 +630,65 @@ class TestMainFunction(unittest.TestCase):
         
         mock_github_api.assert_called_once_with("test_token", "violinyanev", "my-kitchen")
     
+    @patch('sys.argv', ['copilot_retrigger.py', '--dry-run'])
+    @patch('os.getenv')
+    @patch('copilot_retrigger.CopilotRetrigger')
+    @patch('copilot_retrigger.GitHubAPI')
+    def test_main_dry_run(self, mock_github_api, mock_retrigger, mock_getenv):
+        """Test main function with dry run flag."""
+        # Mock os.getenv to return test values
+        def getenv_side_effect(key, default=None):
+            if key == "GITHUB_TOKEN":
+                return "test_token"
+            elif key == "GITHUB_REPOSITORY":
+                return "owner/repo"
+            return default
+        
+        mock_getenv.side_effect = getenv_side_effect
+        
+        mock_api_instance = Mock()
+        mock_github_api.return_value = mock_api_instance
+        mock_retrigger_instance = Mock()
+        mock_retrigger.return_value = mock_retrigger_instance
+        
+        # Import and call main
+        import copilot_retrigger
+        copilot_retrigger.main()
+        
+        mock_github_api.assert_called_once_with("test_token", "owner", "repo")
+        mock_retrigger.assert_called_once_with(mock_api_instance, dry_run=True)
+        mock_retrigger_instance.run.assert_called_once()
+    
+    @patch('sys.argv', ['copilot_retrigger.py'])
+    @patch('os.getenv')
+    @patch('copilot_retrigger.CopilotRetrigger')
+    @patch('copilot_retrigger.GitHubAPI')
+    def test_main_no_dry_run(self, mock_github_api, mock_retrigger, mock_getenv):
+        """Test main function without dry run flag."""
+        # Mock os.getenv to return test values
+        def getenv_side_effect(key, default=None):
+            if key == "GITHUB_TOKEN":
+                return "test_token"
+            elif key == "GITHUB_REPOSITORY":
+                return "owner/repo"
+            return default
+        
+        mock_getenv.side_effect = getenv_side_effect
+        
+        mock_api_instance = Mock()
+        mock_github_api.return_value = mock_api_instance
+        mock_retrigger_instance = Mock()
+        mock_retrigger.return_value = mock_retrigger_instance
+        
+        # Import and call main
+        import copilot_retrigger
+        copilot_retrigger.main()
+        
+        mock_github_api.assert_called_once_with("test_token", "owner", "repo")
+        mock_retrigger.assert_called_once_with(mock_api_instance, dry_run=False)
+        mock_retrigger_instance.run.assert_called_once()
+    
+    @patch('sys.argv', ['copilot_retrigger.py'])
     @patch('os.getenv')
     @patch('copilot_retrigger.CopilotRetrigger')
     @patch('copilot_retrigger.GitHubAPI')

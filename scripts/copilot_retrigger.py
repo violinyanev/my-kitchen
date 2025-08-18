@@ -18,6 +18,7 @@ automatically adds retrigger comments when PRs fail to merge or have failing che
 import os
 import sys
 import json
+import argparse
 import requests
 from typing import List, Dict, Optional
 from datetime import datetime
@@ -88,8 +89,9 @@ class CopilotRetrigger:
     MAX_COMMENTS = 3
     COPILOT_USERS = ["copilot", "github-copilot[bot]"]  # Add known copilot usernames
     
-    def __init__(self, github_api: GitHubAPI):
+    def __init__(self, github_api: GitHubAPI, dry_run: bool = False):
         self.github_api = github_api
+        self.dry_run = dry_run
     
     def is_copilot_pr(self, pr: Dict) -> bool:
         """Check if a PR is assigned to or created by copilot."""
@@ -156,25 +158,32 @@ class CopilotRetrigger:
         
         # Check for merge conflicts
         if self.has_merge_conflicts(pr):
-            print(f"  Found merge conflicts, adding comment")
-            self.github_api.add_comment(pr_number, self.MERGE_CONFLICT_COMMENT)
+            if self.dry_run:
+                print(f"  [DRY RUN] Would add merge conflict comment: {self.MERGE_CONFLICT_COMMENT}")
+            else:
+                print(f"  Found merge conflicts, adding comment")
+                self.github_api.add_comment(pr_number, self.MERGE_CONFLICT_COMMENT)
             return
         
         # Check for failing checks
         if self.has_failing_checks(pr):
-            print(f"  Found failing checks, adding comment")
-            self.github_api.add_comment(pr_number, self.FAILING_CHECKS_COMMENT)
+            if self.dry_run:
+                print(f"  [DRY RUN] Would add failing checks comment: {self.FAILING_CHECKS_COMMENT}")
+            else:
+                print(f"  Found failing checks, adding comment")
+                self.github_api.add_comment(pr_number, self.FAILING_CHECKS_COMMENT)
             return
         
         print(f"  No issues found")
     
     def run(self) -> None:
         """Main entry point to process all copilot PRs."""
-        print(f"Starting copilot retrigger check at {datetime.now()}")
+        mode_str = "[DRY RUN] " if self.dry_run else ""
+        print(f"{mode_str}Starting copilot retrigger check at {datetime.now()}")
         
         # Get all open pull requests
         prs = self.github_api.get_pull_requests()
-        print(f"Found {len(prs)} open pull requests")
+        print(f"{mode_str}Found {len(prs)} open pull requests")
         
         # Process each PR
         for pr in prs:
@@ -183,11 +192,17 @@ class CopilotRetrigger:
             except Exception as e:
                 print(f"Error processing PR #{pr['number']}: {e}")
         
-        print("Copilot retrigger check completed")
+        print(f"{mode_str}Copilot retrigger check completed")
 
 
 def main():
     """Main function."""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Automatic copilot retrigger script")
+    parser.add_argument("--dry-run", action="store_true", 
+                       help="Show what actions would be taken without making any changes")
+    args = parser.parse_args()
+    
     # Get required environment variables
     github_token = os.getenv("GITHUB_TOKEN")
     if not github_token:
@@ -200,7 +215,7 @@ def main():
     
     # Initialize GitHub API and retrigger handler
     github_api = GitHubAPI(github_token, owner, repo)
-    retrigger = CopilotRetrigger(github_api)
+    retrigger = CopilotRetrigger(github_api, dry_run=args.dry_run)
     
     # Run the retrigger check
     try:
