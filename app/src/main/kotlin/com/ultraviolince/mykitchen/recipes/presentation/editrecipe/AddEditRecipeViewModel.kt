@@ -102,9 +102,14 @@ class AddEditRecipeViewModel(
                         )
                         _eventFlow.emit(UiEvent.SaveRecipe)
                     } catch (e: InvalidRecipeException) {
+                        val messageResId = when (e.errorMessage) {
+                            "Recipe title cannot be empty" -> R.string.missing_title
+                            "Recipe content cannot be empty" -> R.string.missing_body
+                            else -> R.string.unknown_error
+                        }
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
-                                message = e.errorString
+                                message = messageResId
                             )
                         )
                     }

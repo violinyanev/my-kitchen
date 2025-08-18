@@ -1,8 +1,9 @@
-package com.ultraviolince.mykitchen.recipes.domain.model
+package com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity
 
 import androidx.annotation.StringRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.ultraviolince.mykitchen.recipes.domain.model.Recipe as SharedRecipe
 
 @Entity
 data class Recipe(
@@ -14,8 +15,8 @@ data class Recipe(
     override fun toString() = "Recipe[$id] $title (ts $timestamp)"
 
     // Convert to shared Recipe model
-    fun toSharedRecipe(): com.ultraviolince.mykitchen.recipes.domain.model.Recipe {
-        return com.ultraviolince.mykitchen.recipes.domain.model.Recipe(
+    fun toSharedRecipe(): SharedRecipe {
+        return SharedRecipe(
             title = title,
             content = content,
             timestamp = timestamp,
@@ -25,7 +26,7 @@ data class Recipe(
 
     companion object {
         // Convert from shared Recipe model
-        fun fromSharedRecipe(recipe: com.ultraviolince.mykitchen.recipes.domain.model.Recipe): Recipe {
+        fun fromSharedRecipe(recipe: SharedRecipe): Recipe {
             return Recipe(
                 title = recipe.title,
                 content = recipe.content,
