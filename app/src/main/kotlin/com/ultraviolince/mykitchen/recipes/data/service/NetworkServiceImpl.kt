@@ -10,7 +10,7 @@ import org.koin.core.annotation.Single
 
 @Single
 class NetworkServiceImpl : NetworkService {
-    
+
     private val logger = object : Logger {
         override fun log(message: String) {
             Log.d("#network #ktor #data", message)

@@ -3,11 +3,8 @@ package com.ultraviolince.mykitchen.recipes.data.service
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.UserPreferences
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.service.NetworkService
 import com.ultraviolince.mykitchen.recipes.domain.service.RecipeNetworkService
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.ktor.client.HttpClient

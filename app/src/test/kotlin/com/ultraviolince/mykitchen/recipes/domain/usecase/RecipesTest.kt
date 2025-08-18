@@ -1,5 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.domain.usecase
 
+import com.ultraviolince.mykitchen.recipes.data.repository.FakeAuthRepository
 import com.ultraviolince.mykitchen.recipes.data.repository.FakeRecipeRepository
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -7,20 +8,22 @@ import org.junit.Test
 
 class RecipesTest {
 
-    private lateinit var fakeRepository: FakeRecipeRepository
+    private lateinit var fakeRecipeRepository: FakeRecipeRepository
+    private lateinit var fakeAuthRepository: FakeAuthRepository
     private lateinit var recipes: Recipes
 
     @Before
     fun setUp() {
-        fakeRepository = FakeRecipeRepository()
+        fakeRecipeRepository = FakeRecipeRepository()
+        fakeAuthRepository = FakeAuthRepository()
         recipes = Recipes(
-            login = Login(fakeRepository),
-            logout = Logout(fakeRepository),
-            getSyncState = GetLoginState(fakeRepository),
-            getRecipes = GetRecipes(fakeRepository),
-            deleteRecipe = DeleteRecipe(fakeRepository),
-            addRecipe = AddRecipe(fakeRepository),
-            getRecipe = GetRecipe(fakeRepository)
+            login = Login(fakeAuthRepository),
+            logout = Logout(fakeAuthRepository),
+            getSyncState = GetLoginState(fakeAuthRepository),
+            getRecipes = GetRecipes(fakeRecipeRepository),
+            deleteRecipe = DeleteRecipe(fakeRecipeRepository),
+            addRecipe = AddRecipe(fakeRecipeRepository),
+            getRecipe = GetRecipe(fakeRecipeRepository)
         )
     }
 
@@ -37,7 +40,7 @@ class RecipesTest {
 
     @Test
     fun `Recipes copy works correctly`() {
-        val newLogin = Login(fakeRepository)
+        val newLogin = Login(fakeAuthRepository)
         val copied = recipes.copy(login = newLogin)
 
         assertThat(copied.login).isSameInstanceAs(newLogin)

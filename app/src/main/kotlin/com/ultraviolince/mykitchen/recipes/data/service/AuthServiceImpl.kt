@@ -25,18 +25,18 @@ class AuthServiceImpl(
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val _loginState = MutableStateFlow<LoginState>(LoginState.LoginEmpty)
-    
+
     private var recipeService: RecipeService? = null
 
     init {
         scope.launch {
             val prefs = dataStore.preferences.first()
-            
+
             Log.d("#auth", "Checking stored preferences")
             if (prefs.server != null && prefs.token != null) {
                 Log.d("#auth", "Restoring data, server=${prefs.server}")
                 recipeService = RecipeService(networkService.createHttpClient(prefs.server, prefs.token))
-                
+
                 // TODO: check if token still valid
                 _loginState.emit(LoginState.LoginSuccess)
             }

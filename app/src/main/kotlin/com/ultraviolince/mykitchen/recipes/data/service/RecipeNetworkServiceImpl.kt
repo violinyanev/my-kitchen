@@ -31,7 +31,7 @@ class RecipeNetworkServiceImpl(
         // Initialize service if credentials are available
         scope.launch {
             val prefs = dataStore.preferences.first()
-            
+
             if (prefs.server != null && prefs.token != null) {
                 Log.d("#recipe_network", "Initializing recipe service with stored credentials")
                 recipeService = RecipeService(networkService.createHttpClient(prefs.server, prefs.token))
@@ -62,7 +62,7 @@ class RecipeNetworkServiceImpl(
 
     override suspend fun deleteRecipe(recipeId: Long): Boolean {
         Log.i("#recipe_network", "Deleting recipe from backend: $recipeId")
-        
+
         return recipeService?.let { service ->
             val result = service.deleteRecipe(recipeId = recipeId)
 
@@ -99,7 +99,7 @@ class RecipeNetworkServiceImpl(
     fun updateService() {
         scope.launch {
             val prefs = dataStore.preferences.first()
-            
+
             recipeService = if (prefs.server != null && prefs.token != null) {
                 Log.d("#recipe_network", "Updating recipe service with new credentials")
                 RecipeService(networkService.createHttpClient(prefs.server, prefs.token))
