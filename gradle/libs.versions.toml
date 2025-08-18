@@ -41,7 +41,7 @@ kover = "0.9.1"
 runner = "1.7.0"
 roborazzi = "1.48.0"
 robolectric = "4.15.1"
-composePreviewScanner = "0.6.1"
+composePreviewScanner = "0.7.0"
 
 [libraries]
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
