@@ -19,13 +19,18 @@ plugins {
 
 val vName = project.findProperty("versionName") as String? ?: "v1.0.0"
 
-val versionParts = vName.removePrefix("v").split(".")
-val major = versionParts.getOrNull(0)?.toIntOrNull() ?: 0
-val minor = versionParts.getOrNull(1)?.toIntOrNull() ?: 0
-val patch = versionParts.getOrNull(2)?.toIntOrNull() ?: 0
+// Allow overriding versionCode via property, otherwise calculate from versionName
+val vCode = if (project.hasProperty("versionCode")) {
+    (project.findProperty("versionCode") as String).toInt()
+} else {
+    val versionParts = vName.removePrefix("v").split(".")
+    val major = versionParts.getOrNull(0)?.toIntOrNull() ?: 0
+    val minor = versionParts.getOrNull(1)?.toIntOrNull() ?: 0
+    val patch = versionParts.getOrNull(2)?.toIntOrNull() ?: 0
 
-// This is not ideal, but easier than using a custom versioning scheme
-val vCode = major * 10000 + minor * 100 + patch
+    // This is not ideal, but easier than using a custom versioning scheme
+    major * 10000 + minor * 100 + patch
+}
 
 println("Version Name: $vName")
 println("Version Code: $vCode")
@@ -57,7 +62,14 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ultraviolince.mykitchen"
+        // Add "preview" suffix for snapshot builds to allow side-by-side installation
+        val baseApplicationId = "com.ultraviolince.mykitchen"
+        applicationId = if (project.hasProperty("snapshotBuild") && project.property("snapshotBuild") == "true") {
+            "$baseApplicationId.preview"
+        } else {
+            baseApplicationId
+        }
+
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = vCode.toInt()
@@ -133,6 +145,7 @@ android {
     ksp {
         arg("KOIN_CONFIG_CHECK", "true")
         arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
+        arg("KOIN_DEFAULT_MODULE", "false")
     }
 }
 
