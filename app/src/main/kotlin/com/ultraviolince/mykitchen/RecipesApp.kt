@@ -44,7 +44,7 @@ class RecipesApp : Application() {
                 .detectNetwork()
                 .detectCustomSlowCalls()
                 .detectResourceMismatches()
-                .penaltyLog()
+                .penaltyDeath()
                 .penaltyFlashScreen() // Visual indication for developers
                 .build()
         )
@@ -60,7 +60,7 @@ class RecipesApp : Application() {
                 .detectCleartextNetwork()
                 .detectContentUriWithoutPermission()
                 .detectUntaggedSockets()
-                .penaltyLog()
+                .penaltyDeath()
                 .build()
         )
     }
@@ -70,7 +70,7 @@ class RecipesApp : Application() {
         StrictMode.setThreadPolicy(
             StrictMode.ThreadPolicy.Builder()
                 .detectNetwork() // Network on main thread is always critical
-                .penaltyLog()
+                .penaltyDeath()
                 .build()
         )
 
@@ -79,7 +79,7 @@ class RecipesApp : Application() {
                 .detectActivityLeaks() // Memory leaks are critical
                 .detectLeakedSqlLiteObjects()
                 .detectCleartextNetwork() // Security issue
-                .penaltyLog()
+                .penaltyDeath()
                 .build()
         )
     }
