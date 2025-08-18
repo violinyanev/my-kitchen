@@ -108,7 +108,7 @@ Before committing any changes, ensure all checks pass:
 
 The project includes:
 - **Pre-commit hooks**: Automatically validate code quality and format
-- **Comprehensive testing**: Unit tests, screenshot tests, and coverage reporting  
+- **Comprehensive testing**: Unit tests, screenshot tests, and coverage reporting
 - **Code quality checks**: Detekt linting with auto-correction
 - **CI/CD validation**: All checks must pass for PR approval
 
@@ -138,7 +138,7 @@ We welcome contributions from everyone! Here's how you can help:
 
 **Important**: All PRs must pass GitHub Actions checks including:
 - Build health and compilation
-- Unit tests with 80% coverage on changed files  
+- Unit tests with 80% coverage on changed files
 - Code quality checks (Detekt)
 - Screenshot tests validation
 - Backend tests (if applicable)
@@ -181,6 +181,20 @@ See the [backend README](./backend/README.md) for current development priorities
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## Author Note
+
+> **⚠️ IMPORTANT DISCLAIMER ⚠️**
+>
+> This project represents a learning journey, and while the application is functional, expect beginner-level code quality, potential bugs, and room for improvement. The author is still learning best practices for Android development and Python Flask applications.
+>
+> **Please keep this in mind when:**
+> - Using this application in production
+> - Contributing to the project
+> - Reporting issues or suggesting improvements
+> - Expecting enterprise-level code quality
+>
+> **This is a learning project first and foremost.** Your patience, constructive feedback, and contributions are greatly appreciated as the author continues to improve their development skills! 🙏
 
 ---
 
