@@ -12,4 +12,9 @@ data class Recipe(
     override fun toString() = "Recipe[$id] $title (ts $timestamp)"
 }
 
-class InvalidRecipeException(val errorMessage: String) : Exception(errorMessage)
+enum class RecipeValidationError {
+    MISSING_TITLE,
+    MISSING_CONTENT
+}
+
+class InvalidRecipeException(val error: RecipeValidationError) : Exception("Recipe validation failed: $error")
