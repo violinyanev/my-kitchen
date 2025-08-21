@@ -79,7 +79,6 @@ class SmokeTest {
         }
     }
 
-    // TODO Fix the tests
     @Test
     fun createRecipe_WithoutLogin() {
         // By default, no cloud sync
@@ -91,7 +90,8 @@ class SmokeTest {
         createRecipe("recipe1", "content1")
     }
 
-    @Test fun loginToBackend_ThenCreateRecipe() {
+    @Test
+    fun loginToBackend_ThenCreateRecipe() {
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
             assertExists()
