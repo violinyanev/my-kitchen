@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
 import androidx.work.testing.SynchronousExecutor
@@ -129,5 +130,294 @@ class SmokeTest {
         composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)
 
         createRecipe("recipe2", "content2")
+    }
+
+    @Test
+    fun deleteExistingRecipe() {
+        // First create a recipe
+        createRecipe("Recipe to Delete", "This recipe will be deleted")
+
+        // Click on the created recipe to edit it
+        with(composeTestRule.onNodeWithText("Recipe to Delete")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Click the delete button
+        with(composeTestRule.onNodeWithContentDescription("Delete recipe")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Verify we're back at the recipe list and the recipe is gone
+        with(composeTestRule.onNodeWithText("Recipe to Delete")) {
+            assertDoesNotExist()
+        }
+        with(composeTestRule.onNodeWithText("This recipe will be deleted")) {
+            assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun startNewRecipe_ThenAbortWithDeleteButton() {
+        // Click "New Recipe" button
+        with(composeTestRule.onNodeWithContentDescription("New recipe")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Enter some content
+        with(composeTestRule.onNodeWithContentDescription("Enter recipe title")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextInput("Aborted Recipe")
+        }
+        with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextInput("This should not be saved")
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Click delete to abort
+        with(composeTestRule.onNodeWithContentDescription("Delete recipe")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Verify we're back at the recipe list and the recipe was not created
+        with(composeTestRule.onNodeWithText("Aborted Recipe")) {
+            assertDoesNotExist()
+        }
+        with(composeTestRule.onNodeWithText("This should not be saved")) {
+            assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun startNewRecipe_ThenNavigateBack() {
+        // Click "New Recipe" button
+        with(composeTestRule.onNodeWithContentDescription("New recipe")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Enter some content
+        with(composeTestRule.onNodeWithContentDescription("Enter recipe title")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextInput("Back Navigation Recipe")
+        }
+        with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextInput("This should not be saved either")
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Navigate back using system back button
+        pressBack()
+
+        composeTestRule.waitForIdle()
+
+        // Verify we're back at the recipe list and the recipe was not created
+        with(composeTestRule.onNodeWithText("Back Navigation Recipe")) {
+            assertDoesNotExist()
+        }
+        with(composeTestRule.onNodeWithText("This should not be saved either")) {
+            assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun loginCreateRecipe_LogoutDeleteRecipe_LoginAgain_VerifyDeleted() {
+        // First login to backend
+        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        // Enter server and credentials
+        with(composeTestRule.onNodeWithContentDescription("Server URI")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextClearance()
+            performTextInput(FakeBackend.server)
+        }
+        with(composeTestRule.onNodeWithContentDescription("User name")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextClearance()
+            performTextInput(FakeBackend.testUser)
+        }
+        with(composeTestRule.onNodeWithContentDescription("Password")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextClearance()
+            performTextInput(FakeBackend.testPassword)
+        }
+
+        // Login
+        with(composeTestRule.onNodeWithContentDescription("Login")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        // Wait for login to complete
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)
+
+        // Create a recipe while logged in
+        createRecipe("Server Sync Recipe", "This recipe should sync to server")
+
+        // Logout
+        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is enabled")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        with(composeTestRule.onNodeWithContentDescription("Logout")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Delete the recipe locally (while logged out)
+        with(composeTestRule.onNodeWithText("Server Sync Recipe")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        with(composeTestRule.onNodeWithContentDescription("Delete recipe")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Login again
+        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        with(composeTestRule.onNodeWithContentDescription("Server URI")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextClearance()
+            performTextInput(FakeBackend.server)
+        }
+        with(composeTestRule.onNodeWithContentDescription("User name")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextClearance()
+            performTextInput(FakeBackend.testUser)
+        }
+        with(composeTestRule.onNodeWithContentDescription("Password")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextClearance()
+            performTextInput(FakeBackend.testPassword)
+        }
+
+        with(composeTestRule.onNodeWithContentDescription("Login")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        // Wait for login and sync to complete
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 10000)
+
+        // Verify the recipe is still deleted (should not appear after sync)
+        with(composeTestRule.onNodeWithText("Server Sync Recipe")) {
+            assertDoesNotExist()
+        }
+        with(composeTestRule.onNodeWithText("This recipe should sync to server")) {
+            assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun createRecipe_ThenLoginToServer_VerifySynchronized() {
+        // Create a recipe without being logged in
+        createRecipe("Local Recipe", "This should sync when we login")
+
+        // Login to backend
+        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        with(composeTestRule.onNodeWithContentDescription("Server URI")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextClearance()
+            performTextInput(FakeBackend.server)
+        }
+        with(composeTestRule.onNodeWithContentDescription("User name")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextClearance()
+            performTextInput(FakeBackend.testUser)
+        }
+        with(composeTestRule.onNodeWithContentDescription("Password")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextClearance()
+            performTextInput(FakeBackend.testPassword)
+        }
+
+        with(composeTestRule.onNodeWithContentDescription("Login")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        // Wait for login and sync to complete
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 10000)
+
+        // Verify the recipe is still there after login (it should have synced to server)
+        with(composeTestRule.onNodeWithText("Local Recipe")) {
+            assertExists()
+            assertIsDisplayed()
+        }
+        with(composeTestRule.onNodeWithText("This should sync when we login")) {
+            assertExists()
+            assertIsDisplayed()
+        }
+
+        // Verify we're now logged in (the sync icon should show as enabled)
+        with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is enabled")) {
+            assertExists()
+            assertIsDisplayed()
+        }
     }
 }
