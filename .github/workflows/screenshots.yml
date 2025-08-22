@@ -20,7 +20,7 @@ jobs:
           lfs: 'true'
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: 17
@@ -43,8 +43,8 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          if [ -n "$(git status --porcelain app/screenshots)" ]; then
-            git add app/screenshots
+          if [ -n "$(git status --porcelain app/src/test/screenshots)" ]; then
+            git add app/src/test/screenshots
             git commit -m "🤖 Updated Roborazzi screenshots after verification"
             git push origin HEAD:${{ github.head_ref }}
             echo "changed=true" >> $GITHUB_OUTPUT
