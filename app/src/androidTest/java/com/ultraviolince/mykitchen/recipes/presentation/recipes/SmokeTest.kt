@@ -39,7 +39,6 @@ class SmokeTest {
     private fun createRecipe(title: String, content: String) {
         // When the "New Recipe" button is clicked
         with(composeTestRule.onNodeWithContentDescription("New recipe")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
@@ -48,19 +47,16 @@ class SmokeTest {
 
         // Type recipe details
         with(composeTestRule.onNodeWithContentDescription("Enter recipe title")) {
-            assertExists()
             assertIsDisplayed()
             performTextInput(title)
         }
         with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
-            assertExists()
             assertIsDisplayed()
             performTextInput(content)
         }
 
         // Click "save"
         with(composeTestRule.onNodeWithContentDescription("Save recipe")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
@@ -69,11 +65,9 @@ class SmokeTest {
 
         // Recipe is in the overview
         with(composeTestRule.onNodeWithText(title)) {
-            assertExists()
             assertIsDisplayed()
         }
         with(composeTestRule.onNodeWithText(content)) {
-            assertExists()
             assertIsDisplayed()
         }
     }
@@ -82,7 +76,6 @@ class SmokeTest {
     fun createRecipe_WithoutLogin() {
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
-            assertExists()
             assertIsDisplayed()
         }
 
@@ -95,26 +88,22 @@ class SmokeTest {
         
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
 
         // Enter server and credentials
         with(composeTestRule.onNodeWithContentDescription("Server URI")) {
-            assertExists()
             assertIsDisplayed()
             performTextClearance()
             performTextInput(FakeBackend.server)
         }
         with(composeTestRule.onNodeWithContentDescription("User name")) {
-            assertExists()
             assertIsDisplayed()
             performTextClearance()
             performTextInput(FakeBackend.testUser)
         }
         with(composeTestRule.onNodeWithContentDescription("Password")) {
-            assertExists()
             assertIsDisplayed()
             performTextClearance()
             performTextInput(FakeBackend.testPassword)
@@ -122,7 +111,6 @@ class SmokeTest {
 
         // Login
         with(composeTestRule.onNodeWithContentDescription("Login")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
@@ -137,7 +125,6 @@ class SmokeTest {
     fun deleteRecipe_NavigatesBackToMainScreen() {
         // Start by going to the recipe creation screen
         with(composeTestRule.onNodeWithContentDescription("New recipe")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
@@ -146,19 +133,16 @@ class SmokeTest {
 
         // Enter some recipe details (but we won't save them)
         with(composeTestRule.onNodeWithContentDescription("Enter recipe title")) {
-            assertExists()
             assertIsDisplayed()
             performTextInput("Recipe to delete")
         }
         with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
-            assertExists()
             assertIsDisplayed()
             performTextInput("Content to delete")
         }
 
         // Click the delete button instead of save
         with(composeTestRule.onNodeWithContentDescription("Delete recipe")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
@@ -167,7 +151,6 @@ class SmokeTest {
 
         // Verify we're back on the main screen by checking for the "New recipe" button
         with(composeTestRule.onNodeWithContentDescription("New recipe")) {
-            assertExists()
             assertIsDisplayed()
         }
 
