@@ -1,92 +1,105 @@
-# Backend implementations
+# Ktor Backend Implementation
 
-This repository contains backend implementations for the application which can be self-hosted on your own server.
+This is a Kotlin implementation of the backend using the Ktor framework. It provides the same REST API as the original Python Flask backend with identical behavior and API compatibility.
 
-## Python Flask Backend (Original)
+## Features
 
-The original Python Flask implementation located in the `image/` directory.
+- **REST API Compatibility**: All endpoints match the Python backend exactly
+- **JWT Authentication**: Using HS256 algorithm, compatible with existing tokens
+- **YAML File Storage**: Same file format and backup capability as Python backend
+- **JSON Serialization**: Compatible request/response format
+- **Unit Tests**: Comprehensive test coverage for all components
+- **Docker Support**: Can be containerized for deployment
 
-### Running the Python backend
+## API Endpoints
 
+- `GET /health` - Health check, returns "OK"
+- `GET /version` - Returns API version info (requires auth)
+- `POST /users/login` - User login, returns JWT token
+- `GET /users` - Get all users (requires auth)
+- `GET /user` - Get current user (requires auth)
+- `GET /recipes` - Get user's recipes (requires auth)
+- `POST /recipes` - Create new recipe (requires auth)
+- `DELETE /recipes/<id>` - Delete recipe (requires auth)
+
+## Running the Backend
+
+### From source (for development)
 ```bash
-# From docker (emulates release mode)
-python3 ./scripts/dev.py start
-
-# From flask directly (for debugging)
 ./scripts/dev.sh
 ```
 
-### Building the docker image locally
-
+### Using Gradle directly
 ```bash
-python3 ./scripts/dev.py build
+# From project root
+RECIPES_SECRET_KEY="Test" ./gradlew :backend:run --args="backend/seed_data"
 ```
 
-## Kotlin Ktor Backend (New)
-
-A new Kotlin implementation using the Ktor framework, providing identical API compatibility.
-
-**Location**: `../backend-kt/`
-
-### Features
-- **Drop-in replacement** for Python backend
-- **Same REST API endpoints** and response format
-- **JWT token compatibility** with Python backend
-- **Same YAML file storage** format
-- **Comprehensive unit tests** (25+ tests)
-- **Docker support** for containerized deployment
-- **Better performance** and lower memory usage
-
-### Running the Ktor backend
-
+### Building distribution
 ```bash
-# From the backend-kt directory
-./scripts/dev.sh
-
-# Or using Gradle directly from project root
-RECIPES_SECRET_KEY="Test" ./gradlew :backend-kt:run --args="../backend/seed_data"
+./gradlew :backend:distTar
 ```
 
-### Testing the Ktor backend
-
+### Running tests
 ```bash
-# Run comprehensive unit tests
-./gradlew :backend-kt:test
-
-# Build distribution
-./gradlew :backend-kt:distTar
+./gradlew :backend:test
 ```
 
-See `../backend-kt/README.md` for detailed documentation.
+## Configuration
 
-## API Compatibility
+Environment variables:
+- `RECIPES_SECRET_KEY` - JWT secret key (required)
+- `FLASK_HOST` - Server host (default: 127.0.0.1)
+- `FLASK_PORT` - Server port (default: 5000)
 
-Both backends provide identical REST APIs:
+Command line arguments:
+- First argument: Path to data directory (default: system temp directory)
 
-- `GET /health` - Health check
-- `POST /users/login` - User authentication
-- `GET /users` - List users (authenticated)
-- `GET /user` - Get current user (authenticated)
-- `GET /recipes` - Get recipes (authenticated)
-- `POST /recipes` - Create recipe (authenticated)
-- `DELETE /recipes/<id>` - Delete recipe (authenticated)
+## Docker Support
 
-## Migration Notes
+Build the distribution and create a Docker image:
 
-The Ktor backend can use the same data files as the Python backend:
-- JWT tokens are cross-compatible
-- YAML file format is identical
-- No data migration required
+```bash
+./gradlew :backend:distTar
+docker build -t my-kitchen-backend backend/
+```
 
-## Open TODOs
+Run the container:
+```bash
+docker run -p 5000:5000 -e RECIPES_SECRET_KEY="your-secret-key" my-kitchen-backend
+```
 
-* Add installation instructions
-* Add proper logging
-* Find a better database than yaml files
-* Add a check/tests for backwards compatibility
-* Provide swagger
-* Search for a better library for REST APIs
+## Testing
 
-## Author Note
+The backend includes comprehensive unit tests:
 
-> Use this backend understanding that it's primarily a learning exercise. Contributions, code reviews, and suggestions for improvements are especially welcome! 🚀
+- **Database Tests**: YAML file operations, schema validation, backups
+- **Authentication Tests**: JWT token generation and validation
+- **Route Tests**: HTTP endpoint behavior and authentication
+
+Run tests: `./gradlew :backend:test`
+
+## Architecture
+
+- **Application.kt**: Main server setup and configuration
+- **Routes**: Separate modules for user and recipe endpoints
+- **Database**: YAML file persistence with backup capability
+- **Authentication**: JWT token handling with user validation
+- **Models**: Data classes for all API objects
+
+## Compatibility
+
+This backend is designed to be a drop-in replacement for the Python Flask backend:
+
+- Same API endpoints and response format
+- Compatible JWT tokens (can authenticate tokens from Python backend)
+- Same YAML file format for data storage
+- Identical error messages and status codes
+
+## Performance
+
+The Ktor backend offers several advantages:
+- Lower memory usage compared to Python/Flask
+- Better concurrent request handling
+- Faster startup time
+- Native JVM performance

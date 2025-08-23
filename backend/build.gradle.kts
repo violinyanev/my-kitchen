@@ -43,6 +43,7 @@ dependencies {
 
 application {
     mainClass.set("com.ultraviolince.mykitchen.backend.ApplicationKt")
+    applicationName = "backend"
 }
 
 tasks.test {

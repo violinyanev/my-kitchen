@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "My Kitchen"
 include(":app")
-include(":backend-kt")
+include(":backend")

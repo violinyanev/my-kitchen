@@ -5,10 +5,10 @@ FROM openjdk:17-jre-slim
 WORKDIR /app
 
 # Copy the distribution to the container
-COPY build/distributions/backend-kt.tar ./
+COPY build/distributions/backend.tar ./
 
 # Extract the distribution
-RUN tar -xf backend-kt.tar
+RUN tar -xf backend.tar
 
 # Set environment variables for container deployment
 ENV FLASK_HOST=0.0.0.0
@@ -18,4 +18,4 @@ ENV FLASK_PORT=5000
 EXPOSE 5000
 
 # Start the Ktor app
-CMD ["./backend-kt/bin/backend-kt"]
+CMD ["./backend/bin/backend"]
