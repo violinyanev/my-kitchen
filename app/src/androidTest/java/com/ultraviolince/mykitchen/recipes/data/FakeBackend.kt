@@ -9,9 +9,47 @@ import java.net.URL
 
 class FakeBackend {
     companion object {
-        val server = "http://10.0.2.2:5000"
+        // Try different server addresses for different environments
+        private val possibleServers = listOf(
+            "http://10.0.2.2:5000",    // Standard Android emulator address
+            "http://localhost:5000",   // Local development
+            "http://127.0.0.1:5000"   // Fallback local address
+        )
+        
         val testUser = "test@user.com"
         val testPassword = "TestPassword"
+        
+        // Determine the correct server address by testing connectivity
+        val server: String by lazy {
+            findWorkingServer() ?: possibleServers[0] // Default to emulator address
+        }
+        
+        /**
+         * Find a working server address by testing connectivity to /health endpoint
+         */
+        private fun findWorkingServer(): String? {
+            for (serverUrl in possibleServers) {
+                try {
+                    val url = URL("$serverUrl/health")
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.requestMethod = "GET"
+                    connection.connectTimeout = 2000 // Short timeout for fast testing
+                    connection.readTimeout = 2000
+                    
+                    val responseCode = connection.responseCode
+                    connection.disconnect()
+                    
+                    if (responseCode == 200) {
+                        android.util.Log.i("FakeBackend", "Found working server at: $serverUrl")
+                        return serverUrl
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.d("FakeBackend", "Server $serverUrl not reachable: ${e.message}")
+                }
+            }
+            android.util.Log.w("FakeBackend", "No working server found, using default")
+            return null
+        }
         
         /**
          * Clear all recipes for the test user from the backend.

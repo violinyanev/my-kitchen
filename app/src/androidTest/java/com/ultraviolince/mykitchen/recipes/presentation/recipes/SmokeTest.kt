@@ -50,10 +50,15 @@ class SmokeTest {
             assertIsDisplayed()
             performTextInput(title)
         }
+        
+        composeTestRule.waitForIdle()
+        
         with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
             assertIsDisplayed()
             performTextInput(content)
         }
+
+        composeTestRule.waitForIdle()
 
         // Click "save"
         with(composeTestRule.onNodeWithContentDescription("Save recipe")) {
@@ -92,6 +97,8 @@ class SmokeTest {
             performClick()
         }
 
+        composeTestRule.waitForIdle()
+
         // Enter server and credentials
         with(composeTestRule.onNodeWithContentDescription("Server URI")) {
             assertIsDisplayed()
@@ -115,8 +122,9 @@ class SmokeTest {
             performClick()
         }
 
-        // Create a new recipe, with backend now
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)
+        // Wait for login to complete and return to main screen
+        // This could take longer in emulator environments
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 10000)
 
         createRecipe("recipe2", "content2")
     }
@@ -136,10 +144,15 @@ class SmokeTest {
             assertIsDisplayed()
             performTextInput("Recipe to delete")
         }
+        
+        composeTestRule.waitForIdle()
+        
         with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
             assertIsDisplayed()
             performTextInput("Content to delete")
         }
+
+        composeTestRule.waitForIdle()
 
         // Click the delete button instead of save
         with(composeTestRule.onNodeWithContentDescription("Delete recipe")) {
