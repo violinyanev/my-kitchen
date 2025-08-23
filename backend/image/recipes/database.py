@@ -131,6 +131,15 @@ class Database:
         return False, f"There is no recipe with id {recipe_id}"
 
 
+    def clear_user_recipes(self, user):
+        """Clear all recipes for a specific user - for testing purposes"""
+        initial_count = len(self.data['recipes'])
+        self.data['recipes'] = [r for r in self.data['recipes'] if r['user'] != user['name']]
+        deleted_count = initial_count - len(self.data['recipes'])
+        if deleted_count > 0:
+            self.save()
+        return deleted_count
+
     def save(self):
         with open(self.file, 'w') as f:
             f.write(yaml.safe_dump(self.data))

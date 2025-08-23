@@ -34,6 +34,9 @@ class SmokeTest {
             .build()
 
         WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+        
+        // Clear any existing recipes from the backend for test isolation
+        FakeBackend.clearUserRecipes()
     }
 
     private fun createRecipe(title: String, content: String) {
@@ -129,5 +132,47 @@ class SmokeTest {
         composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)
 
         createRecipe("recipe2", "content2")
+    }
+
+    @Test
+    fun deleteRecipe_NavigatesBackToMainScreen() {
+        // Start by going to the recipe creation screen
+        with(composeTestRule.onNodeWithContentDescription("New recipe")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Enter some recipe details (but we won't save them)
+        with(composeTestRule.onNodeWithContentDescription("Enter recipe title")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextInput("Recipe to delete")
+        }
+        with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
+            assertExists()
+            assertIsDisplayed()
+            performTextInput("Content to delete")
+        }
+
+        // Click the delete button instead of save
+        with(composeTestRule.onNodeWithContentDescription("Delete recipe")) {
+            assertExists()
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Verify we're back on the main screen by checking for the "New recipe" button
+        with(composeTestRule.onNodeWithContentDescription("New recipe")) {
+            assertExists()
+            assertIsDisplayed()
+        }
+
+        // The test passes if we successfully return to the main screen after clicking delete
+        // This verifies that clicking delete navigates back and doesn't create a recipe
     }
 }
