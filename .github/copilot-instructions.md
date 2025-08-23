@@ -156,8 +156,7 @@ cd backend/image && python3 -m unittest discover && cd ../..
 ./gradlew detekt --auto-correct
 
 # 5. Verify all files end with newlines (critical for CI)
-find . -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" | \
-xargs -I {} sh -c 'if [ "$(tail -c1 "{}" | wc -l)" -eq 0 ]; then echo "Missing newline: {}"; echo "" >> "{}"; fi'
+find . \( -path "./app/build" -o -path "./build" -o -path "./.gradle" \) -prune -o \( -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" \) -exec sh -c 'if [ "$(tail -c1 "{}" | wc -l)" -eq 0 ]; then echo "Missing newline: {}"; echo "" >> "{}"; fi' \;
 
 # 6. Run instrumented tests (optional, requires Android emulator/device)
 adb devices    # Check if emulator/device connected
@@ -455,9 +454,8 @@ curl http://localhost:5000/health  # Should return "OK"
 
 #### Missing Final Newlines
 ```bash
-# Auto-fix missing newlines
-find . -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" | \
-xargs -I {} sh -c 'if [ "$(tail -c1 "{}" | wc -l)" -eq 0 ]; then echo "" >> "{}"; fi'
+# Auto-fix missing newlines (excluding build directories)
+find . \( -path "./app/build" -o -path "./build" -o -path "./.gradle" \) -prune -o \( -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" \) -exec sh -c 'if [ "$(tail -c1 "{}" | wc -l)" -eq 0 ]; then echo "" >> "{}"; fi' \;
 ```
 
 #### Build Warnings (Treated as Errors)
