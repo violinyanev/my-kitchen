@@ -26,12 +26,15 @@ class FakeBackend {
                 connection.requestMethod = "DELETE"
                 connection.setRequestProperty("Authorization", "Bearer $token")
                 connection.setRequestProperty("Content-Type", "application/json")
+                connection.connectTimeout = 5000 // 5 second timeout
+                connection.readTimeout = 5000    // 5 second timeout
                 
                 val responseCode = connection.responseCode
                 connection.disconnect()
                 responseCode in 200..299
             } catch (e: Exception) {
-                // Backend might not be running - that's ok for some tests
+                // Backend might not be running or reachable - that's ok for some tests
+                android.util.Log.w("FakeBackend", "Failed to clear user recipes: ${e.message}")
                 false
             }
         }
@@ -48,6 +51,8 @@ class FakeBackend {
                 connection.requestMethod = "POST"
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.doOutput = true
+                connection.connectTimeout = 5000 // 5 second timeout
+                connection.readTimeout = 5000    // 5 second timeout
                 
                 val writer = OutputStreamWriter(connection.outputStream)
                 writer.write(json.toString())
@@ -63,9 +68,11 @@ class FakeBackend {
                     val responseJson = JSONObject(response)
                     responseJson.getJSONObject("data").getString("token")
                 } else {
+                    android.util.Log.w("FakeBackend", "Login failed with response code: $responseCode")
                     null
                 }
             } catch (e: Exception) {
+                android.util.Log.w("FakeBackend", "Login failed: ${e.message}")
                 null
             }
         }

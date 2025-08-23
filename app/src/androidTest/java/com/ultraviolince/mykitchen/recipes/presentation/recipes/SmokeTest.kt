@@ -34,9 +34,6 @@ class SmokeTest {
             .build()
 
         WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
-        
-        // Clear any existing recipes from the backend for test isolation
-        FakeBackend.clearUserRecipes()
     }
 
     private fun createRecipe(title: String, content: String) {
@@ -81,7 +78,6 @@ class SmokeTest {
         }
     }
 
-    // TODO Fix the tests
     @Test
     fun createRecipe_WithoutLogin() {
         // By default, no cloud sync
@@ -94,6 +90,9 @@ class SmokeTest {
     }
 
     @Test fun loginToBackend_ThenCreateRecipe() {
+        // Clear any existing recipes from the backend for test isolation
+        FakeBackend.clearUserRecipes()
+        
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
             assertExists()
