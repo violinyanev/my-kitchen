@@ -35,6 +35,7 @@ dependencies {
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.client.content.negotiation)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
     testImplementation(libs.truth)
@@ -45,5 +46,5 @@ application {
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnit()
 }
