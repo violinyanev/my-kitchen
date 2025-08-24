@@ -46,6 +46,10 @@ class FakeRecipeRepository : RecipeRepository {
         return recipes.size.toLong()
     }
 
+    fun clearAllRecipes() {
+        recipes.clear()
+    }
+
     override suspend fun deleteRecipe(recipe: Recipe) {
         recipes.remove(recipe)
     }
