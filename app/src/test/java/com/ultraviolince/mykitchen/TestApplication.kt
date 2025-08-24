@@ -11,7 +11,10 @@ import org.koin.ksp.generated.module
 class TestApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+        initializeKoin()
+    }
 
+    private fun initializeKoin() {
         // Stop any existing Koin instance before starting a new one
         try {
             GlobalContext.stopKoin()
