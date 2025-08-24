@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.detekt)
     application
 }
 
@@ -39,6 +40,9 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
     testImplementation(libs.truth)
+    
+    // Code quality
+    detektPlugins(libs.detektTwitterPlugin)
 }
 
 application {
@@ -48,4 +52,15 @@ application {
 
 tasks.test {
     useJUnit()
+}
+
+detekt {
+    config.setFrom("$rootDir/gradle/detekt.yml")
+    buildUponDefaultConfig = true
+    autoCorrect = true
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt> {
+    setSource(files("src/main/kotlin", "src/test/kotlin"))
+    exclude("**/build/**")
 }

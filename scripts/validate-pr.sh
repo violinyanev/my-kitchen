@@ -71,11 +71,11 @@ print_success "Android checks passed"
 
 # Step 5: Backend tests
 print_step "Running backend unit tests..."
-if [ -d "backend/image" ]; then
-    (cd backend/image && python3 -m unittest discover)
+if [ -f "backend/build.gradle.kts" ]; then
+    ./gradlew :backend:test
     print_success "Backend tests passed"
 else
-    print_warning "Backend directory not found, skipping backend tests"
+    print_warning "Backend build file not found, skipping backend tests"
 fi
 
 # Step 6: Check if backend can start (required for integration tests)

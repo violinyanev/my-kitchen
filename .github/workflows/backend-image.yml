@@ -27,10 +27,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Run unit tests
-        run: |
-          cd backend/image
-          python3 -m unittest discover
+        run: ./gradlew :backend:test
 
       - name: Install cosign
         if: github.event_name != 'pull_request'
@@ -54,11 +61,15 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - name: Build backend distribution
+        run: ./gradlew :backend:distTar
+
       - name: Build and push Docker image with Buildx
         id: build-and-push
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:backend/image"
+          context: backend
+          file: backend/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
