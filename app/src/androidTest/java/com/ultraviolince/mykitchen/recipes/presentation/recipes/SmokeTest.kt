@@ -88,9 +88,6 @@ class SmokeTest {
     }
 
     @Test fun loginToBackend_ThenCreateRecipe() {
-        // Clear any existing recipes from the backend for test isolation
-        FakeBackend.clearUserRecipes()
-        
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
             assertIsDisplayed()
@@ -123,8 +120,12 @@ class SmokeTest {
         }
 
         // Wait for login to complete and return to main screen
-        // This could take longer in emulator environments
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 10000)
+        // This could take longer in emulator environments, especially in CI
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+
+        // Clear any existing recipes from the backend for test isolation
+        // Do this AFTER login succeeds to ensure backend is ready and authenticated
+        FakeBackend.clearUserRecipes()
 
         createRecipe("recipe2", "content2")
     }
