@@ -26,7 +26,7 @@ fun Application.configureUserRoutes(
             try {
                 val loginRequest = call.receive<LoginRequest>()
                 val (user, error) = userDatabase.validateLoginRequest(loginRequest.email, loginRequest.password)
-                
+
                 if (error != null) {
                     call.respond(
                         HttpStatusCode.BadRequest,
@@ -34,7 +34,7 @@ fun Application.configureUserRoutes(
                     )
                     return@post
                 }
-                
+
                 if (user != null) {
                     val token = jwtConfig.generateToken(user.name)
                     val response = LoginResponse(
@@ -58,7 +58,7 @@ fun Application.configureUserRoutes(
         get("/users") {
             val token = call.request.headers["Authorization"]?.removePrefix("Bearer ")
             val user = authService.authenticate(token)
-            
+
             if (user == null) {
                 call.respond(
                     HttpStatusCode.Unauthorized,
@@ -70,14 +70,14 @@ fun Application.configureUserRoutes(
                 )
                 return@get
             }
-            
+
             call.respond(HttpStatusCode.OK, userDatabase.getAll())
         }
 
         get("/user") {
             val token = call.request.headers["Authorization"]?.removePrefix("Bearer ")
             val user = authService.authenticate(token)
-            
+
             if (user == null) {
                 call.respond(
                     HttpStatusCode.Unauthorized,
@@ -89,7 +89,7 @@ fun Application.configureUserRoutes(
                 )
                 return@get
             }
-            
+
             call.respond(HttpStatusCode.OK, user)
         }
     }

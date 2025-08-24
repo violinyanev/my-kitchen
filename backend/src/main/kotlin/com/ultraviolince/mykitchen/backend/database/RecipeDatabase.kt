@@ -22,10 +22,12 @@ data class RecipesData(
 class RecipeDatabase(private val file: Path, createBackup: Boolean = false) {
     private var data: RecipesData
     private var nextId: Int
-    private val yaml = Yaml(DumperOptions().apply {
-        defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
-        isPrettyFlow = true
-    })
+    private val yaml = Yaml(
+        DumperOptions().apply {
+            defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
+            isPrettyFlow = true
+        }
+    )
 
     init {
         // Create file if it doesn't exist
@@ -37,7 +39,7 @@ class RecipeDatabase(private val file: Path, createBackup: Boolean = false) {
 
         // Load data from file
         data = loadFromFile()
-        
+
         // Calculate next ID
         nextId = if (data.recipes.isNotEmpty()) {
             data.recipes.maxOf { it.id } + 1
@@ -91,7 +93,9 @@ class RecipeDatabase(private val file: Path, createBackup: Boolean = false) {
         val backupDirectory = file.parent.resolve("backup")
         backupDirectory.createDirectories()
         val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm"))
-        val backupFile = backupDirectory.resolve("${file.fileName.toString().substringBeforeLast(".")}-incompatible-$date.yaml")
+        val backupFile = backupDirectory.resolve(
+            "${file.fileName.toString().substringBeforeLast(".")}-incompatible-$date.yaml"
+        )
         File(file.toString()).copyTo(File(backupFile.toString()), overwrite = true)
     }
 

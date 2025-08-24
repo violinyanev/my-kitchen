@@ -2,7 +2,10 @@ package com.ultraviolince.mykitchen.backend.database
 
 import com.ultraviolince.mykitchen.backend.model.User
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.nio.file.Files

@@ -16,22 +16,19 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.request.httpMethod
-import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
-import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 
 fun getApiVersion() = ApiVersion(
-    api_version_major = 0,
-    api_version_minor = 5,
-    api_version_patch = 2
+    apiVersionMajor = 0,
+    apiVersionMinor = 5,
+    apiVersionPatch = 2
 )
 
 fun main(args: Array<String>) {
@@ -80,10 +77,12 @@ fun Application.configureKtor(
 ) {
     // Install plugins
     install(ContentNegotiation) {
-        json(Json {
-            prettyPrint = true
-            isLenient = true
-        })
+        json(
+            Json {
+                prettyPrint = true
+                isLenient = true
+            }
+        )
     }
 
     install(CORS) {
@@ -102,7 +101,7 @@ fun Application.configureKtor(
         get("/version") {
             val token = call.request.headers["Authorization"]?.removePrefix("Bearer ")
             val user = authService.authenticate(token)
-            
+
             if (user == null) {
                 call.respond(
                     HttpStatusCode.Unauthorized,
@@ -114,7 +113,7 @@ fun Application.configureKtor(
                 )
                 return@get
             }
-            
+
             call.respond(HttpStatusCode.OK, mapOf("current_user" to user))
         }
     }

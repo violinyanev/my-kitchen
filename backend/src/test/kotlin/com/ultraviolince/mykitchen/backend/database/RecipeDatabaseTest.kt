@@ -4,7 +4,11 @@ import com.ultraviolince.mykitchen.backend.model.Recipe
 import com.ultraviolince.mykitchen.backend.model.RecipeRequest
 import com.ultraviolince.mykitchen.backend.model.User
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.nio.file.Files
@@ -41,7 +45,7 @@ class RecipeDatabaseTest {
             body = "Recipe body",
             timestamp = 12L
         )
-        
+
         val (newRecipe, error) = db.put(testUser, recipeRequest)
         assertNull(error)
         assertNotNull(newRecipe)
@@ -59,7 +63,7 @@ class RecipeDatabaseTest {
             title = "Test Recipe",
             body = "Recipe body"
         )
-        
+
         val (newRecipe, error) = db.put(testUser, recipeRequest)
         assertNull(error)
         assertNotNull(newRecipe)
@@ -75,7 +79,7 @@ class RecipeDatabaseTest {
             title = "",
             body = "Recipe body"
         )
-        
+
         val (newRecipe, error) = db.put(testUser, recipeRequest)
         assertNull(newRecipe)
         assertEquals("Recipe title can't be empty", error)
@@ -86,10 +90,10 @@ class RecipeDatabaseTest {
         val db = RecipeDatabase(testFile)
         val recipeRequest1 = RecipeRequest(id = 1, title = "First Recipe")
         val recipeRequest2 = RecipeRequest(id = 1, title = "Second Recipe")
-        
+
         db.put(testUser, recipeRequest1)
         val (newRecipe, error) = db.put(testUser, recipeRequest2)
-        
+
         assertNull(newRecipe)
         assertEquals("Recipe with id 1 exists!", error)
     }
@@ -99,15 +103,15 @@ class RecipeDatabaseTest {
         val db = RecipeDatabase(testFile)
         val user1 = User("User1", "user1@example.com", "pass")
         val user2 = User("User2", "user2@example.com", "pass")
-        
+
         db.put(user1, RecipeRequest(title = "User1 Recipe"))
         db.put(user2, RecipeRequest(title = "User2 Recipe"))
-        
+
         val user1Recipes = db.get(user1, all = false)
         assertEquals(1, user1Recipes.size)
         assertEquals("User1 Recipe", user1Recipes[0].title)
         assertEquals("User1", user1Recipes[0].user)
-        
+
         val allRecipes = db.get(user1, all = true)
         assertEquals(2, allRecipes.size)
     }
@@ -116,14 +120,14 @@ class RecipeDatabaseTest {
     fun testDeleteRecipe() {
         val db = RecipeDatabase(testFile)
         val recipeRequest = RecipeRequest(id = 1, title = "Test Recipe")
-        
+
         val (recipe, _) = db.put(testUser, recipeRequest)
         assertNotNull(recipe)
-        
+
         val (success, result) = db.delete(testUser, 1)
         assertTrue(success)
         assertEquals(recipe, result)
-        
+
         val recipes = db.get(testUser, all = false)
         assertEquals(0, recipes.size)
     }
@@ -131,7 +135,7 @@ class RecipeDatabaseTest {
     @Test
     fun testDeleteNonExistentRecipe() {
         val db = RecipeDatabase(testFile)
-        
+
         val (success, result) = db.delete(testUser, 999)
         assertFalse(success)
         assertEquals("There is no recipe with id 999", result)
@@ -142,9 +146,9 @@ class RecipeDatabaseTest {
         val db = RecipeDatabase(testFile)
         val user1 = User("User1", "user1@example.com", "pass")
         val user2 = User("User2", "user2@example.com", "pass")
-        
+
         db.put(user1, RecipeRequest(id = 1, title = "User1 Recipe"))
-        
+
         val (success, result) = db.delete(user2, 1)
         assertFalse(success)
         assertEquals("Recipe 1 does not belong to you, you can't delete it!", result)

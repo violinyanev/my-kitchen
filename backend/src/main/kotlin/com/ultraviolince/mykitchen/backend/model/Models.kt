@@ -1,5 +1,6 @@
 package com.ultraviolince.mykitchen.backend.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -53,9 +54,9 @@ data class UserData(
 
 @Serializable
 data class ApiVersion(
-    val api_version_major: Int,
-    val api_version_minor: Int,
-    val api_version_patch: Int
+    @SerialName("api_version_major") val apiVersionMajor: Int,
+    @SerialName("api_version_minor") val apiVersionMinor: Int,
+    @SerialName("api_version_patch") val apiVersionPatch: Int
 )
 
 @Serializable

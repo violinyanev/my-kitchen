@@ -3,15 +3,21 @@ package com.ultraviolince.mykitchen.backend.routes
 import com.ultraviolince.mykitchen.backend.auth.AuthenticationService
 import com.ultraviolince.mykitchen.backend.auth.JwtConfig
 import com.ultraviolince.mykitchen.backend.database.UserDatabase
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.testing.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.server.application.install
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.testing.testApplication
+import io.ktor.serialization.kotlinx.json.json
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.nio.file.Files
@@ -29,7 +35,7 @@ class UserRoutesTest {
         testFile = Files.createTempFile("test_database", ".yaml")
         userDatabase = UserDatabase(testFile)
         userDatabase.create("test@user.com", "TestUser", "TestPassword")
-        
+
         jwtConfig = JwtConfig("test-secret-key")
         authService = AuthenticationService(jwtConfig, userDatabase)
     }

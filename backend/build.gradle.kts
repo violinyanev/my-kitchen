@@ -43,6 +43,7 @@ dependencies {
     
     // Code quality
     detektPlugins(libs.detektTwitterPlugin)
+    detektPlugins(libs.detektFormattingPlugin)
 }
 
 application {
@@ -64,3 +65,4 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt> {
     setSource(files("src/main/kotlin", "src/test/kotlin"))
     exclude("**/build/**")
 }
+

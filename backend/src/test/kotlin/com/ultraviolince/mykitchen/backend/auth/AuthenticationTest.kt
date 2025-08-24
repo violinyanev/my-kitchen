@@ -3,7 +3,10 @@ package com.ultraviolince.mykitchen.backend.auth
 import com.ultraviolince.mykitchen.backend.database.UserDatabase
 import com.ultraviolince.mykitchen.backend.model.User
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.nio.file.Files
@@ -22,7 +25,7 @@ class AuthenticationTest {
         testFile = Files.createTempFile("test_database", ".yaml")
         userDatabase = UserDatabase(testFile)
         userDatabase.create(testUser.email, testUser.name, testUser.password)
-        
+
         jwtConfig = JwtConfig("test-secret-key")
         authService = AuthenticationService(jwtConfig, userDatabase)
     }
@@ -37,7 +40,7 @@ class AuthenticationTest {
         val token = jwtConfig.generateToken(testUser.name)
         assertNotNull(token)
         assertTrue(token.isNotEmpty())
-        
+
         val username = jwtConfig.verifyToken(token)
         assertEquals(testUser.name, username)
     }
@@ -52,7 +55,7 @@ class AuthenticationTest {
     fun testAuthenticateValidToken() {
         val token = jwtConfig.generateToken(testUser.name)
         val user = authService.authenticate(token)
-        
+
         assertNotNull(user)
         assertEquals(testUser.name, user?.name)
         assertEquals(testUser.email, user?.email)

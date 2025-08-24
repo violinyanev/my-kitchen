@@ -2,8 +2,6 @@ package com.ultraviolince.mykitchen.backend.database
 
 import com.ultraviolince.mykitchen.backend.model.User
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 import java.io.File
@@ -21,10 +19,12 @@ data class UsersData(
 
 class UserDatabase(private val file: Path, createBackup: Boolean = false) {
     private var data: UsersData
-    private val yaml = Yaml(DumperOptions().apply {
-        defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
-        isPrettyFlow = true
-    })
+    private val yaml = Yaml(
+        DumperOptions().apply {
+            defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
+            isPrettyFlow = true
+        }
+    )
 
     init {
         // Create file if it doesn't exist
@@ -72,7 +72,9 @@ class UserDatabase(private val file: Path, createBackup: Boolean = false) {
         val backupDirectory = file.parent.resolve("backup")
         backupDirectory.createDirectories()
         val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm"))
-        val backupFile = backupDirectory.resolve("${file.fileName.toString().substringBeforeLast(".")}-incompatible-$date.yaml")
+        val backupFile = backupDirectory.resolve(
+            "${file.fileName.toString().substringBeforeLast(".")}-incompatible-$date.yaml"
+        )
         File(file.toString()).copyTo(File(backupFile.toString()), overwrite = true)
     }
 
@@ -114,10 +116,10 @@ class UserDatabase(private val file: Path, createBackup: Boolean = false) {
             email = email,
             password = password
         )
-        
+
         val updatedData = data.copy(users = data.users + newUser)
         saveToFile(updatedData)
-        
+
         return newUser
     }
 
