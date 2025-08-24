@@ -87,19 +87,19 @@ class SmokeTestRoborazziLogin {
             assertExists()
             assertIsDisplayed()
             performTextClearance()
-            performTextInput(FakeBackend.server)
+            performTextInput(FakeBackend.SERVER)
         }
         with(composeTestRule.onNodeWithContentDescription("User name")) {
             assertExists()
             assertIsDisplayed()
             performTextClearance()
-            performTextInput(FakeBackend.testUser)
+            performTextInput(FakeBackend.TEST_USER)
         }
         with(composeTestRule.onNodeWithContentDescription("Password")) {
             assertExists()
             assertIsDisplayed()
             performTextClearance()
-            performTextInput(FakeBackend.testPassword)
+            performTextInput(FakeBackend.TEST_PASSWORD)
         }
 
         // Login
