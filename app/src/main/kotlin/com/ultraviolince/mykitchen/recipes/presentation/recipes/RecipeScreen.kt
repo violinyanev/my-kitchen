@@ -6,10 +6,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,23 +17,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CloudSync
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.SyncProblem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -47,7 +44,9 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkE
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.OrderSection
-import com.ultraviolince.mykitchen.recipes.presentation.util.Screen
+import com.ultraviolince.mykitchen.recipes.presentation.recipes.components.RecipeListHeader
+import com.ultraviolince.mykitchen.recipes.presentation.util.AddEditRecipeScreen
+import com.ultraviolince.mykitchen.recipes.presentation.util.LoginScreen
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -60,12 +59,10 @@ fun RecipeScreen(
 
     RecipeScreenContent(
         onAddRecipe = {
-            navController.navigate(Screen.AddEditRecipeScreen.route)
+            navController.navigate(AddEditRecipeScreen())
         },
         onLoginClick = {
-            navController.navigate(
-                Screen.LoginScreen.route
-            )
+            navController.navigate(LoginScreen)
         },
         onSortClick = {
             viewModel.onEvent(RecipesEvent.ToggleOrderSection)
@@ -75,7 +72,7 @@ fun RecipeScreen(
         },
         onRecipeClicked = { recipe ->
             navController.navigate(
-                Screen.AddEditRecipeScreen.route + "?recipeId=${recipe.id}"
+                AddEditRecipeScreen(recipeId = recipe.id?.toInt() ?: -1)
             )
         },
         recipeState = state
@@ -111,53 +108,17 @@ fun RecipeScreenContent(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.your_recipes),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                IconButton(
-                    onClick = onSortClick
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FilterList,
-                        contentDescription = stringResource(id = R.string.sort)
-                    )
-                }
-                IconButton(
-                    onClick = onLoginClick
-                ) {
-                    when (recipeState.syncState) {
-                        LoginState.LoginEmpty ->
-                            Icon(
-                                imageVector = Icons.Default.SyncProblem,
-                                contentDescription = stringResource(id = R.string.sync_disabled)
-                            )
-
-                        LoginState.LoginPending ->
-                            Icon(
-                                imageVector = Icons.Default.Sync,
-                                contentDescription = stringResource(id = R.string.sync_loading)
-                            )
-
-                        LoginState.LoginSuccess ->
-                            Icon(
-                                imageVector = Icons.Default.CloudSync,
-                                contentDescription = stringResource(id = R.string.sync_enabled)
-                            )
-
-                        is LoginState.LoginFailure ->
-                            Icon(
-                                imageVector = Icons.Default.SyncProblem,
-                                contentDescription = stringResource(id = R.string.sync_disabled)
-                            )
-                    }
-                }
-            }
+            Text(
+                text = stringResource(R.string.your_recipes),
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.semantics { heading() }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            RecipeListHeader(
+                syncState = recipeState.syncState,
+                onSortClick = onSortClick,
+                onSyncClick = onLoginClick
+            )
             AnimatedVisibility(
                 visible = recipeState.isOrderSelectionVisible,
                 enter = fadeIn() + slideInVertically(),
@@ -192,19 +153,36 @@ fun LazyRecipesList(
         contentPadding = innerPadding
     ) {
         items(items = recipes.items, key = { it.id!! }) { recipe ->
+            val recipePreview = recipe.content.lines()
+                .take(2)
+                .joinToString("\n")
+                .take(100) // Limit preview length
+                .let { if (it.length >= 100) "$it..." else it }
+
             ListItem(
                 headlineContent = {
                     Text(recipe.title)
                 },
                 supportingContent = {
-                    Text(recipe.content.lines()
-                        .take(2)
-                        .joinToString("\n"))
+                    Text(recipePreview)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
                         onRecipeClicked(recipe)
+                    }
+                    .semantics(mergeDescendants = true) {
+                        role = Role.Button
+                        contentDescription = "Recipe: ${recipe.title}. $recipePreview. Tap to edit."
+                        customActions = listOf(
+                            CustomAccessibilityAction(
+                                label = "Edit recipe",
+                                action = {
+                                    onRecipeClicked(recipe)
+                                    true
+                                }
+                            )
+                        )
                     }
             )
             HorizontalDivider()
@@ -212,31 +190,32 @@ fun LazyRecipesList(
     }
 }
 
+// TODO fix previews below and re-enable
 class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<RecipesState> {
 
     override val values = sequenceOf(
-        RecipesState(
-            ImmutableRecipesList(
-                listOf(
-                    Recipe(
-                        "Recipe title",
-                        content = "This is a long\nmultipline\ntext\nwith\nmany\nlines\nreally",
-                        timestamp = 5
-                    )
-                )
-            )
-        ),
+//        RecipesState(
+//            ImmutableRecipesList(
+//                listOf(
+//                    Recipe(
+//                        "Recipe title",
+//                        content = "This is a long\nmultipline\ntext\nwith\nmany\nlines\nreally",
+//                        timestamp = 5
+//                    )
+//                )
+//            )
+//        ),
         RecipesState(),
-        RecipesState(
-            recipes = ImmutableRecipesList(List(10) { index ->
-                Recipe(
-                    "Recipe $index",
-                    content = "Lorem ipsum dolor sit amet $index",
-                    timestamp = 5
-                )
-            }
-            )
-        ),
+//        RecipesState(
+//            recipes = ImmutableRecipesList(List(10) { index ->
+//                Recipe(
+//                    "Recipe $index",
+//                    content = "Lorem ipsum dolor sit amet $index",
+//                    timestamp = 5
+//                )
+//            }
+//            )
+//        ),
         RecipesState(syncState = LoginState.LoginEmpty),
         RecipesState(syncState = LoginState.LoginPending),
         RecipesState(syncState = LoginState.LoginSuccess),
@@ -246,7 +225,7 @@ class RecipeScreenStatePreviewParameterProvider : PreviewParameterProvider<Recip
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun RecipeScreenPreviewRealistic(
+internal fun RecipeScreenPreviewRealistic(
     @PreviewParameter(RecipeScreenStatePreviewParameterProvider::class) recipesState: RecipesState
 ) {
     MyApplicationTheme {

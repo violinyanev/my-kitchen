@@ -1,0 +1,37 @@
+[tool.bandit]
+# Bandit configuration for My Kitchen backend security analysis
+
+# Paths to scan (relative to pyproject.toml location)
+include = ["backend/image"]
+
+# Paths to exclude from scanning
+exclude_dirs = [
+    "*/test*",
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.git/*"
+]
+
+# Security tests to skip (if needed)
+# skips = ["B101", "B601"]
+
+# Security tests to run (if you want to be selective)
+# tests = ["B201", "B301"]
+
+# Set confidence levels (LOW, MEDIUM, HIGH)
+# Only report issues with confidence level MEDIUM or higher
+confidence = "MEDIUM"
+
+# Severity levels to report (LOW, MEDIUM, HIGH)  
+severity = "LOW"
+
+# Output format options: csv, json, txt, xml, yaml
+format = "txt"
+
+# Report only issues with specified severity or higher
+# assert_used = true
+
+[tool.bandit.assert_used]
+# Skip assert_used test in test files
+skips = ["*/test_*.py", "*/tests/*"]

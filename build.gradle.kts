@@ -12,4 +12,5 @@ plugins {
     // Warning suppressed: Dependency Analysis plugin v2.19.0 officially supports AGP 8.3.0-8.10.0
     // but is known to work with AGP 8.12.0. Newer plugin versions supporting 8.12.0 are not yet released.
     alias(libs.plugins.build.health) apply true
+    alias(libs.plugins.roborazzi) apply false
 }
