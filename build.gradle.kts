@@ -11,4 +11,7 @@ plugins {
     alias(libs.plugins.compose) apply false
     alias(libs.plugins.build.health) apply true
     alias(libs.plugins.roborazzi) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.compose.multiplatform) apply false
+    alias(libs.plugins.ktor) apply false
 }

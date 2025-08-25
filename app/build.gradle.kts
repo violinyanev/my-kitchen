@@ -112,6 +112,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    @Suppress("DEPRECATION")
     kotlinOptions {
         jvmTarget = "17"
         allWarningsAsErrors = true
@@ -150,6 +151,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":shared"))
     // Standard android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.navigation.compose)
