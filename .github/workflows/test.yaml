@@ -61,28 +61,20 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Setup the test backend
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-
-      - name: Install python dependencies
+      # Setup the Ktor test backend
+      - name: Start Ktor server
         run: |
-          python -m pip install --upgrade pip
-          pip install -r backend/image/requirements.txt
+          ./gradlew :server:installDist --no-daemon --stacktrace
+          RECIPES_SECRET_KEY=TestKey ./server/build/install/server/bin/server &
 
-      - name: Start Flask server
+      - name: Wait for Ktor server to start
         run: |
-          export RECIPES_SECRET_KEY=TestKey
-          python3 backend/image/app.py backend/seed_data &
-        env:
-          FLASK_ENV: development
-
-      - name: Wait for Flask server to start
-        run: |
-          sleep 5
-          curl --fail http://localhost:5000/health
+          for i in {1..30}; do
+            curl --fail http://localhost:5000/health && exit 0
+            sleep 2
+          done
+          echo "Ktor server failed to start" >&2
+          exit 1
 
       ## Run the instrumented tests
       - name: Get AVD info
