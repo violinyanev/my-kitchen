@@ -71,12 +71,7 @@ fi
 
 # Install backend dependencies
 print_step "Installing backend dependencies..."
-if [ -f "backend/image/requirements.txt" ]; then
-    python3 -m pip install -r backend/image/requirements.txt
-    print_success "Backend dependencies installed"
-else
-    print_warning "Backend requirements.txt not found"
-fi
+print_success "Kotlin backend dependencies are managed by Gradle"
 
 # Setup Git hooks
 print_step "Setting up Git hooks..."
@@ -113,16 +108,16 @@ print_success "Debug APK built successfully"
 # Test backend
 print_step "Testing backend startup..."
 if [ -f "backend/scripts/dev.sh" ]; then
-    # Start backend in background
+    # Start Kotlin backend in background
     ./backend/scripts/dev.sh &
     BACKEND_PID=$!
 
     # Wait for startup
-    sleep 5
+    sleep 10
 
     # Test health endpoint
     if curl -f --silent http://localhost:5000/health > /dev/null; then
-        print_success "Backend health check passed"
+        print_success "Kotlin backend health check passed"
     else
         print_warning "Backend health check failed"
     fi
