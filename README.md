@@ -7,7 +7,7 @@ My Kitchen is a free and open source application for storing and sharing recipes
 ## Features
 
 - 📱 **Android Mobile App**: Native Android application built with Kotlin and Jetpack Compose
-- 🖥️ **Self-hosted Backend**: Python Flask server that you can run on your own infrastructure
+- 🖥️ **Self-hosted Backend**: Kotlin Ktor server that you can run on your own infrastructure
 - 🔒 **Privacy First**: Keep your recipes on your own server, no third-party data collection
 - 👨‍👩‍👧‍👦 **Family Sharing**: Share your favorite recipes with family members
 - 📝 **Recipe Management**: Store, organize, and manage your recipe collection
@@ -90,7 +90,9 @@ cd backend
 ./scripts/dev.sh
 
 # Or with Docker
-python3 ./scripts/dev.py start
+./gradlew :backend:distTar
+docker build -t my-kitchen-backend .
+docker run -p 5000:5000 -e RECIPES_SECRET_KEY=Test my-kitchen-backend
 ```
 
 ### Development Workflow

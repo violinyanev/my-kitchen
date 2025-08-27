@@ -1,69 +1,30 @@
 rules:
-  # Flask security rules
-  - id: flask-debug-enabled
+  # Kotlin/Java security rules for Ktor backend
+  - id: hardcoded-credentials-kotlin
     patterns:
-      - pattern: app.run(debug=True)
-      - pattern: app.debug = True
-      - pattern: Flask(__name__, debug=True)
-    message: "Flask debug mode should not be enabled in production"
-    languages: [python]
+      - pattern: val password = "..."
+      - pattern: val secret = "..."
+      - pattern: val token = "..."
+      - pattern: val apiKey = "..."
+      - pattern: const val PASSWORD = "..."
+      - pattern: const val SECRET = "..."
+      - pattern: const val TOKEN = "..."
+      - pattern: const val API_KEY = "..."
+    message: "Hardcoded credentials detected in Kotlin code"
+    languages: [kotlin]
     severity: ERROR
 
-  - id: flask-secret-key-hardcoded
+  - id: ktor-cors-allow-all
     patterns:
-      - pattern: app.secret_key = "..."
-      - pattern: app.config['SECRET_KEY'] = "..."
-    message: "Flask secret key should not be hardcoded"
-    languages: [python]
-    severity: ERROR
-
-  - id: sql-injection-risk
-    patterns:
-      - pattern: |
-          cursor.execute("..." + $VAR + "...")
-      - pattern: |
-          cursor.execute(f"...{$VAR}...")
-      - pattern: |
-          execute("..." % $VAR)
-    message: "Potential SQL injection vulnerability - use parameterized queries"
-    languages: [python]
-    severity: ERROR
-
-  - id: hardcoded-password
-    patterns:
-      - pattern: password = "..."
-      - pattern: PASSWORD = "..."
-      - pattern: pwd = "..."
-      - pattern: secret = "..."
-      - pattern: SECRET = "..."
-      - pattern: token = "..."
-      - pattern: TOKEN = "..."
-      - pattern: api_key = "..."
-      - pattern: API_KEY = "..."
-    message: "Hardcoded credentials detected"
-    languages: [python]
-    severity: ERROR
-
-  - id: unsafe-yaml-load
-    patterns:
-      - pattern: yaml.load($INPUT)
-      - pattern: yaml.load($INPUT, ...)
-    message: "Use yaml.safe_load() instead of yaml.load() to prevent code injection"
-    languages: [python]
-    severity: ERROR
-
-  - id: flask-cors-allow-all
-    patterns:
-      - pattern: CORS($APP, origins="*")
-      - pattern: CORS($APP, origins=["*"])
-    message: "CORS configured to allow all origins - potential security risk"
-    languages: [python]
+      - pattern: anyHost()
+    message: "CORS configured to allow all hosts - consider restricting in production"
+    languages: [kotlin]
     severity: WARNING
 
-  - id: flask-insecure-transport
+  - id: test-secret-in-production
     patterns:
-      - pattern: app.run(ssl_context=None)
-      - pattern: app.run(..., ssl_context=None, ...)
-    message: "Consider using HTTPS in production"
-    languages: [python]
+      - pattern: '"Test"'
+      - pattern: '"TestKey"'
+    message: "Test secrets should not be used in production"
+    languages: [kotlin]
     severity: INFO
