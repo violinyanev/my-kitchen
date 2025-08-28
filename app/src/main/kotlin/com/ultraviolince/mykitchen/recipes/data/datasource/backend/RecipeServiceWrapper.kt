@@ -9,6 +9,7 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataSto
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.logging.Logger
 import kotlinx.coroutines.GlobalScope
@@ -16,7 +17,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao: RecipeDao) {
+class RecipeServiceWrapper(
+    private val dataStore: SafeDataStore,
+    private val dao: RecipeDao,
+    private val clientEngineProvider: () -> HttpClientEngine = { CIO.create() }
+) {
 
     private var recipeService: RecipeService? = null
 
@@ -37,7 +42,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
             logger.log("Checking stored preferences")
             if (prefs.server != null && prefs.token != null) {
                 logger.log("Restoring data, server=${prefs.server}")
-                recipeService = RecipeService(createHttpClient(CIO.create(), prefs.server, prefs.token, logger))
+                recipeService = RecipeService(createHttpClient(clientEngineProvider(), prefs.server, prefs.token, logger))
 
                 // TODO: check if token still valid
                 loginState.emit(LoginState.LoginSuccess)
@@ -48,7 +53,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
     suspend fun login(server: String, email: String, password: String) {
         loginState.emit(LoginState.LoginPending)
 
-        val tmpService = RecipeService(createHttpClient(CIO.create(), server, null, logger))
+        val tmpService = RecipeService(createHttpClient(clientEngineProvider(), server, null, logger))
 
         // TODO wipe pref data?
 
@@ -58,7 +63,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
         when (result) {
             is Result.Error -> loginState.emit(LoginState.LoginFailure(error = result.error))
             is Result.Success -> {
-                recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token, logger))
+                recipeService = RecipeService(createHttpClient(clientEngineProvider(), server, result.data.data.token, logger))
                 dataStore.write(server = server, token = result.data.data.token)
                 sync()
                 loginState.emit(LoginState.LoginSuccess)
