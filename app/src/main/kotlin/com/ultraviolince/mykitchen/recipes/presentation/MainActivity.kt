@@ -13,16 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.AddEditRecipeScreen
-import com.ultraviolince.mykitchen.recipes.presentation.login.LoginScreen
-import com.ultraviolince.mykitchen.recipes.presentation.recipes.RecipeScreen
+import com.ultraviolince.mykitchen.recipes.presentation.navigation.EnhancedNavigationHost
+import com.ultraviolince.mykitchen.recipes.presentation.navigation.NavigationRoutes
 import com.ultraviolince.mykitchen.recipes.presentation.util.PerfTracer
-import com.ultraviolince.mykitchen.recipes.presentation.util.RecipesScreen
-import com.ultraviolince.mykitchen.recipes.presentation.util.LoginScreen as LoginScreenRoute
-import com.ultraviolince.mykitchen.recipes.presentation.util.AddEditRecipeScreen as AddEditRecipeScreenRoute
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -56,20 +49,11 @@ fun AppNavigationHost(modifier: Modifier = Modifier) {
         modifier = modifier.safeDrawingPadding().fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        val navController = rememberNavController()
-        NavHost(
-            navController = navController,
-            startDestination = RecipesScreen
-        ) {
-            composable<LoginScreenRoute> {
-                LoginScreen(navController = navController)
-            }
-            composable<RecipesScreen> {
-                RecipeScreen(navController = navController)
-            }
-            composable<AddEditRecipeScreenRoute> {
-                AddEditRecipeScreen(navController = navController)
-            }
+        EnhancedNavigationHost(
+            startDestination = NavigationRoutes.RECIPES
+        ) { navController, navigationActions, navigationObserver ->
+            // The navigation graph is built inside EnhancedNavigationHost
+            // Additional navigation logic can be added here if needed
         }
     }
 }
