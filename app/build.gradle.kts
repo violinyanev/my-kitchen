@@ -3,6 +3,10 @@ import java.util.Properties
 
 kotlin {
     jvmToolchain(17)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        allWarningsAsErrors.set(true)
+    }
 }
 
 plugins {
@@ -62,13 +66,7 @@ android {
     }
 
     defaultConfig {
-        // Add "preview" suffix for snapshot builds to allow side-by-side installation
-        val baseApplicationId = "com.ultraviolince.mykitchen"
-        applicationId = if (project.hasProperty("snapshotBuild") && project.property("snapshotBuild") == "true") {
-            "$baseApplicationId.preview"
-        } else {
-            baseApplicationId
-        }
+        applicationId = "com.ultraviolince.mykitchen"
 
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
@@ -93,6 +91,14 @@ android {
             buildConfigField("String", "DEFAULT_SERVER", "\"\"")
             buildConfigField ("String", "DEFAULT_USERNAME", "\"\"")
             buildConfigField("String", "DEFAULT_PASSWORD", "\"\"")
+
+            // For snapshot builds (release candidates), use debug-like configuration
+            if (project.hasProperty("snapshotBuild") && project.property("snapshotBuild") == "true") {
+                // Use debug app name and add debug suffix to distinguish from production
+                applicationIdSuffix = ".preview"
+                // Copy debug resources for app name and icon
+                resValue("string", "app_name", "Kitchen on fire!")
+            }
         }
         debug {
             applicationIdSuffix = ".debug"
@@ -111,10 +117,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-        allWarningsAsErrors = true
     }
     packaging {
         resources {
