@@ -16,7 +16,6 @@
     <string name="your_recipes">Rezepte</string>
     <string name="missing_title">Der Rezepttitel darf nicht leer sein</string>
     <string name="missing_body">Der Rezepinhalt darf nicht leer sein</string>
-    <string name="not_selected_option">Nicht selektiert</string>
     <string name="server_hint">Server, z.B. https://myserver.com:8019</string>
     <string name="username_hint">Benutzername</string>
     <string name="password_hint">Passwort</string>
@@ -30,7 +29,4 @@
     <string name="unknown_error">Unerwarter Fehler! Bitte als melden</string>
     <string name="delete">Löschen</string>
     <string name="logout">Ausloggen</string>
-    <string name="sort_by_heading">Sortiert nach</string>
-    <string name="sort_order_heading">Reihenfolge</string>
-    <string name="selected_option">Selektiert</string>
 </resources>
