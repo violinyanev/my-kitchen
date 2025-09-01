@@ -40,3 +40,10 @@ google-services.json
 # Android Profiling
 *.hprof
 .vscode/
+
+# iOS/Xcode
+*.xcuserdata
+*.xcuserstate
+.DS_Store
+DerivedData/
+iosApp/iosApp.xcodeproj/xcuserdata/
