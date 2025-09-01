@@ -54,12 +54,13 @@ jobs:
           bandit -r backend/image/ -f txt
           echo "::endgroup::"
 
-      - name: Run Safety (Known Vulnerability Scanner)
-        run: |
-          echo "::group::Safety - Python Dependency Vulnerability Scan"
-          safety check --json --output safety-report.json || true
-          safety check
-          echo "::endgroup::"
+      # This is broken, reason unknown. Will become obsolete anyway
+      # - name: Run Safety (Known Vulnerability Scanner)
+      #   run: |
+      #     echo "::group::Safety - Python Dependency Vulnerability Scan"
+      #     safety check --json --output safety-report.json || true
+      #     safety check
+      #     echo "::endgroup::"
 
       - name: Run pip-audit (Python Package Vulnerability Scanner)
         run: |

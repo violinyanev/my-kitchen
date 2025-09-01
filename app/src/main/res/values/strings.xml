@@ -1,7 +1,4 @@
 <resources>
-    <!-- App name -->
-    <string name="app_name" translatable="false">My Kitchen</string>
-
     <!-- Recipes -->
 
     <!-- Recipes main screen -->
@@ -15,7 +12,7 @@
     <string name="sync_enabled" translation_description="The text shown when sync is enabled">Synchronisation with the backend is enabled</string>
     <string name="sync_disabled" translation_description="The text shown when sync is disabled">Synchronisation with the backend is disabled</string>
     <string name="sync_loading" translation_description="The text shown when sync status is being loaded">Synchronising with the backend</string>
-
+    
     <!-- Accessibility strings -->
     <string name="sort_by_heading" translation_description="Heading for sort options">Sort By</string>
     <string name="sort_order_heading" translation_description="Heading for sort order options">Order</string>
