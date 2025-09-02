@@ -40,3 +40,8 @@ google-services.json
 # Android Profiling
 *.hprof
 .vscode/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
