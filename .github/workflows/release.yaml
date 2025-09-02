@@ -78,6 +78,19 @@ jobs:
           -PversionCode=${{ steps.release_info.outputs.version_code }} \
           -PversionName=${{ steps.release_info.outputs.version_name }}
 
+    - name: Create git tag for release candidate
+      if: steps.release_info.outputs.is_tag_release == 'false'
+      run: |
+        # Configure git for tag creation
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        
+        # Create and push the tag
+        git tag ${{ steps.release_info.outputs.version_name }}
+        git push origin ${{ steps.release_info.outputs.version_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create or update release candidate
       if: steps.release_info.outputs.is_tag_release == 'false'
       uses: softprops/action-gh-release@v2
