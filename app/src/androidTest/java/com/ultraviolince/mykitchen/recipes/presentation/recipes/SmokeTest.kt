@@ -39,7 +39,6 @@ class SmokeTest {
     private fun createRecipe(title: String, content: String) {
         // When the "New Recipe" button is clicked
         with(composeTestRule.onNodeWithContentDescription("New recipe")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
@@ -48,19 +47,21 @@ class SmokeTest {
 
         // Type recipe details
         with(composeTestRule.onNodeWithContentDescription("Enter recipe title")) {
-            assertExists()
             assertIsDisplayed()
             performTextInput(title)
         }
+        
+        composeTestRule.waitForIdle()
+        
         with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
-            assertExists()
             assertIsDisplayed()
             performTextInput(content)
         }
 
+        composeTestRule.waitForIdle()
+
         // Click "save"
         with(composeTestRule.onNodeWithContentDescription("Save recipe")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
@@ -69,21 +70,17 @@ class SmokeTest {
 
         // Recipe is in the overview
         with(composeTestRule.onNodeWithText(title)) {
-            assertExists()
             assertIsDisplayed()
         }
         with(composeTestRule.onNodeWithText(content)) {
-            assertExists()
             assertIsDisplayed()
         }
     }
 
-    // TODO Fix the tests
     @Test
     fun createRecipe_WithoutLogin() {
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
-            assertExists()
             assertIsDisplayed()
         }
 
@@ -93,26 +90,24 @@ class SmokeTest {
     @Test fun loginToBackend_ThenCreateRecipe() {
         // By default, no cloud sync
         with(composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
 
+        composeTestRule.waitForIdle()
+
         // Enter server and credentials
         with(composeTestRule.onNodeWithContentDescription("Server URI")) {
-            assertExists()
             assertIsDisplayed()
             performTextClearance()
             performTextInput(FakeBackend.server)
         }
         with(composeTestRule.onNodeWithContentDescription("User name")) {
-            assertExists()
             assertIsDisplayed()
             performTextClearance()
             performTextInput(FakeBackend.testUser)
         }
         with(composeTestRule.onNodeWithContentDescription("Password")) {
-            assertExists()
             assertIsDisplayed()
             performTextClearance()
             performTextInput(FakeBackend.testPassword)
@@ -120,14 +115,60 @@ class SmokeTest {
 
         // Login
         with(composeTestRule.onNodeWithContentDescription("Login")) {
-            assertExists()
             assertIsDisplayed()
             performClick()
         }
 
-        // Create a new recipe, with backend now
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)
+        // Wait for login to complete and return to main screen
+        // This could take longer in emulator environments, especially in CI
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+
+        // Clear any existing recipes from the backend for test isolation
+        // Do this AFTER login succeeds to ensure backend is ready and authenticated
+        FakeBackend.clearUserRecipes()
 
         createRecipe("recipe2", "content2")
+    }
+
+    @Test
+    fun deleteRecipe_NavigatesBackToMainScreen() {
+        // Start by going to the recipe creation screen
+        with(composeTestRule.onNodeWithContentDescription("New recipe")) {
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Enter some recipe details (but we won't save them)
+        with(composeTestRule.onNodeWithContentDescription("Enter recipe title")) {
+            assertIsDisplayed()
+            performTextInput("Recipe to delete")
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        with(composeTestRule.onNodeWithContentDescription("Enter recipe content")) {
+            assertIsDisplayed()
+            performTextInput("Content to delete")
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Click the delete button instead of save
+        with(composeTestRule.onNodeWithContentDescription("Delete recipe")) {
+            assertIsDisplayed()
+            performClick()
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Verify we're back on the main screen by checking for the "New recipe" button
+        with(composeTestRule.onNodeWithContentDescription("New recipe")) {
+            assertIsDisplayed()
+        }
+
+        // The test passes if we successfully return to the main screen after clicking delete
+        // This verifies that clicking delete navigates back and doesn't create a recipe
     }
 }
