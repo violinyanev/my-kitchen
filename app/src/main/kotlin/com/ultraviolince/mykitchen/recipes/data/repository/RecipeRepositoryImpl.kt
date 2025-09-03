@@ -45,7 +45,11 @@ class RecipeRepositoryImpl(
 
     override suspend fun deleteRecipe(recipe: Recipe) {
         val localRecipe = LocalRecipe.fromSharedRecipe(recipe)
-        recipeService.deleteRecipe(recipe.id!!)
+        recipe.id?.let {
+            id -> recipeService.deleteRecipe(id)
+            dao.deleteRecipe(localRecipe)
+        }
+
         return dao.deleteRecipe(localRecipe)
     }
 }

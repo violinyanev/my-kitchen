@@ -13,12 +13,13 @@ The release workflow now supports two types of releases:
 ### Release Candidates (Main Branch)
 When code is pushed to the `main` branch, the workflow:
 1. Gets the latest Git tag (e.g., `v1.2.0`)
-2. Creates a release candidate version by adding `-rc` suffix (e.g., `v1.2.0-rc`)
-3. Builds the APK with `snapshotBuild=true` which:
+2. Creates a release candidate version by adding `-rc` suffix (e.g., `v1.2.0-rc`) for display purposes
+3. Creates a release with tag name `rc-{commit-sha}` (e.g., `rc-a1b2c3d4...`) to avoid repository tag restrictions
+4. Builds the APK with `snapshotBuild=true` which:
    - Sets application ID to `com.ultraviolince.mykitchen.preview` (allows side-by-side installation)
    - Uses debug app name: "Kitchen on fire!"
    - Uses debug icon (black background vs production green)
-4. Creates/updates a GitHub release marked as "prerelease"
+5. Creates a GitHub release marked as "prerelease"
 
 ### Production Releases (Git Tags)
 When a Git tag matching `v*.*.*` is pushed, the workflow:
@@ -37,6 +38,8 @@ When a Git tag matching `v*.*.*` is pushed, the workflow:
 | App Name | "My Kitchen" | "Kitchen on fire!" |
 | Icon Background | Green (#3DDC84) | Black (#000000) |
 | Installation | Replaces existing | Side-by-side with production |
+| Tag Format | `v*.*.*` (e.g., `v1.2.0`) | `rc-{commit-sha}` (e.g., `rc-a1b2c3d4...`) |
+| Version Display | Matches tag | Latest tag + `-rc` suffix |
 
 ## Build Properties
 
@@ -50,7 +53,7 @@ When a Git tag matching `v*.*.*` is pushed, the workflow:
 ```bash
 # Push to main branch
 git push origin main
-# This creates/updates v1.2.0-rc release candidate
+# This creates v1.2.0-rc release candidate with tag rc-{commit-sha}
 ```
 
 ### Creating a Production Release
@@ -58,7 +61,7 @@ git push origin main
 # Create and push a tag
 git tag v1.2.1
 git push origin v1.2.1
-# This deletes v1.2.1-rc (if exists) and creates v1.2.1 production release
+# This deletes any existing RCs and creates v1.2.1 production release
 ```
 
 ## File Changes Made
@@ -72,5 +75,6 @@ git push origin v1.2.1
 
 - **Safe Testing**: Release candidates can be installed alongside production
 - **Clear Identification**: Different names and icons prevent confusion
-- **Automated Cleanup**: Old RCs are automatically archived
+- **Automated Cleanup**: Old RCs are automatically archived when production releases are created
 - **Version Consistency**: RC versions match the upcoming production release
+- **Repository Rule Compliance**: Uses commit-based tags to avoid version tag restrictions

@@ -132,4 +132,16 @@ class RecipeRepositoryImplTest {
         coVerify { recipeService.deleteRecipe(42L) }
         coVerify { dao.deleteRecipe(localRecipe) }
     }
+
+    @Test
+    fun `deleteRecipe handles null id gracefully without crashing`() = runBlocking {
+        val recipe = Recipe("Unsaved Recipe", "Content", 123L, null)
+
+        // Should not call service or dao when id is null
+        repository.deleteRecipe(recipe)
+
+        // Verify that neither service nor dao were called
+        coVerify(exactly = 0) { recipeService.deleteRecipe(any()) }
+        coVerify(exactly = 0) { dao.deleteRecipe(any()) }
+    }
 }
