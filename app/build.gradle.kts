@@ -153,6 +153,9 @@ android {
 }
 
 dependencies {
+    // Shared module
+    implementation(project(":shared"))
+    
     // Standard android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.navigation.compose)
@@ -259,4 +262,16 @@ roborazzi {
         packages = listOf("com.ultraviolince.mykitchen.recipes.presentation")
     }
     outputDir.set(layout.projectDirectory.dir("src/test/screenshots"))
+}
+
+// Fix task dependencies for KSP and Roborazzi
+afterEvaluate {
+    tasks.named("kspDebugUnitTestKotlin").configure {
+        dependsOn("generateDebugComposePreviewRobolectricTests")
+        dependsOn("generateReleaseComposePreviewRobolectricTests")
+    }
+    tasks.named("kspReleaseUnitTestKotlin").configure {
+        dependsOn("generateDebugComposePreviewRobolectricTests")
+        dependsOn("generateReleaseComposePreviewRobolectricTests")
+    }
 }

@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.recipes.domain.usecase
 import com.ultraviolince.mykitchen.recipes.data.repository.FakeRecipeRepository
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.model.InvalidRecipeException
+import com.ultraviolince.mykitchen.recipes.domain.model.RecipeValidationError
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -42,7 +43,7 @@ class AddRecipeTest {
             runBlocking { addRecipe(recipe) }
             assertThat(false).isTrue() // Should not reach here
         } catch (e: InvalidRecipeException) {
-            assertThat(true).isTrue() // Expected exception
+            assertThat(e.error).isEqualTo(RecipeValidationError.MISSING_TITLE)
         }
     }
 
@@ -54,7 +55,7 @@ class AddRecipeTest {
             runBlocking { addRecipe(recipe) }
             assertThat(false).isTrue() // Should not reach here
         } catch (e: InvalidRecipeException) {
-            assertThat(true).isTrue() // Expected exception
+            assertThat(e.error).isEqualTo(RecipeValidationError.MISSING_CONTENT)
         }
     }
 
@@ -74,7 +75,7 @@ class AddRecipeTest {
             runBlocking { addRecipe(recipe) }
             assertThat(false).isTrue() // Should not reach here
         } catch (e: InvalidRecipeException) {
-            assertThat(true).isTrue() // Expected exception
+            assertThat(e.error).isEqualTo(RecipeValidationError.MISSING_TITLE)
         }
     }
 
@@ -86,7 +87,7 @@ class AddRecipeTest {
             runBlocking { addRecipe(recipe) }
             assertThat(false).isTrue() // Should not reach here
         } catch (e: InvalidRecipeException) {
-            assertThat(true).isTrue() // Expected exception
+            assertThat(e.error).isEqualTo(RecipeValidationError.MISSING_CONTENT)
         }
     }
 
@@ -98,7 +99,7 @@ class AddRecipeTest {
             runBlocking { addRecipe(recipe) }
             assertThat(false).isTrue() // Should not reach here
         } catch (e: InvalidRecipeException) {
-            assertThat(true).isTrue() // Expected exception
+            assertThat(e.error).isEqualTo(RecipeValidationError.MISSING_TITLE)
         }
     }
 
@@ -110,7 +111,7 @@ class AddRecipeTest {
             runBlocking { addRecipe(recipe) }
             assertThat(false).isTrue() // Should not reach here
         } catch (e: InvalidRecipeException) {
-            assertThat(true).isTrue() // Expected exception
+            assertThat(e.error).isEqualTo(RecipeValidationError.MISSING_CONTENT)
         }
     }
 }
