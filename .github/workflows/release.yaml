@@ -77,6 +77,28 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Clean up older snapshot releases
+      if: steps.release_info.outputs.is_tag_release == 'false'
+      run: |
+        echo "Cleaning up older snapshot releases (keeping only the latest one)..."
+        
+        # Get all RC releases sorted by creation date (newest first)
+        gh release list --limit 50 --json tagName,createdAt,isPrerelease | \
+        jq -r '.[] | select(.isPrerelease == true and (.tagName | startswith("rc-"))) | .tagName + " " + .createdAt' | \
+        sort -k2 -r | \
+        tail -n +2 | \
+        while IFS= read -r line; do
+          rc_tag=$(echo "$line" | cut -d' ' -f1)
+          if [ -n "$rc_tag" ]; then
+            echo "Deleting older snapshot release: $rc_tag"
+            gh release delete "$rc_tag" --yes --cleanup-tag || echo "Failed to delete $rc_tag (may not exist)"
+          fi
+        done
+        
+        echo "Cleanup completed - keeping only the most recent snapshot release"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build APK for release candidate
       if: steps.release_info.outputs.is_tag_release == 'false'
       run: |
