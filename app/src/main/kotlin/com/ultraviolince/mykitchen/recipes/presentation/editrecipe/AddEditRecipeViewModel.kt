@@ -113,19 +113,15 @@ class AddEditRecipeViewModel(
             is AddEditRecipeEvent.DeleteRecipe -> {
                 Log.i("Recipes", "User is deleting the recipe")
                 viewModelScope.launch {
-                    // Handle case where recipe hasn't been saved yet (currentRecipeId is null)
-                    if (currentRecipeId != null) {
-                        // TODO id is enough to pass here
-                        recipesUseCases.deleteRecipe(
-                            Recipe(
-                                title = recipeTitle.value.text,
-                                content = recipeContent.value.text,
-                                timestamp = System.currentTimeMillis(),
-                                id = currentRecipeId
-                            )
+                    // TODO id is enough to pass here
+                    recipesUseCases.deleteRecipe(
+                        Recipe(
+                            title = recipeTitle.value.text,
+                            content = recipeContent.value.text,
+                            timestamp = System.currentTimeMillis(),
+                            id = currentRecipeId
                         )
-                    }
-                    // Always emit DeleteRecipe event to navigate back to recipes list
+                    )
                     _eventFlow.emit(UiEvent.DeleteRecipe)
                 }
             }

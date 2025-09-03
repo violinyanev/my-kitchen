@@ -39,7 +39,10 @@ class RecipeRepositoryImpl(
     }
 
     override suspend fun deleteRecipe(recipe: Recipe) {
-        recipeService.deleteRecipe(recipe.id!!)
-        return dao.deleteRecipe(recipe)
+        // Only delete if recipe has an ID (i.e., it was saved before)
+        recipe.id?.let { id ->
+            recipeService.deleteRecipe(id)
+            dao.deleteRecipe(recipe)
+        }
     }
 }
