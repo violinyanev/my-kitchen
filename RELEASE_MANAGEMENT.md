@@ -14,12 +14,13 @@ The release workflow now supports two types of releases:
 When code is pushed to the `main` branch, the workflow:
 1. Gets the latest Git tag (e.g., `v1.2.0`)
 2. Creates a release candidate version by adding `-rc` suffix (e.g., `v1.2.0-rc`) for display purposes
-3. Creates a release with tag name `rc-{commit-sha}` (e.g., `rc-a1b2c3d4...`) to avoid repository tag restrictions
-4. Builds the APK with `snapshotBuild=true` which:
+3. **Automatically cleans up older snapshot releases** - keeps only the most recent RC release and deletes all older ones with their tags
+4. Creates a release with tag name `rc-{commit-sha}` (e.g., `rc-a1b2c3d4...`) to avoid repository tag restrictions
+5. Builds the APK with `snapshotBuild=true` which:
    - Sets application ID to `com.ultraviolince.mykitchen.preview` (allows side-by-side installation)
    - Uses debug app name: "Kitchen on fire!"
    - Uses debug icon (black background vs production green)
-5. Creates a GitHub release marked as "prerelease"
+6. Creates a GitHub release marked as "prerelease"
 
 ### Production Releases (Git Tags)
 When a Git tag matching `v*.*.*` is pushed, the workflow:
@@ -75,6 +76,6 @@ git push origin v1.2.1
 
 - **Safe Testing**: Release candidates can be installed alongside production
 - **Clear Identification**: Different names and icons prevent confusion
-- **Automated Cleanup**: Old RCs are automatically archived when production releases are created
+- **Automated Cleanup**: Old RCs are automatically archived when production releases are created, and old snapshot releases are automatically removed when new ones are built (keeping only the latest)
 - **Version Consistency**: RC versions match the upcoming production release
 - **Repository Rule Compliance**: Uses commit-based tags to avoid version tag restrictions
