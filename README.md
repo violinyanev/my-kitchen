@@ -122,7 +122,7 @@ We welcome contributions from everyone! Here's how you can help:
   - Clear description of the problem
   - Steps to reproduce
   - Expected vs actual behavior
-  - Device/platform information (for Android issues)
+  - Device/platform information (for Android/iOS issues)
 
 ### Contributing Code
 
@@ -141,6 +141,7 @@ We welcome contributions from everyone! Here's how you can help:
 - Unit tests with 80% coverage on changed files
 - Code quality checks (Detekt)
 - Screenshot tests validation
+- iOS framework building and Kotlin/Native tests
 - Backend tests (if applicable)
 
 The setup script installs Git hooks that will catch common issues before commit.
@@ -151,6 +152,7 @@ The setup script installs Git hooks that will catch common issues before commit.
 - ✨ New features for recipe management
 - 🎨 UI/UX improvements
 - 📱 Android app enhancements
+- 🍎 iOS app improvements
 - 🖥️ Backend API improvements
 - 📚 Documentation updates
 - 🧪 Test coverage improvements
