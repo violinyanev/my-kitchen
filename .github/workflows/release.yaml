@@ -51,14 +51,28 @@ jobs:
     - name: Delete existing release candidate
       if: steps.release_info.outputs.is_tag_release == 'true'
       run: |
-        # Find and delete any existing RC release
-        LATEST_TAG=$(git describe --tags --abbrev=0 --match="v*.*.*")
-        RC_TAG="${LATEST_TAG}-rc"
-
-        # Check if RC release exists and delete it
-        if gh release view "$RC_TAG" &>/dev/null; then
-          echo "Deleting existing release candidate: $RC_TAG"
-          gh release delete "$RC_TAG" --yes --cleanup-tag
+        # Find and delete any existing RC releases with the new naming pattern
+        # Look for releases tagged with "rc-" prefix (new pattern)
+        echo "Looking for release candidates to clean up..."
+        
+        # Get all releases and filter for RC patterns
+        gh release list --limit 50 --json tagName,isDraft,isPrerelease | \
+        jq -r '.[] | select(.isPrerelease == true and (.tagName | startswith("rc-"))) | .tagName' | \
+        while IFS= read -r rc_tag; do
+          if [ -n "$rc_tag" ]; then
+            echo "Deleting release candidate: $rc_tag"
+            gh release delete "$rc_tag" --yes --cleanup-tag || echo "Failed to delete $rc_tag (may not exist)"
+          fi
+        done
+        
+        # Also check for any legacy RC releases with the old pattern (version-rc)
+        LATEST_TAG=$(git describe --tags --abbrev=0 --match="v*.*.*" 2>/dev/null || echo "")
+        if [ -n "$LATEST_TAG" ]; then
+          LEGACY_RC_TAG="${LATEST_TAG}-rc"
+          if gh release view "$LEGACY_RC_TAG" &>/dev/null; then
+            echo "Deleting legacy release candidate: $LEGACY_RC_TAG"
+            gh release delete "$LEGACY_RC_TAG" --yes --cleanup-tag
+          fi
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -82,12 +96,16 @@ jobs:
       if: steps.release_info.outputs.is_tag_release == 'false'
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ steps.release_info.outputs.version_name }}
+        # Use commit SHA as tag name to avoid version-like tag restrictions
+        tag_name: "rc-${{ github.sha }}"
         name: "Release Candidate ${{ steps.release_info.outputs.version_name }}"
         body: |
           🚧 **Release Candidate** 🚧
 
           This is a release candidate build from the latest main branch.
+          
+          **Version:** ${{ steps.release_info.outputs.version_name }}
+          **Commit:** ${{ github.sha }}
 
           **Features:**
           - Uses debug app name and icon for easy identification
@@ -99,6 +117,7 @@ jobs:
           app/build/outputs/apk/release/app-release.apk
         prerelease: true
         fail_on_unmatched_files: true
+        make_latest: false
 
     - name: Publish production release
       if: steps.release_info.outputs.is_tag_release == 'true'
