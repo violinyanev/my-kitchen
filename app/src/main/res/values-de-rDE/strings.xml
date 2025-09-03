@@ -9,6 +9,10 @@
     <string name="sort_ascending">Aufsteigend</string>
     <string name="add_recipe">Neues Rezept</string>
     <string name="sort">Sortieren</string>
+    <string name="sort_by_heading">Sortieren nach</string>
+    <string name="sort_order_heading">Reihenfolge</string>
+    <string name="selected_option">Ausgewählt</string>
+    <string name="not_selected_option">Nicht ausgewählt</string>
     <string name="your_recipes">Rezepte</string>
     <string name="missing_title">Der Rezepttitel darf nicht leer sein</string>
     <string name="missing_body">Der Rezepinhalt darf nicht leer sein</string>

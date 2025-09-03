@@ -7,6 +7,7 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.onSuccess
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
+import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.Recipe as LocalRecipe
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import io.ktor.client.engine.HttpClientEngine
@@ -130,7 +131,7 @@ class RecipeServiceWrapper(
             maybeRecipes.onSuccess { recipes ->
                 for (r in recipes) {
                     dao.insertRecipe(
-                        Recipe(
+                        LocalRecipe(
                             id = r.id,
                             title = r.title,
                             content = r.body,
