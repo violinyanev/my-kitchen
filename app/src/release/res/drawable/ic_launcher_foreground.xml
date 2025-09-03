@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1080">
+  <!-- Background -->
+  <path
+      android:pathData="M0,0h1080v1080h-1080z"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1"
+      android:fillColor="#FFFFFF"
+      android:fillType="nonZero"
+      android:strokeColor="#00000000"
+      android:strokeLineCap="butt"/>
+
+  <!-- Explosion Rays - Large outer rays -->
+  <path
+      android:pathData="M540,50L550,150M540,50L535,150"
+      android:strokeWidth="8"
+      android:strokeColor="#FF4444"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M950,200L850,250M950,200L860,260"
+      android:strokeWidth="6"
+      android:strokeColor="#FF6666"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M1000,540L900,535M1000,540L900,545"
+      android:strokeWidth="8"
+      android:strokeColor="#FF4444"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M950,880L850,830M950,880L860,820"
+      android:strokeWidth="6"
+      android:strokeColor="#FF6666"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M540,1030L550,930M540,1030L535,930"
+      android:strokeWidth="8"
+      android:strokeColor="#FF4444"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M130,880L230,830M130,880L220,820"
+      android:strokeWidth="6"
+      android:strokeColor="#FF6666"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M80,540L180,535M80,540L180,545"
+      android:strokeWidth="8"
+      android:strokeColor="#FF4444"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M130,200L230,250M130,200L220,260"
+      android:strokeWidth="6"
+      android:strokeColor="#FF6666"
+      android:strokeLineCap="round"/>
+
+  <!-- Medium explosion rays -->
+  <path
+      android:pathData="M700,120L650,200"
+      android:strokeWidth="5"
+      android:strokeColor="#FFAA00"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M380,120L430,200"
+      android:strokeWidth="5"
+      android:strokeColor="#FFAA00"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M900,400L820,450"
+      android:strokeWidth="5"
+      android:strokeColor="#FFAA00"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M900,680L820,630"
+      android:strokeWidth="5"
+      android:strokeColor="#FFAA00"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M700,960L650,880"
+      android:strokeWidth="5"
+      android:strokeColor="#FFAA00"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M380,960L430,880"
+      android:strokeWidth="5"
+      android:strokeColor="#FFAA00"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M180,680L260,630"
+      android:strokeWidth="5"
+      android:strokeColor="#FFAA00"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M180,400L260,450"
+      android:strokeWidth="5"
+      android:strokeColor="#FFAA00"
+      android:strokeLineCap="round"/>
+
+  <!-- Small sparks as diamond shapes -->
+  <path
+      android:pathData="M750,242L758,250L750,258L742,250Z"
+      android:fillColor="#FFDD00"/>
+  <path
+      android:pathData="M330,244L336,250L330,256L324,250Z"
+      android:fillColor="#FFDD00"/>
+  <path
+      android:pathData="M850,443L857,450L850,457L843,450Z"
+      android:fillColor="#FFDD00"/>
+  <path
+      android:pathData="M850,624L856,630L850,636L844,630Z"
+      android:fillColor="#FFDD00"/>
+  <path
+      android:pathData="M750,822L758,830L750,838L742,830Z"
+      android:fillColor="#FFDD00"/>
+  <path
+      android:pathData="M330,824L336,830L330,836L324,830Z"
+      android:fillColor="#FFDD00"/>
+  <path
+      android:pathData="M230,623L237,630L230,637L223,630Z"
+      android:fillColor="#FFDD00"/>
+  <path
+      android:pathData="M230,444L236,450L230,456L224,450Z"
+      android:fillColor="#FFDD00"/>
+
+  <!-- Flying fragments -->
+  <path
+      android:pathData="M800,300L810,290L805,310L795,305Z"
+      android:fillColor="#666666"/>
+  <path
+      android:pathData="M280,300L290,290L285,310L275,305Z"
+      android:fillColor="#666666"/>
+  <path
+      android:pathData="M800,780L810,790L805,770L795,775Z"
+      android:fillColor="#666666"/>
+  <path
+      android:pathData="M280,780L290,790L285,770L275,775Z"
+      android:fillColor="#666666"/>
+
+  <!-- Original pen tip stroke (smaller) -->
+  <path
+      android:pathData="M644.8,510.9L636,506.4"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1.9"
+      android:fillColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeColor="#A49226"
+      android:strokeLineCap="butt"/>
+
+  <!-- Original pen body and details (keeping key elements) -->
+  <path
+      android:pathData="M671.7,408.2C666.5,410.3 661.1,412.8 656.8,416.6Q653.5,419.4 650,422.2Q648.2,423.8 643.5,429.3C634.2,440.4 631.5,453.7 630.9,467.9Q630.3,482 637.7,494.1Q638.6,495.6 638.9,493.9Q640.6,484.9 647.1,476.5Q650.4,472.2 653.1,469.9Q655.6,467.6 660.5,464.9Q664.1,462.9 667.7,461.4Q679.2,456.7 682.6,455.8Q693.8,453 704.6,450.1C709.1,448.9 713.5,447 717.9,445.3C730.2,440.5 741.9,432.3 743.4,418.2Q743.9,412.8 740.2,408.4C737.6,405.3 734.3,401.7 730.2,400.7C721.6,398.6 711.1,399.1 702.4,399.6Q696.6,400 688.2,402.5Q678.1,405.6 671.7,408.2"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1.9"
+      android:fillColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeColor="#A49226"
+      android:strokeLineCap="butt"/>
+
+  <!-- Core fire/flame shapes with enhanced explosive effect -->
+  <path
+      android:pathData="M219.3,605.6Q220.8,608.8 224.5,611.2Q225.9,612.1 227.2,612.9Q244.8,624.9 263.5,636.7Q276.3,644.8 286.4,649.1Q314.3,661 349.3,672.9C359.9,676.5 371,677.1 382,677Q385.7,676.9 389.9,676.3Q394.3,675.6 398.1,674.6Q401.1,673.9 403.6,673.4Q406.5,672.9 409,672.3Q424.1,668.3 432.6,666.9Q436.8,666.1 441.3,665.4Q445.4,664.7 449.2,664.3Q454.2,663.8 458.2,664.4C472.1,666.4 484.7,669.7 496.4,676.2Q498.4,677.3 500.8,677.9Q513.2,680.8 526,682.4C529.4,682.8 532.6,682.5 536,682.5C538.5,682.4 540.8,681.7 543.3,681.6C547.4,681.6 551.3,680.3 555.4,679.9C558.5,679.5 561.5,678.3 564.6,678C567.2,677.7 569.5,676.8 572,676.3Q574.9,675.7 577.6,674.7Q586.7,671.6 594.9,669.6Q599.8,668.4 604.8,667.2C608.3,666.3 611.9,665.7 615.3,664.6C618.8,663.5 622.4,663 625.8,662.2Q638.6,658.9 648.7,657Q658.8,655 678.7,653Q681.1,652.8 683.1,652.7Q696.1,651.8 710.6,651Q720.8,650.4 729.8,649Q752.2,645.4 773.8,637.9C782.4,634.9 789.8,630.2 797.3,625.3C805.9,619.6 812.3,611.7 820.2,605.4Q822.8,603.3 825.6,601"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1.9"
+      android:fillColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeColor="#CD3C27"
+      android:strokeLineCap="butt"/>
+
+  <!-- Enhanced flame core with explosion effect -->
+  <path
+      android:pathData="M825.6,601Q827.5,600.1 828.3,597.8Q830.2,592.2 832.2,586.9Q832.4,586.4 832.3,585.9Q831.8,583.5 831.8,581C831.8,576.6 830.3,572.8 828.5,568.8Q827.3,566.3 825.2,564.5Q816,556.5 806.1,551.7C801,549.2 795.7,547.6 790.5,545.5C787,544.2 783.1,543.6 779.5,542.3Q764.6,537 749.6,533.5C746.3,532.7 743.3,531.4 739.9,530.7Q719.5,526.7 703.8,525.7Q694.5,525.1 685.2,525C664.5,524.8 642.5,525.1 621,526.1Q605.6,526.8 590,526.7C586.2,526.7 581.1,527.4 576.7,527.5Q552.1,527.9 527.6,528.5C510.9,528.9 494,528.6 477,528.9C470.7,529 464.5,528.7 458.4,528.8C437.9,529.2 417.3,529.1 396.7,529.1Q377.1,529.2 362.9,530.5Q357.1,531 342.3,533.1C332.9,534.5 323.9,536.3 315,538Q305,540 291.6,543.8C284.8,545.7 278.5,548.3 271.9,550.7Q264.2,553.4 257.1,557.2Q249.2,561.4 243.6,564.7Q237.4,568.5 230.1,575.6Q226.4,579.2 224.9,582.9Q222.7,588.5 220.1,593.7C218.9,596 218.4,598.9 218.5,601.5Q218.6,602.9 219.3,605.6"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1.9"
+      android:fillColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeColor="#A49226"
+      android:strokeLineCap="butt"/>
+
+  <!-- Pen handle and body parts -->
+  <path
+      android:pathData="M556.8,392.8C555.2,396.6 553.7,400.7 551.9,404.3Q546.5,415.2 539.7,427.2Q533.6,437.8 530.9,444.5Q526.7,454.5 524.5,462.8Q522.8,469.1 520.5,481.6C519.9,485.3 520.2,489.1 520.1,492.9C520,496.9 521.1,500.7 521.7,504.6C522.1,507.1 522,509.4 522,511.8C522,511.9 521.9,512.1 521.8,512.1C521.7,512.2 521.6,512.1 521.5,512.1Q517.2,508.5 513.1,505.6Q510.2,503.5 507.1,498.7C502.5,491.5 497.8,484.6 495,476.5Q491.6,466.7 490.8,458.6Q489.3,444 492,430C493.8,420.5 495.9,410.1 498.6,400.2Q502.2,387.4 500,374.7Q499,369.6 496.4,360.9C492.9,349.5 486.6,338.2 479.4,330.2Q465.4,314.7 452.8,299.7Q450.7,297.2 449.3,294.9C445.5,288.8 441.3,282.7 438.1,276.3Q433.9,268 430.2,256.8Q427,247.5 426.7,238.5Q426.3,226.5 429.6,216.1Q434.5,200.9 440.8,191.1Q447.3,180.9 456,170.8Q463.3,162.2 467.8,155.4Q474.6,145 478.9,131.6C480.7,125.9 481,120.2 481.8,114.3C482.5,108.6 482.3,103 482.3,97.1Q482.2,92.3 481.8,86.9C480.9,75.5 479.9,65.4 478.2,54.4Q476.9,46.3 476.5,36.1Q476.4,31.6 476,27.1Q475.6,22.3 476.1,17.7C477,9.3 476.9,0.9 478.9,-7.4Q478.9,-7.6 479.2,-7.6Q479.2,-7.5 479.3,-7.5Q479.4,-7.4 479.4,-7.3C479.2,1.6 478.8,10.3 480.8,18.6C482.5,25.2 485.3,33 488.7,39.2C492.1,45.5 494.9,52.1 499,57.9Q514.7,79.7 523.4,93.7Q528.5,101.9 534.7,113.9Q538.2,120.6 540.9,128Q543.6,135.6 545.9,142.4Q547.1,146 548.3,154.5Q549.3,161.5 549.2,166.6Q548.8,182.2 545.2,195.1C542.1,206.3 538.7,217 534.3,228.1Q528.9,241.7 529,257.6Q529.1,272.7 534.7,285.2Q541.2,299.4 543.8,303.5C548.9,311.6 554.5,319.6 559,328.1Q561.1,332.1 562.2,335.9C564.9,345 566.1,353.7 564.6,362.7C563.9,366.9 563.5,371.2 562.5,375.3Q560.4,384.3 556.8,392.8Z"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1"
+      android:fillColor="#CBBD9B"
+      android:fillType="nonZero"
+      android:strokeColor="#00000000"
+      android:strokeLineCap="butt"/>
+
+  <!-- Additional explosion flame wisps -->
+  <path
+      android:pathData="M400,450L380,420L420,430Z"
+      android:fillColor="#FF6666"/>
+  <path
+      android:pathData="M680,450L660,420L700,430Z"
+      android:fillColor="#FF6666"/>
+  <path
+      android:pathData="M400,630L380,660L420,650Z"
+      android:fillColor="#FF6666"/>
+  <path
+      android:pathData="M680,630L660,660L700,650Z"
+      android:fillColor="#FF6666"/>
+
+  <!-- Pen writing side and finger grip -->
+  <path
+      android:pathData="M693.4,82.3Q691.1,88.4 688.9,94.4C686.8,100.4 683.4,106.2 680.8,112.1Q679.1,115.8 676.6,120.1C673.1,126.1 670.5,133 667.6,139.3C664.1,146.9 662.7,154.8 660.6,162.9C659.3,167.6 659.4,172.2 659,176.9Q658.8,180.1 659.1,183.2C659.4,186.1 659.3,189 660,191.9Q663,205.7 667.6,213.9Q671.2,220 676,226.3C682.1,234.2 687.6,242.2 693.3,250.3Q696.6,255 701.2,264.5Q711.9,286.6 710,311.4Q709.5,319.5 706.9,327.4Q704,336.2 700.6,342.9C691.6,361 675.7,375.1 658.9,386.3Q653.5,389.9 648.3,392.2C648.2,392.3 648,392.3 647.8,392.2C647.6,392.1 647.5,391.9 647.5,391.7Q647.3,390.6 647.4,389.3Q648.1,380.9 649.6,373.3Q651.5,363.3 654.2,351.1C655.3,346.3 655.4,341.2 655.7,336.2C656.3,327.5 655.7,319.3 652.7,310.9Q649.6,302.3 646.2,296.5Q640.2,286.5 634.9,279.7Q630,273.7 625.4,267.8Q621.4,262.5 614.3,251Q609.6,243.5 606.7,231Q605.5,226.2 605.3,221.5C604.7,208.1 607.5,195.2 612.7,182.8C614.7,178 617.3,173.8 619.8,169.2Q621.2,166.5 623.1,163.6Q632.5,149.4 645.5,138C652.5,131.8 658.8,126 665.5,120.3C669.9,116.5 673.3,111.7 677.2,107.4C684,100 689,91.4 693.1,82.2Q693.1,82 693.3,82.1L693.3,82.1Q693.4,82.1 693.4,82.3Z"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1"
+      android:fillColor="#CBBD9B"
+      android:fillType="nonZero"
+      android:strokeColor="#00000000"
+      android:strokeLineCap="butt"/>
+
+  <!-- Main pen body with explosion effect -->
+  <path
+      android:pathData="M644.8,510.9L636,506.4Q626.2,497.4 621.6,485.3Q618.3,476.6 617.1,466.1Q615.2,450.3 621.6,434.9Q624.8,427.1 631.9,418.8Q637.4,412.4 645.4,406.8Q660.8,396 678.5,389.2C681.8,387.9 684.8,386.1 688.2,385.2Q692.5,384 697.1,382.7Q701.6,381.3 706.2,380.7Q717.8,379.2 730.5,376.8Q733.7,376.2 736.4,375C740.4,373.3 744.4,372.7 748,369.8Q753.7,365.2 758,360.7C760.5,358 763.5,355.7 766.1,353.1C771,348 775.7,342.8 780.7,338C783.4,335.4 785.6,332.5 788.2,329.8C794.9,322.8 801.6,315.9 808,308.7C811.6,304.8 815.5,301.3 819,297.4C823.7,292.1 829.1,287.3 834.1,282Q848.6,266.5 853.5,261.7Q869,246.9 883.3,233Q886.9,229.5 890.9,226.3C894.3,223.4 897.2,219.8 900.8,216.9Q914.3,205.6 926.7,194.4Q934.3,187.4 941.2,181.5Q949.4,174.6 957.1,167.5Q961,163.9 964.5,161Q967.5,158.5 970.4,155.8C973.3,153.1 976.4,149.7 980.1,147.8C986.2,144.5 992,141.2 999.1,139.7Q1006.9,138 1010.3,138Q1019,138 1025.3,140.7Q1029.2,142.4 1032.8,147.4C1034.8,150.3 1030.7,155.9 1029,158.2C1026.7,161.5 1023.5,164.1 1020.6,167C1016.3,171.2 1011.1,174.6 1006.7,178.4C1002.5,182.1 997.5,184.7 993.3,188.4Q987.1,193.7 981.3,197.6Q976.2,201 971.4,204.9C966.8,208.6 961.7,211.7 956.8,215.5Q946.8,223.3 935.8,231.3C928.8,236.4 922.3,242.4 915.1,247.6C907.5,253.2 900.6,259 893.3,264.8Q882.6,273.4 869.7,285Q866,288.3 862.4,291.2C859.1,293.8 856.2,296.9 853,299.6C845.8,305.8 840.4,311.3 834.2,317.5C830.8,320.9 825.2,325.5 820.8,329.8C817.8,332.7 813.6,336.2 810.5,340C804.9,346.7 798.9,352.7 793.5,359.8Q786.3,369.4 783.1,375.2Q777.8,384.4 773.5,394.7Q769.9,403.1 766.5,416.4C764.4,424.7 760.3,433 754.1,439Q751.3,441.8 748.1,444.5C744.4,447.7 739.7,449.6 735.4,452.3Q732.6,454.1 729.5,455.3C723.2,457.7 717.3,460.5 710.9,462C706.8,463 703,464.3 699,465.2C689.5,467.1 678.9,469.3 671,474Q667.6,476 663.8,478.2C657.2,482 652.1,487.5 649.3,494.7C647.8,498.3 647.2,503.1 646.3,507.3Q645.8,509.5 644.8,510.9ZM671.7,408.2C666.5,410.3 661.1,412.8 656.8,416.6Q653.5,419.4 650,422.2Q648.2,423.8 643.5,429.3C634.1,440.4 631.5,453.7 630.9,467.9Q630.3,482 637.7,494.1Q638.6,495.6 638.9,493.9Q640.6,484.9 647.1,476.5Q650.4,472.2 653.1,469.9Q655.6,467.6 660.4,464.9Q664.1,462.9 667.7,461.4Q679.1,456.7 682.6,455.8Q693.8,453 704.6,450.1C709.1,448.9 713.5,447 717.9,445.3C730.2,440.5 741.9,432.3 743.4,418.2Q743.9,412.8 740.2,408.4C737.5,405.3 734.3,401.7 730.2,400.7C721.6,398.6 711.1,399.1 702.4,399.6Q696.6,400 688.2,402.5Q678.1,405.6 671.7,408.2Z"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1"
+      android:fillColor="#4D454B"
+      android:fillType="nonZero"
+      android:strokeColor="#00000000"
+      android:strokeLineCap="butt"/>
+
+  <!-- Additional finger grip -->
+  <path
+      android:pathData="M389.7,440.1C386.7,421.5 395,406.3 407.1,392.1C412.8,385.4 420.3,380.8 425.6,373.8Q428.2,370.5 430.9,367.2C433.7,363.7 434.9,359.2 435.9,354.9Q437.4,348.7 435.4,341.8Q435,340.2 435,338.6Q435,335.5 436.5,338.2C438.9,342.2 440.6,346.2 441.7,350.7Q443.8,359.2 445.3,366.3Q447.3,375.1 445.6,385.9C445.1,389.1 443.4,392.4 441.9,395.3C436.7,405.2 431.5,414.4 428.2,424.7C425.8,432.4 426.3,440.6 429.2,448.3C432.3,456.4 435.7,465.4 435.4,474C435,484.6 432,494.3 425.1,502.8Q420.8,508.1 414.5,507C414.3,507 414.1,506.7 414.2,506.5C415.4,499 415.6,491.5 412.3,484.4Q406.8,472.4 398.7,461.9C396,458.4 393.6,454.6 392.3,450.3Q390.3,444.1 389.7,440.1Z"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1"
+      android:fillColor="#CBBD9B"
+      android:fillType="nonZero"
+      android:strokeColor="#00000000"
+      android:strokeLineCap="butt"/>
+
+  <!-- Golden pen tip -->
+  <path
+      android:pathData="M656.8,416.6C661.1,412.8 666.5,410.3 671.7,408.2Q678.1,405.6 688.2,402.5Q696.6,400 702.4,399.6C711.1,399.1 721.6,398.6 730.2,400.7C734.3,401.7 737.6,405.3 740.2,408.4Q743.9,412.8 743.4,418.2C741.9,432.3 730.2,440.5 717.9,445.3C713.5,447 709.1,448.9 704.6,450.1Q693.8,453 682.6,455.8Q679.2,456.7 667.7,461.4Q664.1,462.9 660.5,464.9Q655.6,467.6 653.1,469.9Q650.4,472.2 647.1,476.5Q640.6,484.9 638.9,493.9Q638.6,495.6 637.7,494.1Q630.3,482 630.9,467.9C631.5,453.7 634.2,440.4 643.5,429.3Q648.2,423.8 650,422.2Q653.5,419.4 656.8,416.6Z"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1"
+      android:fillColor="#FADF00"
+      android:fillType="nonZero"
+      android:strokeColor="#00000000"
+      android:strokeLineCap="butt"/>
+
+  <!-- Final explosion wisps near tip -->
+  <path
+      android:pathData="M636,506.4L644.8,510.9L644.6,512.9Q644.6,513.4 644.2,513.1C641.3,510.8 638.5,509.5 636,506.4Z"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1"
+      android:fillColor="#FADF00"
+      android:fillType="nonZero"
+      android:strokeColor="#00000000"
+      android:strokeLineCap="butt"/>
+
+</vector>
