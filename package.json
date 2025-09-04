@@ -1,4 +1,5 @@
 {
+  "name": "my-kitchen",
   "private": true,
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
