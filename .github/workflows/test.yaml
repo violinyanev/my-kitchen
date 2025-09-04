@@ -37,9 +37,6 @@ jobs:
     - name: Build APKs and run tests
       run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:koverXmlReportDebug detekt --warning-mode=fail
 
-    - name: Build iOS frameworks and run shared tests  
-      run: ./gradlew shared:linkDebugFrameworkIosX64 shared:linkDebugFrameworkIosSimulatorArm64 shared:iosX64Test shared:iosSimulatorArm64Test --warning-mode=fail
-
     - name: Add coverage report to PR
       id: kover
       uses: mi-kas/kover-report@v1.9
@@ -73,6 +70,9 @@ jobs:
 
     - name: Build iOS framework for device and simulator
       run: ./gradlew shared:linkDebugFrameworkIosArm64 shared:linkDebugFrameworkIosX64 shared:linkDebugFrameworkIosSimulatorArm64 --warning-mode=fail
+
+    - name: Run iOS Kotlin/Native tests
+      run: ./gradlew shared:iosX64Test shared:iosSimulatorArm64Test --warning-mode=fail
 
     - name: List available schemes and build iOS app
       run: |
