@@ -12,22 +12,24 @@ val jsAppModule = module {
     // Data layer
     single { LocalStorageRecipeDao() }
     single { LocalStorageDataStore() }
-    single { JsRecipeServiceWrapper(get(), get()) }
+    single { JsRecipeServiceWrapper() }
     
     // Repository
-    single<RecipeRepository> { JsRecipeRepositoryImpl(get(), get()) }
+    single<RecipeRepository> { 
+        JsRecipeRepositoryImpl(get(), get(), get()) 
+    }
     
     // Use cases
+    single { GetRecipes(get()) }
+    single { AddRecipe(get()) }
+    single { DeleteRecipe(get()) }
+    single { GetRecipe(get()) }
     single { Login(get()) }
     single { Logout(get()) }
     single { GetLoginState(get()) }
-    single { GetRecipes(get()) }
-    single { DeleteRecipe(get()) }
-    single { AddRecipe(get()) }
-    single { GetRecipe(get()) }
     
-    // Recipes use case bundle
-    single {
+    // Use case bundle
+    single { 
         Recipes(
             login = get(),
             logout = get(),

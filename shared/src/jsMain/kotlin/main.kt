@@ -4,7 +4,6 @@ import com.ultraviolince.mykitchen.di.jsAppModule
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
-import com.ultraviolince.mykitchen.recipes.presentation.RecipeStateManager
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
@@ -40,8 +39,12 @@ import org.w3c.dom.events.Event
 // Global application scope
 private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-// State manager
-private lateinit var stateManager: RecipeStateManager
+// State manager - mirrors the Android ViewModel pattern
+private lateinit var recipesUseCases: Recipes
+
+// Current screen state - mirrors Android navigation
+enum class Screen { LOGIN, RECIPES, ADD_RECIPE }
+private var currentScreen = Screen.LOGIN
 
 fun main() {
     window.onload = {
@@ -52,21 +55,20 @@ fun main() {
 
 fun initializeApp() {
     try {
-        // Initialize Koin DI
+        // Initialize Koin DI (same pattern as Android)
         stopKoin() // In case it was already initialized
         startKoin {
             modules(jsAppModule)
         }
 
-        // Get use cases and initialize state manager
+        // Get use cases (same pattern as Android ViewModels)
         val koin = org.koin.core.context.GlobalContext.get()
-        val recipesUseCases = koin.get<Recipes>()
-        stateManager = RecipeStateManager(recipesUseCases, appScope)
+        recipesUseCases = koin.get<Recipes>()
 
-        // Setup UI
+        // Setup UI and navigation (mirrors Android Activity/Fragment setup)
         setupWebApp()
-
-        // Observe state changes
+        
+        // Observe state changes (mirrors Android ViewModel/LiveData pattern)
         observeState()
 
     } catch (e: Exception) {
@@ -75,6 +77,7 @@ fun initializeApp() {
     }
 }
 
+// Setup main container - mirrors Android Activity.onCreate()
 fun setupWebApp() {
     val container = document.getElementById("app")
     
@@ -85,146 +88,149 @@ fun setupWebApp() {
                 h1 { +"My Kitchen - Web App" }
                 h3 { +"Powered by Kotlin Multiplatform & Shared Architecture" }
                 
-                p { +"This web app uses the complete shared business logic including login, backend sync, and recipe storage!" }
+                p { +"This web app now uses the same composable structure as the Android app!" }
                 
-                // Login section
+                // Navigation tabs - mirrors Android bottom navigation
                 div {
-                    id = "login-section"
+                    id = "navigation"
+                    attributes["style"] = "margin: 20px 0; border-bottom: 1px solid #ccc;"
+                    
+                    button {
+                        +"Login"
+                        attributes["style"] = "margin-right: 10px; padding: 10px; ${if (currentScreen == Screen.LOGIN) "background: #007bff; color: white;" else ""}"
+                        onClickFunction = { navigateToScreen(Screen.LOGIN) }
+                    }
+                    button {
+                        +"My Recipes"
+                        attributes["style"] = "margin-right: 10px; padding: 10px; ${if (currentScreen == Screen.RECIPES) "background: #007bff; color: white;" else ""}"
+                        onClickFunction = { navigateToScreen(Screen.RECIPES) }
+                    }
+                    button {
+                        +"Add Recipe"
+                        attributes["style"] = "padding: 10px; ${if (currentScreen == Screen.ADD_RECIPE) "background: #007bff; color: white;" else ""}"
+                        onClickFunction = { navigateToScreen(Screen.ADD_RECIPE) }
+                    }
                 }
                 
-                // Recipe actions section
+                // Screen container - mirrors Android fragment container
                 div {
-                    id = "recipe-actions"
+                    id = "screen-container"
                     attributes["style"] = "margin-top: 20px;"
                 }
-                
-                // Status section
-                div {
-                    id = "status-section"
-                    attributes["style"] = "margin-top: 20px;"
-                }
-                
-                // Recipes list
-                div {
-                    id = "recipes-container"
-                    attributes["style"] = "margin-top: 30px;"
-                    h2 { +"My Recipes" }
-                    ul {
-                        id = "recipes-list"
-                    }
-                }
             }
         }
     }
     
-    updateLoginUI(LoginState.LoginEmpty)
-    updateRecipeActionsUI(false)
+    renderCurrentScreen()
 }
 
-fun observeState() {
-    // Observe login state
-    appScope.launch {
-        stateManager.loginState.collectLatest { loginState ->
-            console.log("Login state changed: $loginState")
-            updateLoginUI(loginState)
-            updateRecipeActionsUI(loginState is LoginState.LoginSuccess)
-            updateStatusUI(loginState)
-        }
-    }
-
-    // Observe recipes
-    appScope.launch {
-        stateManager.recipesState.collectLatest { recipes ->
-            console.log("Recipes updated: ${recipes.size} recipes")
-            updateRecipesUI(recipes)
-        }
-    }
-
-    // Observe loading state
-    appScope.launch {
-        stateManager.isLoading.collectLatest { isLoading ->
-            updateLoadingUI(isLoading)
-        }
-    }
+// Navigation - mirrors Android NavController.navigate()
+fun navigateToScreen(screen: Screen) {
+    currentScreen = screen
+    renderCurrentScreen()
 }
 
-fun updateLoginUI(loginState: LoginState) {
-    val loginSection = document.getElementById("login-section")
+// Screen rendering - mirrors Android Fragment.onCreateView()
+fun renderCurrentScreen() {
+    val container = document.getElementById("screen-container")
+    container?.innerHTML = ""
     
-    loginSection?.innerHTML = ""
-    loginSection?.append {
-        when (loginState) {
-            is LoginState.LoginEmpty -> {
-                div {
-                    h2 { +"Backend Login" }
-                    form {
-                        onSubmitFunction = { event ->
-                            event.preventDefault()
-                            handleLogin(event)
-                        }
-                        
+    when (currentScreen) {
+        Screen.LOGIN -> renderLoginScreen(container)
+        Screen.RECIPES -> renderRecipesScreen(container)
+        Screen.ADD_RECIPE -> renderAddRecipeScreen(container)
+    }
+}
+
+// Login Screen - mirrors Android LoginScreen composable
+fun renderLoginScreen(container: org.w3c.dom.Element?) {
+    appScope.launch {
+        recipesUseCases.getSyncState().collect { loginState ->
+            container?.innerHTML = ""
+            container?.append {
+                when (loginState) {
+                    is LoginState.LoginEmpty -> {
                         div {
-                            label { +"Server URL:" }
-                            input {
-                                type = InputType.url
-                                id = "server-input"
-                                placeholder = "http://localhost:5000"
-                                value = "http://localhost:5000"
+                            h2 { +"Backend Login" }
+                            form {
+                                onSubmitFunction = { event ->
+                                    event.preventDefault()
+                                    handleLogin(event)
+                                }
+                                
+                                div {
+                                    attributes["style"] = "margin: 10px 0;"
+                                    label { +"Server URL:" }
+                                    input {
+                                        type = InputType.url
+                                        id = "server-input"
+                                        placeholder = "http://localhost:5000"
+                                        value = "http://localhost:5000"
+                                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px;"
+                                    }
+                                }
+                                
+                                div {
+                                    attributes["style"] = "margin: 10px 0;"
+                                    label { +"Username:" }
+                                    input {
+                                        type = InputType.text
+                                        id = "username-input"
+                                        placeholder = "Enter username"
+                                        value = "test@example.com"
+                                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px;"
+                                    }
+                                }
+                                
+                                div {
+                                    attributes["style"] = "margin: 10px 0;"
+                                    label { +"Password:" }
+                                    input {
+                                        type = InputType.password
+                                        id = "password-input"
+                                        placeholder = "Enter password"
+                                        value = "password"
+                                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px;"
+                                    }
+                                }
+                                
+                                button {
+                                    type = ButtonType.submit
+                                    +"Login"
+                                    attributes["style"] = "background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;"
+                                }
                             }
-                        }
-                        
-                        div {
-                            label { +"Username:" }
-                            input {
-                                type = InputType.text
-                                id = "username-input"
-                                placeholder = "Enter username"
-                                value = "test@example.com"
-                            }
-                        }
-                        
-                        div {
-                            label { +"Password:" }
-                            input {
-                                type = InputType.password
-                                id = "password-input"
-                                placeholder = "Enter password"
-                                value = "password"
-                            }
-                        }
-                        
-                        button {
-                            type = ButtonType.submit
-                            +"Login"
                         }
                     }
-                }
-            }
-            is LoginState.LoginPending -> {
-                div {
-                    h2 { +"Logging in..." }
-                    p { +"Please wait..." }
-                }
-            }
-            is LoginState.LoginSuccess -> {
-                div {
-                    h2 { +"✅ Logged In Successfully" }
-                    button {
-                        +"Logout"
-                        onClickFunction = {
-                            stateManager.logout()
+                    is LoginState.LoginPending -> {
+                        div {
+                            h2 { +"Logging in..." }
+                            p { +"Please wait..." }
                         }
                     }
-                }
-            }
-            is LoginState.LoginFailure -> {
-                div {
-                    h2 { +"❌ Login Failed" }
-                    p { +"Error: ${loginState.error}" }
-                    button {
-                        +"Try Again"
-                        onClickFunction = {
-                            updateLoginUI(LoginState.LoginEmpty)
+                    is LoginState.LoginSuccess -> {
+                        div {
+                            h2 { +"✅ Logged In Successfully" }
+                            button {
+                                +"Logout"
+                                attributes["style"] = "background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;"
+                                onClickFunction = {
+                                    appScope.launch {
+                                        recipesUseCases.logout()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    is LoginState.LoginFailure -> {
+                        div {
+                            h2 { +"❌ Login Failed" }
+                            p { +"Error: ${loginState.error}" }
+                            button {
+                                +"Try Again"
+                                attributes["style"] = "background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;"
+                                onClickFunction = { renderCurrentScreen() }
+                            }
                         }
                     }
                 }
@@ -233,15 +239,45 @@ fun updateLoginUI(loginState: LoginState) {
     }
 }
 
-fun updateRecipeActionsUI(isLoggedIn: Boolean) {
-    val actionsSection = document.getElementById("recipe-actions")
-    
-    actionsSection?.innerHTML = ""
-    actionsSection?.append {
+// Recipes Screen - mirrors Android RecipeScreen composable
+fun renderRecipesScreen(container: org.w3c.dom.Element?) {
+    container?.append {
         div {
-            h2 { +"Recipe Actions" }
+            h2 { +"My Recipes" }
             
-            // Add recipe form
+            // Status section - mirrors Android StatusSection composable
+            div {
+                id = "status-section"
+                attributes["style"] = "background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;"
+            }
+            
+            // Recipes list - mirrors Android LazyColumn
+            ul {
+                id = "recipes-list"
+                attributes["style"] = "list-style: none; padding: 0;"
+            }
+        }
+    }
+    
+    // Update status and recipes - mirrors Android ViewModel observation
+    appScope.launch {
+        recipesUseCases.getSyncState().collect { loginState ->
+            updateStatus(loginState)
+        }
+    }
+    
+    appScope.launch {
+        recipesUseCases.getRecipes().collect { recipes ->
+            updateRecipesList(recipes)
+        }
+    }
+}
+
+// Add Recipe Screen - mirrors Android AddEditRecipeScreen composable
+fun renderAddRecipeScreen(container: org.w3c.dom.Element?) {
+    container?.append {
+        div {
+            h2 { +"Add Recipe" }
             form {
                 onSubmitFunction = { event ->
                     event.preventDefault()
@@ -249,31 +285,41 @@ fun updateRecipeActionsUI(isLoggedIn: Boolean) {
                 }
                 
                 div {
+                    attributes["style"] = "margin: 10px 0;"
                     label { +"Recipe Title:" }
                     input {
                         type = InputType.text
                         id = "recipe-title-input"
                         placeholder = "Enter recipe title"
                         required = true
+                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px;"
                     }
                 }
                 
                 div {
+                    attributes["style"] = "margin: 10px 0;"
                     label { +"Recipe Content:" }
                     textArea {
                         id = "recipe-content-input"
                         placeholder = "Enter recipe instructions, ingredients, etc."
                         required = true
-                        rows = "4"
+                        rows = "8"
+                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px; resize: vertical;"
                     }
                 }
                 
-                button {
-                    type = ButtonType.submit
-                    if (isLoggedIn) {
-                        +"Add Recipe (will sync to backend)"
-                    } else {
-                        +"Add Recipe (local storage only)"
+                div {
+                    attributes["style"] = "margin: 20px 0;"
+                    button {
+                        type = ButtonType.submit
+                        +"Add Recipe"
+                        attributes["style"] = "background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;"
+                    }
+                    button {
+                        type = ButtonType.button
+                        +"Cancel"
+                        attributes["style"] = "background: #6c757d; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer;"
+                        onClickFunction = { navigateToScreen(Screen.RECIPES) }
                     }
                 }
             }
@@ -281,13 +327,19 @@ fun updateRecipeActionsUI(isLoggedIn: Boolean) {
     }
 }
 
-fun updateStatusUI(loginState: LoginState) {
+// State observation methods - mirror Android ViewModel observation
+
+fun observeState() {
+    // This method mirrors Android lifecycle observation
+    // The actual observation happens in individual screen renders
+}
+
+fun updateStatus(loginState: LoginState) {
     val statusSection = document.getElementById("status-section")
     
     statusSection?.innerHTML = ""
     statusSection?.append {
         div {
-            h2 { +"Status" }
             p {
                 strong { +"Backend Connection: " }
                 when (loginState) {
@@ -305,35 +357,52 @@ fun updateStatusUI(loginState: LoginState) {
     }
 }
 
-fun updateRecipesUI(recipes: List<Recipe>) {
+fun updateRecipesList(recipes: List<Recipe>) {
     val recipesList = document.getElementById("recipes-list")
     
     recipesList?.innerHTML = ""
     recipesList?.append {
         if (recipes.isEmpty()) {
             li {
-                p { +"No recipes yet. Add one above!" }
+                p { 
+                    +"No recipes yet. "
+                    button {
+                        +"Add one here!"
+                        attributes["style"] = "background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer;"
+                        onClickFunction = { navigateToScreen(Screen.ADD_RECIPE) }
+                    }
+                }
             }
         } else {
             recipes.forEach { recipe ->
                 li {
                     div {
-                        attributes["style"] = "border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 5px;"
+                        attributes["style"] = "border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; background: white;"
                         
                         h3 { +recipe.title }
-                        p { +recipe.content }
+                        p { 
+                            attributes["style"] = "color: #666; margin: 10px 0;"
+                            val preview = if (recipe.content.length > 150) {
+                                recipe.content.take(150) + "..."
+                            } else {
+                                recipe.content
+                            }
+                            +preview
+                        }
                         p {
-                            attributes["style"] = "font-size: 12px; color: #666;"
+                            attributes["style"] = "font-size: 12px; color: #999; margin-top: 15px;"
                             +"Created: ${formatTimestamp(recipe.timestamp)}"
                             recipe.id?.let { id -> +" | ID: $id" }
                         }
                         
                         button {
                             +"Delete"
-                            attributes["style"] = "background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;"
+                            attributes["style"] = "background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;"
                             onClickFunction = {
                                 if (window.confirm("Are you sure you want to delete '${recipe.title}'?")) {
-                                    stateManager.deleteRecipe(recipe)
+                                    appScope.launch {
+                                        recipesUseCases.deleteRecipe(recipe)
+                                    }
                                 }
                             }
                         }
@@ -344,12 +413,7 @@ fun updateRecipesUI(recipes: List<Recipe>) {
     }
 }
 
-fun updateLoadingUI(isLoading: Boolean) {
-    // Could add loading indicators here
-    if (isLoading) {
-        console.log("Loading...")
-    }
-}
+// Event handlers - mirror Android event handling
 
 fun handleLogin(event: Event) {
     val serverInput = document.getElementById("server-input") as? HTMLInputElement
@@ -365,7 +429,9 @@ fun handleLogin(event: Event) {
         return
     }
     
-    stateManager.login(server, username, password)
+    appScope.launch {
+        recipesUseCases.login(server, username, password)
+    }
 }
 
 fun handleAddRecipe(event: Event) {
@@ -380,11 +446,19 @@ fun handleAddRecipe(event: Event) {
         return
     }
     
-    stateManager.addRecipe(title, content)
-    
-    // Clear form
-    titleInput?.value = ""
-    contentInput?.value = ""
+    appScope.launch {
+        val recipe = Recipe(
+            title = title,
+            content = content,
+            timestamp = kotlinx.datetime.Clock.System.now().toEpochMilliseconds()
+        )
+        recipesUseCases.addRecipe(recipe)
+        // Clear form
+        titleInput?.value = ""
+        contentInput?.value = ""
+        // Navigate back to recipes
+        navigateToScreen(Screen.RECIPES)
+    }
 }
 
 fun formatTimestamp(timestamp: Long): String {
@@ -394,7 +468,7 @@ fun formatTimestamp(timestamp: Long): String {
 fun showError(message: String) {
     val container = document.getElementById("app")
     container?.innerHTML = """
-        <div style="color: red; padding: 20px; border: 1px solid red; margin: 20px;">
+        <div style="color: red; padding: 20px; border: 1px solid red; margin: 20px; border-radius: 4px;">
             <h2>Error</h2>
             <p>$message</p>
         </div>
