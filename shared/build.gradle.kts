@@ -27,21 +27,19 @@ kotlin {
         }
     }
     
-    // TODO: Re-enable JS target once repository configuration is resolved
-    // Currently disabled due to Node.js repository conflicts in CI environment
-    // js(IR) {
-    //     browser {
-    //         commonWebpackConfig {
-    //             cssSupport {
-    //                 enabled.set(true)
-    //             }
-    //         }
-    //         testTask {
-    //             enabled = false // Disable tests for now
-    //         }
-    //     }
-    //     binaries.executable()
-    // }
+    js(IR) {
+        browser {
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+            }
+            testTask {
+                enabled = false // Disable tests for now
+            }
+        }
+        binaries.executable()
+    }
     
     sourceSets {
         commonMain.dependencies {
@@ -79,11 +77,10 @@ kotlin {
             implementation(libs.ktor.client.cio)
         }
         
-        // TODO: Re-enable when JS target is enabled
-        // jsMain.dependencies {
-        //     implementation(libs.ktor.client.js)
-        //     implementation("org.jetbrains.kotlinx:kotlinx-html:0.9.1")
-        // }
+        jsMain.dependencies {
+            implementation(libs.ktor.client.js)
+            implementation("org.jetbrains.kotlinx:kotlinx-html:0.9.1")
+        }
     }
 }
 

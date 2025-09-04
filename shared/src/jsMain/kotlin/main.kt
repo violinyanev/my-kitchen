@@ -13,6 +13,7 @@ import kotlinx.html.js.onClickFunction
 import kotlinx.html.li
 import kotlinx.html.p
 import kotlinx.html.ul
+import kotlinx.html.id
 
 fun main() {
     window.onload = {
@@ -25,23 +26,26 @@ fun setupWebApp() {
     val container = document.getElementById("app")
     
     if (container != null) {
-        container.append.div {
-            h1 { +"My Kitchen - Web App" }
-            h3 { +"Powered by Kotlin Multiplatform" }
-            
-            p { +"This web app uses the same shared business logic as the Android and iOS apps!" }
-            
-            button {
-                +"Create Sample Recipe"
-                onClickFunction = {
-                    createSampleRecipe()
-                }
-            }
-            
+        container.innerHTML = ""
+        container.append {
             div {
-                id = "recipes-container"
-                ul {
-                    id = "recipes-list"
+                h1 { +"My Kitchen - Web App" }
+                h3 { +"Powered by Kotlin Multiplatform" }
+                
+                p { +"This web app uses the same shared business logic as the Android and iOS apps!" }
+                
+                button {
+                    +"Create Sample Recipe"
+                    onClickFunction = {
+                        createSampleRecipe()
+                    }
+                }
+                
+                div {
+                    id = "recipes-container"
+                    ul {
+                        id = "recipes-list"
+                    }
                 }
             }
         }
@@ -63,11 +67,13 @@ fun createSampleRecipe() {
 fun addRecipeToUI(recipe: Recipe) {
     val recipesList = document.getElementById("recipes-list")
     
-    recipesList?.append?.create?.li {
-        div {
-            h3 { +recipe.title }
-            p { +recipe.content }
-            p { +"Created: ${kotlinx.datetime.Instant.fromEpochMilliseconds(recipe.timestamp)}" }
+    recipesList?.append {
+        li {
+            div {
+                h3 { +recipe.title }
+                p { +recipe.content }
+                p { +"Created: ${kotlinx.datetime.Instant.fromEpochMilliseconds(recipe.timestamp)}" }
+            }
         }
     }
 }
