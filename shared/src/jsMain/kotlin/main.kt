@@ -1,9 +1,9 @@
 package main
 
 import com.ultraviolince.mykitchen.di.jsAppModule
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
+import com.ultraviolince.mykitchen.recipes.presentation.SharedAppCoordinator
+import com.ultraviolince.mykitchen.recipes.presentation.AppScreen
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
@@ -11,25 +11,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.html.ButtonType
-import kotlinx.html.InputType
-import kotlinx.html.button
-import kotlinx.html.div
+import kotlinx.html.*
 import kotlinx.html.dom.append
-import kotlinx.html.form
-import kotlinx.html.h1
-import kotlinx.html.h2
-import kotlinx.html.h3
-import kotlinx.html.id
-import kotlinx.html.input
 import kotlinx.html.js.onClickFunction
 import kotlinx.html.js.onSubmitFunction
-import kotlinx.html.label
-import kotlinx.html.li
-import kotlinx.html.p
-import kotlinx.html.strong
-import kotlinx.html.textArea
-import kotlinx.html.ul
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.w3c.dom.HTMLInputElement
@@ -39,438 +24,458 @@ import org.w3c.dom.events.Event
 // Global application scope
 private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-// State manager - mirrors the Android ViewModel pattern
-private lateinit var recipesUseCases: Recipes
-
-// Current screen state - mirrors Android navigation
-enum class Screen { LOGIN, RECIPES, ADD_RECIPE }
-private var currentScreen = Screen.LOGIN
+// Shared app coordinator - this is the EXACT same business logic as Android!
+private lateinit var appCoordinator: SharedAppCoordinator
 
 fun main() {
     window.onload = {
-        console.log("My Kitchen Web App loaded!")
-        initializeApp()
+        console.log("My Kitchen Web App - Now using EXACT same business logic as Android!")
+        initializeSharedApp()
     }
 }
 
-fun initializeApp() {
+fun initializeSharedApp() {
     try {
-        // Initialize Koin DI (same pattern as Android)
-        stopKoin() // In case it was already initialized
+        // Initialize Koin DI (same as Android)
+        stopKoin()
         startKoin {
             modules(jsAppModule)
         }
-
-        // Get use cases (same pattern as Android ViewModels)
-        val koin = org.koin.core.context.GlobalContext.get()
-        recipesUseCases = koin.get<Recipes>()
-
-        // Setup UI and navigation (mirrors Android Activity/Fragment setup)
-        setupWebApp()
         
-        // Observe state changes (mirrors Android ViewModel/LiveData pattern)
-        observeState()
-
+        // Get use cases (same as Android)
+        val koin = org.koin.core.context.GlobalContext.get()
+        val recipesUseCases = koin.get<Recipes>()
+        
+        // Initialize shared app coordinator - this replaces individual ViewModels
+        appCoordinator = SharedAppCoordinator(recipesUseCases)
+        
+        // Setup UI container
+        setupAppContainer()
+        
+        // Start observing shared state (same patterns as Android)
+        observeAppState()
+        
     } catch (e: Exception) {
         console.error("Failed to initialize app:", e)
         showError("Failed to initialize app: ${e.message}")
     }
 }
 
-// Setup main container - mirrors Android Activity.onCreate()
-fun setupWebApp() {
+fun setupAppContainer() {
     val container = document.getElementById("app")
-    
-    if (container != null) {
-        container.innerHTML = ""
-        container.append {
+    container?.innerHTML = ""
+    container?.append {
+        div {
+            attributes["style"] = "max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"
+            
+            // Header
             div {
-                h1 { +"My Kitchen - Web App" }
-                h3 { +"Powered by Kotlin Multiplatform & Shared Architecture" }
+                attributes["style"] = "text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;"
+                h1 { 
+                    attributes["style"] = "margin: 0; font-size: 2.5rem;"
+                    +"My Kitchen - Web App" 
+                }
+                p { 
+                    attributes["style"] = "margin: 10px 0 0 0; opacity: 0.9; font-size: 1.1rem;"
+                    +"🔄 Now using the EXACT same business logic and state management as the Android app!" 
+                }
+            }
+            
+            // Navigation (will be shown/hidden based on current screen)
+            div {
+                id = "navigation"
+                attributes["style"] = "display: none; margin-bottom: 20px; text-align: center;"
+            }
+            
+            // Screen container
+            div {
+                id = "screen-container"
+                attributes["style"] = "min-height: 400px;"
+            }
+            
+            // Status footer
+            div {
+                id = "status-footer"
+                attributes["style"] = "margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9rem;"
+            }
+        }
+    }
+}
+
+// Observer pattern - exactly like Android ViewModels!
+fun observeAppState() {
+    // Observe navigation state
+    appScope.launch {
+        appCoordinator.currentScreen.collectLatest { screen ->
+            renderScreen(screen)
+            updateNavigation(screen)
+        }
+    }
+    
+    // Observe login state  
+    appScope.launch {
+        appCoordinator.loginManager.loginUiState.collectLatest { loginState ->
+            if (loginState.isLoggedIn && appCoordinator.currentScreen.value == AppScreen.LOGIN) {
+                appCoordinator.navigateToRecipes()
+            }
+        }
+    }
+}
+
+fun renderScreen(screen: AppScreen) {
+    val container = document.getElementById("screen-container")
+    container?.innerHTML = ""
+    
+    when (screen) {
+        AppScreen.LOGIN -> renderLoginScreen(container)
+        AppScreen.RECIPES -> renderRecipesScreen(container)
+        AppScreen.ADD_RECIPE -> renderAddRecipeScreen(container)
+    }
+}
+
+fun updateNavigation(currentScreen: AppScreen) {
+    val navigationElement = document.getElementById("navigation")
+    navigationElement?.innerHTML = ""
+    if (currentScreen == AppScreen.LOGIN) {
+        navigationElement?.setAttribute("style", "display: none; margin-bottom: 20px; text-align: center;")
+    } else {
+        navigationElement?.setAttribute("style", "display: block; margin-bottom: 20px; text-align: center;")
+    }
+    
+    if (currentScreen != AppScreen.LOGIN) {
+        navigationElement?.append {
+            div {
+                attributes["style"] = "display: flex; justify-content: center; gap: 10px;"
                 
-                p { +"This web app now uses the same composable structure as the Android app!" }
-                
-                // Navigation tabs - mirrors Android bottom navigation
-                div {
-                    id = "navigation"
-                    attributes["style"] = "margin: 20px 0; border-bottom: 1px solid #ccc;"
-                    
-                    button {
-                        +"Login"
-                        attributes["style"] = "margin-right: 10px; padding: 10px; ${if (currentScreen == Screen.LOGIN) "background: #007bff; color: white;" else ""}"
-                        onClickFunction = { navigateToScreen(Screen.LOGIN) }
-                    }
-                    button {
-                        +"My Recipes"
-                        attributes["style"] = "margin-right: 10px; padding: 10px; ${if (currentScreen == Screen.RECIPES) "background: #007bff; color: white;" else ""}"
-                        onClickFunction = { navigateToScreen(Screen.RECIPES) }
-                    }
-                    button {
-                        +"Add Recipe"
-                        attributes["style"] = "padding: 10px; ${if (currentScreen == Screen.ADD_RECIPE) "background: #007bff; color: white;" else ""}"
-                        onClickFunction = { navigateToScreen(Screen.ADD_RECIPE) }
-                    }
+                button {
+                    +"📖 My Recipes"
+                    attributes["style"] = "padding: 10px 20px; border: 2px solid #007bff; border-radius: 6px; cursor: pointer; transition: all 0.3s; ${
+                        if (currentScreen == AppScreen.RECIPES) "background: #007bff; color: white;" else "background: white; color: #007bff;"
+                    }"
+                    onClickFunction = { appCoordinator.navigateToRecipes() }
                 }
                 
-                // Screen container - mirrors Android fragment container
-                div {
-                    id = "screen-container"
-                    attributes["style"] = "margin-top: 20px;"
+                button {
+                    +"➕ Add Recipe"
+                    attributes["style"] = "padding: 10px 20px; border: 2px solid #28a745; border-radius: 6px; cursor: pointer; transition: all 0.3s; ${
+                        if (currentScreen == AppScreen.ADD_RECIPE) "background: #28a745; color: white;" else "background: white; color: #28a745;"
+                    }"
+                    onClickFunction = { appCoordinator.navigateToAddRecipe() }
+                }
+                
+                button {
+                    +"🚪 Logout"
+                    attributes["style"] = "padding: 10px 20px; border: 2px solid #dc3545; border-radius: 6px; cursor: pointer; background: white; color: #dc3545; transition: all 0.3s;"
+                    onClickFunction = { 
+                        appCoordinator.loginManager.logout()
+                        appCoordinator.navigateToLogin()
+                    }
                 }
             }
         }
     }
-    
-    renderCurrentScreen()
 }
 
-// Navigation - mirrors Android NavController.navigate()
-fun navigateToScreen(screen: Screen) {
-    currentScreen = screen
-    renderCurrentScreen()
-}
-
-// Screen rendering - mirrors Android Fragment.onCreateView()
-fun renderCurrentScreen() {
-    val container = document.getElementById("screen-container")
-    container?.innerHTML = ""
-    
-    when (currentScreen) {
-        Screen.LOGIN -> renderLoginScreen(container)
-        Screen.RECIPES -> renderRecipesScreen(container)
-        Screen.ADD_RECIPE -> renderAddRecipeScreen(container)
+// Login Screen - uses SharedLoginManager (same logic as Android LoginViewModel!)
+fun renderLoginScreen(container: org.w3c.dom.Element?) {
+    appScope.launch {
+        appCoordinator.loginManager.loginUiState.collect { loginState ->
+            container?.innerHTML = ""
+            container?.append {
+                div {
+                    attributes["style"] = "max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);"
+                    
+                    h2 { 
+                        attributes["style"] = "text-align: center; margin-bottom: 30px; color: #333;"
+                        +"🔐 Backend Login" 
+                    }
+                    
+                    if (loginState.isLoggedIn) {
+                        div {
+                            attributes["style"] = "text-align: center;"
+                            p {
+                                attributes["style"] = "color: #28a745; font-size: 1.2rem; margin-bottom: 20px;"
+                                +"✅ Successfully logged in!"
+                            }
+                            p { +"Redirecting to recipes..." }
+                        }
+                    } else {
+                        form {
+                            onSubmitFunction = { event -> 
+                                event.preventDefault()
+                                appCoordinator.loginManager.login()
+                            }
+                            
+                            div {
+                                attributes["style"] = "margin-bottom: 20px;"
+                                label { 
+                                    attributes["style"] = "display: block; margin-bottom: 8px; font-weight: 600; color: #555;"
+                                    +"🌐 Server URL:" 
+                                }
+                                input {
+                                    type = InputType.url
+                                    id = "server-input"
+                                    value = loginState.server
+                                    disabled = loginState.isLoading
+                                    attributes["style"] = "width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem; transition: border-color 0.3s;"
+                                    attributes["onchange"] = "updateLoginField('server', this.value)"
+                                }
+                            }
+                            
+                            div {
+                                attributes["style"] = "margin-bottom: 20px;"
+                                label { 
+                                    attributes["style"] = "display: block; margin-bottom: 8px; font-weight: 600; color: #555;"
+                                    +"👤 Username:" 
+                                }
+                                input {
+                                    type = InputType.text
+                                    id = "username-input"
+                                    value = loginState.username
+                                    disabled = loginState.isLoading
+                                    attributes["style"] = "width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem;"
+                                    attributes["onchange"] = "updateLoginField('username', this.value)"
+                                }
+                            }
+                            
+                            div {
+                                attributes["style"] = "margin-bottom: 30px;"
+                                label { 
+                                    attributes["style"] = "display: block; margin-bottom: 8px; font-weight: 600; color: #555;"
+                                    +"🔑 Password:" 
+                                }
+                                input {
+                                    type = InputType.password
+                                    id = "password-input"
+                                    value = loginState.password
+                                    disabled = loginState.isLoading
+                                    attributes["style"] = "width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem;"
+                                    attributes["onchange"] = "updateLoginField('password', this.value)"
+                                }
+                            }
+                            
+                            loginState.loginError?.let { error ->
+                                div {
+                                    attributes["style"] = "background: #fee; border: 1px solid #fcc; color: #c66; padding: 12px; border-radius: 6px; margin-bottom: 20px;"
+                                    +"❌ Error: $error"
+                                }
+                            }
+                            
+                            button {
+                                type = ButtonType.submit
+                                disabled = loginState.isLoading
+                                attributes["style"] = "width: 100%; padding: 14px; background: ${if (loginState.isLoading) "#ccc" else "#007bff"}; color: white; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 600; cursor: ${if (loginState.isLoading) "not-allowed" else "pointer"}; transition: background 0.3s;"
+                                if (loginState.isLoading) {
+                                    +"🔄 Logging in..."
+                                } else {
+                                    +"🚀 Login"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Add JavaScript functions for input handling
+            document.asDynamic().updateLoginField = { field: String, value: String ->
+                when (field) {
+                    "server" -> appCoordinator.loginManager.updateServer(value)
+                    "username" -> appCoordinator.loginManager.updateUsername(value)  
+                    "password" -> appCoordinator.loginManager.updatePassword(value)
+                }
+            }
+        }
     }
 }
 
-// Login Screen - mirrors Android LoginScreen composable
-fun renderLoginScreen(container: org.w3c.dom.Element?) {
+// Recipes Screen - uses SharedRecipesManager (same logic as Android RecipeViewModel!)
+fun renderRecipesScreen(container: org.w3c.dom.Element?) {
     appScope.launch {
-        recipesUseCases.getSyncState().collect { loginState ->
+        appCoordinator.recipesManager.recipesUiState.collect { recipesState ->
             container?.innerHTML = ""
             container?.append {
-                when (loginState) {
-                    is LoginState.LoginEmpty -> {
+                div {
+                    h2 { 
+                        attributes["style"] = "color: #333; margin-bottom: 20px; text-align: center;"
+                        +"📖 My Recipe Collection" 
+                    }
+                    
+                    // Status section
+                    div {
+                        attributes["style"] = "background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px;"
+                        p { 
+                            attributes["style"] = "margin: 0; font-weight: 600;"
+                            +"📡 Backend Status: ${recipesState.syncStatus}" 
+                        }
+                        p { 
+                            attributes["style"] = "margin: 5px 0 0 0;"
+                            +"💾 Local Storage: ✅ Active"
+                        }
+                    }
+                    
+                    // Recipes list
+                    if (recipesState.recipes.isEmpty()) {
                         div {
-                            h2 { +"Backend Login" }
-                            form {
-                                onSubmitFunction = { event ->
-                                    event.preventDefault()
-                                    handleLogin(event)
-                                }
-                                
+                            attributes["style"] = "text-align: center; padding: 40px; background: #fff; border-radius: 8px; border: 2px dashed #ddd;"
+                            p { 
+                                attributes["style"] = "font-size: 1.2rem; color: #666; margin-bottom: 15px;"
+                                +"📝 No recipes yet" 
+                            }
+                            button {
+                                +"➕ Add your first recipe!"
+                                attributes["style"] = "background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 1rem; cursor: pointer;"
+                                onClickFunction = { appCoordinator.navigateToAddRecipe() }
+                            }
+                        }
+                    } else {
+                        div {
+                            attributes["style"] = "display: grid; gap: 15px;"
+                            recipesState.recipes.forEach { recipe ->
                                 div {
-                                    attributes["style"] = "margin: 10px 0;"
-                                    label { +"Server URL:" }
-                                    input {
-                                        type = InputType.url
-                                        id = "server-input"
-                                        placeholder = "http://localhost:5000"
-                                        value = "http://localhost:5000"
-                                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px;"
+                                    attributes["style"] = "background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.2s;"
+                                    
+                                    div {
+                                        attributes["style"] = "display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;"
+                                        h3 { 
+                                            attributes["style"] = "margin: 0; color: #333; flex-grow: 1;"
+                                            +recipe.title 
+                                        }
+                                        button {
+                                            +"🗑️ Delete"
+                                            attributes["style"] = "background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;"
+                                            onClickFunction = {
+                                                if (window.confirm("Delete '${recipe.title}'?")) {
+                                                    appCoordinator.recipesManager.deleteRecipe(recipe)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    p { 
+                                        attributes["style"] = "color: #666; line-height: 1.4; margin-bottom: 10px;"
+                                        +if (recipe.content.length > 150) {
+                                            recipe.content.take(150) + "..."
+                                        } else {
+                                            recipe.content
+                                        }
+                                    }
+                                    
+                                    p { 
+                                        attributes["style"] = "font-size: 0.85rem; color: #999; margin: 0;"
+                                        +"📅 Created: ${kotlinx.datetime.Instant.fromEpochMilliseconds(recipe.timestamp).toString().take(19).replace("T", " ")}"
+                                        recipe.id?.let { id -> +" | 🆔 ID: $id" }
                                     }
                                 }
-                                
-                                div {
-                                    attributes["style"] = "margin: 10px 0;"
-                                    label { +"Username:" }
-                                    input {
-                                        type = InputType.text
-                                        id = "username-input"
-                                        placeholder = "Enter username"
-                                        value = "test@example.com"
-                                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px;"
-                                    }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Add Recipe Screen - uses SharedAddRecipeManager (same logic as Android AddEditRecipeViewModel!)
+fun renderAddRecipeScreen(container: org.w3c.dom.Element?) {
+    appScope.launch {
+        appCoordinator.addRecipeManager.addRecipeUiState.collect { addRecipeState ->
+            container?.innerHTML = ""
+            container?.append {
+                div {
+                    attributes["style"] = "max-width: 600px; margin: 0 auto;"
+                    
+                    h2 { 
+                        attributes["style"] = "color: #333; margin-bottom: 25px; text-align: center;"
+                        +"➕ Add New Recipe" 
+                    }
+                    
+                    form {
+                        onSubmitFunction = { event ->
+                            event.preventDefault()
+                            appCoordinator.saveRecipeAndNavigateBack()
+                        }
+                        
+                        div {
+                            attributes["style"] = "background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);"
+                            
+                            div {
+                                attributes["style"] = "margin-bottom: 20px;"
+                                label { 
+                                    attributes["style"] = "display: block; margin-bottom: 8px; font-weight: 600; color: #555;"
+                                    +"📝 Recipe Title:" 
                                 }
+                                input {
+                                    type = InputType.text
+                                    value = addRecipeState.title
+                                    disabled = addRecipeState.isLoading
+                                    placeholder = "Enter a delicious recipe title..."
+                                    attributes["style"] = "width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem;"
+                                    attributes["onchange"] = "updateAddRecipeField('title', this.value)"
+                                }
+                            }
+                            
+                            div {
+                                attributes["style"] = "margin-bottom: 25px;"
+                                label { 
+                                    attributes["style"] = "display: block; margin-bottom: 8px; font-weight: 600; color: #555;"
+                                    +"📋 Recipe Instructions:" 
+                                }
+                                textArea {
+                                    +addRecipeState.content
+                                    disabled = addRecipeState.isLoading
+                                    placeholder = "Enter recipe instructions, ingredients, cooking steps, etc..."
+                                    rows = "8"
+                                    attributes["style"] = "width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem; resize: vertical;"
+                                    attributes["onchange"] = "updateAddRecipeField('content', this.value)"
+                                }
+                            }
+                            
+                            div {
+                                attributes["style"] = "display: flex; gap: 15px; justify-content: center;"
                                 
-                                div {
-                                    attributes["style"] = "margin: 10px 0;"
-                                    label { +"Password:" }
-                                    input {
-                                        type = InputType.password
-                                        id = "password-input"
-                                        placeholder = "Enter password"
-                                        value = "password"
-                                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px;"
+                                button {
+                                    type = ButtonType.submit
+                                    disabled = !addRecipeState.canSave
+                                    attributes["style"] = "padding: 14px 28px; background: ${if (addRecipeState.canSave) "#28a745" else "#ccc"}; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: ${if (addRecipeState.canSave) "pointer" else "not-allowed"};"
+                                    if (addRecipeState.isLoading) {
+                                        +"🔄 Saving..."
+                                    } else {
+                                        +"💾 Save Recipe"
                                     }
                                 }
                                 
                                 button {
-                                    type = ButtonType.submit
-                                    +"Login"
-                                    attributes["style"] = "background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;"
+                                    type = ButtonType.button
+                                    +"❌ Cancel"
+                                    attributes["style"] = "padding: 14px 28px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer;"
+                                    onClickFunction = { appCoordinator.navigateToRecipes() }
                                 }
-                            }
-                        }
-                    }
-                    is LoginState.LoginPending -> {
-                        div {
-                            h2 { +"Logging in..." }
-                            p { +"Please wait..." }
-                        }
-                    }
-                    is LoginState.LoginSuccess -> {
-                        div {
-                            h2 { +"✅ Logged In Successfully" }
-                            button {
-                                +"Logout"
-                                attributes["style"] = "background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;"
-                                onClickFunction = {
-                                    appScope.launch {
-                                        recipesUseCases.logout()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    is LoginState.LoginFailure -> {
-                        div {
-                            h2 { +"❌ Login Failed" }
-                            p { +"Error: ${loginState.error}" }
-                            button {
-                                +"Try Again"
-                                attributes["style"] = "background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;"
-                                onClickFunction = { renderCurrentScreen() }
                             }
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-// Recipes Screen - mirrors Android RecipeScreen composable
-fun renderRecipesScreen(container: org.w3c.dom.Element?) {
-    container?.append {
-        div {
-            h2 { +"My Recipes" }
-            
-            // Status section - mirrors Android StatusSection composable
-            div {
-                id = "status-section"
-                attributes["style"] = "background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;"
             }
             
-            // Recipes list - mirrors Android LazyColumn
-            ul {
-                id = "recipes-list"
-                attributes["style"] = "list-style: none; padding: 0;"
-            }
-        }
-    }
-    
-    // Update status and recipes - mirrors Android ViewModel observation
-    appScope.launch {
-        recipesUseCases.getSyncState().collect { loginState ->
-            updateStatus(loginState)
-        }
-    }
-    
-    appScope.launch {
-        recipesUseCases.getRecipes().collect { recipes ->
-            updateRecipesList(recipes)
-        }
-    }
-}
-
-// Add Recipe Screen - mirrors Android AddEditRecipeScreen composable
-fun renderAddRecipeScreen(container: org.w3c.dom.Element?) {
-    container?.append {
-        div {
-            h2 { +"Add Recipe" }
-            form {
-                onSubmitFunction = { event ->
-                    event.preventDefault()
-                    handleAddRecipe(event)
-                }
-                
-                div {
-                    attributes["style"] = "margin: 10px 0;"
-                    label { +"Recipe Title:" }
-                    input {
-                        type = InputType.text
-                        id = "recipe-title-input"
-                        placeholder = "Enter recipe title"
-                        required = true
-                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px;"
-                    }
-                }
-                
-                div {
-                    attributes["style"] = "margin: 10px 0;"
-                    label { +"Recipe Content:" }
-                    textArea {
-                        id = "recipe-content-input"
-                        placeholder = "Enter recipe instructions, ingredients, etc."
-                        required = true
-                        rows = "8"
-                        attributes["style"] = "width: 100%; padding: 8px; margin-top: 5px; resize: vertical;"
-                    }
-                }
-                
-                div {
-                    attributes["style"] = "margin: 20px 0;"
-                    button {
-                        type = ButtonType.submit
-                        +"Add Recipe"
-                        attributes["style"] = "background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;"
-                    }
-                    button {
-                        type = ButtonType.button
-                        +"Cancel"
-                        attributes["style"] = "background: #6c757d; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer;"
-                        onClickFunction = { navigateToScreen(Screen.RECIPES) }
-                    }
+            // Add JavaScript functions for input handling
+            document.asDynamic().updateAddRecipeField = { field: String, value: String ->
+                when (field) {
+                    "title" -> appCoordinator.addRecipeManager.updateTitle(value)
+                    "content" -> appCoordinator.addRecipeManager.updateContent(value)
                 }
             }
         }
     }
-}
-
-// State observation methods - mirror Android ViewModel observation
-
-fun observeState() {
-    // This method mirrors Android lifecycle observation
-    // The actual observation happens in individual screen renders
-}
-
-fun updateStatus(loginState: LoginState) {
-    val statusSection = document.getElementById("status-section")
-    
-    statusSection?.innerHTML = ""
-    statusSection?.append {
-        div {
-            p {
-                strong { +"Backend Connection: " }
-                when (loginState) {
-                    is LoginState.LoginEmpty -> +"Not connected"
-                    is LoginState.LoginPending -> +"Connecting..."
-                    is LoginState.LoginSuccess -> +"✅ Connected & Synced"
-                    is LoginState.LoginFailure -> +"❌ Connection Failed"
-                }
-            }
-            p {
-                strong { +"Data Storage: " }
-                +"✅ Browser Local Storage Active"
-            }
-        }
-    }
-}
-
-fun updateRecipesList(recipes: List<Recipe>) {
-    val recipesList = document.getElementById("recipes-list")
-    
-    recipesList?.innerHTML = ""
-    recipesList?.append {
-        if (recipes.isEmpty()) {
-            li {
-                p { 
-                    +"No recipes yet. "
-                    button {
-                        +"Add one here!"
-                        attributes["style"] = "background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer;"
-                        onClickFunction = { navigateToScreen(Screen.ADD_RECIPE) }
-                    }
-                }
-            }
-        } else {
-            recipes.forEach { recipe ->
-                li {
-                    div {
-                        attributes["style"] = "border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; background: white;"
-                        
-                        h3 { +recipe.title }
-                        p { 
-                            attributes["style"] = "color: #666; margin: 10px 0;"
-                            val preview = if (recipe.content.length > 150) {
-                                recipe.content.take(150) + "..."
-                            } else {
-                                recipe.content
-                            }
-                            +preview
-                        }
-                        p {
-                            attributes["style"] = "font-size: 12px; color: #999; margin-top: 15px;"
-                            +"Created: ${formatTimestamp(recipe.timestamp)}"
-                            recipe.id?.let { id -> +" | ID: $id" }
-                        }
-                        
-                        button {
-                            +"Delete"
-                            attributes["style"] = "background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;"
-                            onClickFunction = {
-                                if (window.confirm("Are you sure you want to delete '${recipe.title}'?")) {
-                                    appScope.launch {
-                                        recipesUseCases.deleteRecipe(recipe)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// Event handlers - mirror Android event handling
-
-fun handleLogin(event: Event) {
-    val serverInput = document.getElementById("server-input") as? HTMLInputElement
-    val usernameInput = document.getElementById("username-input") as? HTMLInputElement
-    val passwordInput = document.getElementById("password-input") as? HTMLInputElement
-    
-    val server = serverInput?.value?.trim() ?: ""
-    val username = usernameInput?.value?.trim() ?: ""
-    val password = passwordInput?.value?.trim() ?: ""
-    
-    if (server.isEmpty() || username.isEmpty() || password.isEmpty()) {
-        window.alert("Please fill in all fields")
-        return
-    }
-    
-    appScope.launch {
-        recipesUseCases.login(server, username, password)
-    }
-}
-
-fun handleAddRecipe(event: Event) {
-    val titleInput = document.getElementById("recipe-title-input") as? HTMLInputElement
-    val contentInput = document.getElementById("recipe-content-input") as? HTMLTextAreaElement
-    
-    val title = titleInput?.value?.trim() ?: ""
-    val content = contentInput?.value?.trim() ?: ""
-    
-    if (title.isEmpty() || content.isEmpty()) {
-        window.alert("Please fill in both title and content")
-        return
-    }
-    
-    appScope.launch {
-        val recipe = Recipe(
-            title = title,
-            content = content,
-            timestamp = kotlinx.datetime.Clock.System.now().toEpochMilliseconds()
-        )
-        recipesUseCases.addRecipe(recipe)
-        // Clear form
-        titleInput?.value = ""
-        contentInput?.value = ""
-        // Navigate back to recipes
-        navigateToScreen(Screen.RECIPES)
-    }
-}
-
-fun formatTimestamp(timestamp: Long): String {
-    return kotlinx.datetime.Instant.fromEpochMilliseconds(timestamp).toString()
 }
 
 fun showError(message: String) {
     val container = document.getElementById("app")
     container?.innerHTML = """
-        <div style="color: red; padding: 20px; border: 1px solid red; margin: 20px; border-radius: 4px;">
-            <h2>Error</h2>
+        <div style="color: #dc3545; background: #fee; border: 2px solid #fcc; padding: 20px; margin: 20px; border-radius: 8px; text-align: center;">
+            <h2>⚠️ Error</h2>
             <p>$message</p>
+            <button onclick="location.reload()" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                🔄 Reload App
+            </button>
         </div>
     """.trimIndent()
 }
