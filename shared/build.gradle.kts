@@ -80,6 +80,7 @@ kotlin {
         jsMain.dependencies {
             implementation(libs.ktor.client.js)
             implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
+            implementation(libs.koin.core)
         }
     }
 }
