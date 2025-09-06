@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.InvalidRecipeException
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.RecipeValidationError
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -102,9 +103,13 @@ class AddEditRecipeViewModel(
                         )
                         _eventFlow.emit(UiEvent.SaveRecipe)
                     } catch (e: InvalidRecipeException) {
+                        val messageResId = when (e.error) {
+                            RecipeValidationError.MISSING_TITLE -> R.string.missing_title
+                            RecipeValidationError.MISSING_CONTENT -> R.string.missing_body
+                        }
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
-                                message = e.errorString
+                                message = messageResId
                             )
                         )
                     }

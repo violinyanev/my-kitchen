@@ -3,6 +3,8 @@
 import os
 import sys
 import logging
+import secrets
+import tempfile
 from flask import Flask, request, jsonify, abort
 from pathlib import Path
 from auth.authentication import token_required
@@ -49,11 +51,14 @@ if __name__ == '__main__':
     print(f"API version: {get_api_version()}")
 
     if app.config['DEBUG']:
-        app.config['SECRET_KEY'] = "Test key"
+        # Generate a secure random key for development/testing
+        app.config['SECRET_KEY'] = secrets.token_hex(32)
     else:
         app.config['SECRET_KEY'] = os.environ['RECIPES_SECRET_KEY']
 
-    app.config['DATA_FOLDER'] = '/tmp/data'
+    # Use secure temporary directory if no custom path is provided
+    default_data_folder = os.path.join(tempfile.gettempdir(), 'my_kitchen_data')
+    app.config['DATA_FOLDER'] = default_data_folder
 
     if len(sys.argv) == 2:
         app.config['DATA_FOLDER'] = sys.argv[1]
@@ -70,4 +75,8 @@ if __name__ == '__main__':
     app.register_blueprint(recipes_bp.RecipesBlueprint, recipes_db=recipes_db)
     app.register_blueprint(users_bp.UsersBlueprint, users_db=users_db)
 
-    app.run(host='0.0.0.0', port=5000)
+    # Configure host binding - default to 127.0.0.1 for security, but allow override for containers
+    host = os.environ.get('FLASK_HOST', '127.0.0.1')
+    port = int(os.environ.get('FLASK_PORT', '5000'))
+    
+    app.run(host=host, port=port)

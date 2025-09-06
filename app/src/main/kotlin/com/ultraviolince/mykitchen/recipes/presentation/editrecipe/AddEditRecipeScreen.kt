@@ -111,7 +111,7 @@ class AddEditRecipeScreenPreviewParameterProvider : PreviewParameterProvider<Add
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun AddEditRecipeScreenLightPreview(
+internal fun AddEditRecipeScreenLightPreview(
     @PreviewParameter(AddEditRecipeScreenPreviewParameterProvider::class) state: AddEditRecipeState
 ) {
     MyApplicationTheme {
@@ -126,7 +126,7 @@ private fun AddEditRecipeScreenLightPreview(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun AddEditRecipeScreenDarkPreview(
+internal fun AddEditRecipeScreenDarkPreview(
     @PreviewParameter(AddEditRecipeScreenPreviewParameterProvider::class) state: AddEditRecipeState
 ) {
     MyApplicationTheme {

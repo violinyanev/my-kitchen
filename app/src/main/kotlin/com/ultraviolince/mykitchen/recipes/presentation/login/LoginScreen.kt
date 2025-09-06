@@ -86,12 +86,14 @@ fun LoginScreenContent(
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
-            AnimatedLoadingButton(
-                onClick = { eventHandler(LoginEvent.Login) },
-                isLoading = buttonLoading,
-                defaultIcon = Icons.Default.Done,
-                contentDescriptionText = "Login"
-            )
+            if (!isLoggedIn) {
+                AnimatedLoadingButton(
+                    onClick = { eventHandler(LoginEvent.Login) },
+                    isLoading = buttonLoading,
+                    defaultIcon = Icons.Default.Done,
+                    contentDescriptionText = "Login"
+                )
+            }
         },
         modifier = modifier
     ) { innerPadding ->
@@ -138,7 +140,7 @@ class LoginScreenPreviewParameterProvider : PreviewParameterProvider<LoginScreen
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun LoginScreenPreview(
+internal fun LoginScreenPreview(
     @PreviewParameter(LoginScreenPreviewParameterProvider::class) state: LoginScreenState
 ) {
     MyApplicationTheme {

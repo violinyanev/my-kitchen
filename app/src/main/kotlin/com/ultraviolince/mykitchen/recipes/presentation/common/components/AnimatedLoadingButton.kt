@@ -41,7 +41,14 @@ fun AnimatedLoadingButton(
                 onClick()
             }
         },
-        modifier = modifier.semantics { contentDescription = contentDescriptionText }
+        modifier = modifier.semantics {
+            contentDescription = buildString {
+                append(contentDescriptionText)
+                if (isLoading) {
+                    append(". Loading")
+                }
+            }
+        }
     ) {
         if (isLoading) {
             val rotationAnimatable = remember { Animatable(0f) }
@@ -77,7 +84,7 @@ class AnimatedLoadingButtonPreviewParameterProvider : PreviewParameterProvider<B
 
 @Preview(showBackground = true)
 @Composable
-private fun AnimatedLoadingButtonPreview(
+internal fun AnimatedLoadingButtonPreview(
     @PreviewParameter(AnimatedLoadingButtonPreviewParameterProvider::class) isLoading: Boolean
 ) {
     MyApplicationTheme {
