@@ -1,8 +1,21 @@
 {
-  "name": "my-kitchen",
-  "private": true,
+  "name": "my-kitchen-web-tests",
+  "version": "1.0.0",
+  "description": "Playwright tests for My Kitchen web app",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "build:web": "../gradlew :shared:jsBrowserDistribution",
+    "serve:web": "cd shared/build/dist/js/productionExecutable && python3 -m http.server 8080",
+    "test:full": "npm run build:web && npm run test"
+  },
   "devDependencies": {
-    "@commitlint/cli": "^19.0.0",
-    "@commitlint/config-conventional": "^19.0.0"
+    "@playwright/test": "^1.40.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
