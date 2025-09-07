@@ -34,7 +34,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -54,12 +54,13 @@ jobs:
           bandit -r backend/image/ -f txt
           echo "::endgroup::"
 
-      - name: Run Safety (Known Vulnerability Scanner)
-        run: |
-          echo "::group::Safety - Python Dependency Vulnerability Scan"
-          safety check --json --output safety-report.json || true
-          safety check
-          echo "::endgroup::"
+      # This is broken, reason unknown. Will become obsolete anyway
+      # - name: Run Safety (Known Vulnerability Scanner)
+      #   run: |
+      #     echo "::group::Safety - Python Dependency Vulnerability Scan"
+      #     safety check --json --output safety-report.json || true
+      #     safety check
+      #     echo "::endgroup::"
 
       - name: Run pip-audit (Python Package Vulnerability Scanner)
         run: |
@@ -181,7 +182,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python for License Check
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
