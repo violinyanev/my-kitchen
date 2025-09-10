@@ -29,7 +29,7 @@ datastorePreferences = "1.1.7"
 
 # @keep
 minSdk = "28"
-navigation = "2.9.3"
+navigation = "2.9.4"
 room = "2.7.2"
 
 # @keep
