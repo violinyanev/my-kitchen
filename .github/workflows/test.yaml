@@ -34,8 +34,11 @@ jobs:
     - name: Check build health
       run: ./gradlew buildHealth --warning-mode=fail
 
-    - name: Build APKs and run tests (all flavors)
-      run: ./gradlew :build --warning-mode=fail
+    - name: Build and run tests
+      run: ./gradlew :app:assembleDebug :app:assembleRelease :app:testDebugUnitTest :app:verifyRoborazziDebug :app:koverXmlReportDebug detekt --warning-mode=fail
+
+    - name: Build web app (JavaScript)
+      run: ./gradlew :shared:jsBrowserDistribution --warning-mode=fail
 
     - name: Add coverage report to PR
       id: kover
