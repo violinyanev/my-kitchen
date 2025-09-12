@@ -45,3 +45,10 @@ google-services.json
 __pycache__/
 *.pyc
 *.pyo
+
+# iOS/Xcode
+*.xcuserdata
+*.xcuserstate
+.DS_Store
+DerivedData/
+iosApp/iosApp.xcodeproj/xcuserdata/
