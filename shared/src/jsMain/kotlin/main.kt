@@ -15,6 +15,8 @@ import kotlinx.html.p
 import kotlinx.html.ul
 import kotlinx.html.id
 
+@OptIn(kotlin.time.ExperimentalTime::class)
+
 fun main() {
     window.onload = {
         console.log("My Kitchen Web App loaded!")
@@ -52,11 +54,12 @@ fun setupWebApp() {
     }
 }
 
+@OptIn(kotlin.time.ExperimentalTime::class)
 fun createSampleRecipe() {
     val recipe = Recipe(
         title = "Web Sample Recipe",
         content = "This recipe was created from the web app using the shared Kotlin module!",
-        timestamp = kotlinx.datetime.Clock.System.now().toEpochMilliseconds(),
+        timestamp = kotlin.time.Clock.System.now().toEpochMilliseconds(),
         id = (1..1000).random().toLong()
     )
     
@@ -64,6 +67,7 @@ fun createSampleRecipe() {
     console.log("Created recipe: ${recipe.title}")
 }
 
+@OptIn(kotlin.time.ExperimentalTime::class)
 fun addRecipeToUI(recipe: Recipe) {
     val recipesList = document.getElementById("recipes-list")
     
@@ -72,7 +76,7 @@ fun addRecipeToUI(recipe: Recipe) {
             div {
                 h3 { +recipe.title }
                 p { +recipe.content }
-                p { +"Created: ${kotlinx.datetime.Instant.fromEpochMilliseconds(recipe.timestamp)}" }
+                p { +"Created: ${kotlin.time.Instant.fromEpochMilliseconds(recipe.timestamp)}" }
             }
         }
     }
