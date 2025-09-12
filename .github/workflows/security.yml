@@ -184,7 +184,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Set up JDK for License Check
         uses: actions/setup-java@v5
         with:

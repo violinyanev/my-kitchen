@@ -1,6 +1,8 @@
 package com.ultraviolince.mykitchen.recipes.domain.model
 
 import com.google.common.truth.Truth.assertThat
+import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.LoginException
+import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.InvalidRecipeException
 import org.junit.Test
 
 class LoginExceptionTest {

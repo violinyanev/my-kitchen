@@ -36,6 +36,18 @@
 ./gradlew :app:verifyRoborazziDebug
 ```
 
+### iOS Development
+```bash
+# Build iOS frameworks
+./gradlew shared:linkDebugFrameworkIosX64 shared:linkDebugFrameworkIosSimulatorArm64
+
+# Run Kotlin/Native tests on iOS
+./gradlew shared:iosX64Test shared:iosSimulatorArm64Test
+
+# Build iOS app (requires macOS and Xcode)
+cd iosApp && xcodebuild -project iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' build
+```
+
 ## 📝 Commit Format
 ```bash
 # Use conventional commit format:
@@ -52,6 +64,8 @@ git commit -m "docs: update README with setup instructions"
 - ✅ Code coverage: 80% on changed files, 10% overall minimum
 - ✅ Code quality: `./gradlew detekt` (no violations)
 - ✅ Screenshot tests: `./gradlew :app:verifyRoborazziDebug`
+- ✅ iOS frameworks: `./gradlew shared:linkDebugFrameworkIosX64 shared:linkDebugFrameworkIosSimulatorArm64`
+- ✅ iOS/Kotlin tests: `./gradlew shared:iosX64Test shared:iosSimulatorArm64Test`
 - ✅ Final newlines: All files must end with newline
 - ✅ Backend tests: `./gradlew :backend:test`
 - ✅ Conventional commits: Proper format enforced

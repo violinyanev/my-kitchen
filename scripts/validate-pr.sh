@@ -69,6 +69,16 @@ print_step "Running Android build, tests, coverage, and quality checks..."
 ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:verifyRoborazziDebug :app:koverXmlReportDebug detekt
 print_success "Android checks passed"
 
+# Step 4.5: Run iOS framework and tests (macOS only)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    print_step "Building iOS frameworks and running shared Kotlin/Native tests..."
+    ./gradlew shared:linkDebugFrameworkIosX64 shared:linkDebugFrameworkIosSimulatorArm64 shared:iosX64Test shared:iosSimulatorArm64Test
+    print_success "iOS framework building and Kotlin/Native tests passed"
+else
+    print_warning "Skipping iOS tests - only available on macOS"
+    echo "           iOS tests will be validated by GitHub Actions macOS runner"
+fi
+
 # Step 5: Backend tests
 print_step "Running backend unit tests..."
 if [ -f "backend/build.gradle.kts" ]; then

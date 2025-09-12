@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.BuildConfig
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
-import com.ultraviolince.mykitchen.recipes.domain.model.LoginException
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
@@ -93,52 +92,44 @@ class LoginViewModel(
             }
             is LoginEvent.Login -> {
                 viewModelScope.launch {
-                    try {
-                        recipesUseCases.login(
-                            server = server.value.text,
-                            username = username.value.text,
-                            password = password.value.text
-                        )
-                        recipesUseCases.getSyncState().collect {
-                            when (it) {
-                                is LoginState.LoginSuccess -> {
-                                    _eventFlow.emit(
-                                        UiEvent.LoginSuccess
+                    recipesUseCases.login(
+                        server = server.value.text,
+                        username = username.value.text,
+                        password = password.value.text
+                    )
+                    recipesUseCases.getSyncState().collect {
+                        when (it) {
+                            is LoginState.LoginSuccess -> {
+                                _eventFlow.emit(
+                                    UiEvent.LoginSuccess
+                                )
+                            }
+                            LoginState.LoginEmpty -> {
+                                _buttonLoading.value = false
+                            }
+                            is LoginState.LoginFailure -> {
+                                _buttonLoading.value = false
+                                _eventFlow.emit(
+                                    UiEvent.ShowSnackbar(
+                                        when (it.error) {
+                                            // TODO fix all responses
+                                            NetworkError.UNKNOWN -> R.string.unknown_error
+                                            NetworkError.REQUEST_TIMEOUT -> R.string.malformed_server_uri
+                                            NetworkError.UNAUTHORIZED -> R.string.unknown_error
+                                            NetworkError.CONFLICT -> R.string.unknown_error
+                                            NetworkError.TOO_MANY_REQUESTS -> R.string.unknown_error
+                                            NetworkError.NO_INTERNET -> R.string.unknown_error
+                                            NetworkError.PAYLOAD_TOO_LARGE -> R.string.unknown_error
+                                            NetworkError.SERVER_ERROR -> R.string.malformed_server_uri
+                                            NetworkError.SERIALIZATION -> R.string.unknown_error
+                                        }
                                     )
-                                }
-                                LoginState.LoginEmpty -> {
-                                    _buttonLoading.value = false
-                                }
-                                is LoginState.LoginFailure -> {
-                                    _buttonLoading.value = false
-                                    _eventFlow.emit(
-                                        UiEvent.ShowSnackbar(
-                                            when (it.error) {
-                                                // TODO fix all responses
-                                                NetworkError.UNKNOWN -> R.string.unknown_error
-                                                NetworkError.REQUEST_TIMEOUT -> R.string.malformed_server_uri
-                                                NetworkError.UNAUTHORIZED -> R.string.unknown_error
-                                                NetworkError.CONFLICT -> R.string.unknown_error
-                                                NetworkError.TOO_MANY_REQUESTS -> R.string.unknown_error
-                                                NetworkError.NO_INTERNET -> R.string.unknown_error
-                                                NetworkError.PAYLOAD_TOO_LARGE -> R.string.unknown_error
-                                                NetworkError.SERVER_ERROR -> R.string.malformed_server_uri
-                                                NetworkError.SERIALIZATION -> R.string.unknown_error
-                                            }
-                                        )
-                                    )
-                                }
-                                LoginState.LoginPending -> {
-                                    _buttonLoading.value = true
-                                }
+                                )
+                            }
+                            LoginState.LoginPending -> {
+                                _buttonLoading.value = true
                             }
                         }
-                    } catch (e: LoginException) {
-                        _eventFlow.emit(
-                            UiEvent.ShowSnackbar(
-                                message = e.errorMsg
-                            )
-                        )
                     }
                 }
             }
