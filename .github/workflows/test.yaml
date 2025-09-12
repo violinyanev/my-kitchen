@@ -34,8 +34,11 @@ jobs:
     - name: Check build health
       run: ./gradlew buildHealth --warning-mode=fail
 
-    - name: Build APKs and run tests
-      run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:koverXmlReportDebug detekt --warning-mode=fail
+    - name: Build and run tests
+      run: ./gradlew :app:assembleDebug :app:assembleRelease :app:testDebugUnitTest :app:verifyRoborazziDebug :app:koverXmlReportDebug detekt --warning-mode=fail
+
+    - name: Build web app (JavaScript)
+      run: ./gradlew :shared:jsBrowserDistribution --warning-mode=fail
 
     - name: Add coverage report to PR
       id: kover
@@ -49,6 +52,54 @@ jobs:
         min-coverage-overall: 10
         min-coverage-changed-files: 80
         coverage-counter-type: LINE
+
+
+  ios:
+    runs-on: macos-latest
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        lfs: 'true'
+
+    - uses: actions/setup-java@v5
+      with:
+        distribution: temurin
+        java-version: ${{ env.JAVA_VERSION }}
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+
+    - name: Build iOS framework for device and simulator
+      run: |
+        echo "Building iOS frameworks for all architectures..."
+        ./gradlew shared:linkDebugFrameworkIosArm64 shared:linkDebugFrameworkIosX64 shared:linkDebugFrameworkIosSimulatorArm64 --warning-mode=fail
+        echo "Verifying frameworks were built..."
+        find shared/build -name "SharedKit.framework" -type d
+        echo "Framework contents and architectures:"
+        for framework in $(find shared/build -name "SharedKit.framework" -type d); do
+          echo "Framework: $framework"
+          ls -la "$framework"
+          if [ -f "$framework/SharedKit" ]; then
+            echo "Binary architectures:"
+            file "$framework/SharedKit" || lipo -info "$framework/SharedKit" || echo "Could not determine architecture"
+          fi
+          echo "---"
+        done
+
+    - name: Run iOS Kotlin/Native tests
+      run: ./gradlew shared:iosX64Test shared:iosSimulatorArm64Test --warning-mode=fail
+
+    - name: List available schemes and build iOS app
+      run: |
+        cd iosApp
+        echo "Available schemes:"
+        xcodebuild -project iosApp.xcodeproj -list
+        echo "Available simulators:"
+        xcrun simctl list devices available --json | jq '.devices | to_entries[] | select(.value | length > 0) | .key + ": " + (.value | map(.name) | join(", "))'
+        echo "Building iOS app..."
+        xcodebuild -project iosApp.xcodeproj -scheme iosApp -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation),OS=latest' build
 
 
   instrumentedtests:
