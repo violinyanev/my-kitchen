@@ -13,6 +13,11 @@ Automatic copilot retrigger script.
 
 This script monitors pull requests assigned to or created by copilot and
 automatically adds retrigger comments when PRs fail to merge or have failing checks.
+
+The script uses GraphQL to efficiently fetch all PR data in a single query,
+including author, assignees, mergeable status, check runs, and comments.
+This reduces API calls from potentially dozens to just one fetch plus
+individual comment additions.
 """
 
 import os
@@ -25,60 +30,99 @@ from datetime import datetime
 
 
 class GitHubAPI:
-    """Helper class for GitHub API interactions."""
+    """Helper class for GitHub API interactions using GraphQL."""
     
     def __init__(self, token: str, owner: str, repo: str):
         self.token = token
         self.owner = owner
         self.repo = repo
-        self.base_url = "https://api.github.com"
+        self.graphql_url = "https://api.github.com/graphql"
+        self.rest_url = "https://api.github.com"
         self.headers = {
             "Authorization": f"token {token}",
             "Accept": "application/vnd.github.v3+json",
             "User-Agent": "copilot-retrigger-script"
         }
     
-    def get_pull_requests(self, state: str = "open") -> List[Dict]:
-        """Get all pull requests for the repository."""
-        url = f"{self.base_url}/repos/{self.owner}/{self.repo}/pulls"
-        params = {"state": state, "per_page": 100}
+    def fetch_all_pr_data(self) -> List[Dict]:
+        """Fetch all PR data in a single GraphQL query."""
+        query = """
+        query($owner: String!, $repo: String!) {
+          repository(owner: $owner, name: $repo) {
+            pullRequests(states: OPEN, first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
+              nodes {
+                number
+                title
+                mergeable
+                author {
+                  login
+                }
+                assignees(first: 10) {
+                  nodes {
+                    login
+                  }
+                }
+                headRef {
+                  target {
+                    ... on Commit {
+                      oid
+                      checkSuites(first: 50) {
+                        nodes {
+                          checkRuns(first: 50) {
+                            nodes {
+                              conclusion
+                              name
+                              status
+                            }
+                          }
+                        }
+                      }
+                      statusCheckRollup {
+                        state
+                      }
+                    }
+                  }
+                }
+                comments(first: 100) {
+                  nodes {
+                    body
+                    author {
+                      login
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        """
         
-        response = requests.get(url, headers=self.headers, params=params)
-        response.raise_for_status()
-        return response.json()
-    
-    def get_pull_request_comments(self, pr_number: int) -> List[Dict]:
-        """Get all comments for a specific pull request."""
-        url = f"{self.base_url}/repos/{self.owner}/{self.repo}/issues/{pr_number}/comments"
+        variables = {
+            "owner": self.owner,
+            "repo": self.repo
+        }
         
-        response = requests.get(url, headers=self.headers)
+        response = requests.post(
+            self.graphql_url,
+            headers=self.headers,
+            json={"query": query, "variables": variables}
+        )
         response.raise_for_status()
-        return response.json()
+        
+        data = response.json()
+        if "errors" in data:
+            raise Exception(f"GraphQL errors: {data['errors']}")
+        
+        return data["data"]["repository"]["pullRequests"]["nodes"]
     
     def add_comment(self, pr_number: int, comment: str) -> Dict:
-        """Add a comment to a pull request."""
-        url = f"{self.base_url}/repos/{self.owner}/{self.repo}/issues/{pr_number}/comments"
+        """Add a comment to a pull request using REST API."""
+        url = f"{self.rest_url}/repos/{self.owner}/{self.repo}/issues/{pr_number}/comments"
         data = {"body": comment}
         
         response = requests.post(url, headers=self.headers, json=data)
         response.raise_for_status()
         return response.json()
-    
-    def get_pr_status(self, pr_number: int) -> Dict:
-        """Get the detailed status of a pull request."""
-        url = f"{self.base_url}/repos/{self.owner}/{self.repo}/pulls/{pr_number}"
-        
-        response = requests.get(url, headers=self.headers)
-        response.raise_for_status()
-        return response.json()
-    
-    def get_check_runs(self, sha: str) -> List[Dict]:
-        """Get check runs for a specific commit."""
-        url = f"{self.base_url}/repos/{self.owner}/{self.repo}/commits/{sha}/check-runs"
-        
-        response = requests.get(url, headers=self.headers)
-        response.raise_for_status()
-        return response.json().get("check_runs", [])
 
 
 class CopilotRetrigger:
@@ -96,38 +140,52 @@ class CopilotRetrigger:
     def is_copilot_pr(self, pr: Dict) -> bool:
         """Check if a PR is assigned to or created by copilot."""
         # Check if author is copilot
-        author = pr.get("user", {}).get("login", "")
-        if any(copilot_user in author.lower() for copilot_user in self.COPILOT_USERS):
-            return True
+        author = pr.get("author", {})
+        if author and author.get("login"):
+            author_login = author["login"]
+            if any(copilot_user in author_login.lower() for copilot_user in self.COPILOT_USERS):
+                return True
         
         # Check if assigned to copilot
-        assignees = pr.get("assignees", [])
+        assignees = pr.get("assignees", {}).get("nodes", [])
         for assignee in assignees:
-            if any(copilot_user in assignee.get("login", "").lower() for copilot_user in self.COPILOT_USERS):
+            assignee_login = assignee.get("login", "")
+            if any(copilot_user in assignee_login.lower() for copilot_user in self.COPILOT_USERS):
                 return True
         
         return False
     
     def has_merge_conflicts(self, pr: Dict) -> bool:
         """Check if a PR has merge conflicts."""
-        # Get detailed PR status
-        pr_status = self.github_api.get_pr_status(pr["number"])
-        return pr_status.get("mergeable") is False
+        # In GraphQL response, mergeable is directly available
+        return pr.get("mergeable") == "CONFLICTING"
     
     def has_failing_checks(self, pr: Dict) -> bool:
         """Check if a PR has failing CI checks."""
-        sha = pr["head"]["sha"]
-        check_runs = self.github_api.get_check_runs(sha)
+        head_ref = pr.get("headRef")
+        if not head_ref or not head_ref.get("target"):
+            return False
         
-        for check in check_runs:
-            if check.get("conclusion") == "failure":
-                return True
+        commit = head_ref["target"]
+        
+        # Check status check rollup first (simpler)
+        status_rollup = commit.get("statusCheckRollup")
+        if status_rollup and status_rollup.get("state") == "FAILURE":
+            return True
+        
+        # Check individual check runs
+        check_suites = commit.get("checkSuites", {}).get("nodes", [])
+        for suite in check_suites:
+            check_runs = suite.get("checkRuns", {}).get("nodes", [])
+            for check in check_runs:
+                if check.get("conclusion") == "FAILURE":
+                    return True
         
         return False
     
-    def count_retrigger_comments(self, pr_number: int) -> int:
+    def count_retrigger_comments(self, pr: Dict) -> int:
         """Count how many retrigger comments have been added by this script."""
-        comments = self.github_api.get_pull_request_comments(pr_number)
+        comments = pr.get("comments", {}).get("nodes", [])
         count = 0
         
         for comment in comments:
@@ -151,7 +209,7 @@ class CopilotRetrigger:
             return
         
         # Check if we've already added the maximum number of comments
-        comment_count = self.count_retrigger_comments(pr_number)
+        comment_count = self.count_retrigger_comments(pr)
         if comment_count >= self.MAX_COMMENTS:
             print(f"  Skipping - already added {comment_count} retrigger comments")
             return
@@ -181,8 +239,8 @@ class CopilotRetrigger:
         mode_str = "[DRY RUN] " if self.dry_run else ""
         print(f"{mode_str}Starting copilot retrigger check at {datetime.now()}")
         
-        # Get all open pull requests
-        prs = self.github_api.get_pull_requests()
+        # Get all PR data in a single GraphQL query
+        prs = self.github_api.fetch_all_pr_data()
         print(f"{mode_str}Found {len(prs)} open pull requests")
         
         # Process each PR

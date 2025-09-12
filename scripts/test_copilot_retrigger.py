@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch, MagicMock
 import os
 import sys
 import json
+import requests
 from datetime import datetime
 
 # Add the scripts directory to the path so we can import the module
@@ -24,63 +25,78 @@ class TestGitHubAPI(unittest.TestCase):
         self.assertEqual(self.api.token, "test_token")
         self.assertEqual(self.api.owner, "test_owner")
         self.assertEqual(self.api.repo, "test_repo")
-        self.assertEqual(self.api.base_url, "https://api.github.com")
+        self.assertEqual(self.api.graphql_url, "https://api.github.com/graphql")
+        self.assertEqual(self.api.rest_url, "https://api.github.com")
         self.assertEqual(self.api.headers["Authorization"], "token test_token")
         self.assertEqual(self.api.headers["Accept"], "application/vnd.github.v3+json")
         self.assertEqual(self.api.headers["User-Agent"], "copilot-retrigger-script")
     
-    @patch('copilot_retrigger.requests.get')
-    def test_get_pull_requests_success(self, mock_get):
-        """Test successful pull request retrieval."""
+    @patch('copilot_retrigger.requests.post')
+    def test_fetch_all_pr_data_success(self, mock_post):
+        """Test successful GraphQL PR data retrieval."""
         mock_response = Mock()
         mock_response.raise_for_status.return_value = None
-        mock_response.json.return_value = [{"number": 1, "title": "Test PR"}]
-        mock_get.return_value = mock_response
+        mock_response.json.return_value = {
+            "data": {
+                "repository": {
+                    "pullRequests": {
+                        "nodes": [
+                            {
+                                "number": 1,
+                                "title": "Test PR",
+                                "mergeable": "MERGEABLE",
+                                "author": {"login": "test_user"},
+                                "assignees": {"nodes": []},
+                                "headRef": {
+                                    "target": {
+                                        "oid": "abc123",
+                                        "checkSuites": {"nodes": []},
+                                        "statusCheckRollup": {"state": "SUCCESS"}
+                                    }
+                                },
+                                "comments": {"nodes": []}
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        mock_post.return_value = mock_response
         
-        result = self.api.get_pull_requests()
+        result = self.api.fetch_all_pr_data()
         
-        self.assertEqual(result, [{"number": 1, "title": "Test PR"}])
-        mock_get.assert_called_once_with(
-            "https://api.github.com/repos/test_owner/test_repo/pulls",
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["number"], 1)
+        self.assertEqual(result[0]["title"], "Test PR")
+        
+        # Verify GraphQL query was called correctly
+        mock_post.assert_called_once_with(
+            "https://api.github.com/graphql",
             headers=self.api.headers,
-            params={"state": "open", "per_page": 100}
-        )
-    
-    @patch('copilot_retrigger.requests.get')
-    def test_get_pull_requests_with_state(self, mock_get):
-        """Test pull request retrieval with specific state."""
-        mock_response = Mock()
-        mock_response.raise_for_status.return_value = None
-        mock_response.json.return_value = []
-        mock_get.return_value = mock_response
-        
-        self.api.get_pull_requests(state="closed")
-        
-        mock_get.assert_called_once_with(
-            "https://api.github.com/repos/test_owner/test_repo/pulls",
-            headers=self.api.headers,
-            params={"state": "closed", "per_page": 100}
-        )
-    
-    @patch('copilot_retrigger.requests.get')
-    def test_get_pull_request_comments_success(self, mock_get):
-        """Test successful comment retrieval."""
-        mock_response = Mock()
-        mock_response.raise_for_status.return_value = None
-        mock_response.json.return_value = [{"id": 1, "body": "Test comment"}]
-        mock_get.return_value = mock_response
-        
-        result = self.api.get_pull_request_comments(123)
-        
-        self.assertEqual(result, [{"id": 1, "body": "Test comment"}])
-        mock_get.assert_called_once_with(
-            "https://api.github.com/repos/test_owner/test_repo/issues/123/comments",
-            headers=self.api.headers
+            json={
+                "query": unittest.mock.ANY,  # GraphQL query is complex, just check it's present
+                "variables": {"owner": "test_owner", "repo": "test_repo"}
+            }
         )
     
     @patch('copilot_retrigger.requests.post')
+    def test_fetch_all_pr_data_with_errors(self, mock_post):
+        """Test GraphQL PR data retrieval with errors."""
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {
+            "errors": [{"message": "GraphQL error"}]
+        }
+        mock_post.return_value = mock_response
+        
+        with self.assertRaises(Exception) as context:
+            self.api.fetch_all_pr_data()
+        
+        self.assertIn("GraphQL errors", str(context.exception))
+    
+    @patch('copilot_retrigger.requests.post')
     def test_add_comment_success(self, mock_post):
-        """Test successful comment addition."""
+        """Test successful comment addition using REST API."""
         mock_response = Mock()
         mock_response.raise_for_status.return_value = None
         mock_response.json.return_value = {"id": 1, "body": "Test comment"}
@@ -95,51 +111,25 @@ class TestGitHubAPI(unittest.TestCase):
             json={"body": "Test comment"}
         )
     
-    @patch('copilot_retrigger.requests.get')
-    def test_get_pr_status_success(self, mock_get):
-        """Test successful PR status retrieval."""
+    @patch('copilot_retrigger.requests.post')
+    def test_fetch_all_pr_data_http_error(self, mock_post):
+        """Test GraphQL PR data retrieval with HTTP error."""
         mock_response = Mock()
-        mock_response.raise_for_status.return_value = None
-        mock_response.json.return_value = {"number": 123, "mergeable": True}
-        mock_get.return_value = mock_response
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("HTTP Error")
+        mock_post.return_value = mock_response
         
-        result = self.api.get_pr_status(123)
-        
-        self.assertEqual(result, {"number": 123, "mergeable": True})
-        mock_get.assert_called_once_with(
-            "https://api.github.com/repos/test_owner/test_repo/pulls/123",
-            headers=self.api.headers
-        )
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.api.fetch_all_pr_data()
     
-    @patch('copilot_retrigger.requests.get')
-    def test_get_check_runs_success(self, mock_get):
-        """Test successful check runs retrieval."""
+    @patch('copilot_retrigger.requests.post')
+    def test_add_comment_http_error(self, mock_post):
+        """Test comment addition with HTTP error."""
         mock_response = Mock()
-        mock_response.raise_for_status.return_value = None
-        mock_response.json.return_value = {
-            "check_runs": [{"id": 1, "conclusion": "success"}]
-        }
-        mock_get.return_value = mock_response
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("HTTP Error")
+        mock_post.return_value = mock_response
         
-        result = self.api.get_check_runs("abc123")
-        
-        self.assertEqual(result, [{"id": 1, "conclusion": "success"}])
-        mock_get.assert_called_once_with(
-            "https://api.github.com/repos/test_owner/test_repo/commits/abc123/check-runs",
-            headers=self.api.headers
-        )
-    
-    @patch('copilot_retrigger.requests.get')
-    def test_get_check_runs_no_check_runs_key(self, mock_get):
-        """Test check runs retrieval when response has no check_runs key."""
-        mock_response = Mock()
-        mock_response.raise_for_status.return_value = None
-        mock_response.json.return_value = {}
-        mock_get.return_value = mock_response
-        
-        result = self.api.get_check_runs("abc123")
-        
-        self.assertEqual(result, [])
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.api.add_comment(123, "Test comment")
 
 
 class TestCopilotRetrigger(unittest.TestCase):
@@ -165,8 +155,8 @@ class TestCopilotRetrigger(unittest.TestCase):
     def test_is_copilot_pr_author_copilot(self):
         """Test PR identification when author is copilot."""
         pr = {
-            "user": {"login": "copilot"},
-            "assignees": []
+            "author": {"login": "copilot"},
+            "assignees": {"nodes": []}
         }
         
         result = self.retrigger.is_copilot_pr(pr)
@@ -176,8 +166,8 @@ class TestCopilotRetrigger(unittest.TestCase):
     def test_is_copilot_pr_author_github_copilot_bot(self):
         """Test PR identification when author is github-copilot[bot]."""
         pr = {
-            "user": {"login": "github-copilot[bot]"},
-            "assignees": []
+            "author": {"login": "github-copilot[bot]"},
+            "assignees": {"nodes": []}
         }
         
         result = self.retrigger.is_copilot_pr(pr)
@@ -187,8 +177,8 @@ class TestCopilotRetrigger(unittest.TestCase):
     def test_is_copilot_pr_assignee_copilot(self):
         """Test PR identification when assignee is copilot."""
         pr = {
-            "user": {"login": "regular_user"},
-            "assignees": [{"login": "copilot"}]
+            "author": {"login": "regular_user"},
+            "assignees": {"nodes": [{"login": "copilot"}]}
         }
         
         result = self.retrigger.is_copilot_pr(pr)
@@ -198,8 +188,8 @@ class TestCopilotRetrigger(unittest.TestCase):
     def test_is_copilot_pr_partial_match_in_author(self):
         """Test PR identification with partial copilot match in author."""
         pr = {
-            "user": {"login": "test-copilot-user"},
-            "assignees": []
+            "author": {"login": "test-copilot-user"},
+            "assignees": {"nodes": []}
         }
         
         result = self.retrigger.is_copilot_pr(pr)
@@ -209,8 +199,8 @@ class TestCopilotRetrigger(unittest.TestCase):
     def test_is_copilot_pr_not_copilot(self):
         """Test PR identification when neither author nor assignee is copilot."""
         pr = {
-            "user": {"login": "regular_user"},
-            "assignees": [{"login": "another_user"}]
+            "author": {"login": "regular_user"},
+            "assignees": {"nodes": [{"login": "another_user"}]}
         }
         
         result = self.retrigger.is_copilot_pr(pr)
@@ -225,63 +215,111 @@ class TestCopilotRetrigger(unittest.TestCase):
         
         self.assertFalse(result)
     
+    def test_is_copilot_pr_null_author(self):
+        """Test PR identification with null author."""
+        pr = {
+            "author": None,
+            "assignees": {"nodes": []}
+        }
+        
+        result = self.retrigger.is_copilot_pr(pr)
+        
+        self.assertFalse(result)
+    
     def test_has_merge_conflicts_true(self):
         """Test merge conflict detection when conflicts exist."""
-        pr = {"number": 123}
-        self.mock_api.get_pr_status.return_value = {"mergeable": False}
+        pr = {"mergeable": "CONFLICTING"}
         
         result = self.retrigger.has_merge_conflicts(pr)
         
         self.assertTrue(result)
-        self.mock_api.get_pr_status.assert_called_once_with(123)
     
     def test_has_merge_conflicts_false(self):
         """Test merge conflict detection when no conflicts exist."""
-        pr = {"number": 123}
-        self.mock_api.get_pr_status.return_value = {"mergeable": True}
+        pr = {"mergeable": "MERGEABLE"}
         
         result = self.retrigger.has_merge_conflicts(pr)
         
         self.assertFalse(result)
     
-    def test_has_merge_conflicts_none(self):
-        """Test merge conflict detection when mergeable is None."""
-        pr = {"number": 123}
-        self.mock_api.get_pr_status.return_value = {"mergeable": None}
+    def test_has_merge_conflicts_unknown(self):
+        """Test merge conflict detection when mergeable status is unknown."""
+        pr = {"mergeable": "UNKNOWN"}
         
         result = self.retrigger.has_merge_conflicts(pr)
         
         self.assertFalse(result)
     
-    def test_has_failing_checks_true(self):
-        """Test failing check detection when checks are failing."""
-        pr = {"head": {"sha": "abc123"}}
-        self.mock_api.get_check_runs.return_value = [
-            {"id": 1, "conclusion": "success"},
-            {"id": 2, "conclusion": "failure"}
-        ]
+    def test_has_failing_checks_true_via_rollup(self):
+        """Test failing check detection via status rollup when checks are failing."""
+        pr = {
+            "headRef": {
+                "target": {
+                    "statusCheckRollup": {"state": "FAILURE"},
+                    "checkSuites": {"nodes": []}
+                }
+            }
+        }
         
         result = self.retrigger.has_failing_checks(pr)
         
         self.assertTrue(result)
-        self.mock_api.get_check_runs.assert_called_once_with("abc123")
+    
+    def test_has_failing_checks_true_via_individual_checks(self):
+        """Test failing check detection via individual check runs."""
+        pr = {
+            "headRef": {
+                "target": {
+                    "statusCheckRollup": {"state": "SUCCESS"},
+                    "checkSuites": {
+                        "nodes": [
+                            {
+                                "checkRuns": {
+                                    "nodes": [
+                                        {"conclusion": "SUCCESS"},
+                                        {"conclusion": "FAILURE"}
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        
+        result = self.retrigger.has_failing_checks(pr)
+        
+        self.assertTrue(result)
     
     def test_has_failing_checks_false(self):
         """Test failing check detection when all checks pass."""
-        pr = {"head": {"sha": "abc123"}}
-        self.mock_api.get_check_runs.return_value = [
-            {"id": 1, "conclusion": "success"},
-            {"id": 2, "conclusion": "success"}
-        ]
+        pr = {
+            "headRef": {
+                "target": {
+                    "statusCheckRollup": {"state": "SUCCESS"},
+                    "checkSuites": {
+                        "nodes": [
+                            {
+                                "checkRuns": {
+                                    "nodes": [
+                                        {"conclusion": "SUCCESS"},
+                                        {"conclusion": "SUCCESS"}
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
         
         result = self.retrigger.has_failing_checks(pr)
         
         self.assertFalse(result)
     
-    def test_has_failing_checks_no_checks(self):
-        """Test failing check detection when no checks exist."""
-        pr = {"head": {"sha": "abc123"}}
-        self.mock_api.get_check_runs.return_value = []
+    def test_has_failing_checks_no_head_ref(self):
+        """Test failing check detection when headRef is missing."""
+        pr = {}
         
         result = self.retrigger.has_failing_checks(pr)
         
@@ -289,50 +327,65 @@ class TestCopilotRetrigger(unittest.TestCase):
     
     def test_count_retrigger_comments_merge_conflict(self):
         """Test counting retrigger comments with merge conflict comments."""
-        self.mock_api.get_pull_request_comments.return_value = [
-            {"body": "Regular comment"},
-            {"body": "@copilot can you update the branch and fix the conflicts?"},
-            {"body": "Another regular comment"},
-            {"body": "@copilot can you update the branch and fix the conflicts?"}
-        ]
+        pr = {
+            "comments": {
+                "nodes": [
+                    {"body": "Regular comment"},
+                    {"body": "@copilot can you update the branch and fix the conflicts?"},
+                    {"body": "Another regular comment"},
+                    {"body": "@copilot can you update the branch and fix the conflicts?"}
+                ]
+            }
+        }
         
-        result = self.retrigger.count_retrigger_comments(123)
+        result = self.retrigger.count_retrigger_comments(pr)
         
         self.assertEqual(result, 2)
-        self.mock_api.get_pull_request_comments.assert_called_once_with(123)
     
     def test_count_retrigger_comments_failing_checks(self):
         """Test counting retrigger comments with failing check comments."""
-        self.mock_api.get_pull_request_comments.return_value = [
-            {"body": "Regular comment"},
-            {"body": "@copilot can you fix the failing github actions?"},
-            {"body": "Another regular comment"}
-        ]
+        pr = {
+            "comments": {
+                "nodes": [
+                    {"body": "Regular comment"},
+                    {"body": "@copilot can you fix the failing github actions?"},
+                    {"body": "Another regular comment"}
+                ]
+            }
+        }
         
-        result = self.retrigger.count_retrigger_comments(123)
+        result = self.retrigger.count_retrigger_comments(pr)
         
         self.assertEqual(result, 1)
     
     def test_count_retrigger_comments_mixed(self):
         """Test counting retrigger comments with mixed comment types."""
-        self.mock_api.get_pull_request_comments.return_value = [
-            {"body": "@copilot can you update the branch and fix the conflicts?"},
-            {"body": "@copilot can you fix the failing github actions?"},
-            {"body": "Regular comment"}
-        ]
+        pr = {
+            "comments": {
+                "nodes": [
+                    {"body": "@copilot can you update the branch and fix the conflicts?"},
+                    {"body": "@copilot can you fix the failing github actions?"},
+                    {"body": "Regular comment"}
+                ]
+            }
+        }
         
-        result = self.retrigger.count_retrigger_comments(123)
+        result = self.retrigger.count_retrigger_comments(pr)
         
         self.assertEqual(result, 2)
     
     def test_count_retrigger_comments_none(self):
         """Test counting retrigger comments when none exist."""
-        self.mock_api.get_pull_request_comments.return_value = [
-            {"body": "Regular comment"},
-            {"body": "Another regular comment"}
-        ]
+        pr = {
+            "comments": {
+                "nodes": [
+                    {"body": "Regular comment"},
+                    {"body": "Another regular comment"}
+                ]
+            }
+        }
         
-        result = self.retrigger.count_retrigger_comments(123)
+        result = self.retrigger.count_retrigger_comments(pr)
         
         self.assertEqual(result, 0)
     
@@ -342,15 +395,14 @@ class TestCopilotRetrigger(unittest.TestCase):
         pr = {
             "number": 123,
             "title": "Test PR",
-            "user": {"login": "regular_user"},
-            "assignees": []
+            "author": {"login": "regular_user"},
+            "assignees": {"nodes": []}
         }
         
         self.retrigger.process_pr(pr)
         
         mock_print.assert_any_call("Processing PR #123: Test PR")
         mock_print.assert_any_call("  Skipping - not a copilot PR")
-        self.mock_api.get_pull_request_comments.assert_not_called()
     
     @patch('builtins.print')
     def test_process_pr_max_comments_reached(self, mock_print):
@@ -358,21 +410,21 @@ class TestCopilotRetrigger(unittest.TestCase):
         pr = {
             "number": 123,
             "title": "Test PR",
-            "user": {"login": "copilot"},
-            "assignees": []
+            "author": {"login": "copilot"},
+            "assignees": {"nodes": []},
+            "comments": {
+                "nodes": [
+                    {"body": "@copilot can you update the branch and fix the conflicts?"},
+                    {"body": "@copilot can you fix the failing github actions?"},
+                    {"body": "@copilot can you update the branch and fix the conflicts?"}
+                ]
+            }
         }
-        
-        self.mock_api.get_pull_request_comments.return_value = [
-            {"body": "@copilot can you update the branch and fix the conflicts?"},
-            {"body": "@copilot can you fix the failing github actions?"},
-            {"body": "@copilot can you update the branch and fix the conflicts?"}
-        ]
         
         self.retrigger.process_pr(pr)
         
         mock_print.assert_any_call("Processing PR #123: Test PR")
         mock_print.assert_any_call("  Skipping - already added 3 retrigger comments")
-        self.mock_api.get_pr_status.assert_not_called()
     
     @patch('builtins.print')
     def test_process_pr_merge_conflicts(self, mock_print):
@@ -380,12 +432,11 @@ class TestCopilotRetrigger(unittest.TestCase):
         pr = {
             "number": 123,
             "title": "Test PR",
-            "user": {"login": "copilot"},
-            "assignees": []
+            "author": {"login": "copilot"},
+            "assignees": {"nodes": []},
+            "comments": {"nodes": []},
+            "mergeable": "CONFLICTING"
         }
-        
-        self.mock_api.get_pull_request_comments.return_value = []
-        self.mock_api.get_pr_status.return_value = {"mergeable": False}
         
         self.retrigger.process_pr(pr)
         
@@ -401,16 +452,17 @@ class TestCopilotRetrigger(unittest.TestCase):
         pr = {
             "number": 123,
             "title": "Test PR",
-            "user": {"login": "copilot"},
-            "assignees": [],
-            "head": {"sha": "abc123"}
+            "author": {"login": "copilot"},
+            "assignees": {"nodes": []},
+            "comments": {"nodes": []},
+            "mergeable": "MERGEABLE",
+            "headRef": {
+                "target": {
+                    "statusCheckRollup": {"state": "FAILURE"},
+                    "checkSuites": {"nodes": []}
+                }
+            }
         }
-        
-        self.mock_api.get_pull_request_comments.return_value = []
-        self.mock_api.get_pr_status.return_value = {"mergeable": True}
-        self.mock_api.get_check_runs.return_value = [
-            {"id": 1, "conclusion": "failure"}
-        ]
         
         self.retrigger.process_pr(pr)
         
@@ -426,16 +478,17 @@ class TestCopilotRetrigger(unittest.TestCase):
         pr = {
             "number": 123,
             "title": "Test PR",
-            "user": {"login": "copilot"},
-            "assignees": [],
-            "head": {"sha": "abc123"}
+            "author": {"login": "copilot"},
+            "assignees": {"nodes": []},
+            "comments": {"nodes": []},
+            "mergeable": "MERGEABLE",
+            "headRef": {
+                "target": {
+                    "statusCheckRollup": {"state": "SUCCESS"},
+                    "checkSuites": {"nodes": []}
+                }
+            }
         }
-        
-        self.mock_api.get_pull_request_comments.return_value = []
-        self.mock_api.get_pr_status.return_value = {"mergeable": True}
-        self.mock_api.get_check_runs.return_value = [
-            {"id": 1, "conclusion": "success"}
-        ]
         
         self.retrigger.process_pr(pr)
         
@@ -449,13 +502,11 @@ class TestCopilotRetrigger(unittest.TestCase):
         pr = {
             "number": 123,
             "title": "Test PR",
-            "user": {"login": "copilot"},
-            "assignees": [],
-            "head": {"sha": "abc123"}
+            "author": {"login": "copilot"},
+            "assignees": {"nodes": []},
+            "comments": {"nodes": []},
+            "mergeable": "CONFLICTING"
         }
-        
-        self.mock_api.get_pull_request_comments.return_value = []
-        self.mock_api.get_pr_status.return_value = {"mergeable": False}
         
         self.retrigger_dry_run.process_pr(pr)
         
@@ -469,14 +520,17 @@ class TestCopilotRetrigger(unittest.TestCase):
         pr = {
             "number": 123,
             "title": "Test PR",
-            "user": {"login": "copilot"},
-            "assignees": [],
-            "head": {"sha": "abc123"}
+            "author": {"login": "copilot"},
+            "assignees": {"nodes": []},
+            "comments": {"nodes": []},
+            "mergeable": "MERGEABLE",
+            "headRef": {
+                "target": {
+                    "statusCheckRollup": {"state": "FAILURE"},
+                    "checkSuites": {"nodes": []}
+                }
+            }
         }
-        
-        self.mock_api.get_pull_request_comments.return_value = []
-        self.mock_api.get_pr_status.return_value = {"mergeable": True}
-        self.mock_api.get_check_runs.return_value = [{"conclusion": "failure"}]
         
         self.retrigger_dry_run.process_pr(pr)
         
@@ -491,16 +545,20 @@ class TestCopilotRetrigger(unittest.TestCase):
             {
                 "number": 123,
                 "title": "Test PR",
-                "user": {"login": "copilot"},
-                "assignees": [],
-                "head": {"sha": "abc123"}
+                "author": {"login": "copilot"},
+                "assignees": {"nodes": []},
+                "comments": {"nodes": []},
+                "mergeable": "MERGEABLE",
+                "headRef": {
+                    "target": {
+                        "statusCheckRollup": {"state": "SUCCESS"},
+                        "checkSuites": {"nodes": []}
+                    }
+                }
             }
         ]
         
-        self.mock_api.get_pull_requests.return_value = prs
-        self.mock_api.get_pull_request_comments.return_value = []
-        self.mock_api.get_pr_status.return_value = {"mergeable": True}
-        self.mock_api.get_check_runs.return_value = []
+        self.mock_api.fetch_all_pr_data.return_value = prs
         
         self.retrigger_dry_run.run()
         
@@ -527,29 +585,33 @@ class TestCopilotRetrigger(unittest.TestCase):
             {
                 "number": 123,
                 "title": "Test PR 1",
-                "user": {"login": "copilot"},
-                "assignees": [],
-                "head": {"sha": "abc123"}
+                "author": {"login": "copilot"},
+                "assignees": {"nodes": []},
+                "comments": {"nodes": []},
+                "mergeable": "MERGEABLE",
+                "headRef": {
+                    "target": {
+                        "statusCheckRollup": {"state": "SUCCESS"},
+                        "checkSuites": {"nodes": []}
+                    }
+                }
             },
             {
                 "number": 124,
                 "title": "Test PR 2",
-                "user": {"login": "regular_user"},
-                "assignees": []
+                "author": {"login": "regular_user"},
+                "assignees": {"nodes": []}
             }
         ]
         
-        self.mock_api.get_pull_requests.return_value = prs
-        self.mock_api.get_pull_request_comments.return_value = []
-        self.mock_api.get_pr_status.return_value = {"mergeable": True}
-        self.mock_api.get_check_runs.return_value = []
+        self.mock_api.fetch_all_pr_data.return_value = prs
         
         self.retrigger.run()
         
         # Check that start and completion messages are printed
         mock_print.assert_any_call("Found 2 open pull requests")
         mock_print.assert_any_call("Copilot retrigger check completed")
-        self.mock_api.get_pull_requests.assert_called_once()
+        self.mock_api.fetch_all_pr_data.assert_called_once()
     
     @patch('builtins.print')
     def test_run_with_exception(self, mock_print):
@@ -558,15 +620,16 @@ class TestCopilotRetrigger(unittest.TestCase):
             {
                 "number": 123,
                 "title": "Test PR 1",
-                "user": {"login": "copilot"},
-                "assignees": []
+                "author": {"login": "copilot"},
+                "assignees": {"nodes": []}
             }
         ]
         
-        self.mock_api.get_pull_requests.return_value = prs
-        self.mock_api.get_pull_request_comments.side_effect = Exception("API Error")
+        self.mock_api.fetch_all_pr_data.return_value = prs
         
-        self.retrigger.run()
+        # Make the is_copilot_pr method throw an exception to simulate error
+        with patch.object(self.retrigger, 'is_copilot_pr', side_effect=Exception("API Error")):
+            self.retrigger.run()
         
         mock_print.assert_any_call("Error processing PR #123: API Error")
         mock_print.assert_any_call("Copilot retrigger check completed")
