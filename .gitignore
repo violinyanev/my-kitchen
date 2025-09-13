@@ -41,6 +41,11 @@ google-services.json
 *.hprof
 .vscode/
 
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
 # iOS/Xcode
 *.xcuserdata
 *.xcuserstate
