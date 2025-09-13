@@ -30,10 +30,3 @@ jobs:
         GITHUB_REPOSITORY: ${{ github.repository }}
       run: |
         python scripts/copilot_retrigger.py
-    
-    - name: Run copilot retrigger script (dry run for validation)
-      env:
-        GITHUB_TOKEN: ${{ secrets.COMMENTS_TOKEN }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-      run: |
-        python scripts/copilot_retrigger.py --dry-run
