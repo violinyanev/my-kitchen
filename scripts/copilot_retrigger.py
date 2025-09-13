@@ -12,12 +12,14 @@
 Automatic copilot retrigger script.
 
 This script monitors pull requests assigned to or created by copilot and
-automatically adds retrigger comments when PRs fail to merge or have failing checks.
+automatically:
+1. Approves workflow runs that are waiting for approval
+2. Adds retrigger comments when PRs fail to merge or have failing checks
 
 The script uses GraphQL to efficiently fetch all PR data in a single query,
 including author, assignees, mergeable status, check runs, and comments.
 This reduces API calls from potentially dozens to just one fetch plus
-individual comment additions.
+individual comment additions and workflow approvals.
 """
 
 import os
@@ -68,6 +70,13 @@ class GitHubAPI:
                       oid
                       checkSuites(first: 50) {
                         nodes {
+                          workflowRun {
+                            id
+                            databaseId
+                            status
+                            conclusion
+                            url
+                          }
                           checkRuns(first: 50) {
                             nodes {
                               conclusion
@@ -123,6 +132,41 @@ class GitHubAPI:
         response = requests.post(url, headers=self.headers, json=data)
         response.raise_for_status()
         return response.json()
+    
+    def approve_workflow_run(self, run_id: int) -> Dict:
+        """Approve a workflow run using REST API."""
+        url = f"{self.rest_url}/repos/{self.owner}/{self.repo}/actions/runs/{run_id}/approve"
+        
+        response = requests.post(url, headers=self.headers)
+        response.raise_for_status()
+        return response.json() if response.content else {}
+    
+    def get_workflow_runs_for_pr(self, pr_number: int) -> List[Dict]:
+        """Get workflow runs for a specific PR using REST API."""
+        url = f"{self.rest_url}/repos/{self.owner}/{self.repo}/actions/runs"
+        params = {
+            "event": "pull_request", 
+            "status": "waiting",
+            "per_page": 100
+        }
+        
+        response = requests.get(url, headers=self.headers, params=params)
+        response.raise_for_status()
+        
+        data = response.json()
+        workflow_runs = data.get("workflow_runs", [])
+        
+        # Filter runs for this specific PR
+        pr_runs = []
+        for run in workflow_runs:
+            # Check if this run is associated with our PR
+            pull_requests = run.get("pull_requests", [])
+            for pr in pull_requests:
+                if pr.get("number") == pr_number:
+                    pr_runs.append(run)
+                    break
+        
+        return pr_runs
 
 
 class CopilotRetrigger:
@@ -183,6 +227,49 @@ class CopilotRetrigger:
         
         return False
     
+    def has_workflow_runs_waiting_approval(self, pr: Dict) -> List[int]:
+        """Check if a PR has workflow runs waiting for approval."""
+        pr_number = pr["number"]
+        
+        try:
+            # Get workflow runs that are waiting for approval
+            waiting_runs = self.github_api.get_workflow_runs_for_pr(pr_number)
+            
+            # Extract run IDs for runs that need approval
+            runs_needing_approval = []
+            for run in waiting_runs:
+                if run.get("status") == "waiting":
+                    runs_needing_approval.append(run.get("id"))
+            
+            return runs_needing_approval
+        except Exception as e:
+            print(f"    Error checking workflow runs: {e}")
+            return []
+    
+    def approve_waiting_workflows(self, pr: Dict) -> None:
+        """Approve any workflow runs waiting for approval on a copilot PR."""
+        pr_number = pr["number"]
+        waiting_run_ids = self.has_workflow_runs_waiting_approval(pr)
+        
+        if not waiting_run_ids:
+            return
+        
+        if self.dry_run:
+            print(f"  [DRY RUN] Would approve {len(waiting_run_ids)} waiting workflow runs: {waiting_run_ids}")
+            return
+        
+        approved_count = 0
+        for run_id in waiting_run_ids:
+            try:
+                self.github_api.approve_workflow_run(run_id)
+                approved_count += 1
+                print(f"  Approved workflow run {run_id}")
+            except Exception as e:
+                print(f"  Error approving workflow run {run_id}: {e}")
+        
+        if approved_count > 0:
+            print(f"  Successfully approved {approved_count} workflow runs")
+    
     def count_retrigger_comments(self, pr: Dict) -> int:
         """Count how many retrigger comments have been added by this script."""
         comments = pr.get("comments", {}).get("nodes", [])
@@ -207,6 +294,9 @@ class CopilotRetrigger:
         if not self.is_copilot_pr(pr):
             print(f"  Skipping - not a copilot PR")
             return
+        
+        # First, check and approve any waiting workflows
+        self.approve_waiting_workflows(pr)
         
         # Check if we've already added the maximum number of comments
         comment_count = self.count_retrigger_comments(pr)
