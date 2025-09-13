@@ -121,6 +121,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Build backend
+        run: ./gradlew :backend:classes --warning-mode=fail
+
       - name: Start Ktor backend server
         run: |
           export RECIPES_SECRET_KEY=TestKey
@@ -130,8 +133,17 @@ jobs:
 
       - name: Wait for Ktor backend server to start
         run: |
-          sleep 10
-          curl --fail http://localhost:5000/health
+          echo "Waiting for backend to start..."
+          for i in {1..30}; do
+            if curl --fail http://localhost:5000/health >/dev/null 2>&1; then
+              echo "Backend is ready!"
+              exit 0
+            fi
+            echo "Attempt $i/30: Backend not ready yet, waiting..."
+            sleep 2
+          done
+          echo "Backend failed to start within 60 seconds"
+          exit 1
 
       ## Run the instrumented tests
       - name: Get AVD info
