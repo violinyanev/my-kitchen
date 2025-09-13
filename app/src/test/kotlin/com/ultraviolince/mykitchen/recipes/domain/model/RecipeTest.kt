@@ -1,6 +1,7 @@
 package com.ultraviolince.mykitchen.recipes.domain.model
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import com.google.common.truth.Truth.assertThat
 
@@ -12,6 +13,41 @@ class RecipeTest {
         assertEquals(recipe.content, "the content")
         assertEquals(recipe.timestamp, 15)
         assertEquals(recipe.id, 123L)
+    }
+
+    @Test
+    fun `has default null imagePath when not provided`() {
+        val recipe = Recipe(title = "test", content = "content", timestamp = 100)
+        assertNull(recipe.imagePath)
+        assertNull(recipe.id)
+    }
+
+    @Test
+    fun `has imagePath when provided`() {
+        val imagePath = "/path/to/image.jpg"
+        val recipe = Recipe(
+            title = "test",
+            content = "content",
+            timestamp = 100,
+            imagePath = imagePath,
+            id = 1L
+        )
+        assertEquals(imagePath, recipe.imagePath)
+        assertEquals(1L, recipe.id)
+    }
+
+    @Test
+    fun `toString includes id and title`() {
+        val recipe = Recipe(title = "My Recipe", content = "content", timestamp = 123456, id = 42L)
+        val result = recipe.toString()
+        assertEquals("Recipe[42] My Recipe (ts 123456)", result)
+    }
+
+    @Test
+    fun `toString with null id`() {
+        val recipe = Recipe(title = "My Recipe", content = "content", timestamp = 123456)
+        val result = recipe.toString()
+        assertEquals("Recipe[null] My Recipe (ts 123456)", result)
     }
 
     @Test
@@ -35,9 +71,9 @@ class RecipeTest {
 
     @Test
     fun `Recipe equality works correctly`() {
-        val recipe1 = Recipe("Title", "Content", 123L, 1L)
-        val recipe2 = Recipe("Title", "Content", 123L, 1L)
-        val recipe3 = Recipe("Different", "Content", 123L, 1L)
+        val recipe1 = Recipe("Title", "Content", 123L, null, 1L)
+        val recipe2 = Recipe("Title", "Content", 123L, null, 1L)
+        val recipe3 = Recipe("Different", "Content", 123L, null, 1L)
 
         assertThat(recipe1).isEqualTo(recipe2)
         assertThat(recipe1).isNotEqualTo(recipe3)
@@ -45,7 +81,7 @@ class RecipeTest {
 
     @Test
     fun `Recipe copy works correctly`() {
-        val original = Recipe("Original", "Content", 123L, 1L)
+        val original = Recipe("Original", "Content", 123L, null, 1L)
         val copied = original.copy(title = "Modified")
 
         assertThat(copied.title).isEqualTo("Modified")
