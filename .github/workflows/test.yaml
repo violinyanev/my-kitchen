@@ -127,7 +127,9 @@ jobs:
       - name: Start Ktor backend server
         run: |
           export RECIPES_SECRET_KEY=TestKey
-          ./gradlew :backend:run --args="backend/seed_data" &
+          echo "Starting backend server..."
+          nohup ./gradlew :backend:run --args="backend/seed_data" > backend.log 2>&1 &
+          echo "Backend started in background, PID: $!"
         env:
           KOTLIN_ENV: development
 
@@ -143,6 +145,10 @@ jobs:
             sleep 2
           done
           echo "Backend failed to start within 60 seconds"
+          echo "=== Backend log output ==="
+          cat backend.log || echo "No backend log found"
+          echo "=== Process list ==="
+          ps aux | grep -E "(java|gradle|backend)" || true
           exit 1
 
       ## Run the instrumented tests
