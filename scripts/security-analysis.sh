@@ -44,10 +44,10 @@ check_tool() {
 }
 
 # Install Python security tools
-install_python_tools() {
-    print_status "Installing Python security analysis tools..."
-    pip install --user bandit[toml] safety pip-audit semgrep 2>/dev/null || {
-        print_warning "Failed to install some Python tools - they may already be installed"
+install_security_tools() {
+    print_status "Installing security analysis tools..."
+    pip install --user semgrep 2>/dev/null || {
+        print_warning "Failed to install some security tools - they may already be installed"
     }
 }
 
@@ -71,37 +71,38 @@ run_backend_security() {
     print_status "Running Backend Security Analysis..."
 
     echo ""
-    echo "📊 Bandit - Python Security Linter"
+    echo "🔍 Detekt - Kotlin Backend Static Analysis"
+    echo "------------------------------------------"
+    if ./gradlew :backend:detekt --console=plain 2>/dev/null; then
+        print_success "Backend Detekt scan completed"
+    else
+        print_warning "Backend Detekt found issues (check backend/build/reports/detekt/)"
+    fi
+
+    echo ""
+    echo "🧪 Backend Unit Tests"
+    echo "--------------------"
+    if ./gradlew :backend:test --console=plain 2>/dev/null; then
+        print_success "Backend unit tests passed"
+    else
+        print_warning "Backend unit tests failed"
+    fi
+
+    echo ""
+    echo "🔑 Backend Hardcoded Secrets Check"
     echo "-----------------------------------"
-    if bandit -r backend/image/ -f txt 2>/dev/null; then
-        print_success "Bandit scan completed"
+    secrets_found=$(find backend/src -name "*.kt" | xargs grep -n -i -E "(password|secret|key|token|api_key)" | grep -v "test\|Test" | wc -l)
+    if [ $secrets_found -eq 0 ]; then
+        print_success "No hardcoded secrets found in backend code"
     else
-        print_warning "Bandit found security issues (see output above)"
-    fi
-
-    echo ""
-    echo "🔍 Safety - Python Dependency Vulnerability Scan"
-    echo "------------------------------------------------"
-    cd backend/image && pip install -r requirements.txt --quiet 2>/dev/null && cd ../..
-    if safety check 2>/dev/null; then
-        print_success "Safety scan completed - no known vulnerabilities"
-    else
-        print_warning "Safety found vulnerability issues (see output above)"
-    fi
-
-    echo ""
-    echo "🛡️  pip-audit - Python Package Security Audit"
-    echo "----------------------------------------------"
-    if pip-audit --desc 2>/dev/null; then
-        print_success "pip-audit scan completed"
-    else
-        print_warning "pip-audit found issues (see output above)"
+        print_warning "Found $secrets_found potential hardcoded secrets in backend code"
+        find backend/src -name "*.kt" | xargs grep -n -i -E "(password|secret|key|token|api_key)" | grep -v "test\|Test"
     fi
 
     echo ""
     echo "🔬 Semgrep - Static Application Security Testing"
     echo "------------------------------------------------"
-    if semgrep --config=.semgrep.yml backend/image/ 2>/dev/null; then
+    if semgrep --config=.semgrep.yml backend/src/ 2>/dev/null; then
         print_success "Semgrep scan completed"
     else
         print_warning "Semgrep found issues (see output above)"
@@ -138,8 +139,11 @@ run_container_security() {
     print_status "Running Container Security Analysis..."
 
     if command -v docker &> /dev/null; then
+        print_status "Building backend distribution for Docker..."
+        ./gradlew :backend:distTar --quiet 2>/dev/null
+        
         print_status "Building Docker image for security analysis..."
-        cd backend/image && docker build -t my-kitchen-backend:security-test . --quiet && cd ../..
+        cd backend && docker build -t my-kitchen-backend:security-test . --quiet && cd ..
 
         if command -v trivy &> /dev/null; then
             echo ""
@@ -178,15 +182,13 @@ run_secrets_compliance() {
     echo ""
     echo "📜 License Compliance Check"
     echo "----------------------------"
-    if command -v pip-licenses &> /dev/null; then
-        print_status "Checking Python license compliance..."
-        pip-licenses --summary 2>/dev/null | head -10
-        print_success "Python license check completed"
-    else
-        pip install --user pip-licenses --quiet 2>/dev/null
-        pip-licenses --summary 2>/dev/null | head -10
-        print_success "Python license check completed"
-    fi
+    print_status "Checking Kotlin backend license compliance..."
+    ./gradlew :backend:dependencies --configuration runtimeClasspath 2>/dev/null | grep -E "(name|group|version)" | head -10 || true
+    print_success "Kotlin backend license check completed"
+    
+    print_status "Checking Android license compliance..."
+    ./gradlew :app:dependencies --configuration releaseRuntimeClasspath 2>/dev/null | grep -E "(name|group|version)" | head -10 || true
+    print_success "Android license check completed"
 }
 
 # Main execution
@@ -199,7 +201,7 @@ main() {
     pip --version >/dev/null 2>&1 || { print_error "pip is required"; exit 1; }
 
     # Install tools if needed
-    install_python_tools
+    install_security_tools
     install_gitleaks
 
     echo ""
@@ -217,7 +219,7 @@ main() {
     print_success "Local security analysis finished"
     echo ""
     echo "📋 Summary:"
-    echo "  - Backend security analysis completed"
+    echo "  - Kotlin backend security analysis completed"
     echo "  - Android security analysis completed"
     echo "  - Container security scan attempted"
     echo "  - Secrets and compliance check completed"

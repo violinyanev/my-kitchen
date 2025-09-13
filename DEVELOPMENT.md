@@ -67,7 +67,7 @@ git commit -m "docs: update README with setup instructions"
 - ✅ iOS frameworks: `./gradlew shared:linkDebugFrameworkIosX64 shared:linkDebugFrameworkIosSimulatorArm64`
 - ✅ iOS/Kotlin tests: `./gradlew shared:iosX64Test shared:iosSimulatorArm64Test`
 - ✅ Final newlines: All files must end with newline
-- ✅ Backend tests: `cd backend/image && python3 -m unittest discover`
+- ✅ Backend tests: `./gradlew :backend:test`
 - ✅ Conventional commits: Proper format enforced
 
 ## 🛠️ Common Fixes
@@ -123,7 +123,7 @@ xargs -I {} sh -c 'if [ "$(tail -c1 "{}" | wc -l)" -eq 0 ]; then echo "" >> "{}"
 curl http://localhost:5000/health
 
 # Run backend tests
-cd backend/image && python3 -m unittest discover
+./gradlew :backend:test
 ```
 
 ## 🚨 CI/CD Troubleshooting

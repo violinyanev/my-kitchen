@@ -56,7 +56,7 @@ while IFS= read -r -d '' file; do
         echo "" >> "$file"
         ((MISSING_NEWLINES++))
     fi
-done < <(find . \( -path "./app/build" -o -path "./build" -o -path "./.gradle" \) -prune -o \( -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" \) -print0)
+done < <(find . \( -path "./app/build" -o -path "./build" -o -path "./shared/build" -o -path "./backend/build" -o -path "./.gradle" \) -prune -o \( -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" \) -print0)
 
 if [ $MISSING_NEWLINES -eq 0 ]; then
     print_success "All files have proper final newlines"
@@ -81,11 +81,11 @@ fi
 
 # Step 5: Backend tests
 print_step "Running backend unit tests..."
-if [ -d "backend/image" ]; then
-    (cd backend/image && python3 -m unittest discover)
+if [ -f "backend/build.gradle.kts" ]; then
+    ./gradlew :backend:test
     print_success "Backend tests passed"
 else
-    print_warning "Backend directory not found, skipping backend tests"
+    print_warning "Backend build file not found, skipping backend tests"
 fi
 
 # Step 6: Check if backend can start (required for integration tests)

@@ -39,4 +39,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "my-kitchen"
 include(":app")
+include(":backend")
 include(":shared")
