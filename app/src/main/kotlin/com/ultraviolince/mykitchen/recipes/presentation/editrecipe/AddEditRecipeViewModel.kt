@@ -25,7 +25,7 @@ import org.koin.core.annotation.InjectedParam
 class AddEditRecipeViewModel(
     private val recipesUseCases: Recipes,
     private val context: Context,
-    @InjectedParam savedStateHandle: SavedStateHandle
+    @InjectedParam private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _recipeTitle = mutableStateOf(
         RecipeTextFieldState(

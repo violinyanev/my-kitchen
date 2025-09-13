@@ -196,10 +196,6 @@ internal fun AddEditRecipeScreenLightPreview(
         )
     }
 }
-            eventHandler = {}
-        )
-    }
-}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

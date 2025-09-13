@@ -1,6 +1,7 @@
 package com.ultraviolince.mykitchen.di
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
@@ -23,6 +24,12 @@ import org.koin.core.annotation.Single
 @Module
 @ComponentScan("com.ultraviolince.mykitchen")
 class AppModule {
+    
+    @Single
+    fun provideContext(app: Application): Context {
+        return app.applicationContext
+    }
+
     @Single
     fun provideRecipeDatabase(app: Application): RecipeDatabase {
         return Room.databaseBuilder(
