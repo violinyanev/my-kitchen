@@ -1,5 +1,12 @@
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
+import java.util.Properties
+
 kotlin {
     jvmToolchain(17)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        allWarningsAsErrors.set(true)
+    }
 }
 
 plugins {
@@ -9,20 +16,25 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
     alias(libs.plugins.room)
-    alias(libs.plugins.screenshot)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose)
+    alias(libs.plugins.roborazzi)
 }
 
 val vName = project.findProperty("versionName") as String? ?: "v1.0.0"
 
-val versionParts = vName.removePrefix("v").split(".")
-val major = versionParts.getOrNull(0)?.toIntOrNull() ?: 0
-val minor = versionParts.getOrNull(1)?.toIntOrNull() ?: 0
-val patch = versionParts.getOrNull(2)?.toIntOrNull() ?: 0
+// Allow overriding versionCode via property, otherwise calculate from versionName
+val vCode = if (project.hasProperty("versionCode")) {
+    (project.findProperty("versionCode") as String).toInt()
+} else {
+    val versionParts = vName.removePrefix("v").split(".")
+    val major = versionParts.getOrNull(0)?.toIntOrNull() ?: 0
+    val minor = versionParts.getOrNull(1)?.toIntOrNull() ?: 0
+    val patch = versionParts.getOrNull(2)?.toIntOrNull() ?: 0
 
-// This is not ideal, but easier than using a custom versioning scheme
-val vCode = major * 10000 + minor * 100 + patch
+    // This is not ideal, but easier than using a custom versioning scheme
+    major * 10000 + minor * 100 + patch
+}
 
 println("Version Name: $vName")
 println("Version Code: $vCode")
@@ -35,8 +47,27 @@ android {
         buildConfig = true
     }
 
+    // Load keystore properties
+    val keystorePropertiesFile = rootProject.file("keystore.properties")
+    val keystoreProperties = Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(keystorePropertiesFile.inputStream())
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.ultraviolince.mykitchen"
+
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = vCode.toInt()
@@ -56,10 +87,18 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
             buildConfigField("String", "DEFAULT_SERVER", "\"\"")
             buildConfigField ("String", "DEFAULT_USERNAME", "\"\"")
             buildConfigField("String", "DEFAULT_PASSWORD", "\"\"")
+
+            // For snapshot builds (release candidates), use debug-like configuration
+            if (project.hasProperty("snapshotBuild") && project.property("snapshotBuild") == "true") {
+                // Use debug app name and add debug suffix to distinguish from production
+                applicationIdSuffix = ".preview"
+                // Copy debug resources for app name and icon
+                resValue("string", "app_name", "Kitchen on fire!")
+            }
         }
         debug {
             applicationIdSuffix = ".debug"
@@ -79,13 +118,19 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-        allWarningsAsErrors = true
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    testOptions {
+        unitTests{
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+            all {
+                it.systemProperties["robolectric.pixelCopyRenderMode"] = "hardware"
+            }
         }
     }
 
@@ -100,15 +145,17 @@ android {
         schemaDirectory("$projectDir/schemas")
     }
 
-    experimentalProperties["android.experimental.enableScreenshotTest"] = true
-
     ksp {
         arg("KOIN_CONFIG_CHECK", "true")
         arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
+        arg("KOIN_DEFAULT_MODULE", "false")
     }
 }
 
 dependencies {
+    // Shared module
+    implementation(project(":shared"))
+    
     // Standard android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.navigation.compose)
@@ -163,8 +210,14 @@ dependencies {
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.koin.test.junit4)
 
-    screenshotTestImplementation(libs.screenshot.validation.api)
-    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
+    // Roborazzi screenshot testing
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.preview.scanner)
+    testImplementation(libs.roborazzi.junit.rule)
+    testImplementation(libs.preview.scanner.compose)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
 
     detektPlugins(libs.detektTwitterPlugin)
     detektPlugins(libs.detektFormattingPlugin)
@@ -181,16 +234,11 @@ val excludedClasses = listOf(
 val excludedPackages = listOf(
     // Dependency injection itself doesn't need to be tested
     "com.ultraviolince.mykitchen.di",
+    "org.koin.ksp.generated",
     // Presentation not unit test(able) currently, could revisit later (maybe try paparazzi + compose?)
     "com.ultraviolince.mykitchen.recipes.presentation",
     // Theme values are generated, no need to unit test
     "com.ultraviolince.mykitchen.ui.theme",
-    "dagger.hilt.internal.aggregatedroot.codegen",
-    "_HiltModules",
-    "Hilt_",
-    "dagger.hilt.internal.aggregatedroot.codegen",
-    "hilt_aggregated_deps",
-    "ViewModel_Factory"
 )
 
 kover {
@@ -207,4 +255,26 @@ kover {
 detekt {
     autoCorrect = true
     config.setFrom("${project.rootDir}/gradle/detekt.yml")
+}
+
+roborazzi {
+    @OptIn(ExperimentalRoborazziApi::class)
+    generateComposePreviewRobolectricTests {
+        enable = true
+        includePrivatePreviews = false
+        packages = listOf("com.ultraviolince.mykitchen.recipes.presentation")
+    }
+    outputDir.set(layout.projectDirectory.dir("src/test/screenshots"))
+}
+
+// Fix task dependencies for KSP and Roborazzi
+afterEvaluate {
+    tasks.named("kspDebugUnitTestKotlin").configure {
+        dependsOn("generateDebugComposePreviewRobolectricTests")
+        dependsOn("generateReleaseComposePreviewRobolectricTests")
+    }
+    tasks.named("kspReleaseUnitTestKotlin").configure {
+        dependsOn("generateDebugComposePreviewRobolectricTests")
+        dependsOn("generateReleaseComposePreviewRobolectricTests")
+    }
 }

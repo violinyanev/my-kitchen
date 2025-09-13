@@ -12,18 +12,20 @@ import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.domain.model.InvalidRecipeException
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.RecipeValidationError
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes
 import com.ultraviolince.mykitchen.recipes.domain.util.ImageUtils
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.InjectedParam
 
 @KoinViewModel
 class AddEditRecipeViewModel(
     private val recipesUseCases: Recipes,
     private val context: Context,
-    savedStateHandle: SavedStateHandle
+    @InjectedParam savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _recipeTitle = mutableStateOf(
         RecipeTextFieldState(
@@ -117,9 +119,13 @@ class AddEditRecipeViewModel(
                         )
                         _eventFlow.emit(UiEvent.SaveRecipe)
                     } catch (e: InvalidRecipeException) {
+                        val messageResId = when (e.error) {
+                            RecipeValidationError.MISSING_TITLE -> R.string.missing_title
+                            RecipeValidationError.MISSING_CONTENT -> R.string.missing_body
+                        }
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
-                                message = e.errorString
+                                message = messageResId
                             )
                         )
                     }

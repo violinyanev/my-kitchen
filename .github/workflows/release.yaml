@@ -2,6 +2,8 @@ name: Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*.*.*'
 
@@ -13,27 +15,149 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-java@v4
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0  # Fetch all history for git describe
+
+    - uses: actions/setup-java@v5
       with:
         distribution: temurin
         java-version: 17
 
     - name: Setup Gradle
-      uses: gradle/gradle-build-action@v3
+      uses: gradle/actions/setup-gradle@v4
 
-    - name: Build APKs
+    - name: Setup GitHub CLI
+      run: |
+        # GitHub CLI is pre-installed on GitHub Actions runners
+        gh --version
+
+    - name: Determine release type and version
+      id: release_info
+      run: |
+        if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          echo "is_tag_release=true" >> $GITHUB_OUTPUT
+          echo "version_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "is_snapshot=false" >> $GITHUB_OUTPUT
+        else
+          # Get the latest released version and add -rc suffix
+          LATEST_TAG=$(git describe --tags --abbrev=0 --match="v*.*.*" 2>/dev/null || echo "v1.0.0")
+          echo "is_tag_release=false" >> $GITHUB_OUTPUT
+          echo "version_name=${LATEST_TAG}-rc" >> $GITHUB_OUTPUT
+          echo "is_snapshot=true" >> $GITHUB_OUTPUT
+        fi
+        echo "version_code=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Delete existing release candidate
+      if: steps.release_info.outputs.is_tag_release == 'true'
+      run: |
+        # Find and delete any existing RC releases with the new naming pattern
+        # Look for releases tagged with "rc-" prefix (new pattern)
+        echo "Looking for release candidates to clean up..."
+        
+        # Get all releases and filter for RC patterns
+        gh release list --limit 50 --json tagName,isDraft,isPrerelease | \
+        jq -r '.[] | select(.isPrerelease == true and (.tagName | startswith("rc-"))) | .tagName' | \
+        while IFS= read -r rc_tag; do
+          if [ -n "$rc_tag" ]; then
+            echo "Deleting release candidate: $rc_tag"
+            gh release delete "$rc_tag" --yes --cleanup-tag || echo "Failed to delete $rc_tag (may not exist)"
+          fi
+        done
+        
+        # Also check for any legacy RC releases with the old pattern (version-rc)
+        LATEST_TAG=$(git describe --tags --abbrev=0 --match="v*.*.*" 2>/dev/null || echo "")
+        if [ -n "$LATEST_TAG" ]; then
+          LEGACY_RC_TAG="${LATEST_TAG}-rc"
+          if gh release view "$LEGACY_RC_TAG" &>/dev/null; then
+            echo "Deleting legacy release candidate: $LEGACY_RC_TAG"
+            gh release delete "$LEGACY_RC_TAG" --yes --cleanup-tag
+          fi
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Clean up older snapshot releases
+      if: steps.release_info.outputs.is_tag_release == 'false'
+      run: |
+        echo "Cleaning up older snapshot releases (keeping only the latest one)..."
+        
+        # Get all RC releases sorted by creation date (newest first)
+        gh release list --limit 50 --json tagName,createdAt,isPrerelease | \
+        jq -r '.[] | select(.isPrerelease == true and (.tagName | startswith("rc-"))) | .tagName + " " + .createdAt' | \
+        sort -k2 -r | \
+        tail -n +2 | \
+        while IFS= read -r line; do
+          rc_tag=$(echo "$line" | cut -d' ' -f1)
+          if [ -n "$rc_tag" ]; then
+            echo "Deleting older snapshot release: $rc_tag"
+            gh release delete "$rc_tag" --yes --cleanup-tag || echo "Failed to delete $rc_tag (may not exist)"
+          fi
+        done
+        
+        echo "Cleanup completed - keeping only the most recent snapshot release"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build APK for release candidate
+      if: steps.release_info.outputs.is_tag_release == 'false'
       run: |
         ./gradlew :app:assembleRelease \
-          -PversionCode=$(git rev-list --count HEAD) \
-          -PversionName=$(git describe --tags --abbrev=0)
+          -PversionCode=${{ steps.release_info.outputs.version_code }} \
+          -PversionName=${{ steps.release_info.outputs.version_name }} \
+          -PsnapshotBuild=true
 
-    - name: Publish release
+    - name: Build APK for tag release
+      if: steps.release_info.outputs.is_tag_release == 'true'
+      run: |
+        ./gradlew :app:assembleRelease \
+          -PversionCode=${{ steps.release_info.outputs.version_code }} \
+          -PversionName=${{ steps.release_info.outputs.version_name }}
+
+    - name: Create or update release candidate
+      if: steps.release_info.outputs.is_tag_release == 'false'
       uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
       with:
-        # TODO fix app signing
-        files: |
-          ${{runner.workspace}}/my-kitchen/app/build/outputs/apk/release/app-release.apk
-        fail_on_unmatched_files: true
+        # Use commit SHA as tag name to avoid version-like tag restrictions
+        tag_name: "rc-${{ github.sha }}"
+        name: "Release Candidate ${{ steps.release_info.outputs.version_name }}"
+        body: |
+          🚧 **Release Candidate** 🚧
 
+          This is a release candidate build from the latest main branch.
+          
+          **Version:** ${{ steps.release_info.outputs.version_name }}
+          **Commit:** ${{ github.sha }}
+
+          **Features:**
+          - Uses debug app name and icon for easy identification
+          - Side-by-side installation with production releases
+          - Built from commit: ${{ github.sha }}
+
+          This release candidate will be automatically archived when the corresponding production release is published.
+        files: |
+          app/build/outputs/apk/release/app-release.apk
+        prerelease: true
+        fail_on_unmatched_files: true
+        make_latest: false
+
+    - name: Publish production release
+      if: steps.release_info.outputs.is_tag_release == 'true'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.release_info.outputs.version_name }}
+        name: "Release ${{ steps.release_info.outputs.version_name }}"
+        body: |
+          🎉 **Production Release** 🎉
+
+          This is a production release built from tag ${{ steps.release_info.outputs.version_name }}.
+
+          **What's included:**
+          - Production app configuration
+          - Optimized and minified APK
+          - Signed with release key
+
+          Built from commit: ${{ github.sha }}
+        files: |
+          app/build/outputs/apk/release/app-release.apk
+        fail_on_unmatched_files: true

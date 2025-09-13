@@ -1,10 +1,8 @@
 package com.ultraviolince.mykitchen.recipes.presentation.editrecipe
 
-import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,23 +12,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -44,6 +36,8 @@ import androidx.core.content.res.ResourcesCompat.ID_NULL
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.components.RecipeActionButtons
+import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.components.RecipeFormFields
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
@@ -124,61 +118,27 @@ fun AddEditRecipeScreenContent(
                     Icon(imageVector = Icons.Default.Image, contentDescription = stringResource(id = R.string.add_image))
                 }
                 Spacer(modifier = Modifier.width(20.dp))
-                FloatingActionButton(
-                    onClick = {
-                        eventHandler(AddEditRecipeEvent.DeleteRecipe)
-                    },
-                    // TODO can we reuse the string from below?
-                    modifier = Modifier.semantics { contentDescription = "Delete recipe" }
-                ) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(id = R.string.delete))
-                }
-                Spacer(modifier = Modifier.width(20.dp))
-                FloatingActionButton(
-                    onClick = {
-                        eventHandler(AddEditRecipeEvent.SaveRecipe)
-                    },
-                    // TODO can we reuse the string from below?
-                    modifier = Modifier.semantics { contentDescription = "Save recipe" }
-                ) {
-                    Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(id = R.string.save))
-                }
+                RecipeActionButtons(
+                    onSaveClick = { eventHandler(AddEditRecipeEvent.SaveRecipe) },
+                    onDeleteClick = { eventHandler(AddEditRecipeEvent.DeleteRecipe) }
+                )
             }
         },
         modifier = modifier
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .padding(innerPadding)
+            modifier = Modifier.padding(innerPadding)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Box {
-                TextField(
-                    value = titleState.text,
-                    onValueChange = {
-                        eventHandler(AddEditRecipeEvent.EnteredTitle(it))
-                    },
-                    placeholder = {
-                        if (titleState.hintStringId != ID_NULL) {
-                            Text(text = stringResource(titleState.hintStringId), style = MaterialTheme.typography.headlineMedium)
-                        }
-                    },
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
-                        }
-                        .semantics { contentDescription = "Enter recipe title" }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            RecipeFormFields(
+                titleState = titleState,
+                contentState = contentState,
+                onEvent = eventHandler,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             // Image display section
             imagePath?.let { path ->
+                Spacer(modifier = Modifier.height(16.dp))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -194,33 +154,6 @@ fun AddEditRecipeScreenContent(
                         contentScale = ContentScale.Crop
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            Box {
-                TextField(
-                    value = contentState.text,
-                    onValueChange = {
-                        eventHandler(AddEditRecipeEvent.EnteredContent(it))
-                    },
-                    minLines = 15,
-                    placeholder = {
-                        if (titleState.hintStringId != ID_NULL) {
-                            Text(
-                                text = stringResource(contentState.hintStringId),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    },
-                    singleLine = false,
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged {
-                            eventHandler(AddEditRecipeEvent.ChangeTitleFocus(it))
-                        }
-                        .semantics { contentDescription = "Enter recipe content" }
-                )
             }
         }
     }
@@ -247,9 +180,9 @@ class AddEditRecipeScreenPreviewParameterProvider : PreviewParameterProvider<Add
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_UNDEFINED)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun AddEditRecipeScreenPreview(
+internal fun AddEditRecipeScreenLightPreview(
     @PreviewParameter(AddEditRecipeScreenPreviewParameterProvider::class) state: AddEditRecipeState
 ) {
     MyApplicationTheme {
@@ -263,10 +196,14 @@ private fun AddEditRecipeScreenPreview(
         )
     }
 }
+            eventHandler = {}
+        )
+    }
+}
 
-@Preview(showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun AddEditRecipeScreenPreviewNightMode(
+internal fun AddEditRecipeScreenDarkPreview(
     @PreviewParameter(AddEditRecipeScreenPreviewParameterProvider::class) state: AddEditRecipeState
 ) {
     MyApplicationTheme {

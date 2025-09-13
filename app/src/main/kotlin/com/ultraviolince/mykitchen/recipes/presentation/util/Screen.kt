@@ -1,7 +1,12 @@
 package com.ultraviolince.mykitchen.recipes.presentation.util
 
-sealed class Screen(val route: String) {
-    object LoginScreen : Screen("login_screen")
-    object RecipesScreen : Screen("recipes_screen")
-    object AddEditRecipeScreen : Screen("add_edit_recipe_screen")
-}
+import kotlinx.serialization.Serializable
+
+@Serializable
+object LoginScreen
+
+@Serializable
+object RecipesScreen
+
+@Serializable
+data class AddEditRecipeScreen(val recipeId: Int = -1)
