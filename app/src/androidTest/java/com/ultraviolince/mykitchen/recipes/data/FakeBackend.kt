@@ -10,9 +10,10 @@ import java.net.URL
 class FakeBackend {
     companion object {
         // Try different server addresses for different environments
+        // In CI environments, the server is started on localhost, so we try that first
         private val possibleServers = listOf(
-            "http://10.0.2.2:5000",    // Standard Android emulator address
-            "http://localhost:5000",   // Local development
+            "http://localhost:5000",   // CI environments and local development
+            "http://10.0.2.2:5000",   // Standard Android emulator address
             "http://127.0.0.1:5000"   // Fallback local address
         )
         
@@ -33,8 +34,8 @@ class FakeBackend {
                     val url = URL("$serverUrl/health")
                     val connection = url.openConnection() as HttpURLConnection
                     connection.requestMethod = "GET"
-                    connection.connectTimeout = 5000 // Increased timeout for CI environments
-                    connection.readTimeout = 5000
+                    connection.connectTimeout = 10000 // Increased timeout for CI environments 
+                    connection.readTimeout = 10000
                     
                     val responseCode = connection.responseCode
                     connection.disconnect()

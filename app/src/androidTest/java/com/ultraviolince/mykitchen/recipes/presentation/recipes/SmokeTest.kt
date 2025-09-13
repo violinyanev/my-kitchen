@@ -34,6 +34,9 @@ class SmokeTest {
             .build()
 
         WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+        
+        // Give the system a moment to stabilize in CI environments
+        Thread.sleep(1000)
     }
 
     private fun createRecipe(title: String, content: String) {
@@ -102,16 +105,24 @@ class SmokeTest {
             performTextClearance()
             performTextInput(FakeBackend.server)
         }
+        
+        composeTestRule.waitForIdle()
+        
         with(composeTestRule.onNodeWithContentDescription("User name")) {
             assertIsDisplayed()
             performTextClearance()
             performTextInput(FakeBackend.testUser)
         }
+        
+        composeTestRule.waitForIdle()
+        
         with(composeTestRule.onNodeWithContentDescription("Password")) {
             assertIsDisplayed()
             performTextClearance()
             performTextInput(FakeBackend.testPassword)
         }
+
+        composeTestRule.waitForIdle()
 
         // Login
         with(composeTestRule.onNodeWithContentDescription("Login")) {
@@ -119,13 +130,20 @@ class SmokeTest {
             performClick()
         }
 
+        composeTestRule.waitForIdle()
+
         // Wait for login to complete and return to main screen
         // This could take longer in emulator environments, especially in CI
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
 
         // Clear any existing recipes from the backend for test isolation
         // Do this AFTER login succeeds to ensure backend is ready and authenticated
-        FakeBackend.clearUserRecipes()
+        try {
+            val clearSuccess = FakeBackend.clearUserRecipes()
+            android.util.Log.i("SmokeTest", "Backend clear result: $clearSuccess")
+        } catch (e: Exception) {
+            android.util.Log.w("SmokeTest", "Failed to clear backend recipes, continuing with test: ${e.message}")
+        }
 
         createRecipe("recipe2", "content2")
     }

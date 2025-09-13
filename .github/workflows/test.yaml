@@ -75,14 +75,21 @@ jobs:
       - name: Start Flask server
         run: |
           export RECIPES_SECRET_KEY=TestKey
+          export FLASK_ENV=development
+          echo "Starting Flask server in background..."
           python3 backend/image/app.py backend/seed_data &
-        env:
-          FLASK_ENV: development
+          FLASK_PID=$!
+          echo "Flask server started with PID: $FLASK_PID"
+          sleep 2
+          echo "Checking if Flask process is running..."
+          ps aux | grep python3 | grep -v grep || echo "Flask process check failed"
 
       - name: Wait for Flask server to start
         run: |
-          sleep 5
+          sleep 10
+          echo "Testing Flask server health..."
           curl --fail http://localhost:5000/health
+          echo "Flask server is ready"
 
       ## Run the instrumented tests
       - name: Get AVD info
