@@ -197,6 +197,8 @@ dependencies {
     androidTestImplementation(libs.androidx.runner)
     // Needed to fix a bug in ui-test (pins espresso to 3.5.0 which has a bug)
     androidTestImplementation(libs.androidx.espresso.core)
+    // Explicit dependency to ensure androidx.startup is included in test APK
+    androidTestImplementation("androidx.startup:startup-runtime:1.1.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)

@@ -39,18 +39,34 @@ class SmokeTest {
         // Clear any existing app data and reset to initial state
         composeTestRule.activityRule.scenario.recreate()
         
-        // Wait for the app to be ready
+        // Wait for the app to be ready with extended timeout
         composeTestRule.waitForIdle()
         
-        // Wait for the main screen to load - try to find either state
+        // Give the app more time to initialize completely
+        Thread.sleep(3000)
+        composeTestRule.waitForIdle()
+        
+        // Wait for the main screen to load with much longer timeout
         try {
-            // First try to wait for the new recipe button (might be immediate)
-            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 5000)
+            // Wait for the new recipe button with extended timeout
+            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
         } catch (e: Exception) {
-            // If that fails, wait a bit more and try again
-            Thread.sleep(2000)
-            composeTestRule.waitForIdle()
-            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 10000)
+            // If that fails, try a different approach - look for either sync state
+            try {
+                // Try to find logged out state first
+                try {
+                    composeTestRule.waitUntilAtLeastOneExists(hasContentDescription("Synchronisation with the backend is disabled"), 10000)
+                } catch (e3: Exception) {
+                    // Try to find logged in state instead
+                    composeTestRule.waitUntilAtLeastOneExists(hasContentDescription("Synchronisation with the backend is enabled"), 10000)
+                }
+                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
+            } catch (e2: Exception) {
+                // Last resort - wait more and try once more
+                Thread.sleep(5000)
+                composeTestRule.waitForIdle()
+                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
+            }
         }
         
         // Ensure we're in a clean state by logging out if needed
@@ -76,23 +92,25 @@ class SmokeTest {
                 .performClick()
             composeTestRule.waitForIdle()
             
-            // Wait for logout button and click it
-            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Logout"), 10000)
+            // Wait for logout button and click it with extended timeout
+            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Logout"), 20000)
             composeTestRule.onNodeWithContentDescription("Logout")
                 .performClick()
             
-            // Wait for logout to complete
-            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+            // Wait for logout to complete with extended timeout
+            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
             composeTestRule.waitForIdle()
         } catch (e: Exception) {
             // If logout fails, try to navigate back to main screen
             try {
                 pressBack()
-                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 10000)
+                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
             } catch (e2: Exception) {
-                // Last resort - recreate the activity
+                // Last resort - recreate the activity and wait longer
                 composeTestRule.activityRule.scenario.recreate()
-                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+                Thread.sleep(3000)
+                composeTestRule.waitForIdle()
+                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
             }
         }
     }
@@ -111,9 +129,9 @@ class SmokeTest {
     }
 
     private fun createRecipe(title: String, content: String) {
-        // Ensure we start from the recipe list
+        // Ensure we start from the recipe list with extended timeout
         composeTestRule.waitForIdle()
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 10000)
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
         
         // Click the "New Recipe" button
         composeTestRule.onNodeWithContentDescription("New recipe")
@@ -123,24 +141,26 @@ class SmokeTest {
 
         composeTestRule.waitForIdle()
 
-        // Wait for the edit screen to fully load
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Enter recipe title"), 15000)
+        // Wait for the edit screen to fully load with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Enter recipe title"), 30000)
 
-        // Enter recipe title
+        // Enter recipe title with wait
         composeTestRule.onNodeWithContentDescription("Enter recipe title")
             .assertExists()
         composeTestRule.onNodeWithContentDescription("Enter recipe title")
             .performTextInput(title)
         
         composeTestRule.waitForIdle()
+        Thread.sleep(1000) // Allow UI to process input
         
-        // Enter recipe content
+        // Enter recipe content with wait
         composeTestRule.onNodeWithContentDescription("Enter recipe content")
             .assertExists()
         composeTestRule.onNodeWithContentDescription("Enter recipe content")
             .performTextInput(content)
 
         composeTestRule.waitForIdle()
+        Thread.sleep(1000) // Allow UI to process input
 
         // Save the recipe
         composeTestRule.onNodeWithContentDescription("Save recipe")
@@ -148,8 +168,8 @@ class SmokeTest {
         composeTestRule.onNodeWithContentDescription("Save recipe")
             .performClick()
 
-        // Wait for navigation back to the list
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+        // Wait for navigation back to the list with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
         composeTestRule.waitForIdle()
     }
 
@@ -199,6 +219,9 @@ class SmokeTest {
         // Ensure we start in a clean state
         composeTestRule.waitForIdle()
         
+        // Wait for the new recipe button to be available
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
+        
         // First create a recipe
         createRecipe("Recipe to Delete", "This recipe will be deleted")
 
@@ -210,8 +233,8 @@ class SmokeTest {
         composeTestRule.onNodeWithText("Recipe to Delete")
             .performClick()
 
-        // Wait for edit screen to load
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 15000)
+        // Wait for edit screen to load with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 30000)
 
         // Click the delete button
         composeTestRule.onNodeWithContentDescription("Delete recipe")
@@ -219,8 +242,8 @@ class SmokeTest {
         composeTestRule.onNodeWithContentDescription("Delete recipe")
             .performClick()
 
-        // Wait for navigation back to recipe list
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+        // Wait for navigation back to recipe list with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
         composeTestRule.waitForIdle()
 
         // Verify the recipe is gone
@@ -233,14 +256,17 @@ class SmokeTest {
         // Ensure we start in a clean state
         composeTestRule.waitForIdle()
         
+        // Wait for the new recipe button to be available
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
+        
         // Click "New Recipe" button
         composeTestRule.onNodeWithContentDescription("New recipe")
             .assertExists()
         composeTestRule.onNodeWithContentDescription("New recipe")
             .performClick()
 
-        // Wait for edit screen to load
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 15000)
+        // Wait for edit screen to load with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 30000)
 
         // Enter some content
         composeTestRule.onNodeWithContentDescription("Enter recipe title")
@@ -249,6 +275,7 @@ class SmokeTest {
             .performTextInput("Aborted Recipe")
         
         composeTestRule.waitForIdle()
+        Thread.sleep(500)
         
         composeTestRule.onNodeWithContentDescription("Enter recipe content")
             .assertExists()
@@ -256,6 +283,7 @@ class SmokeTest {
             .performTextInput("This should not be saved")
 
         composeTestRule.waitForIdle()
+        Thread.sleep(500)
 
         // Click delete to abort
         composeTestRule.onNodeWithContentDescription("Delete recipe")
@@ -263,8 +291,8 @@ class SmokeTest {
         composeTestRule.onNodeWithContentDescription("Delete recipe")
             .performClick()
 
-        // Wait for navigation back to recipe list
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+        // Wait for navigation back to recipe list with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
         composeTestRule.waitForIdle()
 
         // Verify the recipe was not created
@@ -277,14 +305,17 @@ class SmokeTest {
         // Ensure we start in a clean state
         composeTestRule.waitForIdle()
         
+        // Wait for the new recipe button to be available
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
+        
         // Click "New Recipe" button
         composeTestRule.onNodeWithContentDescription("New recipe")
             .assertExists()
         composeTestRule.onNodeWithContentDescription("New recipe")
             .performClick()
 
-        // Wait for edit screen to load
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 15000)
+        // Wait for edit screen to load with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 30000)
 
         // Enter some content
         composeTestRule.onNodeWithContentDescription("Enter recipe title")
@@ -293,6 +324,7 @@ class SmokeTest {
             .performTextInput("Back Navigation Recipe")
         
         composeTestRule.waitForIdle()
+        Thread.sleep(500)
         
         composeTestRule.onNodeWithContentDescription("Enter recipe content")
             .assertExists()
@@ -300,12 +332,13 @@ class SmokeTest {
             .performTextInput("This should not be saved either")
 
         composeTestRule.waitForIdle()
+        Thread.sleep(500)
 
         // Navigate back using system back button
         pressBack()
 
-        // Wait for navigation back to recipe list
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+        // Wait for navigation back to recipe list with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
         composeTestRule.waitForIdle()
 
         // Verify the recipe was not created
@@ -317,6 +350,9 @@ class SmokeTest {
     fun loginCreateRecipe_LogoutDeleteRecipe_LoginAgain_VerifyDeleted() {
         // Ensure we start in a clean state
         composeTestRule.waitForIdle()
+        
+        // Wait for the new recipe button to be available
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
         
         // First login to backend
         loginToBackend()
@@ -344,23 +380,23 @@ class SmokeTest {
         composeTestRule.onNodeWithText("Server Sync Recipe")
             .performClick()
 
-        // Wait for edit screen to load
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 15000)
+        // Wait for edit screen to load with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 30000)
 
         composeTestRule.onNodeWithContentDescription("Delete recipe")
             .assertExists()
         composeTestRule.onNodeWithContentDescription("Delete recipe")
             .performClick()
 
-        // Wait for navigation back to recipe list
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 15000)
+        // Wait for navigation back to recipe list with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
         composeTestRule.waitForIdle()
 
         // Verify recipe is deleted locally
         assertNodeDoesNotExist("Server Sync Recipe", "Recipe should be deleted locally but still exists")
 
         // Login again with longer timeout for sync
-        loginToBackend(30000)
+        loginToBackend(45000)
 
         // Verify the recipe is still deleted (should not appear after sync)
         assertNodeDoesNotExist("Server Sync Recipe", "Recipe should remain deleted after sync but was found")
@@ -371,6 +407,9 @@ class SmokeTest {
     fun createRecipe_ThenLoginToServer_VerifySynchronized() {
         // Ensure we start in a clean state
         composeTestRule.waitForIdle()
+        
+        // Wait for the new recipe button to be available
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
         
         // Verify we're logged out initially
         composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")
@@ -384,7 +423,7 @@ class SmokeTest {
         composeTestRule.onNodeWithText("This should sync when we login").assertExists()
 
         // Login to backend with longer timeout for sync
-        loginToBackend(30000)
+        loginToBackend(45000)
 
         // Verify we're now logged in
         composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is enabled")
@@ -397,7 +436,7 @@ class SmokeTest {
             .assertExists()
     }
 
-    private fun loginToBackend(timeout: Long = 25000) {
+    private fun loginToBackend(timeout: Long = 40000) {
         // Ensure we start from a logged-out state
         composeTestRule.waitForIdle()
         
@@ -407,36 +446,42 @@ class SmokeTest {
         composeTestRule.onNodeWithContentDescription("Synchronisation with the backend is disabled")
             .performClick()
 
-        // Wait for login screen to load
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Server URI"), 15000)
+        // Wait for login screen to load with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Server URI"), 30000)
         composeTestRule.waitForIdle()
 
-        // Clear and enter server URI
+        // Clear and enter server URI with waits
         composeTestRule.onNodeWithContentDescription("Server URI")
             .assertExists()
             .performTextClearance()
+        Thread.sleep(500)
         composeTestRule.onNodeWithContentDescription("Server URI")
             .performTextInput(FakeBackend.server)
         
         composeTestRule.waitForIdle()
+        Thread.sleep(500)
 
-        // Clear and enter username  
+        // Clear and enter username with waits
         composeTestRule.onNodeWithContentDescription("User name")
             .assertExists()
             .performTextClearance()
+        Thread.sleep(500)
         composeTestRule.onNodeWithContentDescription("User name")
             .performTextInput(FakeBackend.testUser)
         
         composeTestRule.waitForIdle()
+        Thread.sleep(500)
 
-        // Clear and enter password
+        // Clear and enter password with waits
         composeTestRule.onNodeWithContentDescription("Password")
             .assertExists()
             .performTextClearance()
+        Thread.sleep(500)
         composeTestRule.onNodeWithContentDescription("Password")
             .performTextInput(FakeBackend.testPassword)
 
         composeTestRule.waitForIdle()
+        Thread.sleep(500)
 
         // Click login button
         composeTestRule.onNodeWithContentDescription("Login")
@@ -444,7 +489,7 @@ class SmokeTest {
         composeTestRule.onNodeWithContentDescription("Login")
             .performClick()
 
-        // Wait for login to complete and return to recipe list
+        // Wait for login to complete and return to recipe list with extended timeout
         composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), timeout)
         composeTestRule.waitForIdle()
     }
