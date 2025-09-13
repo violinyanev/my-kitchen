@@ -1,0 +1,59 @@
+# GitLeaks configuration for My Kitchen project
+title = "My Kitchen Security Configuration"
+
+[extend]
+# Use the default gitleaks configuration as base
+useDefault = true
+
+[[rules]]
+id = "flask-secret-key"
+description = "Flask Secret Key"
+regex = '''(?i)(flask[_-]?secret[_-]?key|secret[_-]?key)\s*[:=]\s*['"][a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}['"]'''
+keywords = ["secret_key", "SECRET_KEY", "flask"]
+
+[[rules]]
+id = "jwt-secret"
+description = "JWT Secret"
+regex = '''(?i)(jwt[_-]?secret|jwt[_-]?key)\s*[:=]\s*['"][a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}['"]'''
+keywords = ["jwt", "JWT", "secret"]
+
+[[rules]]
+id = "database-url"
+description = "Database URL with credentials"
+regex = '''(?i)(database[_-]?url|db[_-]?url)\s*[:=]\s*['"]?[a-z]+://[^:\s]+:[^@\s]+@[^/\s]+'''
+keywords = ["database_url", "DATABASE_URL", "db_url"]
+
+[[rules]]
+id = "android-keystore"
+description = "Android Keystore Password"
+regex = '''(?i)(keystore[_-]?password|key[_-]?password|store[_-]?password)\s*[:=]\s*['"][^'"]{4,}['"]'''
+keywords = ["keystore", "password", "android"]
+
+[[rules]]
+id = "api-endpoint-credentials"
+description = "API Endpoint with Credentials"
+regex = '''https?://[^:\s]+:[^@\s]+@[^/\s]+'''
+
+[allowlist]
+description = "Allow list for My Kitchen project"
+paths = [
+    # Allow test files with dummy credentials
+    '''.*test.*''',
+    '''.*Test.*''',
+    # Allow gradle wrapper validation
+    '''gradle/wrapper/gradle-wrapper.properties''',
+]
+
+commits = [
+    # Add specific commit hashes to allowlist if needed
+]
+
+regexes = [
+    # Allow dummy/example credentials in documentation
+    '''(?i)example[_-]?secret''',
+    '''(?i)dummy[_-]?key''',
+    '''(?i)test[_-]?password''',
+    '''(?i)your[_-]?secret[_-]?here''',
+    # Allow build configuration placeholders
+    '''BuildConfig\.(DEFAULT_SERVER|DEFAULT_USERNAME|DEFAULT_PASSWORD)''',
+]

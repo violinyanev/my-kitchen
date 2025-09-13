@@ -1,6 +1,7 @@
 package com.ultraviolince.mykitchen.recipes.data.repository
 
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
+import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.Recipe as LocalRecipe
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.service.RecipeNetworkService
 import com.google.common.truth.Truth.assertThat
@@ -30,11 +31,15 @@ class RecipeRepositoryImplTest {
 
     @Test
     fun `getRecipes returns dao recipes`() = runBlocking {
+        val localRecipes = listOf(
+            LocalRecipe("Recipe 1", "Content 1", 123L, 1L),
+            LocalRecipe("Recipe 2", "Content 2", 456L, 2L)
+        )
         val expectedRecipes = listOf(
             Recipe("Recipe 1", "Content 1", 123L, 1L),
             Recipe("Recipe 2", "Content 2", 456L, 2L)
         )
-        every { dao.getRecipes() } returns flowOf(expectedRecipes)
+        every { dao.getRecipes() } returns flowOf(localRecipes)
 
         val result = repository.getRecipes().first()
 
@@ -44,8 +49,9 @@ class RecipeRepositoryImplTest {
 
     @Test
     fun `getRecipeById returns dao recipe`() = runBlocking {
+        val localRecipe = LocalRecipe("Test Recipe", "Content", 123L, 1L)
         val expectedRecipe = Recipe("Test Recipe", "Content", 123L, 1L)
-        coEvery { dao.getRecipeById(1L) } returns expectedRecipe
+        coEvery { dao.getRecipeById(1L) } returns localRecipe
 
         val result = repository.getRecipeById(1L)
 
@@ -66,28 +72,42 @@ class RecipeRepositoryImplTest {
     @Test
     fun `insertRecipe inserts to dao and service`() = runBlocking {
         val recipe = Recipe("New Recipe", "Content", 123L)
+        val localRecipe = LocalRecipe("New Recipe", "Content", 123L)
         val expectedId = 5L
 
-        coEvery { dao.insertRecipe(recipe) } returns expectedId
+        coEvery { dao.insertRecipe(localRecipe) } returns expectedId
         coEvery { recipeNetworkService.insertRecipe(expectedId, recipe) } returns true
 
         val result = repository.insertRecipe(recipe)
 
         assertThat(result).isEqualTo(expectedId)
-        coVerify { dao.insertRecipe(recipe) }
+        coVerify { dao.insertRecipe(localRecipe) }
         coVerify { recipeNetworkService.insertRecipe(expectedId, recipe) }
     }
 
     @Test
     fun `deleteRecipe deletes from service and dao`() = runBlocking {
         val recipe = Recipe("Delete Me", "Content", 123L, 42L)
+        val localRecipe = LocalRecipe("Delete Me", "Content", 123L, 42L)
 
         coEvery { recipeNetworkService.deleteRecipe(42L) } returns true
-        coEvery { dao.deleteRecipe(recipe) } returns Unit
+        coEvery { dao.deleteRecipe(localRecipe) } returns Unit
 
         repository.deleteRecipe(recipe)
 
         coVerify { recipeNetworkService.deleteRecipe(42L) }
-        coVerify { dao.deleteRecipe(recipe) }
+        coVerify { dao.deleteRecipe(localRecipe) }
+    }
+
+    @Test
+    fun `deleteRecipe handles null id gracefully without crashing`() = runBlocking {
+        val recipe = Recipe("Unsaved Recipe", "Content", 123L, null)
+
+        // Should not call service or dao when id is null
+        repository.deleteRecipe(recipe)
+
+        // Verify that neither service nor dao were called
+        coVerify(exactly = 0) { recipeNetworkService.deleteRecipe(any()) }
+        coVerify(exactly = 0) { dao.deleteRecipe(any()) }
     }
 }

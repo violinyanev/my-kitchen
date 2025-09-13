@@ -2,7 +2,7 @@ package com.ultraviolince.mykitchen.recipes.data.datasource.localdb
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.Recipe
 
 @Database(
     entities = [Recipe::class],

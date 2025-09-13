@@ -26,3 +26,7 @@ python3 ./scripts/dev.py build
 * Add a check/tests for backwards compatibility
 * Provide swagger
 * Search for a better library for REST APIs
+
+## Author Note
+
+> Use this backend understanding that it's primarily a learning exercise. Contributions, code reviews, and suggestions for improvements are especially welcome! 🚀
