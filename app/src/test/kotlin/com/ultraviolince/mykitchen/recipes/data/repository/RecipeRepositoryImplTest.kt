@@ -66,12 +66,12 @@ class RecipeRepositoryImplTest {
     @Test
     fun `getRecipes returns dao recipes`() = runBlocking {
         val localRecipes = listOf(
-            LocalRecipe("Recipe 1", "Content 1", 123L, 1L),
-            LocalRecipe("Recipe 2", "Content 2", 456L, 2L)
+            LocalRecipe("Recipe 1", "Content 1", 123L, id = 1L),
+            LocalRecipe("Recipe 2", "Content 2", 456L, id = 2L)
         )
         val expectedRecipes = listOf(
-            Recipe("Recipe 1", "Content 1", 123L, id = 1L),
-            Recipe("Recipe 2", "Content 2", 456L, id = 2L)
+            Recipe("Recipe 1", "Content 1", 123L, 1L),
+            Recipe("Recipe 2", "Content 2", 456L, 2L)
         )
         every { dao.getRecipes() } returns flowOf(localRecipes)
 

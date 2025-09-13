@@ -26,7 +26,11 @@ import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.model.SyncStatus
 
 @Composable
-fun RecipeItem(recipe: Recipe, modifier: Modifier = Modifier) {
+fun RecipeItem(
+    recipe: Recipe,
+    modifier: Modifier = Modifier,
+    syncStatus: SyncStatus = SyncStatus.NOT_SYNCED
+) {
     Surface(
         modifier = modifier.padding(16.dp),
         color = MaterialTheme.colorScheme.surface
@@ -52,7 +56,7 @@ fun RecipeItem(recipe: Recipe, modifier: Modifier = Modifier) {
             }
 
             RecipeSyncStatusIcon(
-                syncStatus = recipe.syncStatus,
+                syncStatus = syncStatus,
                 modifier = Modifier
                     .size(24.dp)
                     .align(Alignment.CenterVertically)
@@ -109,10 +113,9 @@ internal fun RecipeCardPreview() {
         content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor " +
             "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud" +
             "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        timestamp = 1,
-        syncStatus = SyncStatus.SYNCED
+        timestamp = 1
     )
-    RecipeItem(recipe)
+    RecipeItem(recipe, syncStatus = SyncStatus.SYNCED)
 }
 
 @Preview
@@ -121,10 +124,9 @@ internal fun RecipeCardNotSyncedPreview() {
     val recipe = Recipe(
         title = "Recipe Not Synced",
         content = "This recipe hasn't been synced to the server yet.",
-        timestamp = 1,
-        syncStatus = SyncStatus.NOT_SYNCED
+        timestamp = 1
     )
-    RecipeItem(recipe)
+    RecipeItem(recipe, syncStatus = SyncStatus.NOT_SYNCED)
 }
 
 @Preview
@@ -133,8 +135,7 @@ internal fun RecipeCardSyncErrorPreview() {
     val recipe = Recipe(
         title = "Recipe Sync Error",
         content = "This recipe failed to sync to the server.",
-        timestamp = 1,
-        syncStatus = SyncStatus.SYNC_ERROR
+        timestamp = 1
     )
-    RecipeItem(recipe)
+    RecipeItem(recipe, syncStatus = SyncStatus.SYNC_ERROR)
 }

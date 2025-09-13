@@ -24,3 +24,4 @@ enum class SyncStatus {
      */
     SYNC_ERROR
 }
+

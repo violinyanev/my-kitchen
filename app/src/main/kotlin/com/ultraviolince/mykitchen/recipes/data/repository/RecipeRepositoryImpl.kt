@@ -40,7 +40,7 @@ class RecipeRepositoryImpl(
     override suspend fun insertRecipe(recipe: Recipe): Long {
         val localRecipe = LocalRecipe.fromSharedRecipe(recipe)
         val recipeId = dao.insertRecipe(localRecipe)
-        
+
         // Mark as syncing and attempt to sync to backend
         dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCING, System.currentTimeMillis())
         val syncSuccess = recipeService.insertRecipe(recipeId, recipe)

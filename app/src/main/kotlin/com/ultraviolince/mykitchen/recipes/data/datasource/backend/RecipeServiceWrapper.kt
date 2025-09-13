@@ -194,7 +194,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
         }
     }
 
-    private suspend fun getLocalRecipesForSync(): List<Recipe> {
+    private suspend fun getLocalRecipesForSync(): List<LocalRecipe> {
         return dao.getRecipesBySyncStatuses(listOf(
             SyncStatus.NOT_SYNCED,
             SyncStatus.SYNCED,
@@ -202,7 +202,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
         ))
     }
 
-    private suspend fun processServerRecipes(serverRecipes: List<BackendRecipe>, localRecipes: List<Recipe>) {
+    private suspend fun processServerRecipes(serverRecipes: List<BackendRecipe>, localRecipes: List<LocalRecipe>) {
         for (serverRecipe in serverRecipes) {
             val localRecipe = localRecipes.find { it.id == serverRecipe.id }
 
@@ -217,7 +217,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
     private suspend fun addRecipeFromServer(serverRecipe: BackendRecipe) {
         Log.i("Recipes", "Adding recipe from server: ${serverRecipe.title}")
         dao.insertRecipe(
-            Recipe(
+            LocalRecipe(
                 id = serverRecipe.id,
                 title = serverRecipe.title,
                 content = serverRecipe.body,
@@ -228,7 +228,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
         )
     }
 
-    private suspend fun updateLocalWithServer(serverRecipe: BackendRecipe, localRecipe: Recipe) {
+    private suspend fun updateLocalWithServer(serverRecipe: BackendRecipe, localRecipe: LocalRecipe) {
         Log.i("Recipes", "Updating local recipe with server version: ${serverRecipe.title}")
         dao.updateRecipe(
             localRecipe.copy(
@@ -242,7 +242,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
         )
     }
 
-    private suspend fun markAsSynced(localRecipe: Recipe) {
+    private suspend fun markAsSynced(localRecipe: LocalRecipe) {
         dao.updateRecipeSyncStatus(
             localRecipe.id!!,
             SyncStatus.SYNCED,
@@ -250,12 +250,12 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
         )
     }
 
-    private suspend fun processLocalRecipes(localRecipes: List<Recipe>, serverRecipesMap: Map<Long, BackendRecipe>) {
+    private suspend fun processLocalRecipes(localRecipes: List<LocalRecipe>, serverRecipesMap: Map<Long, BackendRecipe>) {
         for (localRecipe in localRecipes) {
             if (localRecipe.syncStatus == SyncStatus.NOT_SYNCED &&
                 !serverRecipesMap.containsKey(localRecipe.id)) {
                 Log.i("Recipes", "Uploading local recipe to server: ${localRecipe.title}")
-                localRecipe.id?.let { syncRecipeToServer(it, localRecipe) }
+                localRecipe.id?.let { syncRecipeToServer(it, localRecipe.toSharedRecipe()) }
             }
         }
     }
