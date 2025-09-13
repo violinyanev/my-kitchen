@@ -27,6 +27,8 @@ private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 // Shared app coordinator - this is the EXACT same business logic as Android!
 private lateinit var appCoordinator: SharedAppCoordinator
 
+@OptIn(kotlin.time.ExperimentalTime::class)
+
 fun main() {
     window.onload = {
         console.log("My Kitchen Web App - Now using EXACT same business logic as Android!")

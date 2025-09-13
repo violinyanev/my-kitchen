@@ -1,0 +1,32 @@
+name: Copilot Retrigger
+
+# Run every hour
+on:
+  schedule:
+    - cron: '0 * * * *'  # Every hour at minute 0
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  copilot-retrigger:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+    
+    - name: Run copilot retrigger script
+      env:
+        GITHUB_TOKEN: ${{ secrets.COMMENTS_TOKEN }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: |
+        python scripts/copilot_retrigger.py
