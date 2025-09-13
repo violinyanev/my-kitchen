@@ -4,6 +4,7 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeService
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.Recipe as LocalRecipe
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.domain.model.SyncStatus
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
@@ -39,7 +40,18 @@ class RecipeRepositoryImpl(
     override suspend fun insertRecipe(recipe: Recipe): Long {
         val localRecipe = LocalRecipe.fromSharedRecipe(recipe)
         val recipeId = dao.insertRecipe(localRecipe)
-        recipeService.insertRecipe(recipeId, recipe)
+
+        // Mark as syncing and attempt to sync to backend
+        dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCING, System.currentTimeMillis())
+        val syncSuccess = recipeService.insertRecipe(recipeId, recipe)
+
+        // Update sync status based on result
+        if (syncSuccess) {
+            dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCED, System.currentTimeMillis())
+        } else {
+            dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNC_ERROR, syncErrorMessage = "Failed to sync to server")
+        }
+
         return recipeId
     }
 
@@ -49,5 +61,37 @@ class RecipeRepositoryImpl(
             recipeService.deleteRecipe(id)
             dao.deleteRecipe(localRecipe)
         }
+    }
+
+    override suspend fun getRecipesBySyncStatus(syncStatus: SyncStatus): List<Recipe> {
+        return dao.getRecipesBySyncStatus(syncStatus).map { it.toSharedRecipe() }
+    }
+
+    override suspend fun updateRecipeSyncStatus(
+        recipeId: Long,
+        syncStatus: SyncStatus,
+        lastSyncTimestamp: Long?,
+        syncErrorMessage: String?
+    ) {
+        dao.updateRecipeSyncStatus(recipeId, syncStatus, lastSyncTimestamp, syncErrorMessage)
+    }
+
+    override suspend fun syncAllRecipes() {
+        recipeService.syncAllRecipes()
+    }
+
+    override suspend fun syncRecipe(recipeId: Long): Boolean {
+        val localRecipe = dao.getRecipeById(recipeId) ?: return false
+        dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCING, System.currentTimeMillis())
+
+        val syncSuccess = recipeService.insertRecipe(recipeId, localRecipe.toSharedRecipe())
+
+        if (syncSuccess) {
+            dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNCED, System.currentTimeMillis())
+        } else {
+            dao.updateRecipeSyncStatus(recipeId, SyncStatus.SYNC_ERROR, syncErrorMessage = "Failed to sync to server")
+        }
+
+        return syncSuccess
     }
 }
