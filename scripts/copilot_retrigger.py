@@ -70,13 +70,6 @@ class GitHubAPI:
                       oid
                       checkSuites(first: 50) {
                         nodes {
-                          workflowRun {
-                            id
-                            databaseId
-                            status
-                            conclusion
-                            url
-                          }
                           checkRuns(first: 50) {
                             nodes {
                               conclusion
