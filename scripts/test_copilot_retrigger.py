@@ -130,6 +130,116 @@ class TestGitHubAPI(unittest.TestCase):
         
         with self.assertRaises(requests.exceptions.HTTPError):
             self.api.add_comment(123, "Test comment")
+    
+    @patch('copilot_retrigger.requests.post')
+    def test_approve_workflow_run_success(self, mock_post):
+        """Test successful workflow run approval."""
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.content = b''
+        mock_post.return_value = mock_response
+        
+        result = self.api.approve_workflow_run(12345)
+        
+        self.assertEqual(result, {})
+        mock_post.assert_called_once_with(
+            "https://api.github.com/repos/test_owner/test_repo/actions/runs/12345/approve",
+            headers=self.api.headers
+        )
+    
+    @patch('copilot_retrigger.requests.post')
+    def test_approve_workflow_run_with_content(self, mock_post):
+        """Test workflow run approval with response content."""
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.content = b'{"status": "approved"}'
+        mock_response.json.return_value = {"status": "approved"}
+        mock_post.return_value = mock_response
+        
+        result = self.api.approve_workflow_run(12345)
+        
+        self.assertEqual(result, {"status": "approved"})
+    
+    @patch('copilot_retrigger.requests.post')
+    def test_approve_workflow_run_http_error(self, mock_post):
+        """Test workflow run approval with HTTP error."""
+        mock_response = Mock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("HTTP Error")
+        mock_post.return_value = mock_response
+        
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.api.approve_workflow_run(12345)
+    
+    @patch('copilot_retrigger.requests.get')
+    def test_get_workflow_runs_for_pr_success(self, mock_get):
+        """Test successful workflow runs retrieval for PR."""
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {
+            "workflow_runs": [
+                {
+                    "id": 1,
+                    "status": "waiting",
+                    "pull_requests": [{"number": 123}]
+                },
+                {
+                    "id": 2,
+                    "status": "waiting",
+                    "pull_requests": [{"number": 456}]
+                },
+                {
+                    "id": 3,
+                    "status": "waiting",
+                    "pull_requests": [{"number": 123}]
+                }
+            ]
+        }
+        mock_get.return_value = mock_response
+        
+        result = self.api.get_workflow_runs_for_pr(123)
+        
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["id"], 1)
+        self.assertEqual(result[1]["id"], 3)
+        mock_get.assert_called_once_with(
+            "https://api.github.com/repos/test_owner/test_repo/actions/runs",
+            headers=self.api.headers,
+            params={
+                "event": "pull_request",
+                "status": "waiting",
+                "per_page": 100
+            }
+        )
+    
+    @patch('copilot_retrigger.requests.get')
+    def test_get_workflow_runs_for_pr_empty_result(self, mock_get):
+        """Test workflow runs retrieval when no runs match the PR."""
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {
+            "workflow_runs": [
+                {
+                    "id": 1,
+                    "status": "waiting",
+                    "pull_requests": [{"number": 456}]
+                }
+            ]
+        }
+        mock_get.return_value = mock_response
+        
+        result = self.api.get_workflow_runs_for_pr(123)
+        
+        self.assertEqual(len(result), 0)
+    
+    @patch('copilot_retrigger.requests.get')
+    def test_get_workflow_runs_for_pr_http_error(self, mock_get):
+        """Test workflow runs retrieval with HTTP error."""
+        mock_response = Mock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("HTTP Error")
+        mock_get.return_value = mock_response
+        
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.api.get_workflow_runs_for_pr(123)
 
 
 class TestCopilotRetrigger(unittest.TestCase):
@@ -633,6 +743,153 @@ class TestCopilotRetrigger(unittest.TestCase):
         
         mock_print.assert_any_call("Error processing PR #123: API Error")
         mock_print.assert_any_call("Copilot retrigger check completed")
+    
+    def test_has_workflow_runs_waiting_approval_with_waiting_runs(self):
+        """Test detection of workflow runs waiting for approval."""
+        pr = {"number": 123}
+        
+        # Mock the API to return waiting workflow runs
+        self.mock_api.get_workflow_runs_for_pr.return_value = [
+            {"id": 1, "status": "waiting"},
+            {"id": 2, "status": "completed"},
+            {"id": 3, "status": "waiting"}
+        ]
+        
+        result = self.retrigger.has_workflow_runs_waiting_approval(pr)
+        
+        self.assertEqual(result, [1, 3])
+        self.mock_api.get_workflow_runs_for_pr.assert_called_once_with(123)
+    
+    def test_has_workflow_runs_waiting_approval_no_waiting_runs(self):
+        """Test detection when no workflow runs are waiting."""
+        pr = {"number": 123}
+        
+        # Mock the API to return no waiting workflow runs
+        self.mock_api.get_workflow_runs_for_pr.return_value = [
+            {"id": 1, "status": "completed"},
+            {"id": 2, "status": "completed"}
+        ]
+        
+        result = self.retrigger.has_workflow_runs_waiting_approval(pr)
+        
+        self.assertEqual(result, [])
+    
+    def test_has_workflow_runs_waiting_approval_empty_result(self):
+        """Test detection when no workflow runs exist."""
+        pr = {"number": 123}
+        
+        # Mock the API to return empty list
+        self.mock_api.get_workflow_runs_for_pr.return_value = []
+        
+        result = self.retrigger.has_workflow_runs_waiting_approval(pr)
+        
+        self.assertEqual(result, [])
+    
+    @patch('builtins.print')
+    def test_has_workflow_runs_waiting_approval_with_exception(self, mock_print):
+        """Test detection with API exception."""
+        pr = {"number": 123}
+        
+        # Mock the API to raise an exception
+        self.mock_api.get_workflow_runs_for_pr.side_effect = Exception("API Error")
+        
+        result = self.retrigger.has_workflow_runs_waiting_approval(pr)
+        
+        self.assertEqual(result, [])
+        mock_print.assert_called_with("    Error checking workflow runs: API Error")
+    
+    @patch('builtins.print')
+    def test_approve_waiting_workflows_with_waiting_runs(self, mock_print):
+        """Test approving workflow runs that are waiting."""
+        pr = {"number": 123}
+        
+        # Mock workflow runs waiting for approval
+        with patch.object(self.retrigger, 'has_workflow_runs_waiting_approval', return_value=[1, 2]):
+            self.retrigger.approve_waiting_workflows(pr)
+        
+        # Verify approve_workflow_run was called for both runs
+        self.assertEqual(self.mock_api.approve_workflow_run.call_count, 2)
+        self.mock_api.approve_workflow_run.assert_any_call(1)
+        self.mock_api.approve_workflow_run.assert_any_call(2)
+        
+        mock_print.assert_any_call("  Approved workflow run 1")
+        mock_print.assert_any_call("  Approved workflow run 2")
+        mock_print.assert_any_call("  Successfully approved 2 workflow runs")
+    
+    @patch('builtins.print')
+    def test_approve_waiting_workflows_no_waiting_runs(self, mock_print):
+        """Test approving when no runs are waiting."""
+        pr = {"number": 123}
+        
+        # Mock no workflow runs waiting for approval
+        with patch.object(self.retrigger, 'has_workflow_runs_waiting_approval', return_value=[]):
+            self.retrigger.approve_waiting_workflows(pr)
+        
+        # Verify approve_workflow_run was not called
+        self.mock_api.approve_workflow_run.assert_not_called()
+        
+        # Should not print any approval messages
+        approval_calls = [call for call in mock_print.call_args_list if "Approved" in str(call)]
+        self.assertEqual(len(approval_calls), 0)
+    
+    @patch('builtins.print')
+    def test_approve_waiting_workflows_dry_run(self, mock_print):
+        """Test approving workflow runs in dry run mode."""
+        pr = {"number": 123}
+        
+        # Mock workflow runs waiting for approval
+        with patch.object(self.retrigger_dry_run, 'has_workflow_runs_waiting_approval', return_value=[1, 2]):
+            self.retrigger_dry_run.approve_waiting_workflows(pr)
+        
+        # Verify approve_workflow_run was not called in dry run
+        self.mock_api.approve_workflow_run.assert_not_called()
+        
+        mock_print.assert_any_call("  [DRY RUN] Would approve 2 waiting workflow runs: [1, 2]")
+    
+    @patch('builtins.print')
+    def test_approve_waiting_workflows_with_exception(self, mock_print):
+        """Test approving workflow runs with API exception."""
+        pr = {"number": 123}
+        
+        # Mock workflow runs waiting for approval
+        with patch.object(self.retrigger, 'has_workflow_runs_waiting_approval', return_value=[1, 2]):
+            # Mock approve_workflow_run to fail for the first run but succeed for second
+            self.mock_api.approve_workflow_run.side_effect = [
+                Exception("API Error"),
+                None  # Success for second call
+            ]
+            
+            self.retrigger.approve_waiting_workflows(pr)
+        
+        mock_print.assert_any_call("  Error approving workflow run 1: API Error")
+        mock_print.assert_any_call("  Approved workflow run 2")
+        mock_print.assert_any_call("  Successfully approved 1 workflow runs")
+    
+    @patch('builtins.print')
+    def test_process_pr_with_workflow_approval(self, mock_print):
+        """Test processing a PR that includes workflow approval."""
+        pr = {
+            "number": 123,
+            "title": "Test PR",
+            "author": {"login": "copilot"},
+            "assignees": {"nodes": []},
+            "comments": {"nodes": []},
+            "mergeable": "MERGEABLE",
+            "headRef": {
+                "target": {
+                    "statusCheckRollup": {"state": "SUCCESS"},
+                    "checkSuites": {"nodes": []}
+                }
+            }
+        }
+        
+        # Mock that there are workflow runs to approve
+        with patch.object(self.retrigger, 'approve_waiting_workflows') as mock_approve:
+            self.retrigger.process_pr(pr)
+            mock_approve.assert_called_once_with(pr)
+        
+        mock_print.assert_any_call("Processing PR #123: Test PR")
+        mock_print.assert_any_call("  No issues found")
 
 
 class TestMainFunction(unittest.TestCase):
