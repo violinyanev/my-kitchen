@@ -118,8 +118,10 @@ class TestGitHubAPI(unittest.TestCase):
         mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("HTTP Error")
         mock_post.return_value = mock_response
         
-        with self.assertRaises(requests.exceptions.HTTPError):
+        with self.assertRaises(Exception) as context:
             self.api.fetch_all_pr_data()
+        
+        self.assertIn("Failed to fetch PR data from GitHub API", str(context.exception))
     
     @patch('copilot_retrigger.requests.post')
     def test_add_comment_http_error(self, mock_post):
@@ -128,8 +130,49 @@ class TestGitHubAPI(unittest.TestCase):
         mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("HTTP Error")
         mock_post.return_value = mock_response
         
-        with self.assertRaises(requests.exceptions.HTTPError):
+        with self.assertRaises(Exception) as context:
             self.api.add_comment(123, "Test comment")
+        
+        self.assertIn("Failed to add comment to PR #123", str(context.exception))
+    
+    @patch('copilot_retrigger.requests.post')
+    def test_fetch_all_pr_data_json_error(self, mock_post):
+        """Test GraphQL PR data retrieval with JSON parsing error."""
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.side_effect = ValueError("Invalid JSON")
+        mock_post.return_value = mock_response
+        
+        with self.assertRaises(Exception) as context:
+            self.api.fetch_all_pr_data()
+        
+        self.assertIn("Failed to parse GitHub API response as JSON", str(context.exception))
+    
+    @patch('copilot_retrigger.requests.post')
+    def test_add_comment_json_error(self, mock_post):
+        """Test comment addition with JSON parsing error."""
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.side_effect = ValueError("Invalid JSON")
+        mock_post.return_value = mock_response
+        
+        with self.assertRaises(Exception) as context:
+            self.api.add_comment(123, "Test comment")
+        
+        self.assertIn("Failed to parse GitHub API response as JSON when adding comment to PR #123", str(context.exception))
+    
+    @patch('copilot_retrigger.requests.post')
+    def test_fetch_all_pr_data_invalid_structure(self, mock_post):
+        """Test GraphQL PR data retrieval with invalid response structure."""
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {"data": None}
+        mock_post.return_value = mock_response
+        
+        with self.assertRaises(Exception) as context:
+            self.api.fetch_all_pr_data()
+        
+        self.assertIn("Invalid GraphQL response structure", str(context.exception))
 
 
 class TestCopilotRetrigger(unittest.TestCase):
@@ -629,10 +672,11 @@ class TestCopilotRetrigger(unittest.TestCase):
         
         # Make the is_copilot_pr method throw an exception to simulate error
         with patch.object(self.retrigger, 'is_copilot_pr', side_effect=Exception("API Error")):
-            self.retrigger.run()
+            with self.assertRaises(Exception) as context:
+                self.retrigger.run()
         
+        self.assertIn("Error processing PR #123: API Error", str(context.exception))
         mock_print.assert_any_call("Error processing PR #123: API Error")
-        mock_print.assert_any_call("Copilot retrigger check completed")
 
 
 class TestMainFunction(unittest.TestCase):

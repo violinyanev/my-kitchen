@@ -102,16 +102,26 @@ class GitHubAPI:
             "repo": self.repo
         }
         
-        response = requests.post(
-            self.graphql_url,
-            headers=self.headers,
-            json={"query": query, "variables": variables}
-        )
-        response.raise_for_status()
+        try:
+            response = requests.post(
+                self.graphql_url,
+                headers=self.headers,
+                json={"query": query, "variables": variables}
+            )
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Failed to fetch PR data from GitHub API: {e}")
         
-        data = response.json()
+        try:
+            data = response.json()
+        except ValueError as e:
+            raise Exception(f"Failed to parse GitHub API response as JSON: {e}")
+        
         if "errors" in data:
             raise Exception(f"GraphQL errors: {data['errors']}")
+        
+        if "data" not in data or not data["data"] or "repository" not in data["data"] or not data["data"]["repository"]:
+            raise Exception("Invalid GraphQL response structure: missing repository data")
         
         return data["data"]["repository"]["pullRequests"]["nodes"]
     
@@ -120,9 +130,16 @@ class GitHubAPI:
         url = f"{self.rest_url}/repos/{self.owner}/{self.repo}/issues/{pr_number}/comments"
         data = {"body": comment}
         
-        response = requests.post(url, headers=self.headers, json=data)
-        response.raise_for_status()
-        return response.json()
+        try:
+            response = requests.post(url, headers=self.headers, json=data)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Failed to add comment to PR #{pr_number}: {e}")
+        
+        try:
+            return response.json()
+        except ValueError as e:
+            raise Exception(f"Failed to parse GitHub API response as JSON when adding comment to PR #{pr_number}: {e}")
 
 
 class CopilotRetrigger:
@@ -248,7 +265,10 @@ class CopilotRetrigger:
             try:
                 self.process_pr(pr)
             except Exception as e:
-                print(f"Error processing PR #{pr['number']}: {e}")
+                error_msg = f"Error processing PR #{pr.get('number', 'unknown')}: {e}"
+                print(error_msg)
+                # Re-raise the exception to ensure script failure is propagated
+                raise Exception(error_msg)
         
         print(f"{mode_str}Copilot retrigger check completed")
 
