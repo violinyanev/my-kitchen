@@ -1039,5 +1039,123 @@ class TestMainFunction(unittest.TestCase):
         mock_exit.assert_called_with(1)
 
 
+class TestWorkflowIntegration(unittest.TestCase):
+    """Test cases for workflow integration and GraphQL query validation."""
+    
+    def test_graphql_query_structure_no_workflow_run(self):
+        """Test that GraphQL query works without workflowRun field."""
+        from copilot_retrigger import GitHubAPI
+        
+        api = GitHubAPI("test_token", "test_owner", "test_repo")
+        
+        # Extract the query string from the method
+        import inspect
+        source = inspect.getsource(api.fetch_all_pr_data)
+        
+        # Verify workflowRun field is not in the query (it was removed)
+        self.assertNotIn("workflowRun", source, 
+                        "workflowRun field should be removed from GraphQL query to avoid schema issues")
+        
+        # Verify essential fields are still present
+        self.assertIn("checkRuns", source, "checkRuns field should be present")
+        self.assertIn("statusCheckRollup", source, "statusCheckRollup field should be present")
+        self.assertIn("mergeable", source, "mergeable field should be present")
+    
+    def test_dry_run_mode_for_normal_pr(self):
+        """Test that dry run mode works correctly for normal PR workflow testing."""
+        from copilot_retrigger import GitHubAPI, CopilotRetrigger
+        
+        # Create a mock API that simulates a successful GraphQL response
+        mock_api = Mock(spec=GitHubAPI)
+        mock_api.fetch_all_pr_data.return_value = [
+            {
+                "number": 123,
+                "title": "Normal PR",
+                "author": {"login": "regular_user"},
+                "assignees": {"nodes": []},
+                "comments": {"nodes": []},
+                "mergeable": "MERGEABLE",
+                "headRef": {
+                    "target": {
+                        "statusCheckRollup": {"state": "SUCCESS"},
+                        "checkSuites": {"nodes": []}
+                    }
+                }
+            },
+            {
+                "number": 124,
+                "title": "Copilot PR with issues",
+                "author": {"login": "github-copilot[bot]"},
+                "assignees": {"nodes": []},
+                "comments": {"nodes": []},
+                "mergeable": "CONFLICTING",
+                "headRef": {
+                    "target": {
+                        "statusCheckRollup": {"state": "FAILURE"},
+                        "checkSuites": {"nodes": []}
+                    }
+                }
+            }
+        ]
+        
+        # Test dry run mode
+        retrigger = CopilotRetrigger(mock_api, dry_run=True)
+        
+        # This should not raise any exceptions and should not make any API calls
+        with patch('builtins.print') as mock_print:
+            retrigger.run()
+        
+        # Verify dry run messages are printed
+        printed_calls = [call.args[0] for call in mock_print.call_args_list]
+        dry_run_messages = [call for call in printed_calls if "[DRY RUN]" in call]
+        self.assertTrue(len(dry_run_messages) > 0, "Should print dry run messages")
+        
+        # Verify no actual API calls were made
+        mock_api.add_comment.assert_not_called()
+        mock_api.approve_workflow_run.assert_not_called()
+        
+        # Verify fetch was called (this is read-only and safe)
+        mock_api.fetch_all_pr_data.assert_called_once()
+    
+    @patch('os.getenv')
+    def test_workflow_environment_variables(self, mock_getenv):
+        """Test that workflow environment variables are properly handled."""
+        from copilot_retrigger import main
+        
+        # Mock environment variables as they would be set in GitHub Actions
+        def getenv_side_effect(key, default=None):
+            if key == "GITHUB_TOKEN":
+                return "dummy_token"
+            elif key == "GITHUB_REPOSITORY":
+                return "violinyanev/my-kitchen"
+            return default
+        
+        mock_getenv.side_effect = getenv_side_effect
+        
+        # Patch the actual API calls to avoid making real requests
+        with patch('copilot_retrigger.GitHubAPI') as mock_api_class:
+            mock_api_instance = Mock()
+            mock_api_instance.fetch_all_pr_data.return_value = []
+            mock_api_class.return_value = mock_api_instance
+            
+            with patch('copilot_retrigger.CopilotRetrigger') as mock_retrigger_class:
+                mock_retrigger_instance = Mock()
+                mock_retrigger_class.return_value = mock_retrigger_instance
+                
+                # Test that main function can be called with workflow environment
+                try:
+                    with patch('sys.argv', ['copilot_retrigger.py', '--dry-run']):
+                        main()
+                    success = True
+                except Exception as e:
+                    success = False
+                
+                self.assertTrue(success, "Main function should work with workflow environment variables")
+                
+                # Verify the correct parameters were used
+                mock_api_class.assert_called_once_with("dummy_token", "violinyanev", "my-kitchen")
+                mock_retrigger_class.assert_called_once_with(mock_api_instance, dry_run=True)
+
+
 if __name__ == '__main__':
     unittest.main()
