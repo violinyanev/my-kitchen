@@ -7,6 +7,7 @@ My Kitchen is a free and open source application for storing and sharing recipes
 ## Features
 
 - 📱 **Android Mobile App**: Native Android application built with Kotlin and Jetpack Compose
+- 🌐 **Web App**: Browser-based application using Kotlin/JS and shared business logic
 - 🖥️ **Self-hosted Backend**: Python Flask server that you can run on your own infrastructure
 - 🔒 **Privacy First**: Keep your recipes on your own server, no third-party data collection
 - 👨‍👩‍👧‍👦 **Family Sharing**: Share your favorite recipes with family members
@@ -18,6 +19,7 @@ My Kitchen is a free and open source application for storing and sharing recipes
 ```
 my-kitchen/
 ├── app/              # Android mobile application (Kotlin)
+├── shared/           # Shared Kotlin Multiplatform code (Android, iOS, Web)
 ├── backend/          # Self-hosted server (Python Flask)
 │   └── scripts/      # Backend development scripts
 ├── .github/          # CI/CD workflows and actions
@@ -93,6 +95,39 @@ cd backend
 python3 ./scripts/dev.py start
 ```
 
+### Building and Running the Web App
+
+The web app is built using Kotlin/JS and shares the same business logic as the Android and iOS apps.
+
+```bash
+# Build the web app
+./gradlew :shared:jsBrowserDistribution
+
+# The built web app will be in:
+# shared/build/dist/js/productionExecutable/
+
+# Serve the web app locally
+cd shared/build/dist/js/productionExecutable
+python3 -m http.server 8080
+
+# Open browser to http://localhost:8080
+```
+
+**Complete setup to run both backend and web app:**
+
+```bash
+# Terminal 1: Start the backend server
+./backend/scripts/dev.sh
+
+# Terminal 2: Build and serve the web app
+./gradlew :shared:jsBrowserDistribution
+cd shared/build/dist/js/productionExecutable
+python3 -m http.server 8080
+
+# Open http://localhost:8080 in your browser
+# Backend API is available at http://localhost:5000
+```
+
 ### Development Workflow
 
 Before committing any changes, ensure all checks pass:
@@ -108,7 +143,7 @@ Before committing any changes, ensure all checks pass:
 
 The project includes:
 - **Pre-commit hooks**: Automatically validate code quality and format
-- **Comprehensive testing**: Unit tests, screenshot tests, and coverage reporting  
+- **Comprehensive testing**: Unit tests, screenshot tests, and coverage reporting
 - **Code quality checks**: Detekt linting with auto-correction
 - **CI/CD validation**: All checks must pass for PR approval
 
@@ -122,7 +157,7 @@ We welcome contributions from everyone! Here's how you can help:
   - Clear description of the problem
   - Steps to reproduce
   - Expected vs actual behavior
-  - Device/platform information (for Android issues)
+  - Device/platform information (for Android/iOS issues)
 
 ### Contributing Code
 
@@ -138,9 +173,10 @@ We welcome contributions from everyone! Here's how you can help:
 
 **Important**: All PRs must pass GitHub Actions checks including:
 - Build health and compilation
-- Unit tests with 80% coverage on changed files  
+- Unit tests with 80% coverage on changed files
 - Code quality checks (Detekt)
 - Screenshot tests validation
+- iOS framework building and Kotlin/Native tests
 - Backend tests (if applicable)
 
 The setup script installs Git hooks that will catch common issues before commit.
@@ -151,6 +187,7 @@ The setup script installs Git hooks that will catch common issues before commit.
 - ✨ New features for recipe management
 - 🎨 UI/UX improvements
 - 📱 Android app enhancements
+- 🍎 iOS app improvements
 - 🖥️ Backend API improvements
 - 📚 Documentation updates
 - 🧪 Test coverage improvements
@@ -182,6 +219,21 @@ See the [backend README](./backend/README.md) for current development priorities
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
+## Author Note
+
+> **⚠️ IMPORTANT DISCLAIMER ⚠️**
+>
+> This project represents a learning journey, and while the application is functional, expect beginner-level code quality, potential bugs, and room for improvement. The author is still learning best practices for Android development and Python Flask applications.
+>
+> **Please keep this in mind when:**
+> - Using this application in production
+> - Contributing to the project
+> - Reporting issues or suggesting improvements
+> - Expecting enterprise-level code quality
+>
+> **This is a learning project first and foremost.** Your patience, constructive feedback, and contributions are greatly appreciated as the author continues to improve their development skills! 🙏
+
 ---
 
 Made with ❤️ for home cooks and recipe enthusiasts
+

@@ -52,15 +52,58 @@ class AppModule {
     }
 
     @Single
-    fun provideRecipesUseCases(repository: RecipeRepository): Recipes {
+    fun provideLoginUseCase(repository: RecipeRepository): Login {
+        return Login(repository)
+    }
+
+    @Single
+    fun provideLogoutUseCase(repository: RecipeRepository): Logout {
+        return Logout(repository)
+    }
+
+    @Single
+    fun provideGetLoginStateUseCase(repository: RecipeRepository): GetLoginState {
+        return GetLoginState(repository)
+    }
+
+    @Single
+    fun provideGetRecipesUseCase(repository: RecipeRepository): GetRecipes {
+        return GetRecipes(repository)
+    }
+
+    @Single
+    fun provideDeleteRecipeUseCase(repository: RecipeRepository): DeleteRecipe {
+        return DeleteRecipe(repository)
+    }
+
+    @Single
+    fun provideAddRecipeUseCase(repository: RecipeRepository): AddRecipe {
+        return AddRecipe(repository)
+    }
+
+    @Single
+    fun provideGetRecipeUseCase(repository: RecipeRepository): GetRecipe {
+        return GetRecipe(repository)
+    }
+
+    @Single
+    fun provideRecipesUseCases(
+        login: Login,
+        logout: Logout,
+        getSyncState: GetLoginState,
+        getRecipes: GetRecipes,
+        deleteRecipe: DeleteRecipe,
+        addRecipe: AddRecipe,
+        getRecipe: GetRecipe
+    ): Recipes {
         return Recipes(
-            login = Login(repository),
-            logout = Logout(repository),
-            getSyncState = GetLoginState(repository),
-            getRecipes = GetRecipes(repository),
-            deleteRecipe = DeleteRecipe(repository),
-            addRecipe = AddRecipe(repository),
-            getRecipe = GetRecipe(repository)
+            login = login,
+            logout = logout,
+            getSyncState = getSyncState,
+            getRecipes = getRecipes,
+            deleteRecipe = deleteRecipe,
+            addRecipe = addRecipe,
+            getRecipe = getRecipe
         )
     }
 

@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
+import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.model.SyncStatus
 import kotlinx.coroutines.flow.Flow
 
