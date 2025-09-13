@@ -29,26 +29,42 @@ class FakeBackend {
          * Find a working server address by testing connectivity to /health endpoint
          */
         private fun findWorkingServer(): String? {
-            for (serverUrl in possibleServers) {
-                try {
-                    val url = URL("$serverUrl/health")
-                    val connection = url.openConnection() as HttpURLConnection
-                    connection.requestMethod = "GET"
-                    connection.connectTimeout = 10000 // Increased timeout for CI environments 
-                    connection.readTimeout = 10000
-                    
-                    val responseCode = connection.responseCode
-                    connection.disconnect()
-                    
-                    if (responseCode == 200) {
-                        android.util.Log.i("FakeBackend", "Found working server at: $serverUrl")
-                        return serverUrl
+            // In CI environments, wait a bit longer for server to be ready
+            val maxRetries = 3
+            val retryDelay = 2000L // 2 seconds between retries
+            
+            repeat(maxRetries) { retry ->
+                for (serverUrl in possibleServers) {
+                    try {
+                        val url = URL("$serverUrl/health")
+                        val connection = url.openConnection() as HttpURLConnection
+                        connection.requestMethod = "GET"
+                        connection.connectTimeout = 15000 // Increased timeout for CI environments 
+                        connection.readTimeout = 15000
+                        connection.setRequestProperty("User-Agent", "MyKitchen-Test")
+                        
+                        val responseCode = connection.responseCode
+                        connection.disconnect()
+                        
+                        if (responseCode == 200) {
+                            android.util.Log.i("FakeBackend", "Found working server at: $serverUrl (retry $retry)")
+                            return serverUrl
+                        } else {
+                            android.util.Log.d("FakeBackend", "Server $serverUrl returned code $responseCode (retry $retry)")
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.d("FakeBackend", "Server $serverUrl not reachable (retry $retry): ${e.message}")
                     }
-                } catch (e: Exception) {
-                    android.util.Log.d("FakeBackend", "Server $serverUrl not reachable: ${e.message}")
+                }
+                
+                // Wait before next retry attempt, except on last retry
+                if (retry < maxRetries - 1) {
+                    android.util.Log.i("FakeBackend", "Waiting ${retryDelay}ms before next retry...")
+                    Thread.sleep(retryDelay)
                 }
             }
-            android.util.Log.w("FakeBackend", "No working server found, using default")
+            
+            android.util.Log.w("FakeBackend", "No working server found after $maxRetries retries, using default")
             return null
         }
         
@@ -57,8 +73,8 @@ class FakeBackend {
          * This is used for test isolation.
          */
         fun clearUserRecipes(): Boolean {
-            // Retry up to 3 times for CI environment reliability
-            repeat(3) { attempt ->
+            // Retry up to 5 times for CI environment reliability
+            repeat(5) { attempt ->
                 try {
                     val token = loginAndGetToken() ?: return false
                     
@@ -67,26 +83,29 @@ class FakeBackend {
                     connection.requestMethod = "DELETE"
                     connection.setRequestProperty("Authorization", "Bearer $token")
                     connection.setRequestProperty("Content-Type", "application/json")
-                    connection.connectTimeout = 10000 // Increased timeout for CI environments
-                    connection.readTimeout = 10000    // Increased timeout for CI environments
+                    connection.setRequestProperty("User-Agent", "MyKitchen-Test")
+                    connection.connectTimeout = 15000 // Increased timeout for CI environments
+                    connection.readTimeout = 15000    // Increased timeout for CI environments
                     
                     val responseCode = connection.responseCode
                     connection.disconnect()
                     
                     if (responseCode in 200..299) {
-                        android.util.Log.i("FakeBackend", "Successfully cleared user recipes")
+                        android.util.Log.i("FakeBackend", "Successfully cleared user recipes (attempt ${attempt + 1})")
                         return true
                     } else {
-                        android.util.Log.w("FakeBackend", "Clear recipes failed with response code: $responseCode")
+                        android.util.Log.w("FakeBackend", "Clear recipes failed with response code: $responseCode (attempt ${attempt + 1})")
                     }
                 } catch (e: Exception) {
                     android.util.Log.w("FakeBackend", "Attempt ${attempt + 1}: Failed to clear user recipes: ${e.message}")
-                    if (attempt == 2) {
+                    if (attempt == 4) {
                         // Last attempt failed
                         android.util.Log.e("FakeBackend", "All attempts to clear user recipes failed")
                     } else {
-                        // Wait before retry
-                        Thread.sleep(1000)
+                        // Wait before retry with exponential backoff
+                        val delay = (attempt + 1) * 1000L // 1s, 2s, 3s, 4s
+                        android.util.Log.i("FakeBackend", "Waiting ${delay}ms before retry...")
+                        Thread.sleep(delay)
                     }
                 }
             }
@@ -104,9 +123,10 @@ class FakeBackend {
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
                 connection.setRequestProperty("Content-Type", "application/json")
+                connection.setRequestProperty("User-Agent", "MyKitchen-Test")
                 connection.doOutput = true
-                connection.connectTimeout = 10000 // Increased timeout for CI environments
-                connection.readTimeout = 10000    // Increased timeout for CI environments
+                connection.connectTimeout = 15000 // Increased timeout for CI environments
+                connection.readTimeout = 15000    // Increased timeout for CI environments
                 
                 val writer = OutputStreamWriter(connection.outputStream)
                 writer.write(json.toString())

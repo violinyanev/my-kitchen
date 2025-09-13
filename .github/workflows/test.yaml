@@ -86,10 +86,22 @@ jobs:
 
       - name: Wait for Flask server to start
         run: |
-          sleep 10
+          sleep 15
           echo "Testing Flask server health..."
-          curl --fail http://localhost:5000/health
-          echo "Flask server is ready"
+          for i in {1..5}; do
+            if curl --fail --connect-timeout 10 --max-time 30 http://localhost:5000/health; then
+              echo "Flask server is ready"
+              break
+            else
+              echo "Attempt $i: Flask server not ready, waiting..."
+              sleep 5
+            fi
+          done
+          
+          # Final health check
+          echo "Final health check..."
+          curl --fail --connect-timeout 10 --max-time 30 http://localhost:5000/health
+          echo "Flask server is confirmed ready"
 
       ## Run the instrumented tests
       - name: Get AVD info
@@ -118,7 +130,14 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: ${{ steps.avd-info.outputs.arch }}
           target: ${{ steps.avd-info.outputs.target }}
-          script: ./gradlew connectedCheck --stacktrace
+          # Increase emulator startup timeout for CI environments
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            echo "Waiting for emulator to be ready..."
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+            echo "Emulator is ready, running tests..."
+            ./gradlew connectedCheck --stacktrace --info
         env:
           API_LEVEL: ${{ matrix.api-level }}
 

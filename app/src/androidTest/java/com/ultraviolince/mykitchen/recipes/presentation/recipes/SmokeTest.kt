@@ -36,7 +36,23 @@ class SmokeTest {
         WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
         
         // Give the system a moment to stabilize in CI environments
-        Thread.sleep(1000)
+        // Increased from 1s to 3s for better CI stability
+        Thread.sleep(3000)
+        
+        // Wait for the app to be fully loaded by checking for main UI elements
+        // Try to find either the sync button or new recipe button with extended timeout
+        try {
+            composeTestRule.waitUntilAtLeastOneExists(
+                hasContentDescription("Synchronisation with the backend is disabled"),
+                timeoutMillis = 30000 // 30 seconds for CI environments
+            )
+        } catch (e: Exception) {
+            // If sync button not found, try new recipe button as fallback
+            composeTestRule.waitUntilAtLeastOneExists(
+                hasContentDescription("New recipe"),
+                timeoutMillis = 10000 // Additional 10 seconds
+            )
+        }
     }
 
     private fun createRecipe(title: String, content: String) {
@@ -134,7 +150,11 @@ class SmokeTest {
 
         // Wait for login to complete and return to main screen
         // This could take longer in emulator environments, especially in CI
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
+        // Increased timeout from 20s to 30s for better CI stability
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
+        
+        // Additional wait to ensure backend connection is fully established
+        Thread.sleep(2000)
 
         // Clear any existing recipes from the backend for test isolation
         // Do this AFTER login succeeds to ensure backend is ready and authenticated
