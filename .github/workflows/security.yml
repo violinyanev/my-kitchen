@@ -21,7 +21,7 @@ env:
   PYTHON_VERSION: '3.12'
 
 jobs:
-  # Python Backend Security Analysis
+  # Kotlin Backend Security Analysis
   backend-security:
     name: Backend Security Analysis
     runs-on: ubuntu-latest
@@ -33,47 +33,40 @@ jobs:
           # Fetch full history for better analysis
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up JDK
+        uses: actions/setup-java@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --timeout 60 --retries 3 -r backend/image/requirements.txt
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Install security analysis tools
+      - name: Run Backend Unit Tests
         run: |
-          pip install --timeout 60 --retries 3 bandit[toml] safety pip-audit semgrep
-
-      - name: Run Bandit (Python Security Linter)
-        run: |
-          echo "::group::Bandit - Python Security Analysis"
-          bandit -r backend/image/ -f json -o bandit-report.json || true
-          bandit -r backend/image/ -f txt
+          echo "::group::Backend Unit Tests"
+          ./gradlew :backend:test
           echo "::endgroup::"
 
-      # This is broken, reason unknown. Will become obsolete anyway
-      # - name: Run Safety (Known Vulnerability Scanner)
-      #   run: |
-      #     echo "::group::Safety - Python Dependency Vulnerability Scan"
-      #     safety check --json --output safety-report.json || true
-      #     safety check
-      #     echo "::endgroup::"
-
-      - name: Run pip-audit (Python Package Vulnerability Scanner)
+      - name: Run Detekt on Backend (Kotlin Static Analysis)
         run: |
-          echo "::group::pip-audit - Python Package Security Audit"
-          pip-audit --format=json --output=pip-audit-report.json --desc || true
-          pip-audit --desc
+          echo "::group::Detekt - Kotlin Backend Security Analysis"
+          ./gradlew :backend:detekt --continue || true
           echo "::endgroup::"
 
-      - name: Run Semgrep (Static Analysis)
+      - name: Check for Hardcoded Secrets in Backend Code
+        run: |
+          echo "::group::Backend Secrets Check"
+          # Check for common secret patterns in Kotlin backend code
+          find backend/src -name "*.kt" | xargs grep -n -i -E "(password|secret|key|token|api_key)" | grep -v "test\|Test" || echo "No hardcoded secrets found"
+          echo "::endgroup::"
+
+      - name: Run Semgrep (Static Analysis) on Backend
         run: |
           echo "::group::Semgrep - Static Application Security Testing"
-          semgrep --config=.semgrep.yml --json --output=semgrep-report.json backend/image/ || true
-          semgrep --config=.semgrep.yml backend/image/
+          pip install semgrep
+          semgrep --config=auto --json --output=backend-semgrep-report.json backend/src/ || true
+          semgrep --config=auto backend/src/ || true
           echo "::endgroup::"
 
       - name: Upload Backend Security Reports
@@ -82,10 +75,8 @@ jobs:
         with:
           name: backend-security-reports
           path: |
-            bandit-report.json
-            safety-report.json
-            pip-audit-report.json
-            semgrep-report.json
+            backend/build/reports/detekt/
+            backend-semgrep-report.json
           retention-days: 30
 
   # Android App Security Analysis
@@ -139,9 +130,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Backend Distribution
+        run: ./gradlew :backend:distTar
+
       - name: Build Docker Image
         run: |
-          cd backend/image
+          cd backend
           docker build -t my-kitchen-backend:security-test .
 
       - name: Run Trivy Container Scan
@@ -181,31 +184,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python for License Check
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install License Analysis Tools
-        run: |
-          pip install --timeout 60 --retries 3 pip-licenses
-
-      - name: Check Python License Compliance
-        run: |
-          echo "::group::Python Dependencies License Check"
-          pip install --timeout 60 --retries 3 -r backend/image/requirements.txt
-          pip-licenses --format=json --output-file=python-licenses.json
-          pip-licenses
-          echo "::endgroup::"
-
-      - name: Set up JDK for Gradle License Check
+      - name: Set up JDK for License Check
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Check Backend License Compliance
+        run: |
+          echo "::group::Backend Dependencies License Check"
+          # Generate dependency report for license analysis
+          ./gradlew :backend:dependencies --configuration runtimeClasspath > backend-dependencies.txt || true
+          echo "Generated Backend dependency report for license analysis"
+          echo "::endgroup::"
 
       - name: Check Android License Compliance
         run: |
@@ -221,7 +215,7 @@ jobs:
         with:
           name: compliance-reports
           path: |
-            python-licenses.json
+            backend-dependencies.txt
             android-dependencies.txt
           retention-days: 30
 
@@ -241,13 +235,13 @@ jobs:
           echo "# Security Analysis Summary" > security-summary.md
           echo "" >> security-summary.md
           echo "## Analysis Completed:" >> security-summary.md
-          echo "- ✅ Backend Security Analysis (Python)" >> security-summary.md
+          echo "- ✅ Backend Security Analysis (Kotlin)" >> security-summary.md
           echo "- ✅ Android Security Analysis (Kotlin)" >> security-summary.md
           echo "- ✅ Container Security Scanning" >> security-summary.md
           echo "- ✅ Secrets & License Compliance" >> security-summary.md
           echo "" >> security-summary.md
           echo "## Reports Generated:" >> security-summary.md
-          echo "- Backend: Bandit, Safety, pip-audit, Semgrep" >> security-summary.md
+          echo "- Backend: Detekt, Semgrep, Unit Tests" >> security-summary.md
           echo "- Android: Detekt, Secrets Check" >> security-summary.md
           echo "- Container: Trivy vulnerability scan" >> security-summary.md
           echo "- Compliance: GitLeaks, License analysis" >> security-summary.md

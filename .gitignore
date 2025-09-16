@@ -52,3 +52,4 @@ __pycache__/
 .DS_Store
 DerivedData/
 iosApp/iosApp.xcodeproj/xcuserdata/
+backend/backend/seed_data/backup/

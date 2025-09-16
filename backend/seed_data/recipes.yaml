@@ -1,1 +1,6 @@
-recipes: []
+recipes:
+- id: 1
+  title: Test Recipe
+  body: Test recipe body
+  timestamp: 1755976638
+  user: TestUser
