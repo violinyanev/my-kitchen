@@ -95,3 +95,4 @@ class BaselineProfileGenerator {
         device.waitForIdle(1_000)
     }
 }
+

@@ -114,3 +114,4 @@ Add this to your GitHub Actions or other CI pipeline:
 ```
 
 The benchmark results will be saved in `macrobenchmark/build/reports/androidTests/` and can be analyzed to identify performance issues and track improvements over time.
+
