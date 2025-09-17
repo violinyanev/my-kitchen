@@ -166,3 +166,31 @@ jobs:
         env:
           API_LEVEL: ${{ matrix.api-level }}
 
+
+  copilot-retrigger-test:
+    runs-on: ubuntu-latest
+    # Only run on pull requests to test the script
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+    
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+    
+    - name: Test copilot retrigger script in dry-run mode
+      env:
+        GITHUB_TOKEN: ${{ secrets.COMMENTS_TOKEN }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: |
+        echo "Testing copilot retrigger script in dry-run mode..."
+        python scripts/copilot_retrigger.py --dry-run
+
