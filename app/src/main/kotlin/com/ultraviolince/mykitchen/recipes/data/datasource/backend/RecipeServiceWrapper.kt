@@ -1,6 +1,7 @@
 package com.ultraviolince.mykitchen.recipes.data.datasource.backend
 
 import android.util.Log
+import com.ultraviolince.mykitchen.firebase.FirebaseManager
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.BackendRecipe
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.data.LoginRequest
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.Result
@@ -17,7 +18,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao: RecipeDao) {
+class RecipeServiceWrapper(
+    private val dataStore: SafeDataStore,
+    private val dao: RecipeDao,
+    private val firebaseManager: FirebaseManager
+) {
 
     private var recipeService: RecipeService? = null
 
@@ -57,11 +62,15 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
 
         Log.i("#network", "Login result: $result")
         when (result) {
-            is Result.Error -> loginState.emit(LoginState.LoginFailure(error = result.error))
+            is Result.Error -> {
+                firebaseManager.getCrashlytics().logBackendError("Login failed: ${result.error}", "login")
+                loginState.emit(LoginState.LoginFailure(error = result.error))
+            }
             is Result.Success -> {
                 recipeService = RecipeService(createHttpClient(CIO.create(), server, result.data.data.token, logger))
                 dataStore.write(server = server, token = result.data.data.token)
                 sync()
+                firebaseManager.onUserLogin(result.data.data.username, "backend")
                 loginState.emit(LoginState.LoginSuccess)
             }
         }
@@ -69,6 +78,7 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
 
     suspend fun logout() {
         dataStore.write("", "")
+        firebaseManager.onUserLogout()
         loginState.emit(LoginState.LoginEmpty)
     }
 

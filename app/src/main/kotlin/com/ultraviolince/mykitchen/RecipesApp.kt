@@ -2,12 +2,17 @@ package com.ultraviolince.mykitchen
 
 import android.app.Application
 import com.ultraviolince.mykitchen.di.AppModule
+import com.ultraviolince.mykitchen.firebase.FirebaseManager
 import com.ultraviolince.mykitchen.recipes.presentation.util.PerfTracer
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.ksp.generated.module
 
 class RecipesApp : Application() {
+
+    private val firebaseManager: FirebaseManager by inject()
+
     override fun onCreate() {
         super.onCreate()
 
@@ -19,5 +24,8 @@ class RecipesApp : Application() {
                 AppModule().module,
             )
         }
+
+        // Initialize Firebase after Koin setup
+        firebaseManager.initialize()
     }
 }

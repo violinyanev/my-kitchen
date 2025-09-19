@@ -1,5 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.data.repository
 
+import com.ultraviolince.mykitchen.firebase.FirebaseManager
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.Recipe as LocalRecipe
@@ -21,13 +22,15 @@ class RecipeRepositoryImplTest {
 
     private lateinit var dao: RecipeDao
     private lateinit var recipeService: RecipeServiceWrapper
+    private lateinit var firebaseManager: FirebaseManager
     private lateinit var repository: RecipeRepositoryImpl
 
     @Before
     fun setUp() {
         dao = mockk()
         recipeService = mockk()
-        repository = RecipeRepositoryImpl(dao, recipeService)
+        firebaseManager = mockk(relaxed = true)
+        repository = RecipeRepositoryImpl(dao, recipeService, firebaseManager)
     }
 
     @Test

@@ -2,6 +2,9 @@ package com.ultraviolince.mykitchen.di
 
 import android.app.Application
 import androidx.room.Room
+import com.ultraviolince.mykitchen.firebase.FirebaseManager
+import com.ultraviolince.mykitchen.firebase.analytics.FirebaseAnalyticsService
+import com.ultraviolince.mykitchen.firebase.crashlytics.FirebaseCrashlyticsService
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
@@ -46,8 +49,9 @@ class AppModule {
     fun provideRecipeRepository(
         dao: RecipeDao,
         service: RecipeServiceWrapper,
+        firebaseManager: FirebaseManager,
     ): RecipeRepository {
-        return RecipeRepositoryImpl(dao, service)
+        return RecipeRepositoryImpl(dao, service, firebaseManager)
     }
 
     @Single
@@ -107,7 +111,26 @@ class AppModule {
     }
 
     @Single
-    fun provideRecipeServiceWrapper(dao: RecipeDao, dataStore: SafeDataStore): RecipeServiceWrapper {
-        return RecipeServiceWrapper(dataStore, dao)
+    fun provideRecipeServiceWrapper(dao: RecipeDao, dataStore: SafeDataStore, firebaseManager: FirebaseManager): RecipeServiceWrapper {
+        return RecipeServiceWrapper(dataStore, dao, firebaseManager)
+    }
+
+    @Single
+    fun provideFirebaseAnalyticsService(app: Application): FirebaseAnalyticsService {
+        return FirebaseAnalyticsService(app)
+    }
+
+    @Single
+    fun provideFirebaseCrashlyticsService(): FirebaseCrashlyticsService {
+        return FirebaseCrashlyticsService()
+    }
+
+    @Single
+    fun provideFirebaseManager(
+        app: Application,
+        analyticsService: FirebaseAnalyticsService,
+        crashlyticsService: FirebaseCrashlyticsService
+    ): FirebaseManager {
+        return FirebaseManager(app, analyticsService, crashlyticsService)
     }
 }

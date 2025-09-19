@@ -1,5 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.data.repository
 
+import com.ultraviolince.mykitchen.firebase.FirebaseManager
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.Recipe as LocalRecipe
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.map
 class RecipeRepositoryImpl(
     private val dao: RecipeDao,
     private val recipeService: RecipeServiceWrapper,
+    private val firebaseManager: FirebaseManager,
 ) : RecipeRepository {
 
     override suspend fun login(server: String, email: String, password: String) {
@@ -33,21 +35,37 @@ class RecipeRepositoryImpl(
     }
 
     override suspend fun getRecipeById(id: Long): Recipe? {
-        return dao.getRecipeById(id)?.toSharedRecipe()
+        val recipe = dao.getRecipeById(id)?.toSharedRecipe()
+        recipe?.let {
+            firebaseManager.getAnalytics().logRecipeViewed(it.title)
+        }
+        return recipe
     }
 
     override suspend fun insertRecipe(recipe: Recipe): Long {
-        val localRecipe = LocalRecipe.fromSharedRecipe(recipe)
-        val recipeId = dao.insertRecipe(localRecipe)
-        recipeService.insertRecipe(recipeId, recipe)
-        return recipeId
+        try {
+            val localRecipe = LocalRecipe.fromSharedRecipe(recipe)
+            val recipeId = dao.insertRecipe(localRecipe)
+            recipeService.insertRecipe(recipeId, recipe)
+            firebaseManager.getAnalytics().logRecipeCreated(recipe.title)
+            return recipeId
+        } catch (e: Exception) {
+            firebaseManager.logError(e, "insertRecipe")
+            throw e
+        }
     }
 
     override suspend fun deleteRecipe(recipe: Recipe) {
         recipe.id?.let { id ->
-            val localRecipe = LocalRecipe.fromSharedRecipe(recipe)
-            recipeService.deleteRecipe(id)
-            dao.deleteRecipe(localRecipe)
+            try {
+                val localRecipe = LocalRecipe.fromSharedRecipe(recipe)
+                recipeService.deleteRecipe(id)
+                dao.deleteRecipe(localRecipe)
+                firebaseManager.getAnalytics().logEvent("recipe_deleted", mapOf("recipe_name" to recipe.title))
+            } catch (e: Exception) {
+                firebaseManager.logError(e, "deleteRecipe")
+                throw e
+            }
         }
     }
 }
