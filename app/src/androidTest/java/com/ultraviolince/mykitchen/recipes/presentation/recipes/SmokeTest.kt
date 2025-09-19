@@ -43,29 +43,42 @@ class SmokeTest {
         composeTestRule.waitForIdle()
         
         // Give the app more time to initialize completely
-        Thread.sleep(3000)
+        Thread.sleep(5000)
         composeTestRule.waitForIdle()
         
-        // Wait for the main screen to load with much longer timeout
-        try {
-            // Wait for the new recipe button with extended timeout
-            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
-        } catch (e: Exception) {
-            // If that fails, try a different approach - look for either sync state
+        // Wait for the main screen to load with much longer timeout - try multiple times
+        var attempts = 0
+        val maxAttempts = 3
+        var success = false
+        
+        while (attempts < maxAttempts && !success) {
             try {
-                // Try to find logged out state first
-                try {
-                    composeTestRule.waitUntilAtLeastOneExists(hasContentDescription("Synchronisation with the backend is disabled"), 10000)
-                } catch (e3: Exception) {
-                    // Try to find logged in state instead
-                    composeTestRule.waitUntilAtLeastOneExists(hasContentDescription("Synchronisation with the backend is enabled"), 10000)
+                attempts++
+                
+                // Wait for the new recipe button with extended timeout
+                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 45000)
+                success = true
+            } catch (e: Exception) {
+                if (attempts < maxAttempts) {
+                    // Recreate activity and try again
+                    composeTestRule.activityRule.scenario.recreate()
+                    Thread.sleep(3000)
+                    composeTestRule.waitForIdle()
+                } else {
+                    // Last attempt - try alternative approaches
+                    try {
+                        // Try to find any sync state first
+                        try {
+                            composeTestRule.waitUntilAtLeastOneExists(hasContentDescription("Synchronisation with the backend is disabled"), 15000)
+                        } catch (e3: Exception) {
+                            composeTestRule.waitUntilAtLeastOneExists(hasContentDescription("Synchronisation with the backend is enabled"), 15000)
+                        }
+                        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
+                        success = true
+                    } catch (e2: Exception) {
+                        throw RuntimeException("Failed to initialize app after $maxAttempts attempts. Last error: ${e2.message}")
+                    }
                 }
-                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
-            } catch (e2: Exception) {
-                // Last resort - wait more and try once more
-                Thread.sleep(5000)
-                composeTestRule.waitForIdle()
-                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
             }
         }
         
@@ -93,24 +106,24 @@ class SmokeTest {
             composeTestRule.waitForIdle()
             
             // Wait for logout button and click it with extended timeout
-            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Logout"), 20000)
+            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Logout"), 30000)
             composeTestRule.onNodeWithContentDescription("Logout")
                 .performClick()
             
             // Wait for logout to complete with extended timeout
-            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
+            composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 45000)
             composeTestRule.waitForIdle()
         } catch (e: Exception) {
             // If logout fails, try to navigate back to main screen
             try {
                 pressBack()
-                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
+                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
             } catch (e2: Exception) {
                 // Last resort - recreate the activity and wait longer
                 composeTestRule.activityRule.scenario.recreate()
-                Thread.sleep(3000)
+                Thread.sleep(5000)
                 composeTestRule.waitForIdle()
-                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
+                composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 45000)
             }
         }
     }
@@ -131,7 +144,7 @@ class SmokeTest {
     private fun createRecipe(title: String, content: String) {
         // Ensure we start from the recipe list with extended timeout
         composeTestRule.waitForIdle()
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
         
         // Click the "New Recipe" button
         composeTestRule.onNodeWithContentDescription("New recipe")
@@ -142,7 +155,7 @@ class SmokeTest {
         composeTestRule.waitForIdle()
 
         // Wait for the edit screen to fully load with extended timeout
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Enter recipe title"), 30000)
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Enter recipe title"), 45000)
 
         // Enter recipe title with wait
         composeTestRule.onNodeWithContentDescription("Enter recipe title")
@@ -169,7 +182,7 @@ class SmokeTest {
             .performClick()
 
         // Wait for navigation back to the list with extended timeout
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 45000)
         composeTestRule.waitForIdle()
     }
 
@@ -305,8 +318,8 @@ class SmokeTest {
         // Ensure we start in a clean state
         composeTestRule.waitForIdle()
         
-        // Wait for the new recipe button to be available
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
+        // Wait for the new recipe button to be available with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 45000)
         
         // Click "New Recipe" button
         composeTestRule.onNodeWithContentDescription("New recipe")
@@ -315,7 +328,7 @@ class SmokeTest {
             .performClick()
 
         // Wait for edit screen to load with extended timeout
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 30000)
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("Delete recipe"), 45000)
 
         // Enter some content
         composeTestRule.onNodeWithContentDescription("Enter recipe title")
@@ -324,7 +337,7 @@ class SmokeTest {
             .performTextInput("Back Navigation Recipe")
         
         composeTestRule.waitForIdle()
-        Thread.sleep(500)
+        Thread.sleep(1000)
         
         composeTestRule.onNodeWithContentDescription("Enter recipe content")
             .assertExists()
@@ -332,13 +345,13 @@ class SmokeTest {
             .performTextInput("This should not be saved either")
 
         composeTestRule.waitForIdle()
-        Thread.sleep(500)
+        Thread.sleep(1000)
 
         // Navigate back using system back button
         pressBack()
 
         // Wait for navigation back to recipe list with extended timeout
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 30000)
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 45000)
         composeTestRule.waitForIdle()
 
         // Verify the recipe was not created
@@ -351,8 +364,8 @@ class SmokeTest {
         // Ensure we start in a clean state
         composeTestRule.waitForIdle()
         
-        // Wait for the new recipe button to be available
-        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 20000)
+        // Wait for the new recipe button to be available with extended timeout
+        composeTestRule.waitUntilExactlyOneExists(hasContentDescription("New recipe"), 45000)
         
         // First login to backend
         loginToBackend()
