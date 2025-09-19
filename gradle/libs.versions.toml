@@ -47,6 +47,10 @@ composePreviewScanner = "0.7.0"
 kotlinxSerialization = "1.9.0"
 kotlinxDatetime = "0.7.1-0.6.x-compat"
 
+# Firebase versions
+firebase-bom = "33.7.0"
+googleServices = "4.4.2"
+
 [libraries]
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
@@ -104,6 +108,11 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 
+# Firebase libraries
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
@@ -117,3 +126,5 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 compose = {id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
 build-health = {id = "com.autonomousapps.dependency-analysis", version.ref = "buildHealth"}
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.2" }
