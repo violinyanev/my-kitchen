@@ -56,6 +56,11 @@ jobs:
             exit 1
           fi
 
+      - name: Configure git user
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Create annotated tag
         run: |
           TAG='${{ steps.validate.outputs.tag }}'
