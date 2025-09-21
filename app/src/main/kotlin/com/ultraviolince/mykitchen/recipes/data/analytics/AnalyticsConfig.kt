@@ -5,24 +5,24 @@ package com.ultraviolince.mykitchen.recipes.data.analytics
  * Contains default values and configuration constants.
  */
 object AnalyticsConfig {
-    
+
     /**
      * Default Countly server URL for development/testing.
      * In production, this should be overridden with your own Countly server.
      */
     const val DEFAULT_SERVER_URL = "https://countly.example.com"
-    
+
     /**
      * Default app key for development/testing.
      * In production, this should be replaced with your actual app key.
      */
     const val DEFAULT_APP_KEY = "your-app-key"
-    
+
     /**
      * Whether analytics is enabled. Can be controlled via build config or runtime.
      */
     var isEnabled: Boolean = true
-    
+
     /**
      * Event names for consistent tracking across the app.
      */
@@ -32,7 +32,7 @@ object AnalyticsConfig {
         const val AUTH_OPERATION = "auth_operation"
         const val NAVIGATION = "navigation"
     }
-    
+
     /**
      * Common segmentation keys.
      */
@@ -42,7 +42,7 @@ object AnalyticsConfig {
         const val SUCCESS = "success"
         const val RECIPE_ID = "recipe_id"
     }
-    
+
     /**
      * Recipe operation actions.
      */
@@ -53,7 +53,7 @@ object AnalyticsConfig {
         const val DELETE = "delete"
         const val LIST = "list"
     }
-    
+
     /**
      * Authentication actions.
      */
@@ -62,7 +62,7 @@ object AnalyticsConfig {
         const val LOGOUT = "logout"
         const val LOGIN_ATTEMPT = "login_attempt"
     }
-    
+
     /**
      * Screen names for navigation tracking.
      */

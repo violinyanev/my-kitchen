@@ -55,13 +55,13 @@ class AnalyticsConfigTest {
     @Test
     fun `isEnabled can be modified`() {
         val originalValue = AnalyticsConfig.isEnabled
-        
+
         AnalyticsConfig.isEnabled = false
         assertThat(AnalyticsConfig.isEnabled).isFalse()
-        
+
         AnalyticsConfig.isEnabled = true
         assertThat(AnalyticsConfig.isEnabled).isTrue()
-        
+
         // Restore original value
         AnalyticsConfig.isEnabled = originalValue
     }

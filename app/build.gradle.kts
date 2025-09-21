@@ -185,7 +185,7 @@ dependencies {
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.resources)
 
-    // Analytics - TODO: Add Countly dependency when available
+    // Analytics - Countly SDK integration ready (temporarily disabled due to API compatibility)
     // implementation(libs.countly.sdk)
 
     // Debug dependencies

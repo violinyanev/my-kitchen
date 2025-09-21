@@ -25,7 +25,7 @@ class AnalyticsManagerTest {
     @Test
     fun `initialize sets analytics as ready`() {
         analyticsManager.initialize("https://test.countly.com", "test-app-key")
-        
+
         assertThat(analyticsManager.isReady()).isTrue()
     }
 
@@ -33,7 +33,7 @@ class AnalyticsManagerTest {
     fun `initialize twice does not crash`() {
         analyticsManager.initialize("https://test.countly.com", "test-app-key")
         analyticsManager.initialize("https://test2.countly.com", "test-app-key-2")
-        
+
         // Should still be ready and not crash
         assertThat(analyticsManager.isReady()).isTrue()
     }
@@ -47,7 +47,7 @@ class AnalyticsManagerTest {
     @Test
     fun `trackEvent does not crash when initialized`() {
         analyticsManager.initialize("https://test.countly.com", "test-app-key")
-        
+
         // Should not crash
         analyticsManager.trackEvent("test_event")
         analyticsManager.trackEvent("test_event_with_data", mapOf("key" to "value"))
@@ -56,7 +56,7 @@ class AnalyticsManagerTest {
     @Test
     fun `trackRecipeEvent does not crash`() {
         analyticsManager.initialize("https://test.countly.com", "test-app-key")
-        
+
         analyticsManager.trackRecipeEvent("create")
         analyticsManager.trackRecipeEvent("update", 123L)
     }
@@ -64,7 +64,7 @@ class AnalyticsManagerTest {
     @Test
     fun `trackAuthEvent does not crash`() {
         analyticsManager.initialize("https://test.countly.com", "test-app-key")
-        
+
         analyticsManager.trackAuthEvent("login", true)
         analyticsManager.trackAuthEvent("login", false)
     }
@@ -72,14 +72,14 @@ class AnalyticsManagerTest {
     @Test
     fun `trackNavigation does not crash`() {
         analyticsManager.initialize("https://test.countly.com", "test-app-key")
-        
+
         analyticsManager.trackNavigation("recipe_list")
     }
 
     @Test
     fun `recordException does not crash`() {
         analyticsManager.initialize("https://test.countly.com", "test-app-key")
-        
+
         val testException = RuntimeException("Test exception")
         analyticsManager.recordException(testException)
         analyticsManager.recordException(testException, "Custom message")

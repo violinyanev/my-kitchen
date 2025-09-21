@@ -22,20 +22,20 @@ class KoinTest : KoinTest {
         } catch (e: Exception) {
             // Ignore if not started
         }
-        
+
         val mockApplication = mockk<Application>(relaxed = true)
-        
+
         // Start Koin with mock context and verify we can inject all dependencies
         startKoin {
             androidContext(mockApplication)
             modules(AppModule().module)
         }
-        
+
         // Test that AnalyticsManager can be injected
         val analyticsManager: AnalyticsManager by inject()
-        
+
         // If we reach here, injection worked correctly
-        
+
         // Clean up
         stopKoin()
     }

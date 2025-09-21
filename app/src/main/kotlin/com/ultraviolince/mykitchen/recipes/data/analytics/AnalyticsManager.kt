@@ -8,6 +8,9 @@ import org.koin.core.annotation.Single
 /**
  * Analytics manager that wraps Countly SDK for tracking app usage and crashes.
  * Provides a minimal interface for essential feature tracking.
+ *
+ * Note: Currently using console logging for demonstration. Uncomment Countly SDK imports
+ * and enable implementation in build.gradle.kts to use actual Countly analytics.
  */
 @Single
 class AnalyticsManager(private val context: Context) {
@@ -22,7 +25,7 @@ class AnalyticsManager(private val context: Context) {
         if (isInitialized) return
 
         try {
-            // TODO: Enable when Countly dependency is working
+            // TODO: Enable when Countly SDK dependency is properly configured
             /*
             val config = CountlyConfig(context, appKey, serverUrl)
                 .setLoggingEnabled(false) // Disable logging for production
@@ -31,8 +34,11 @@ class AnalyticsManager(private val context: Context) {
 
             Countly.sharedInstance().init(config)
             */
+
+            // Simulate successful initialization
             isInitialized = true
-            
+            println("Analytics: Initialized with server=$serverUrl")
+
             // Track app start
             trackEvent("app_started")
         } catch (e: Exception) {
@@ -48,7 +54,7 @@ class AnalyticsManager(private val context: Context) {
         if (!isInitialized) return
 
         try {
-            // TODO: Enable when Countly dependency is working
+            // TODO: Enable when Countly SDK is properly configured
             /*
             if (segmentation != null) {
                 Countly.sharedInstance().recordEvent(eventName, segmentation)
@@ -56,8 +62,13 @@ class AnalyticsManager(private val context: Context) {
                 Countly.sharedInstance().recordEvent(eventName)
             }
             */
-            // For now, just log to console
-            println("Analytics: $eventName with data: $segmentation")
+
+            // Console logging for demonstration
+            if (segmentation != null) {
+                println("Analytics: Event '$eventName' with data: $segmentation")
+            } else {
+                println("Analytics: Event '$eventName'")
+            }
         } catch (e: Exception) {
             // Fail silently
             e.printStackTrace()
@@ -102,10 +113,13 @@ class AnalyticsManager(private val context: Context) {
             val crashDetails = mutableMapOf<String, Any>()
             message?.let { crashDetails["custom_message"] = it }
             crashDetails["exception_type"] = exception.javaClass.simpleName
-            
-            // TODO: Enable when Countly dependency is working
+
+            // TODO: Enable when Countly SDK is properly configured
             // Countly.sharedInstance().crashes().recordHandledException(exception)
-            println("Analytics: Exception recorded - ${exception.javaClass.simpleName}: ${exception.message}")
+
+            // Console logging for demonstration
+            val customMessage = message?.let { " - $it" } ?: ""
+            println("Analytics: Exception recorded - ${exception.javaClass.simpleName}: ${exception.message}$customMessage")
         } catch (e: Exception) {
             // Fail silently
             e.printStackTrace()
