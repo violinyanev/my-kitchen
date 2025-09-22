@@ -425,3 +425,4 @@ val config = CountlyConfig(context, appKey, serverUrl)
 ---
 
 For more detailed information, visit the official [Countly Documentation](https://support.count.ly/hc/en-us).
+
