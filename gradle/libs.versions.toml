@@ -4,7 +4,7 @@ androidGradlePlugin = "8.13.0"
 
 # @keep
 compileSdk = "36"
-composeLatest = "1.9.1"
+composeLatest = "1.9.2"
 composeBom = "2025.09.01"
 composeMultiplatform = "1.7.8"
 coreTesting = "2.2.0"
@@ -30,7 +30,7 @@ datastorePreferences = "1.1.7"
 
 # @keep
 minSdk = "28"
-navigation = "2.9.4"
+navigation = "2.9.5"
 room = "2.8.1"
 
 # @keep
