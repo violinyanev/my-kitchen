@@ -41,7 +41,7 @@ fun RecipeFormFields(
         AppTextField(
             state = contentState,
             onValueChange = { onEvent(AddEditRecipeEvent.EnteredContent(it)) },
-            onFocusChanged = { onEvent(AddEditRecipeEvent.ChangeTitleFocus(it)) },
+            onFocusChanged = { onEvent(AddEditRecipeEvent.ChangeContentFocus(it)) },
             contentDescriptionText = "Enter recipe content",
             textStyle = MaterialTheme.typography.bodyMedium,
             singleLine = false,
