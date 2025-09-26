@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.library)
+    alias(libs.plugins.compose)
 }
 
 kotlin {
@@ -14,6 +15,9 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
+    
+    // Desktop JVM target for desktop apps
+    jvm("desktop")
     
     val iosX64 = iosX64()
     val iosArm64 = iosArm64()
@@ -71,10 +75,24 @@ kotlin {
         
         androidMain.dependencies {
             implementation(libs.ktor.client.cio)
+            
+            // Android-specific Compose dependencies
+            implementation(libs.androidx.navigation.compose)
+            implementation(libs.androidx.compose.runtime)
+            implementation(libs.androidx.compose.material3)
+            implementation(libs.androidx.compose.material.icons.ext)
+            implementation(libs.androidx.compose.ui.tooling.preview)
         }
         
         iosMain.dependencies {
             implementation(libs.ktor.client.cio)
+        }
+        
+        val desktopMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.cio)
+                // Desktop-specific compose dependencies would go here if needed
+            }
         }
         
         jsMain.dependencies {
