@@ -19,6 +19,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose)
     alias(libs.plugins.roborazzi)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 val vName = project.findProperty("versionName") as String? ?: "v1.0.0"
@@ -184,6 +186,11 @@ dependencies {
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.resources)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     // Debug dependencies
     debugImplementation(libs.androidx.compose.ui.tooling) // For previews
