@@ -91,6 +91,9 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.koin.annotations)
+            
+            // Lifecycle compose
+            implementation(libs.androidx.lifecycle.compose)
         }
         
         /*
@@ -119,8 +122,17 @@ android {
     namespace = "com.ultraviolince.mykitchen.shared"
     compileSdk = libs.versions.compileSdk.get().toInt()
     
+    buildFeatures {
+        buildConfig = true
+    }
+    
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
+        
+        // Build config fields for server configuration
+        buildConfigField("String", "DEFAULT_SERVER", "\"http://10.0.2.2:5000\"")
+        buildConfigField("String", "DEFAULT_USERNAME", "\"test@user.com\"")
+        buildConfigField("String", "DEFAULT_PASSWORD", "\"TestPassword\"")
     }
     
     compileOptions {

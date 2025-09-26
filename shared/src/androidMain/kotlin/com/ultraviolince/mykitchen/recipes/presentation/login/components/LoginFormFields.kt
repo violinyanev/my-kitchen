@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.shared.R
 import com.ultraviolince.mykitchen.recipes.presentation.common.components.AppPasswordField
 import com.ultraviolince.mykitchen.recipes.presentation.common.components.AppTextField
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState

@@ -17,7 +17,7 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.shared.R
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 
 @Composable

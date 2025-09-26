@@ -12,7 +12,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat.ID_NULL
-import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.shared.R
 import com.ultraviolince.mykitchen.recipes.presentation.common.components.AppTextField
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.AddEditRecipeEvent
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState

@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.core.content.res.ResourcesCompat.ID_NULL
 import androidx.navigation.NavController
-import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.shared.R
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.components.RecipeActionButtons
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.components.RecipeFormFields
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme

@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.shared.R
 import com.ultraviolince.mykitchen.recipes.domain.model.InvalidRecipeException
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.model.RecipeValidationError

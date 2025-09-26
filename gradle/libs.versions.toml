@@ -57,6 +57,7 @@ androidx-compose-runtime = { module = "androidx.compose.runtime:runtime", versio
 androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeLatest" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "ktx" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }

@@ -19,7 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.res.ResourcesCompat.ID_NULL
-import com.ultraviolince.mykitchen.R
+import com.ultraviolince.mykitchen.shared.R
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
 import com.ultraviolince.mykitchen.ui.theme.MyApplicationTheme
 
