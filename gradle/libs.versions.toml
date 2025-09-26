@@ -47,6 +47,9 @@ composePreviewScanner = "0.7.0"
 kotlinxSerialization = "1.9.0"
 kotlinxDatetime = "0.7.1-0.6.x-compat"
 
+# Analytics
+countly = "23.12.0"
+
 [libraries]
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
@@ -103,6 +106,9 @@ preview-scanner-compose = { module = "io.github.sergio-sastre.ComposablePreviewS
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+
+# Analytics
+countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
