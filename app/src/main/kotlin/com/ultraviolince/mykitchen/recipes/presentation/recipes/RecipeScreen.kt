@@ -39,7 +39,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.ultraviolince.mykitchen.shared.R
+import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState

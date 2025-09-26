@@ -6,8 +6,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ultraviolince.mykitchen.shared.BuildConfig
-import com.ultraviolince.mykitchen.shared.R
+import com.ultraviolince.mykitchen.BuildConfig
+import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.data.datasource.backend.util.NetworkError
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.ultraviolince.mykitchen.recipes.domain.usecase.Recipes

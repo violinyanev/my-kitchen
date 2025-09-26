@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.ultraviolince.mykitchen.shared.R
+import com.ultraviolince.mykitchen.R
 import com.ultraviolince.mykitchen.recipes.presentation.common.components.AnimatedLoadingButton
 import com.ultraviolince.mykitchen.recipes.presentation.editrecipe.RecipeTextFieldState
 import com.ultraviolince.mykitchen.recipes.presentation.login.components.LoginFormFields
