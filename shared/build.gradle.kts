@@ -16,6 +16,9 @@ kotlin {
         }
     }
     
+    // Remove other targets for now to focus on Android Compose migration
+    // Will re-add once we have the UI components working for Android
+    /*
     // Desktop JVM target for desktop apps
     jvm("desktop")
     
@@ -44,6 +47,7 @@ kotlin {
         }
         binaries.executable()
     }
+    */
     
     sourceSets {
         commonMain.dependencies {
@@ -82,12 +86,20 @@ kotlin {
             implementation(libs.androidx.compose.material3)
             implementation(libs.androidx.compose.material.icons.ext)
             implementation(libs.androidx.compose.ui.tooling.preview)
+            
+            // Koin dependencies for ViewModels
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
+            implementation(libs.koin.annotations)
         }
         
+        /*
         iosMain.dependencies {
             implementation(libs.ktor.client.cio)
         }
+        */
         
+        /*
         val desktopMain by getting {
             dependencies {
                 implementation(libs.ktor.client.cio)
@@ -99,6 +111,7 @@ kotlin {
             implementation(libs.ktor.client.js)
             implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
         }
+        */
     }
 }
 
