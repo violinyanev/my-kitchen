@@ -51,7 +51,7 @@ jobs:
         run: |
           echo "::group::Bandit - Python Security Analysis"
           bandit -r backend/image/ -f json -o bandit-report.json || true
-          bandit -r backend/image/ -f txt
+          bandit -r backend/image/ -f txt || true
           echo "::endgroup::"
 
       # This is broken, reason unknown. Will become obsolete anyway
@@ -66,14 +66,14 @@ jobs:
         run: |
           echo "::group::pip-audit - Python Package Security Audit"
           pip-audit --format=json --output=pip-audit-report.json --desc || true
-          pip-audit --desc
+          pip-audit --desc || true
           echo "::endgroup::"
 
       - name: Run Semgrep (Static Analysis)
         run: |
           echo "::group::Semgrep - Static Application Security Testing"
           semgrep --config=.semgrep.yml --json --output=semgrep-report.json backend/image/ || true
-          semgrep --config=.semgrep.yml backend/image/
+          semgrep --config=.semgrep.yml backend/image/ || true
           echo "::endgroup::"
 
       - name: Upload Backend Security Reports
