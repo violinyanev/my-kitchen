@@ -18,6 +18,8 @@ concurrency:
 
 env:
   JAVA_VERSION: 17
+  # Python 3.12+ includes PEP 706 (safe tarfile extraction) which provides
+  # defense-in-depth protection against tarfile vulnerabilities like GHSA-4xh5-x5gv-qwph
   PYTHON_VERSION: '3.12'
 
 jobs:
@@ -40,6 +42,9 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          # Upgrade pip to latest version
+          # Note: Python 3.12+ includes PEP 706 safe tarfile extraction, providing
+          # defense-in-depth protection against pip tarfile vulnerabilities
           python -m pip install --upgrade pip
           pip install --timeout 60 --retries 3 -r backend/image/requirements.txt
 
@@ -188,6 +193,7 @@ jobs:
 
       - name: Install License Analysis Tools
         run: |
+          # Python 3.12+ includes PEP 706 safe tarfile extraction
           pip install --timeout 60 --retries 3 pip-licenses
 
       - name: Check Python License Compliance
