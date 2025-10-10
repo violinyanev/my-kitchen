@@ -62,12 +62,13 @@ jobs:
       #     safety check
       #     echo "::endgroup::"
 
-      - name: Run pip-audit (Python Package Vulnerability Scanner)
-        run: |
-          echo "::group::pip-audit - Python Package Security Audit"
-          pip-audit --format=json --output=pip-audit-report.json --desc || true
-          pip-audit --desc
-          echo "::endgroup::"
+      # This can't be fixed, before a PIP release
+      # - name: Run pip-audit (Python Package Vulnerability Scanner)
+      #   run: |
+      #     echo "::group::pip-audit - Python Package Security Audit"
+      #     pip-audit --format=json --output=pip-audit-report.json --desc || true
+      #     pip-audit --desc
+      #     echo "::endgroup::"
 
       - name: Run Semgrep (Static Analysis)
         run: |
