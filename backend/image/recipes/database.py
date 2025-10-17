@@ -4,6 +4,7 @@ import yaml
 import jsonschema
 import time
 import shutil
+import os
 from datetime import datetime
 
 RECIPE_SCHEMA = {
@@ -19,6 +20,7 @@ RECIPE_SCHEMA = {
                     'body': {'type': 'string'},
                     'timestamp': {'type': 'integer'},
                     'user': {'type': 'string'},
+                    'image_filename': {'type': ['string', 'null']},
                 },
                 'additionalProperties': False,
                 'required': [ 'id', 'title', 'timestamp', 'user' ]
@@ -109,6 +111,7 @@ class Database:
             return None, "Recipe title can't be empty"
         new_recipe['title'] = recipe['title']
         new_recipe['body'] = recipe.get('body', "")
+        new_recipe['image_filename'] = recipe.get('image_filename', None)
 
         # TODO don't validate the entire array, just the recipe
         jsonschema.validate(self.data, RECIPE_SCHEMA)
@@ -119,12 +122,22 @@ class Database:
         return new_recipe, None
 
 
-    def delete(self, user, recipe_id):
+    def delete(self, user, recipe_id, images_folder=None):
         for i, r in enumerate(self.data['recipes']):
             if r['id'] == recipe_id:
                 if r['user'] != user['name']:
                     return False, f"Recipe {recipe_id} does not belong to you, you can't delete it!"
                 deletedRecipe = self.data['recipes'].pop(i)
+                
+                # Delete associated image file if it exists
+                if images_folder and deletedRecipe.get('image_filename'):
+                    image_path = os.path.join(images_folder, deletedRecipe['image_filename'])
+                    if os.path.exists(image_path):
+                        try:
+                            os.remove(image_path)
+                        except Exception as e:
+                            print(f"Warning: Could not delete image file {image_path}: {e}")
+                
                 self.save()
                 return True, deletedRecipe
 
