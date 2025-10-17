@@ -1,0 +1,8 @@
+build/
+*.iml
+.gradle/
+local.properties
+
+# Benchmark outputs
+benchmark-results/
+baseline-profiles/
