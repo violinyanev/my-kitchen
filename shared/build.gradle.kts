@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.library)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.compose)
 }
 
 kotlin {
@@ -62,6 +64,14 @@ kotlin {
             
             // Date/Time
             implementation(libs.kotlinx.datetime)
+            
+            // Compose Multiplatform dependencies
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
         }
         
         commonTest.dependencies {
@@ -71,6 +81,12 @@ kotlin {
         
         androidMain.dependencies {
             implementation(libs.ktor.client.cio)
+            
+            // Android-specific dependencies
+            implementation(libs.androidx.navigation.compose)
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
+            implementation(libs.androidx.lifecycle.compose)
         }
         
         iosMain.dependencies {
