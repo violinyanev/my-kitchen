@@ -1,0 +1,80 @@
+name: Trigger release
+
+# This workflow is triggered manually to create a production release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name to create (e.g. v1.2.3)'
+        required: true
+        type: string
+
+permissions:
+  contents: write  # Needed to push the tag
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate tag format
+        id: validate
+        run: |
+          TAG="${{ github.event.inputs.tag_name }}"
+          if [ -z "${TAG}" ]; then
+            echo "Tag name input is empty" >&2
+            exit 1
+          fi
+          # Basic semantic-ish validation: starts with v and then digits
+          if ! echo "${TAG}" | grep -Eq '^v[0-9]+(\.[0-9]+){0,2}(-[0-9A-Za-z_.-]+)?$'; then
+            echo "Tag '${TAG}' does not match expected pattern (e.g. v1, v1.2, v1.2.3, v1.2.3-rc1)" >&2
+            exit 1
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # Need full history & existing tags
+
+      - name: Ensure main branch is up to date
+        run: |
+          git fetch origin main --tags
+          git checkout main
+          git pull --ff-only origin main
+
+      - name: Ensure tag does not already exist
+        run: |
+          TAG='${{ steps.validate.outputs.tag }}'
+          if git rev-parse "${TAG}" >/dev/null 2>&1; then
+            echo "Tag ${TAG} already exists in local repo" >&2
+            exit 1
+          fi
+          if git ls-remote --tags origin | grep -q "refs/tags/${TAG}$"; then
+            echo "Tag ${TAG} already exists in origin" >&2
+            exit 1
+          fi
+
+      - name: Configure git user
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create annotated tag
+        run: |
+          TAG='${{ steps.validate.outputs.tag }}'
+          COMMIT_SHA=$(git rev-parse HEAD)
+          git tag -a "${TAG}" -m "Release ${TAG}" "${COMMIT_SHA}"
+          git push origin "${TAG}"
+          echo "TAG_CREATED=${TAG}" >> $GITHUB_ENV
+
+      - name: Summary
+        run: |
+          echo "### Tag Created" >> $GITHUB_STEP_SUMMARY
+          echo "Created tag: $TAG_CREATED" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: $(git rev-parse HEAD)" >> $GITHUB_STEP_SUMMARY
+          echo "Triggered by: $GITHUB_ACTOR" >> $GITHUB_STEP_SUMMARY
+
+      - name: Output tag name
+        run: echo "tag=${TAG_CREATED}" >> "$GITHUB_OUTPUT"
