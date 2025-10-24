@@ -78,7 +78,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Upload Backend Security Reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: backend-security-reports
@@ -123,7 +123,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Upload Android Security Reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: android-security-reports
@@ -159,7 +159,7 @@ jobs:
           format: 'table'
 
       - name: Upload Container Security Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: container-security-reports
@@ -217,7 +217,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Upload Compliance Reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: compliance-reports
@@ -235,7 +235,7 @@ jobs:
 
     steps:
       - name: Download All Security Reports
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
 
       - name: Generate Security Summary
         run: |
@@ -258,7 +258,7 @@ jobs:
           cat security-summary.md
 
       - name: Upload Security Summary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: security-summary
           path: security-summary.md
