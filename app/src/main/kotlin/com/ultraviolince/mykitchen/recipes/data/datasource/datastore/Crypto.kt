@@ -56,6 +56,11 @@ object Crypto {
     }
 
     fun decrypt(bytes: ByteArray): ByteArray {
+        // Validate input data length
+        if (bytes.size < cipher.blockSize) {
+            throw IllegalArgumentException("Encrypted data is too short to contain IV")
+        }
+
         val iv = bytes.copyOfRange(0, cipher.blockSize)
         val data = bytes.copyOfRange(cipher.blockSize, bytes.size)
         cipher.init(Cipher.DECRYPT_MODE, getKey(), IvParameterSpec(iv))
