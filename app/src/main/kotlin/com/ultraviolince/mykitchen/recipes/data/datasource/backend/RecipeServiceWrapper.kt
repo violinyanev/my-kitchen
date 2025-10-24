@@ -33,15 +33,24 @@ class RecipeServiceWrapper(private val dataStore: SafeDataStore, private val dao
         // TODO is a better way possible?
         @Suppress("OPT_IN_USAGE")
         GlobalScope.launch {
-            val prefs = dataStore.preferences.first()
+            try {
+                val prefs = dataStore.preferences.first()
 
-            logger.log("Checking stored preferences")
-            if (prefs.server != null && prefs.token != null) {
-                logger.log("Restoring data, server=${prefs.server}")
-                recipeService = RecipeService(createHttpClient(CIO.create(), prefs.server, prefs.token, logger))
+                logger.log("Checking stored preferences")
+                if (prefs.server != null && prefs.token != null) {
+                    logger.log("Restoring data, server=${prefs.server}")
+                    recipeService = RecipeService(createHttpClient(CIO.create(), prefs.server, prefs.token, logger))
 
-                // TODO: check if token still valid
-                loginState.emit(LoginState.LoginSuccess)
+                    // TODO: check if token still valid
+                    loginState.emit(LoginState.LoginSuccess)
+                }
+            } catch (exception: Exception) {
+                // Handle any errors during preferences loading gracefully
+                // This includes BadPaddingException, IOException, and other DataStore errors
+                logger.log("Error loading preferences during initialization: ${exception.message}")
+                Log.w("RecipeServiceWrapper", "Failed to load preferences during init, using empty state", exception)
+                // Continue with empty login state - user will need to log in again
+                loginState.emit(LoginState.LoginEmpty)
             }
         }
     }

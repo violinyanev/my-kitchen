@@ -50,14 +50,20 @@ object UserPreferencesSerializer : Serializer<UserPreferences> {
     }
 
     override suspend fun writeTo(t: UserPreferences, output: OutputStream) {
-        val json = Json.encodeToString(t)
-        val bytes = json.toByteArray()
-        val encryptedBytes = Crypto.encrypt(bytes)
-        val encryptedBytesBase64 = Base64.getEncoder().encode(encryptedBytes)
-        withContext(Dispatchers.IO) {
-            output.use {
-                it.write(encryptedBytesBase64)
+        try {
+            val json = Json.encodeToString(t)
+            val bytes = json.toByteArray()
+            val encryptedBytes = Crypto.encrypt(bytes)
+            val encryptedBytesBase64 = Base64.getEncoder().encode(encryptedBytes)
+            withContext(Dispatchers.IO) {
+                output.use {
+                    it.write(encryptedBytesBase64)
+                }
             }
+        } catch (e: Exception) {
+            // Handle any encryption, serialization, or I/O errors during write
+            Log.e("UserPreferencesSerializer", "Failed to write user preferences", e)
+            throw e // Re-throw to let caller handle the error appropriately
         }
     }
 }
