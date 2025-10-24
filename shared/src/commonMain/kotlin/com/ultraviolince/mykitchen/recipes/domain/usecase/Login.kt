@@ -1,10 +1,9 @@
 package com.ultraviolince.mykitchen.recipes.domain.usecase
 
-import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
+import com.ultraviolince.mykitchen.recipes.domain.repository.AuthRepository
 
-
-class Login(private val repository: RecipeRepository) {
+class Login(private val authRepository: AuthRepository) {
     suspend operator fun invoke(server: String, username: String, password: String) {
-        repository.login(server, username, password)
+        authRepository.login(server, username, password)
     }
 }
