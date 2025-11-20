@@ -4,12 +4,12 @@ androidGradlePlugin = "8.13.1"
 
 # @keep
 compileSdk = "36"
-composeLatest = "1.9.4"
+composeLatest = "1.9.5"
 composeBom = "2025.10.01"
 coreTesting = "2.2.0"
 coroutines = "1.10.2"
 espressoCore = "3.7.0"
-ktor = "3.3.1"
+ktor = "3.3.2"
 koin = "4.1.1"
 koinAnnotations = "2.3.1"
 junit = "4.13.2"
@@ -17,7 +17,7 @@ mockk = "1.14.6"
 turbine = "1.2.1"
 truth = "1.4.5"
 kotlin = "2.2.21"
-ksp = "2.3.0"
+ksp = "2.3.2"
 detekt = "1.23.8"
 twitterDetekt = "0.0.26"
 ktx = "1.17.0"
@@ -29,7 +29,7 @@ datastorePreferences = "1.1.7"
 
 # @keep
 minSdk = "28"
-navigation = "2.9.5"
+navigation = "2.9.6"
 room = "2.8.3"
 
 # @keep
