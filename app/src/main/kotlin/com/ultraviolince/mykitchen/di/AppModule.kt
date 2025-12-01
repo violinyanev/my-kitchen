@@ -6,6 +6,7 @@ import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeService
 import com.ultraviolince.mykitchen.recipes.data.datasource.datastore.SafeDataStore
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDatabase
+import com.ultraviolince.mykitchen.recipes.data.analytics.AnalyticsManager
 import com.ultraviolince.mykitchen.recipes.data.repository.RecipeRepositoryImpl
 import com.ultraviolince.mykitchen.recipes.domain.repository.RecipeRepository
 import com.ultraviolince.mykitchen.recipes.domain.usecase.AddRecipe
@@ -46,8 +47,9 @@ class AppModule {
     fun provideRecipeRepository(
         dao: RecipeDao,
         service: RecipeServiceWrapper,
+        analyticsManager: AnalyticsManager,
     ): RecipeRepository {
-        return RecipeRepositoryImpl(dao, service)
+        return RecipeRepositoryImpl(dao, service, analyticsManager)
     }
 
     @Single
@@ -109,5 +111,10 @@ class AppModule {
     @Single
     fun provideRecipeServiceWrapper(dao: RecipeDao, dataStore: SafeDataStore): RecipeServiceWrapper {
         return RecipeServiceWrapper(dataStore, dao)
+    }
+
+    @Single
+    fun provideAnalyticsManager(app: Application): AnalyticsManager {
+        return AnalyticsManager(app)
     }
 }
