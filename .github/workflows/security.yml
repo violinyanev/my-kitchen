@@ -93,8 +93,6 @@ jobs:
           name: backend-security-reports
           path: |
             bandit-report.json
-            safety-report.json
-            pip-audit-report.json
             semgrep-report.json
           retention-days: 30
 
