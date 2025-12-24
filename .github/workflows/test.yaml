@@ -29,7 +29,7 @@ jobs:
         java-version: ${{ env.JAVA_VERSION }}
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
+      uses: gradle/actions/setup-gradle@v5
 
     - name: Check build health
       run: ./gradlew buildHealth --warning-mode=fail
@@ -69,7 +69,7 @@ jobs:
         java-version: ${{ env.JAVA_VERSION }}
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
+      uses: gradle/actions/setup-gradle@v5
 
     - name: Build iOS framework for device and simulator
       run: |
@@ -116,7 +116,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: '3.14'
 
       - name: Install python dependencies
         run: |
@@ -154,7 +154,7 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Run Tests
         uses: reactivecircus/android-emulator-runner@v2
@@ -179,7 +179,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
-        python-version: '3.13'
+        python-version: '3.14'
     
     - name: Install dependencies
       run: |
