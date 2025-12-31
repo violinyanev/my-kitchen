@@ -122,6 +122,20 @@ class RecipeServiceTest {
     }
 
     @Test
+    fun `getRecipes returns server error for ConnectException`() = runBlocking {
+        // Given
+        val httpClient = createErrorMockHttpClient(java.net.ConnectException("Connection refused"))
+        val recipeService = RecipeService(httpClient)
+
+        // When
+        val result = recipeService.getRecipes()
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.SERVER_ERROR)
+    }
+
+    @Test
     fun `createRecipe returns success with valid response`() = runBlocking {
         // Given
         val responseBody = """{"recipe": {"id": 1, "title": "Recipe 1", "body": "Content", "timestamp": 123}}"""
@@ -199,6 +213,21 @@ class RecipeServiceTest {
     }
 
     @Test
+    fun `createRecipe returns server error for ConnectException`() = runBlocking {
+        // Given
+        val httpClient = createErrorMockHttpClient(java.net.ConnectException("Connection refused"))
+        val recipeService = RecipeService(httpClient)
+        val recipe = BackendRecipe(1L, "Recipe 1", "Content", 123L)
+
+        // When
+        val result = recipeService.createRecipe(recipe)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.SERVER_ERROR)
+    }
+
+    @Test
     fun `deleteRecipe returns success for valid response`() = runBlocking {
         // Given
         val httpClient = createMockHttpClient(HttpStatusCode.NoContent)
@@ -266,6 +295,20 @@ class RecipeServiceTest {
         // Then
         assertThat(result).isInstanceOf(Result.Error::class.java)
         assertThat((result as Result.Error).error).isEqualTo(NetworkError.UNKNOWN)
+    }
+
+    @Test
+    fun `deleteRecipe returns server error for ConnectException`() = runBlocking {
+        // Given
+        val httpClient = createErrorMockHttpClient(java.net.ConnectException("Connection refused"))
+        val recipeService = RecipeService(httpClient)
+
+        // When
+        val result = recipeService.deleteRecipe(1L)
+
+        // Then
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).error).isEqualTo(NetworkError.SERVER_ERROR)
     }
 
     @Test

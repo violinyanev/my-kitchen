@@ -29,6 +29,8 @@ class RecipeService(private val ktor: HttpClient) {
             return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
+        } catch (e: ConnectException) {
+            return Result.Error(NetworkError.SERVER_ERROR)
         }
 
         return when (response.status.value) {
@@ -58,6 +60,8 @@ class RecipeService(private val ktor: HttpClient) {
             return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
+        } catch (e: ConnectException) {
+            return Result.Error(NetworkError.SERVER_ERROR)
         }
 
         return when (response.status.value) {
@@ -84,6 +88,8 @@ class RecipeService(private val ktor: HttpClient) {
             return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
+        } catch (e: ConnectException) {
+            return Result.Error(NetworkError.SERVER_ERROR)
         }
 
         return when (response.status.value) {
