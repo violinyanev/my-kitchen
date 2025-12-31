@@ -155,7 +155,7 @@ android {
 dependencies {
     // Shared module
     implementation(project(":shared"))
-    
+
     // Standard android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.navigation.compose)
