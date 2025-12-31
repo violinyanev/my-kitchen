@@ -50,6 +50,9 @@ class Database:
         with open(self.file, 'r') as f:
             self.data = yaml.safe_load(f)
 
+            # TODO: is this unsafe? Maybe can obfuscate user data?
+            print(self.data)
+
         try:
             jsonschema.validate(self.data, RECIPE_SCHEMA)
         except:
