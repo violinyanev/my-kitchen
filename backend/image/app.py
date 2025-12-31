@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 def get_api_version():
     return {
         "api_version_major": 0,
-        "api_version_minor": 5,
-        "api_version_patch": 2,
+        "api_version_minor": 6,
+        "api_version_patch": 8,
     }
 
 @app.before_request
@@ -78,5 +78,5 @@ if __name__ == '__main__':
     # Configure host binding - default to 127.0.0.1 for security, but allow override for containers
     host = os.environ.get('FLASK_HOST', '127.0.0.1')
     port = int(os.environ.get('FLASK_PORT', '5000'))
-    
+
     app.run(host=host, port=port)
