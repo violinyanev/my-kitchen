@@ -22,3 +22,7 @@
 
 # Logging from KTor
 -dontwarn org.slf4j.impl.StaticLoggerBinder
+
+
+# Obfuscation breaks a lot of tools sadly
+-dontobfuscate
