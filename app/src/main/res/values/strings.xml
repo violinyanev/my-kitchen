@@ -28,6 +28,14 @@
     <string name="missing_password" translation_description="Error text shown when the password is empty">Missing password</string>
     <string name="wrong_credentials" translation_description="Error text shown when username and password don't match">Bad credentials!</string>
     <string name="unknown_error" translation_description="Error text shown when an unexpected error happened">Unexpected internal error! Please report a bug</string>
+    <string name="error_request_timeout" translation_description="Error text shown when the request times out">Request timed out. Please check your connection and try again</string>
+    <string name="error_unauthorized" translation_description="Error text shown when authentication fails">Authentication failed. Please check your credentials</string>
+    <string name="error_conflict" translation_description="Error text shown when there is a conflict with server data">Data conflict with server. Please try again</string>
+    <string name="error_too_many_requests" translation_description="Error text shown when rate limit is exceeded">Too many requests. Please wait a moment and try again</string>
+    <string name="error_no_internet" translation_description="Error text shown when there is no internet connection">No internet connection. Please check your network</string>
+    <string name="error_payload_too_large" translation_description="Error text shown when the request is too large">Request too large. Please reduce the data size</string>
+    <string name="error_server_error" translation_description="Error text shown when the server encounters an error">Server error. Please try again later</string>
+    <string name="error_serialization" translation_description="Error text shown when data serialization fails">Data format error. Please contact support</string>
 
     <!-- Recipes add/edit screen -->
     <string name="title_hint" translation_description="The placeholder text shown when the title of a recipe is empty">Title</string>
