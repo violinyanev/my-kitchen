@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity
 import androidx.annotation.StringRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.ultraviolince.mykitchen.recipes.domain.model.SyncStatus
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe as SharedRecipe
 
 @Entity
@@ -10,9 +11,12 @@ data class Recipe(
     val title: String,
     val content: String,
     val timestamp: Long,
+    val syncStatus: SyncStatus = SyncStatus.NOT_SYNCED,
+    val lastSyncTimestamp: Long? = null,
+    val syncErrorMessage: String? = null,
     @PrimaryKey val id: Long? = null
 ) {
-    override fun toString() = "Recipe[$id] $title (ts $timestamp)"
+    override fun toString() = "Recipe[$id] $title (ts $timestamp, sync: $syncStatus)"
 
     // Convert to shared Recipe model
     fun toSharedRecipe(): SharedRecipe {

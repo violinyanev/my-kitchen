@@ -35,9 +35,9 @@ class RecipeTest {
 
     @Test
     fun `Recipe equality works correctly`() {
-        val recipe1 = Recipe("Title", "Content", 123L, 1L)
-        val recipe2 = Recipe("Title", "Content", 123L, 1L)
-        val recipe3 = Recipe("Different", "Content", 123L, 1L)
+        val recipe1 = Recipe("Title", "Content", 123L, id = 1L)
+        val recipe2 = Recipe("Title", "Content", 123L, id = 1L)
+        val recipe3 = Recipe("Different", "Content", 123L, id = 1L)
 
         assertThat(recipe1).isEqualTo(recipe2)
         assertThat(recipe1).isNotEqualTo(recipe3)
@@ -45,7 +45,7 @@ class RecipeTest {
 
     @Test
     fun `Recipe copy works correctly`() {
-        val original = Recipe("Original", "Content", 123L, 1L)
+        val original = Recipe("Original", "Content", 123L, id = 1L)
         val copied = original.copy(title = "Modified")
 
         assertThat(copied.title).isEqualTo("Modified")
