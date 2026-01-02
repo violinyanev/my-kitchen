@@ -10,6 +10,7 @@ data class Recipe(
     val title: String,
     val content: String,
     val timestamp: Long,
+    val imagePath: String? = null,
     @PrimaryKey val id: Long? = null
 ) {
     override fun toString() = "Recipe[$id] $title (ts $timestamp)"
@@ -20,6 +21,7 @@ data class Recipe(
             title = title,
             content = content,
             timestamp = timestamp,
+            imagePath = imagePath,
             id = id
         )
     }
@@ -31,6 +33,7 @@ data class Recipe(
                 title = recipe.title,
                 content = recipe.content,
                 timestamp = recipe.timestamp,
+                imagePath = recipe.imagePath,
                 id = recipe.id
             )
         }
