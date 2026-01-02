@@ -27,6 +27,14 @@
     <string name="missing_password">Passwort fehlt</string>
     <string name="wrong_credentials">Falscher login/passwort</string>
     <string name="unknown_error">Unerwarter Fehler! Bitte als melden</string>
+    <string name="error_request_timeout">Zeitüberschreitung der Anfrage. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut</string>
+    <string name="error_unauthorized">Authentifizierung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten</string>
+    <string name="error_conflict">Datenkonflikt mit dem Server. Bitte versuchen Sie es erneut</string>
+    <string name="error_too_many_requests">Zu viele Anfragen. Bitte warten Sie einen Moment und versuchen Sie es erneut</string>
+    <string name="error_no_internet">Keine Internetverbindung. Bitte überprüfen Sie Ihr Netzwerk</string>
+    <string name="error_payload_too_large">Anfrage zu groß. Bitte reduzieren Sie die Datenmenge</string>
+    <string name="error_server_error">Serverfehler. Bitte versuchen Sie es später erneut</string>
+    <string name="error_serialization">Datenformatfehler. Bitte kontaktieren Sie den Support</string>
     <string name="delete">Löschen</string>
     <string name="logout">Ausloggen</string>
 </resources>
