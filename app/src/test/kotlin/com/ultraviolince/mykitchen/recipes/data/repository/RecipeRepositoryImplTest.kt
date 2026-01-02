@@ -1,10 +1,9 @@
 package com.ultraviolince.mykitchen.recipes.data.repository
 
-import com.ultraviolince.mykitchen.recipes.data.datasource.backend.RecipeServiceWrapper
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.RecipeDao
 import com.ultraviolince.mykitchen.recipes.data.datasource.localdb.entity.Recipe as LocalRecipe
 import com.ultraviolince.mykitchen.recipes.domain.model.Recipe
-import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
+import com.ultraviolince.mykitchen.recipes.domain.service.RecipeNetworkService
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -20,47 +19,14 @@ import org.junit.Test
 class RecipeRepositoryImplTest {
 
     private lateinit var dao: RecipeDao
-    private lateinit var recipeService: RecipeServiceWrapper
+    private lateinit var recipeNetworkService: RecipeNetworkService
     private lateinit var repository: RecipeRepositoryImpl
 
     @Before
     fun setUp() {
         dao = mockk()
-        recipeService = mockk()
-        repository = RecipeRepositoryImpl(dao, recipeService)
-    }
-
-    @Test
-    fun `login delegates to recipeService`() = runBlocking {
-        val server = "http://example.com"
-        val email = "test@example.com"
-        val password = "password"
-
-        coEvery { recipeService.login(server, email, password) } returns Unit
-
-        repository.login(server, email, password)
-
-        coVerify { recipeService.login(server, email, password) }
-    }
-
-    @Test
-    fun `logout delegates to recipeService`() = runBlocking {
-        coEvery { recipeService.logout() } returns Unit
-
-        repository.logout()
-
-        coVerify { recipeService.logout() }
-    }
-
-    @Test
-    fun `getLoginState returns recipeService loginState`() = runBlocking {
-        val expectedLoginState = LoginState.LoginSuccess
-        every { recipeService.loginState } returns kotlinx.coroutines.flow.MutableStateFlow(expectedLoginState)
-
-        val result = repository.getLoginState().first()
-
-        assertThat(result).isEqualTo(expectedLoginState)
-        verify { recipeService.loginState }
+        recipeNetworkService = mockk()
+        repository = RecipeRepositoryImpl(dao, recipeNetworkService)
     }
 
     @Test
@@ -110,13 +76,13 @@ class RecipeRepositoryImplTest {
         val expectedId = 5L
 
         coEvery { dao.insertRecipe(localRecipe) } returns expectedId
-        coEvery { recipeService.insertRecipe(expectedId, recipe) } returns true
+        coEvery { recipeNetworkService.insertRecipe(expectedId, recipe) } returns true
 
         val result = repository.insertRecipe(recipe)
 
         assertThat(result).isEqualTo(expectedId)
         coVerify { dao.insertRecipe(localRecipe) }
-        coVerify { recipeService.insertRecipe(expectedId, recipe) }
+        coVerify { recipeNetworkService.insertRecipe(expectedId, recipe) }
     }
 
     @Test
@@ -124,12 +90,12 @@ class RecipeRepositoryImplTest {
         val recipe = Recipe("Delete Me", "Content", 123L, 42L)
         val localRecipe = LocalRecipe("Delete Me", "Content", 123L, 42L)
 
-        coEvery { recipeService.deleteRecipe(42L) } returns true
+        coEvery { recipeNetworkService.deleteRecipe(42L) } returns true
         coEvery { dao.deleteRecipe(localRecipe) } returns Unit
 
         repository.deleteRecipe(recipe)
 
-        coVerify { recipeService.deleteRecipe(42L) }
+        coVerify { recipeNetworkService.deleteRecipe(42L) }
         coVerify { dao.deleteRecipe(localRecipe) }
     }
 
@@ -141,7 +107,7 @@ class RecipeRepositoryImplTest {
         repository.deleteRecipe(recipe)
 
         // Verify that neither service nor dao were called
-        coVerify(exactly = 0) { recipeService.deleteRecipe(any()) }
+        coVerify(exactly = 0) { recipeNetworkService.deleteRecipe(any()) }
         coVerify(exactly = 0) { dao.deleteRecipe(any()) }
     }
 }
