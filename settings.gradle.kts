@@ -40,3 +40,4 @@ dependencyResolutionManagement {
 rootProject.name = "my-kitchen"
 include(":app")
 include(":shared")
+include(":macrobenchmark")
