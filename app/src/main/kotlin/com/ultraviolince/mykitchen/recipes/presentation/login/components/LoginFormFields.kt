@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.password
@@ -47,7 +48,8 @@ fun LoginFormFields(
             onFocusChanged = { onEvent(LoginEvent.ChangeServerFocus(it)) },
             contentDescriptionText = "Server URI",
             textStyle = MaterialTheme.typography.headlineMedium,
-            readOnly = isLoggedIn
+            readOnly = isLoggedIn,
+            autofillContentType = ContentType.AddressAuxiliaryDetails
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -58,7 +60,8 @@ fun LoginFormFields(
             onFocusChanged = { onEvent(LoginEvent.ChangeUsernameFocus(it)) },
             contentDescriptionText = "User name",
             textStyle = MaterialTheme.typography.headlineMedium,
-            readOnly = isLoggedIn
+            readOnly = isLoggedIn,
+            autofillContentType = ContentType.Username
         )
 
         Spacer(modifier = Modifier.height(16.dp))
