@@ -26,7 +26,7 @@ class TestDatabase(unittest.TestCase):
 
         fake_user = {
             'name': "Max",
-            'password': "123456",
+            'password': "123456",  # nosec B105 - test data, not a real password
             'email': "max@theguy.com",
         }
 
