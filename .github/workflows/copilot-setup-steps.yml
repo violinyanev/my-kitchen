@@ -13,33 +13,17 @@ on:
 
 env:
     JAVA_VERSION: 17
-    GRADLE_VERSION: '8.14.3'
-    PYTHON_VERSION: '3.13'
+    PYTHON_VERSION: '3.14'
+    NODE_VERSION: '22'
 
-    # TODO use all of these variables in the steps below
-    ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
-    ANDROID_HOME: ${{ github.workspace }}/android-sdk
-    ANDROID_NDK_HOME: ${{ github.workspace }}/android-ndk
-    ANDROID_SDK_TOOLS: ${{ github.workspace }}/android-sdk/tools
-    ANDROID_SDK_BUILD_TOOLS: ${{ github.workspace }}/android-sdk/build-tools
-    ANDROID_SDK_PLATFORM_TOOLS: ${{ github.workspace }}/android-sdk/platform-tools
-    ANDROID_SDK_LIBRARIES: ${{ github.workspace }}/android-sdk/licenses
-    ANDROID_SDK_REPOSITORIES: ${{ github.workspace }}/android-sdk/repositories.cfg
-    ANDROID_SDK_AVD_HOME: ${{ github.workspace }}/android-sdk/avd
-    ANDROID_SDK_EMULATOR: ${{ github.workspace }}/android-sdk/emulator
-    ANDROID_SDK_SYSTEM_IMAGES: ${{ github.workspace }}/android-sdk/system-images
-    ANDROID_SDK_PLATFORM: 'android-34' # Adjust as needed
-    ANDROID_SDK_API_LEVEL: 34 # Adjust as needed
-    ANDROID_SDK_BUILD_TOOLS_VERSION: '34.0.0' # Adjust
-    ANDROID_SDK_TARGET: 'android-34' # Adjust as needed
-    ANDROID_SDK_TESTING: ${{ github.workspace }}/android-sdk/testing
-    ANDROID_SDK_TESTING_TOOLS: ${{ github.workspace }}/android-sdk/testing/tools
-    ANDROID_SDK_TESTING_PLATFORM_TOOLS: ${{ github.workspace }}/android-sdk/testing/platform-tools
-    ANDROID_SDK_TESTING_BUILD_TOOLS: ${{ github.workspace }}/android-sdk/testing/build-tools
-    ANDROID_SDK_TESTING_SYSTEM_IMAGES: ${{ github.workspace }}/
+    # Note: ANDROID_HOME and ANDROID_SDK_ROOT are intentionally NOT overridden here.
+    # The ubuntu-latest runner provides a pre-installed Android SDK at the default path.
+    # Overriding these with non-existent paths would break all Gradle builds (including
+    # the web app build, since the shared module uses the android.library plugin).
+
+    # Reference values used by Copilot when generating build/test commands
     PYTHON_REQUIREMENTS: 'backend/image/requirements.txt'
     GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
-    GRADLE_CACHE: ${{ github.workspace }}/.gradle/caches
     GRADLE_WRAPPER: ${{ github.workspace }}/gradlew # Ensure the Gradle wrapper is used
     GRADLE_PROPERTIES: ${{ github.workspace }}/gradle.properties # Ensure the Gradle properties file is used
     GRADLE_BUILD_DIR: ${{ github.workspace }}/app/build
@@ -75,10 +59,8 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Gradle 8.14.3
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
-        with:
-          gradle-version: '8.14.3'
 
       - name: Verify Java installation
         run: |
@@ -87,8 +69,26 @@ jobs:
           echo "JAVA_HOME: $JAVA_HOME"
           echo "✅ Java setup successful"
 
+      # Setup Node.js - required for Kotlin/JS (KMP web target) builds
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Verify Node.js installation
+        run: |
+          echo "🟢 Verifying Node.js installation..."
+          node --version
+          npm --version
+          echo "✅ Node.js setup successful"
+
+      - name: Install npm dependencies
+        # Installs commitlint and other devDependencies from root package.json
+        run: npm install
+        working-directory: ${{ github.workspace }}
+
       # Setup the test backend
-      - name: Set up Python 3.13
+      - name: Set up Python 3.14
         uses: actions/setup-python@v6
         with:
           python-version: '3.14'
