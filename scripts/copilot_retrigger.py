@@ -26,9 +26,17 @@ import os
 import sys
 import json
 import argparse
+import time
 import requests
-from typing import List, Dict, Optional
+from typing import List, Dict
 from datetime import datetime
+
+
+# Default timeout for all HTTP requests (seconds)
+REQUEST_TIMEOUT = 30
+# Retry configuration for transient network errors
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
 
 
 class GitHubAPI:
@@ -46,6 +54,29 @@ class GitHubAPI:
             "User-Agent": "copilot-retrigger-script"
         }
     
+    def _request(self, method: str, url: str, **kwargs) -> requests.Response:
+        """Make an HTTP request with timeout and retry logic for transient errors."""
+        kwargs.setdefault("timeout", REQUEST_TIMEOUT)
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                response = requests.request(method, url, headers=self.headers, **kwargs)
+                response.raise_for_status()
+                return response
+            except (requests.exceptions.ConnectionError,
+                    requests.exceptions.Timeout,
+                    requests.exceptions.ChunkedEncodingError) as e:
+                if attempt < MAX_RETRIES:
+                    # Wait before the next retry; final attempt raises immediately
+                    wait = RETRY_BACKOFF_SECONDS * attempt
+                    print(f"  Network error (attempt {attempt}/{MAX_RETRIES}), retrying in {wait}s: {e}")
+                    time.sleep(wait)
+                else:
+                    raise
+            except requests.exceptions.HTTPError:
+                # Don't retry HTTP errors (4xx, 5xx) — they are not transient
+                raise
+        raise RuntimeError("MAX_RETRIES must be >= 1")
+
     def fetch_all_pr_data(self) -> List[Dict]:
         """Fetch all PR data in a single GraphQL query."""
         query = """
@@ -104,12 +135,11 @@ class GitHubAPI:
             "repo": self.repo
         }
         
-        response = requests.post(
+        response = self._request(
+            "POST",
             self.graphql_url,
-            headers=self.headers,
             json={"query": query, "variables": variables}
         )
-        response.raise_for_status()
         
         data = response.json()
         if "errors" in data:
@@ -122,16 +152,14 @@ class GitHubAPI:
         url = f"{self.rest_url}/repos/{self.owner}/{self.repo}/issues/{pr_number}/comments"
         data = {"body": comment}
         
-        response = requests.post(url, headers=self.headers, json=data)
-        response.raise_for_status()
+        response = self._request("POST", url, json=data)
         return response.json()
     
     def approve_workflow_run(self, run_id: int) -> Dict:
         """Approve a workflow run using REST API."""
         url = f"{self.rest_url}/repos/{self.owner}/{self.repo}/actions/runs/{run_id}/approve"
         
-        response = requests.post(url, headers=self.headers)
-        response.raise_for_status()
+        response = self._request("POST", url)
         return response.json() if response.content else {}
     
     def get_workflow_runs_for_pr(self, pr_number: int) -> List[Dict]:
@@ -143,8 +171,7 @@ class GitHubAPI:
             "per_page": 100
         }
         
-        response = requests.get(url, headers=self.headers, params=params)
-        response.raise_for_status()
+        response = self._request("GET", url, params=params)
         
         data = response.json()
         workflow_runs = data.get("workflow_runs", [])
