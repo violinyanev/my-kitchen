@@ -62,6 +62,17 @@ class GitHubAPI:
                 response = requests.request(method, url, headers=self.headers, **kwargs)
                 response.raise_for_status()
                 return response
+            except requests.exceptions.HTTPError as e:
+                # Retry on 5xx server errors (transient); propagate 4xx client errors immediately
+                if response.status_code >= 500 and attempt < MAX_RETRIES:
+                    wait = RETRY_BACKOFF_SECONDS * attempt
+                    print(f"  Server error {response.status_code} (attempt {attempt}/{MAX_RETRIES}), retrying in {wait}s: {e}")
+                    time.sleep(wait)
+                elif response.status_code >= 500 and attempt >= MAX_RETRIES:
+                    raise
+                else:
+                    # 4xx — not transient, propagate immediately
+                    raise
             except (requests.exceptions.ConnectionError,
                     requests.exceptions.Timeout,
                     requests.exceptions.ChunkedEncodingError) as e:
@@ -72,9 +83,6 @@ class GitHubAPI:
                     time.sleep(wait)
                 else:
                     raise
-            except requests.exceptions.HTTPError:
-                # Don't retry HTTP errors (4xx, 5xx) — they are not transient
-                raise
         raise RuntimeError("MAX_RETRIES must be >= 1")
 
     def fetch_all_pr_data(self) -> List[Dict]:
