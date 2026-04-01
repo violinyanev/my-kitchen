@@ -45,7 +45,7 @@ jobs:
         node-version: '24'
 
     - name: Setup Pages
-      uses: actions/configure-pages@v5
+      uses: actions/configure-pages@v6
 
     - name: Build web app
       run: ./gradlew :shared:jsBrowserDistribution --warning-mode=fail
