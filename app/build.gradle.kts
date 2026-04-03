@@ -11,7 +11,6 @@ kotlin {
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
@@ -131,13 +130,6 @@ android {
             all {
                 it.systemProperties["robolectric.pixelCopyRenderMode"] = "hardware"
             }
-        }
-    }
-
-    // This is needed for koin+KSP
-    applicationVariants.forEach { variant ->
-        variant.sourceSets.forEach {
-            it.javaDirectories += files("build/generated/ksp/${variant.name}/kotlin")
         }
     }
 
@@ -266,12 +258,12 @@ roborazzi {
 
 // Fix task dependencies for KSP and Roborazzi
 afterEvaluate {
-    tasks.named("kspDebugUnitTestKotlin").configure {
-        dependsOn("generateDebugComposePreviewRobolectricTests")
-        dependsOn("generateReleaseComposePreviewRobolectricTests")
-    }
-    tasks.named("kspReleaseUnitTestKotlin").configure {
-        dependsOn("generateDebugComposePreviewRobolectricTests")
-        dependsOn("generateReleaseComposePreviewRobolectricTests")
+    tasks.matching { it.name in setOf("kspDebugUnitTestKotlin", "kspReleaseUnitTestKotlin") }.configureEach {
+        listOf(
+            "generateDebugComposePreviewRobolectricTests",
+            "generateReleaseComposePreviewRobolectricTests",
+        ).forEach { taskName ->
+            tasks.findByName(taskName)?.let { dependsOn(it) }
+        }
     }
 }
