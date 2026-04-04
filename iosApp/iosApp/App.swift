@@ -49,7 +49,7 @@ struct ContentView: View {
             title: "iOS Sample Recipe",
             content: "This recipe was created from the iOS app using the shared Kotlin module!",
             timestamp: Int64(Date().timeIntervalSince1970 * 1000),
-            id: Int64.random(in: 1...1000)
+            id: KotlinLong(value: Int64.random(in: 1...1000))
         )
         recipes.append(newRecipe)
     }

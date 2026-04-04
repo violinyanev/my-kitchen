@@ -13,10 +13,21 @@
 
 /* Begin PBXFileReference section */
 		8B000000000000000000000 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
-		8B000000000000000000001 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8B000000000000000000002 /* SharedKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SharedKit.framework; path = ../shared/build/bin/iosX64/debugFramework/SharedKit.framework; sourceTree = "<group>"; };
+		8B000000000000000000005 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B000000000000000000002 /* SharedKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SharedKit.framework; path = ../shared/build/bin/iosSimulatorArm64/debugFramework/SharedKit.framework; sourceTree = "<group>"; };
 		8B000000000000000000004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8B000000000000000000032 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B000000000000000000001 /* App.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8B000000000000000000010 /* Frameworks */ = {
@@ -28,6 +39,29 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8B000000000000000000033 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8B000000000000000000034 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXGroup section */
 		8B000000000000000000020 = {
@@ -51,7 +85,7 @@
 		8B000000000000000000022 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8B000000000000000000001 /* iosApp.app */,
+				8B000000000000000000005 /* iosApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -82,7 +116,7 @@
 			);
 			name = iosApp;
 			productName = iosApp;
-			productReference = 8B000000000000000000001 /* iosApp.app */;
+				productReference = 8B000000000000000000005 /* iosApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -190,7 +224,6 @@
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/../shared/build/bin/iosX64/debugFramework",
 					"$(PROJECT_DIR)/../shared/build/bin/iosSimulatorArm64/debugFramework",
 					"$(PROJECT_DIR)/../shared/build/bin/iosArm64/debugFramework",
 				);
