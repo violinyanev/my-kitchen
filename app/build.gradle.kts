@@ -185,6 +185,9 @@ dependencies {
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.resources)
 
+    // Image loading
+    implementation(libs.coil.compose)
+
     // Debug dependencies
     debugImplementation(libs.androidx.compose.ui.tooling) // For previews
 
