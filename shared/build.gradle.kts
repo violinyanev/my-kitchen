@@ -3,13 +3,16 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
 }
 
 kotlin {
     jvmToolchain(17)
-    
-    androidTarget {
+
+    android {
+        namespace = "com.ultraviolince.mykitchen.shared"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
@@ -84,16 +87,3 @@ kotlin {
     }
 }
 
-android {
-    namespace = "com.ultraviolince.mykitchen.shared"
-    compileSdk = libs.versions.compileSdk.get().toInt()
-    
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-    }
-    
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
