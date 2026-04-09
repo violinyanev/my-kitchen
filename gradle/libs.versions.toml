@@ -44,7 +44,7 @@ robolectric = "4.16.1"
 composePreviewScanner = "0.8.2"
 
 # Multiplatform versions
-kotlinxSerialization = "1.10.0"
+kotlinxSerialization = "1.11.0"
 kotlinxDatetime = "0.7.1-0.6.x-compat"
 
 [libraries]
