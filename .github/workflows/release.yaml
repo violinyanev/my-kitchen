@@ -116,7 +116,7 @@ jobs:
 
     - name: Create or update release candidate
       if: steps.release_info.outputs.is_tag_release == 'false'
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         # Use commit SHA as tag name to avoid version-like tag restrictions
         tag_name: "rc-${{ github.sha }}"
@@ -143,7 +143,7 @@ jobs:
 
     - name: Publish production release
       if: steps.release_info.outputs.is_tag_release == 'true'
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ steps.release_info.outputs.version_name }}
         name: "Release ${{ steps.release_info.outputs.version_name }}"
