@@ -116,7 +116,7 @@ jobs:
 
     strategy:
       matrix:
-          api-level: [28, 31, 34, 35]
+          api-level: [28, 31, 34, 35, 36]
 
     steps:
       - uses: actions/checkout@v6
