@@ -4,7 +4,7 @@ androidGradlePlugin = "9.2.0"
 
 # @keep
 compileSdk = "36"
-composeLatest = "1.10.6"
+composeLatest = "1.11.0"
 composeBom = "2026.03.01"
 coreTesting = "2.2.0"
 coroutines = "1.10.2"
