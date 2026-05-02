@@ -41,7 +41,7 @@ kover = "0.9.8"
 runner = "1.7.0"
 roborazzi = "1.60.0"
 robolectric = "4.16.1"
-composePreviewScanner = "0.8.2"
+composePreviewScanner = "0.9.0"
 
 # Multiplatform versions
 kotlinxSerialization = "1.11.0"
