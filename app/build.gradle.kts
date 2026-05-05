@@ -124,7 +124,7 @@ android {
     }
 
     testOptions {
-        unitTests{
+        unitTests {
             isIncludeAndroidResources = true
             isReturnDefaultValues = true
             all {
