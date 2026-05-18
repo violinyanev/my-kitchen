@@ -112,16 +112,15 @@ class LoginViewModel(
                                 _eventFlow.emit(
                                     UiEvent.ShowSnackbar(
                                         when (it.error) {
-                                            // TODO fix all responses
                                             NetworkError.UNKNOWN -> R.string.unknown_error
-                                            NetworkError.REQUEST_TIMEOUT -> R.string.malformed_server_uri
-                                            NetworkError.UNAUTHORIZED -> R.string.unknown_error
-                                            NetworkError.CONFLICT -> R.string.unknown_error
-                                            NetworkError.TOO_MANY_REQUESTS -> R.string.unknown_error
-                                            NetworkError.NO_INTERNET -> R.string.unknown_error
-                                            NetworkError.PAYLOAD_TOO_LARGE -> R.string.unknown_error
-                                            NetworkError.SERVER_ERROR -> R.string.malformed_server_uri
-                                            NetworkError.SERIALIZATION -> R.string.unknown_error
+                                            NetworkError.REQUEST_TIMEOUT -> R.string.error_request_timeout
+                                            NetworkError.UNAUTHORIZED -> R.string.error_unauthorized
+                                            NetworkError.CONFLICT -> R.string.error_conflict
+                                            NetworkError.TOO_MANY_REQUESTS -> R.string.error_too_many_requests
+                                            NetworkError.NO_INTERNET -> R.string.error_no_internet
+                                            NetworkError.PAYLOAD_TOO_LARGE -> R.string.error_payload_too_large
+                                            NetworkError.SERVER_ERROR -> R.string.error_server_error
+                                            NetworkError.SERIALIZATION -> R.string.error_serialization
                                         }
                                     )
                                 )
