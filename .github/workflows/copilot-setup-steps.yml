@@ -22,7 +22,7 @@ env:
     # the web app build, since the shared module uses the android.library plugin).
 
     # Reference values used by Copilot when generating build/test commands
-    PYTHON_REQUIREMENTS: 'backend/image/requirements.txt'
+    PYTHON_PYPROJECT: 'backend/image/pyproject.toml'
     GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
     GRADLE_WRAPPER: ${{ github.workspace }}/gradlew # Ensure the Gradle wrapper is used
     GRADLE_PROPERTIES: ${{ github.workspace }}/gradle.properties # Ensure the Gradle properties file is used
@@ -93,10 +93,11 @@ jobs:
         with:
           python-version: '3.14'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
       - name: Install python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r backend/image/requirements.txt
+        run: uv sync --project backend/image
 
       - name: Verify Python installation
         run: |

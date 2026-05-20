@@ -38,10 +38,11 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
       - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --timeout 60 --retries 3 -r backend/image/requirements.txt
+        run: uv sync --project backend/image
 
       - name: Install security analysis tools
         run: |
@@ -196,12 +197,12 @@ jobs:
 
       - name: Install License Analysis Tools
         run: |
-          pip install --timeout 60 --retries 3 pip-licenses
+          uv tool install pip-licenses
 
       - name: Check Python License Compliance
         run: |
           echo "::group::Python Dependencies License Check"
-          pip install --timeout 60 --retries 3 -r backend/image/requirements.txt
+          uv sync --project backend/image
           pip-licenses --format=json --output-file=python-licenses.json
           pip-licenses
           echo "::endgroup::"

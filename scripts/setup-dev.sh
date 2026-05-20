@@ -55,27 +55,12 @@ else
     exit 1
 fi
 
-# Python version check
-if command -v python3 >/dev/null 2>&1; then
-    PYTHON_VERSION=$(python3 --version | awk '{print $2}' | cut -d'.' -f1,2)
-    if python3 -c "import sys; exit(0 if sys.version_info >= (3, 8) else 1)"; then
-        print_success "Python $PYTHON_VERSION found"
-    else
-        print_error "Python 3.8+ required, found Python $PYTHON_VERSION"
-        exit 1
-    fi
+# uv check
+if command -v uv >/dev/null 2>&1; then
+    print_success "uv $(uv --version) found"
 else
-    print_error "Python 3 not found. Install Python 3.8+: https://www.python.org/"
+    print_error "uv not found. Install it: curl -LsSf https://astral.sh/uv/install.sh | sh"
     exit 1
-fi
-
-# Install backend dependencies
-print_step "Installing backend dependencies..."
-if [ -f "backend/image/requirements.txt" ]; then
-    python3 -m pip install -r backend/image/requirements.txt
-    print_success "Backend dependencies installed"
-else
-    print_warning "Backend requirements.txt not found"
 fi
 
 # Setup Git hooks
