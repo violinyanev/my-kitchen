@@ -4,11 +4,11 @@ FROM python:3.14-slim
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the requirements file to the container
-COPY requirements.txt .
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Install Flask and other dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy the project definition and install dependencies
+COPY pyproject.toml .
+RUN uv pip install --system .
 
 # Copy the Flask app code to the container
 COPY app.py .
