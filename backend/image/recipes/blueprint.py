@@ -40,3 +40,11 @@ def delete_recipe(current_user, recipe_id):
         return jsonify({"message": "Recipe deleted successfully", "recipe": result}), 204
     else:
         abort(400, result)
+
+
+@RecipesBlueprint.route('/recipes/clear', methods=['DELETE'])
+@token_required
+def clear_user_recipes(current_user):
+    """Clear all recipes for the current user - for testing purposes"""
+    deleted_count = get_db().clear_user_recipes(current_user)
+    return jsonify({"message": f"Cleared {deleted_count} recipes"}), 200
