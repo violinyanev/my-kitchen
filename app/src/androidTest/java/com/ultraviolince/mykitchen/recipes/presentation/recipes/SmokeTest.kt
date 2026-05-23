@@ -1,6 +1,5 @@
 package com.ultraviolince.mykitchen.recipes.presentation.recipes
 
-import android.util.Log
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
@@ -10,13 +9,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.work.Configuration
-import androidx.work.testing.SynchronousExecutor
-import androidx.work.testing.WorkManagerTestInitHelper
 import com.ultraviolince.mykitchen.recipes.data.FakeBackend
 import com.ultraviolince.mykitchen.recipes.presentation.MainActivity
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -24,17 +18,6 @@ import org.junit.Test
 class SmokeTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
-
-    @Before
-    fun setup() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val config = Configuration.Builder()
-            .setMinimumLoggingLevel(Log.DEBUG)
-            .setExecutor(SynchronousExecutor())
-            .build()
-
-        WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
-    }
 
     private fun createRecipe(title: String, content: String) {
         // When the "New Recipe" button is clicked
@@ -78,7 +61,6 @@ class SmokeTest {
         }
     }
 
-    // TODO Fix the tests
     @Test
     fun createRecipe_WithoutLogin() {
         // By default, no cloud sync
