@@ -56,7 +56,7 @@ while IFS= read -r -d '' file; do
         echo "" >> "$file"
         ((MISSING_NEWLINES++))
     fi
-done < <(find . \( -path "./app/build" -o -path "./build" -o -path "./.gradle" \) -prune -o \( -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" \) -print0)
+done < <(find . \( -path "./app/build" -o -path "./shared/build" -o -path "./build" -o -path "./.gradle" \) -prune -o \( -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" \) -print0)
 
 if [ $MISSING_NEWLINES -eq 0 ]; then
     print_success "All files have proper final newlines"
