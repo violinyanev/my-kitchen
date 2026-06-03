@@ -24,7 +24,8 @@ ktx = "1.18.0"
 material = "1.14.0"
 material3 = "1.4.0"
 materialIcons = "1.7.8"  # Not sure this is not included in latest compose (1.8)
-buildHealth = "3.12.2"
+buildHealth = "3.12.1"
+koinCompilerPlugin = "1.0.0"
 datastorePreferences = "1.2.1"
 
 # @keep
@@ -66,7 +67,7 @@ androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinAnnotations" }
-koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koinAnnotations" }
+
 koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -117,4 +118,5 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"}
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
 compose = {id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
 build-health = {id = "com.autonomousapps.dependency-analysis", version.ref = "buildHealth"}
+koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koinCompilerPlugin" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

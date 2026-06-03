@@ -18,6 +18,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose)
     alias(libs.plugins.roborazzi)
+    alias(libs.plugins.koin.compiler)
 }
 
 val vName = project.findProperty("versionName") as String? ?: "v1.0.0"
@@ -137,12 +138,6 @@ android {
     room {
         schemaDirectory("$projectDir/schemas")
     }
-
-    ksp {
-        arg("KOIN_CONFIG_CHECK", "true")
-        arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
-        arg("KOIN_DEFAULT_MODULE", "false")
-    }
 }
 
 dependencies {
@@ -164,7 +159,6 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.annotations)
-    ksp(libs.koin.ksp.compiler)
     // Database local storage
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)

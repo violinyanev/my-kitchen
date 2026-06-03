@@ -5,7 +5,6 @@ import com.ultraviolince.mykitchen.di.AppModule
 import com.ultraviolince.mykitchen.recipes.presentation.util.PerfTracer
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import org.koin.ksp.generated.module
 
 class RecipesApp : Application() {
     override fun onCreate() {
@@ -16,7 +15,7 @@ class RecipesApp : Application() {
         startKoin {
             androidContext(this@RecipesApp)
             modules(
-                AppModule().module,
+                AppModule::class,
             )
         }
     }
