@@ -18,7 +18,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose)
     alias(libs.plugins.roborazzi)
-    alias(libs.plugins.koin.compiler)
 }
 
 val vName = project.findProperty("versionName") as String? ?: "v1.0.0"

@@ -1,8 +1,8 @@
 package com.ultraviolince.mykitchen
 
 import android.app.Application
-import com.ultraviolince.mykitchen.di.AppModule
-import com.ultraviolince.mykitchen.di.TestModule
+import com.ultraviolince.mykitchen.di.appModule
+import com.ultraviolince.mykitchen.di.testModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
@@ -21,8 +21,8 @@ class TestApplication : Application() {
         startKoin {
             androidContext(this@TestApplication)
             modules(
-                AppModule::class,
-                TestModule::class,
+                appModule,
+                testModule,
             )
         }
     }
