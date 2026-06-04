@@ -11,6 +11,7 @@ kotlin {
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)

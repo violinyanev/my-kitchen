@@ -1,11 +1,12 @@
 package com.ultraviolince.mykitchen
 
 import android.app.Application
-import com.ultraviolince.mykitchen.di.appModule
-import com.ultraviolince.mykitchen.di.testModule
+import com.ultraviolince.mykitchen.di.AppModule
+import com.ultraviolince.mykitchen.di.TestModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
+import org.koin.plugin.module.dsl.modules
 
 class TestApplication : Application() {
     override fun onCreate() {
@@ -20,10 +21,7 @@ class TestApplication : Application() {
 
         startKoin {
             androidContext(this@TestApplication)
-            modules(
-                appModule,
-                testModule,
-            )
+            modules(AppModule::class, TestModule::class)
         }
     }
 }
