@@ -4,6 +4,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val libs: VersionCatalog = the<VersionCatalogsExtension>().named("libs")
+
 kotlin {
     sourceSets {
         commonMain.dependencies {

@@ -1,19 +1,16 @@
+@file:OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
-    id("com.android.library")
+    id("com.android.kotlin.multiplatform.library")
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-kotlin {
-    jvm("desktop")
+val libs: VersionCatalog = the<VersionCatalogsExtension>().named("libs")
 
-    androidTarget {
-        compilations.all {
-            compilerOptions.configure {
-                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            }
-        }
-    }
+kotlin {
+    jvmToolchain(17)
+    jvm("desktop")
 
     listOf(
         iosX64(),
@@ -44,3 +41,4 @@ kotlin {
         }
     }
 }
+

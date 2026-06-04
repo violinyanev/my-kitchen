@@ -4,13 +4,12 @@ agp = "9.2.1"
 ksp = "2.3.8"
 
 # Compose
-composeMultiplatform = "1.10.6"
-composeMaterial3Multiplatform = "1.4.0"
+composeMultiplatform = "1.11.1"
 
-# AndroidX
+# AndroidX (JetBrains multiplatform versions)
 androidxActivity = "1.10.1"
-androidxLifecycle = "2.9.1"
-navigationCompose = "2.9.8"
+androidxLifecycle = "1.11.1"
+navigationCompose = "2.9.2"
 
 # Networking
 ktor = "3.5.0"
@@ -23,7 +22,7 @@ room = "2.8.4"
 exposed = "0.61.0"
 postgresql = "42.7.5"
 hikari = "6.3.0"
-h2 = "2.4.232"
+h2 = "2.3.232"
 
 # Serialization
 kotlinxSerialization = "1.11.0"
@@ -63,8 +62,9 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 
-# Compose
-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3Multiplatform" }
+# Compose (managed by org.jetbrains.compose plugin; these are for explicit coordinates)
+compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMultiplatform" }
 
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
@@ -131,6 +131,7 @@ detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
