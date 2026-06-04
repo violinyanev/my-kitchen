@@ -1,0 +1,60 @@
+<h2>KMP Rework: What's the Migration Scope?</h2>
+<p class="subtitle">This is a major restructuring. Let's clarify what "rework" means to you.</p>
+
+<div class="section">
+  <h3>Current State</h3>
+  <div class="mockup">
+    <div class="mockup-header">Current Architecture</div>
+    <div class="mockup-body" style="padding: 24px; font-family: monospace; font-size: 13px; line-height: 1.8;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; text-align: center;">
+        <div style="background: #2d5a27; padding: 12px; border-radius: 8px; color: white;">
+          <strong>Android App</strong><br>
+          <span style="font-size: 11px;">Kotlin/Compose<br>Room DB, Koin<br>Full-featured ✓</span>
+        </div>
+        <div style="background: #5a4427; padding: 12px; border-radius: 8px; color: white;">
+          <strong>iOS App</strong><br>
+          <span style="font-size: 11px;">SwiftUI<br>Minimal stub<br>Not functional ✗</span>
+        </div>
+        <div style="background: #5a4427; padding: 12px; border-radius: 8px; color: white;">
+          <strong>Web App</strong><br>
+          <span style="font-size: 11px;">Kotlin/JS<br>kotlinx-html<br>Basic ✗</span>
+        </div>
+        <div style="background: #27445a; padding: 12px; border-radius: 8px; color: white;">
+          <strong>Backend</strong><br>
+          <span style="font-size: 11px;">Python Flask<br>YAML storage<br>Working ✓</span>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 12px; color: #888;">
+        ↕ Shared KMP module (models + Ktor client)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>How should we approach this?</h3>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Clean Slate Rewrite</h3>
+      <p>Start fresh with a new project structure. Port functionality piece by piece from the existing code. Results in the cleanest architecture but highest risk and longest timeline.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Incremental Migration</h3>
+      <p>Keep the current repo, restructure module by module. Move existing Android code into shared modules, add platform targets progressively. Lower risk, keeps git history.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Hybrid: New Structure, Port Logic</h3>
+      <p>Create the new KMP project structure in this repo (replacing existing), but copy/adapt the working Kotlin code rather than rewriting from scratch. Best of both: clean structure + proven logic.</p>
+    </div>
+  </div>
+</div>

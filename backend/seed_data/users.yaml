@@ -1,4 +1,0 @@
-users:
-- name: TestUser
-  email: test@user.com
-  password: TestPassword
