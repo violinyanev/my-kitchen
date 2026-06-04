@@ -6,7 +6,7 @@ import com.ultraviolince.mykitchen.di.TestModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
-import org.koin.ksp.generated.module
+import org.koin.plugin.module.dsl.modules
 
 class TestApplication : Application() {
     override fun onCreate() {
@@ -21,10 +21,7 @@ class TestApplication : Application() {
 
         startKoin {
             androidContext(this@TestApplication)
-            modules(
-                AppModule().module,
-                TestModule().module,
-            )
+            modules(AppModule::class, TestModule::class)
         }
     }
 }
