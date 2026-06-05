@@ -6,6 +6,8 @@ plugins {
 
 dependencies {
     implementation(project(":shared:ui"))
+    implementation(project(":shared:data"))
+    implementation(project(":shared:domain"))
     implementation(compose.desktop.currentOs)
     implementation(libs.koin.core)
     implementation(libs.kotlinx.coroutines.core)

@@ -19,10 +19,13 @@ kotlin {
     sourceSets {
         wasmJsMain.dependencies {
             implementation(project(":shared:ui"))
+            implementation(project(":shared:data"))
+            implementation(project(":shared:domain"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(libs.koin.core)
         }
     }
 }

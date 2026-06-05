@@ -33,6 +33,8 @@ android {
 
 dependencies {
     implementation(project(":shared:ui"))
+    implementation(project(":shared:data"))
+    implementation(project(":shared:domain"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.koin.android)
 }

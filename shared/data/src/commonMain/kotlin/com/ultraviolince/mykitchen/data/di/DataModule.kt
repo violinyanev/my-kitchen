@@ -12,9 +12,10 @@ import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
 val dataModule = module {
-    // HttpClient — engine is provided by a platform-specific Koin module (wired in Phase 6)
+    // HttpClient — platform default engine auto-selected via Ktor expect/actual
+    // (CIO for JVM/Android/iOS, Js for WasmJs).
     single {
-        HttpClient(get()) {
+        HttpClient {
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true })
             }
