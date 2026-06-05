@@ -34,3 +34,6 @@ data class CreateRecipeRequestDto(
 
 @Serializable
 data class ErrorDto(val error: String)
+
+@Serializable
+data class VersionResponse(val version: String)

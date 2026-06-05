@@ -21,4 +21,9 @@ subprojects {
         config.setFrom(rootProject.files("gradle/detekt.yml"))
         buildUponDefaultConfig = true
     }
+
+    val catalog = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
+    dependencies {
+        "detektPlugins"(catalog.findLibrary("detekt-formatting").get())
+    }
 }
