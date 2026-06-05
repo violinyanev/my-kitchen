@@ -1,40 +1,17 @@
 package com.ultraviolince.mykitchen.data.local
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import com.ultraviolince.mykitchen.domain.model.Recipe
 import kotlinx.coroutines.flow.Flow
 
-@Dao
 interface RecipeDao {
-    @Query("SELECT * FROM recipes WHERE deleted = 0 ORDER BY title ASC")
-    fun getRecipesByTitle(): Flow<List<RecipeEntity>>
-
-    @Query("SELECT * FROM recipes WHERE deleted = 0 ORDER BY timestamp DESC")
-    fun getRecipesByDate(): Flow<List<RecipeEntity>>
-
-    @Query("SELECT * FROM recipes WHERE deleted = 0")
-    suspend fun getAllActive(): List<RecipeEntity>
-
-    @Query("SELECT * FROM recipes WHERE deleted = 1 AND synced = 0")
-    suspend fun getUnsynced(): List<RecipeEntity>
-
-    @Query("SELECT * FROM recipes WHERE id = :id")
-    suspend fun getById(id: String): RecipeEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(recipe: RecipeEntity)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(recipes: List<RecipeEntity>)
-
-    @Query("UPDATE recipes SET deleted = 1, synced = 0 WHERE id = :id")
+    fun getRecipesByTitle(): Flow<List<Recipe>>
+    fun getRecipesByDate(): Flow<List<Recipe>>
+    suspend fun getAllActive(): List<Recipe>
+    suspend fun getUnsyncedDeletedIds(): List<String>
+    suspend fun getById(id: String): Recipe?
+    suspend fun insert(recipe: Recipe)
+    suspend fun insertAll(recipes: List<Recipe>)
     suspend fun softDelete(id: String)
-
-    @Query("UPDATE recipes SET synced = 1 WHERE id = :id")
     suspend fun markSynced(id: String)
-
-    @Query("DELETE FROM recipes WHERE deleted = 1 AND synced = 1")
     suspend fun clearSyncedDeleted()
 }

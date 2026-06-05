@@ -30,8 +30,7 @@ class FakeRecipeRepository : RecipeRepository {
         recipesFlow.value.find { it.id == id }
 
     override suspend fun insertRecipe(recipe: Recipe) {
-        val current = recipesFlow.value.toMutableList()
-        current.removeIf { it.id == recipe.id }
+        val current = recipesFlow.value.filter { it.id != recipe.id }.toMutableList()
         current.add(recipe)
         recipesFlow.value = current
     }

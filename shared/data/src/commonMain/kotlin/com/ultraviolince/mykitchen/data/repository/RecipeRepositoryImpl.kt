@@ -1,11 +1,8 @@
 package com.ultraviolince.mykitchen.data.repository
 
 import com.ultraviolince.mykitchen.data.local.RecipeDao
-import com.ultraviolince.mykitchen.data.local.toDomain
-import com.ultraviolince.mykitchen.data.local.toEntity
 import com.ultraviolince.mykitchen.data.remote.RecipeApiClient
-import com.ultraviolince.mykitchen.data.remote.dto.toDto
-import com.ultraviolince.mykitchen.data.remote.dto.toEntity
+import com.ultraviolince.mykitchen.data.remote.dto.toDomain
 import com.ultraviolince.mykitchen.data.store.CredentialsStore
 import com.ultraviolince.mykitchen.domain.model.AuthState
 import com.ultraviolince.mykitchen.domain.model.Recipe
@@ -27,17 +24,15 @@ class RecipeRepositoryImpl(
             is RecipeOrder.Title -> dao.getRecipesByTitle()
             is RecipeOrder.Date -> dao.getRecipesByDate()
         }
-        return flow.map { entities ->
-            val mapped = entities.map { it.toDomain() }
-            if (order.ascending) mapped else mapped.reversed()
+        return flow.map { recipes ->
+            if (order.ascending) recipes else recipes.reversed()
         }
     }
 
-    override suspend fun getRecipeById(id: String): Recipe? =
-        dao.getById(id)?.toDomain()
+    override suspend fun getRecipeById(id: String): Recipe? = dao.getById(id)
 
     override suspend fun insertRecipe(recipe: Recipe) {
-        dao.insert(recipe.toEntity())
+        dao.insert(recipe)
     }
 
     override suspend fun deleteRecipe(id: String) {
@@ -54,12 +49,12 @@ class RecipeRepositoryImpl(
         if (remoteResult.isFailure) return Result.failure(remoteResult.exceptionOrNull()!!)
 
         val remoteRecipes = remoteResult.getOrNull()!!
-        remoteRecipes.forEach { dto -> dao.insert(dto.toEntity()) }
+        remoteRecipes.forEach { dto -> dao.insert(dto.toDomain()) }
 
-        val unsynced = dao.getUnsynced()
-        for (entity in unsynced) {
-            val result = api.deleteRecipe(serverUrl, token, entity.id)
-            if (result.isSuccess) dao.markSynced(entity.id)
+        val unsyncedIds = dao.getUnsyncedDeletedIds()
+        for (id in unsyncedIds) {
+            val result = api.deleteRecipe(serverUrl, token, id)
+            if (result.isSuccess) dao.markSynced(id)
         }
         dao.clearSyncedDeleted()
         return Result.success(Unit)

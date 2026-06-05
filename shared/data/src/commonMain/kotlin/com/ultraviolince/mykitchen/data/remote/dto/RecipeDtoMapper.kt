@@ -1,8 +1,8 @@
 package com.ultraviolince.mykitchen.data.remote.dto
 
-import com.ultraviolince.mykitchen.data.local.RecipeEntity
+import com.ultraviolince.mykitchen.domain.model.Recipe
 
-fun RecipeDto.toEntity(): RecipeEntity = RecipeEntity(
+fun RecipeDto.toDomain(): Recipe = Recipe(
     id = id,
     title = title,
     content = content,
@@ -11,7 +11,7 @@ fun RecipeDto.toEntity(): RecipeEntity = RecipeEntity(
     deleted = false,
 )
 
-fun RecipeEntity.toDto(): RecipeDto = RecipeDto(
+fun Recipe.toDto(): RecipeDto = RecipeDto(
     id = id,
     title = title,
     content = content,
