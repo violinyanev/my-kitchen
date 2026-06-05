@@ -84,7 +84,6 @@ jobs:
     - name: Build iOS frameworks
       run: |
         ./gradlew :shared:ui:linkDebugFrameworkIosArm64 \
-                  :shared:ui:linkDebugFrameworkIosX64 \
                   :shared:ui:linkDebugFrameworkIosSimulatorArm64
 
     - name: Build iOS app (Xcode)
