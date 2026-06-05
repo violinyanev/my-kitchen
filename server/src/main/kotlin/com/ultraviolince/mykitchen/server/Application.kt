@@ -1,24 +1,35 @@
 package com.ultraviolince.mykitchen.server
 
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import com.ultraviolince.mykitchen.server.config.AppConfig
+import com.ultraviolince.mykitchen.server.plugins.configureAuthentication
+import com.ultraviolince.mykitchen.server.plugins.configureCors
+import com.ultraviolince.mykitchen.server.plugins.configureDatabase
+import com.ultraviolince.mykitchen.server.plugins.configureSerialization
+import com.ultraviolince.mykitchen.server.plugins.configureStatusPages
+import com.ultraviolince.mykitchen.server.routes.authRoutes
+import com.ultraviolince.mykitchen.server.routes.healthRoutes
+import com.ultraviolince.mykitchen.server.routes.recipeRoutes
+import io.ktor.server.application.Application
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.routing.routing
 
 fun main() {
     embeddedServer(Netty, port = 5000, host = "0.0.0.0") {
-        configureRouting()
+        val config = AppConfig.fromEnvironment()
+        configureDatabase(config)
+        configureSerialization()
+        configureAuthentication(config)
+        configureStatusPages()
+        configureCors()
+        configureRouting(config)
     }.start(wait = true)
 }
 
-fun Application.configureRouting() {
+fun Application.configureRouting(config: AppConfig) {
     routing {
-        get("/health") {
-            call.respondText("OK")
-        }
-        get("/version") {
-            call.respondText("""{"version": "2.0.0"}""")
-        }
+        healthRoutes()
+        authRoutes(config)
+        recipeRoutes()
     }
 }

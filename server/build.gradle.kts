@@ -29,6 +29,8 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     testImplementation(libs.ktor.server.test)
+    testImplementation(libs.ktor.client.content.negotiation)
+    testImplementation(libs.ktor.serialization.json)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.h2)
     testImplementation(libs.koin.test)
