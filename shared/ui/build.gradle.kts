@@ -18,6 +18,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":shared:domain"))
             implementation(project(":shared:data"))
+            implementation(compose.materialIconsExtended)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
