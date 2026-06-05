@@ -1,488 +1,364 @@
-# My Kitchen - Recipe Management Application
+# My Kitchen — KMP Recipe Management Application
 
-My Kitchen is a free and open source recipe management application featuring an Android mobile app and a self-hosted Python Flask backend server. Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the information here.
+My Kitchen is a free and open source recipe management application built as a **Kotlin Multiplatform (KMP)** project. It consists of:
 
-## 🚨 CRITICAL: ALWAYS Validate Before Committing
-**Every PR must pass ALL GitHub Actions checks. Use `./scripts/validate-pr.sh` before committing ANY changes to ensure green checks.**
+- **`androidApp/`** — Android application (Jetpack Compose)
+- **`desktopApp/`** — JVM desktop application (Compose for Desktop)
+- **`webApp/`** — Web application (Compose for Web / WasmJs)
+- **`iosApp/`** — iOS application (SwiftUI + KMP framework)
+- **`server/`** — Ktor backend server (self-hostable REST API)
+- **`shared/domain/`** — Pure Kotlin domain layer (use cases, models, repository interfaces)
+- **`shared/data/`** — KMP data layer (Room database, Ktor API client, Koin DI)
+- **`shared/ui/`** — Shared Compose Multiplatform UI (screens, ViewModels, navigation)
 
-**⚠️ INSTRUMENTED TESTS ARE MANDATORY**: Work is NOT complete until both unit tests AND instrumented tests pass. GitHub Actions runs instrumented tests on Android API levels 28, 31, 34, and 35. If you cannot run instrumented tests locally, ensure all other validations pass and let GitHub Actions verify instrumented tests automatically.
+---
 
-## Working Effectively
+## 🚨 CRITICAL: Validate Before Committing
 
-### Prerequisites and Setup
-- Java 17+ (OpenJDK Temurin 17 recommended)
-- Python 3.8+ (3.12+ tested and working)
-- Docker (optional for backend containerization)
-- Android SDK (for app development)
-
-#### Automated Development Setup (Recommended)
-```bash
-# Run the automated setup script
-./scripts/setup-dev.sh
-```
-This script will:
-- Verify prerequisites (Java 17+, Python 3.8+)
-- Install backend dependencies
-- Set up Git hooks for automatic validation
-- Run initial build health check
-- Build debug APK
-- Test backend startup
-
-#### Manual Setup (Alternative)
-If you prefer manual setup, follow the bootstrap commands below.
-
-### Bootstrap and Build Commands
-Execute these commands in sequence for a complete development setup:
+All GitHub Actions checks must pass. Run the validation command before committing:
 
 ```bash
-# Verify prerequisites
-java -version    # Should show Java 17+
-python3 --version    # Should show Python 3.8+
-docker --version     # Optional but recommended
-
-# Install backend dependencies
-python3 -m pip install -r backend/image/requirements.txt
-
-# Build health check (first time setup)
-./gradlew buildHealth    # NEVER CANCEL: Takes 3-4 minutes on first run, 10+ minute timeout recommended
-
-# Build Android debug APK
-./gradlew :app:assembleDebug    # NEVER CANCEL: Takes 7+ minutes on cold build, 15+ minute timeout recommended
+./gradlew :androidApp:assembleDebug :shared:domain:desktopTest :shared:data:desktopTest :server:test detekt
 ```
 
-### Main Development Commands
+---
 
-#### Android App Development
-```bash
-# Debug build (most common during development)
-./gradlew :app:assembleDebug    # NEVER CANCEL: 7+ minutes cold, <10 seconds warm, timeout: 15+ minutes
+## Tech Stack
 
-# Release build (for testing production builds)
-./gradlew :app:assembleRelease    # NEVER CANCEL: 2-3 minutes, timeout: 10+ minutes
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| Kotlin | 2.3.20 | All modules |
+| AGP | 9.2.1 | Android + KMP library plugin |
+| Compose Multiplatform | 1.11.1 | Shared UI |
+| Ktor | 3.5.0 | HTTP client + server |
+| Koin | 4.2.1 | Dependency injection |
+| Room KMP | 2.8.4 | Local database (Android/Desktop/iOS) |
+| KSP | 2.3.8 | Annotation processing for Room |
+| Exposed | 0.61.0 | Server-side ORM |
+| Detekt | 1.23.8 | Code quality |
+| Kotlin Coroutines | 1.11.0 | Async |
+| kotlinx.serialization | 1.11.0 | JSON |
+| Kover | 0.9.8 | Code coverage |
+| Java toolchain | 17 | Build + runtime |
 
-# Run unit tests
-./gradlew :app:testDebugUnitTest    # NEVER CANCEL: ~45 seconds, timeout: 5+ minutes
+---
 
-# Run code quality checks
-./gradlew detekt    # NEVER CANCEL: ~1 minute, timeout: 5+ minutes
-
-# Run screenshot tests (UI validation)
-./gradlew verifyRoborazziDebug    # NEVER CANCEL: ~30 seconds, timeout: 5+ minutes
-
-# Record new screenshot baselines (when UI changes are made)
-./gradlew recordRoborazziDebug    # NEVER CANCEL: ~30 seconds, timeout: 5+ minutes
-
-# Build instrumented test APK (for integration/UI tests)
-./gradlew :app:assembleDebugAndroidTest    # NEVER CANCEL: ~1-2 minutes, timeout: 10+ minutes
-
-# Run instrumented tests (requires Android emulator/device + backend running)
-./gradlew connectedDebugAndroidTest    # NEVER CANCEL: ~2-5 minutes, timeout: 15+ minutes
-# OR use the alias:
-./gradlew connectedCheck    # NEVER CANCEL: ~2-5 minutes, timeout: 15+ minutes
-
-# Generate coverage report
-./gradlew :app:koverXmlReportDebug    # Fast: ~2 seconds
-
-# Complete CI pipeline (run all checks)
-./gradlew :app:assembleDebug :app:testDebugUnitTest :app:koverXmlReportDebug detekt
-# NEVER CANCEL: 7+ minutes cold, 2-5 seconds warm, timeout: 15+ minutes
-```
-
-#### Backend Development
-```bash
-# Start backend server for development (Flask directly)
-./backend/scripts/dev.sh    # Starts immediately on localhost:5000
-
-# Run backend unit tests
-cd backend/image && python3 -m unittest discover    # Fast: <1 second
-
-# Test backend health (while server is running)
-curl http://localhost:5000/health    # Should return: OK
-```
-
-#### Docker Backend (Alternative)
-```bash
-# Note: Docker build requires git tags to be present
-# Build backend Docker image
-python3 ./backend/scripts/dev.py build    # Requires git tags, may fail in development
-
-# Run backend with Docker
-python3 ./backend/scripts/dev.py start    # Requires successful build
-```
-
-## Build Timing and Timeout Guidelines
-
-**CRITICAL**: These builds may take significant time. NEVER CANCEL long-running commands.
-
-| Command | Cold Build Time | Warm Build Time | Recommended Timeout |
-|---------|----------------|-----------------|-------------------|
-| `./gradlew buildHealth` | 3-4 minutes | 10 seconds | 10+ minutes |
-| `./gradlew :app:assembleDebug` | 7+ minutes | 2-10 seconds | 15+ minutes |
-| `./gradlew :app:assembleRelease` | 2-3 minutes | 30 seconds | 10+ minutes |
-| `./gradlew :app:testDebugUnitTest` | 45 seconds | 5 seconds | 5+ minutes |
-| `./gradlew detekt` | 1 minute | 10 seconds | 5+ minutes |
-| `./gradlew :app:assembleDebugAndroidTest` | 1-2 minutes | 10-30 seconds | 10+ minutes |
-| `./gradlew connectedCheck` | 2-5 minutes | 2-5 minutes | 15+ minutes |
-| Backend tests | <1 second | <1 second | 2 minutes |
-
-**Important**: Gradle builds are much faster on subsequent runs due to incremental compilation and caching. The first build in a clean environment will take the longest time.
-
-## Validation and Testing
-
-### Critical Pre-Commit Validation Pipeline
-**ALWAYS run these commands before committing ANY changes to ensure all GitHub Actions checks pass:**
-
-#### Option 1: Use the Automated Validation Script (Recommended)
-```bash
-# Run the comprehensive validation script
-./scripts/validate-pr.sh
-```
-This script automatically runs all required checks and fixes common issues.
-
-#### Option 2: Manual Validation Steps
-```bash
-# 1. Complete validation pipeline (ensure everything works)
-./gradlew buildHealth
-./gradlew :app:assembleDebug :app:testDebugUnitTest :app:verifyRoborazziDebug :app:koverXmlReportDebug detekt
-
-# 2. Start backend for integration testing
-./backend/scripts/dev.sh &
-curl http://localhost:5000/health    # Verify backend is running
-
-# 3. Run backend unit tests
-cd backend/image && python3 -m unittest discover && cd ../..
-
-# 4. Auto-fix code style issues
-./gradlew detekt --auto-correct
-
-# 5. Verify all files end with newlines (critical for CI)
-find . \( -path "./app/build" -o -path "./build" -o -path "./.gradle" \) -prune -o \( -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" \) -exec sh -c 'if [ "$(tail -c1 "{}" | wc -l)" -eq 0 ]; then echo "Missing newline: {}"; echo "" >> "{}"; fi' \;
-
-# 6. Run instrumented tests (optional, requires Android emulator/device)
-adb devices    # Check if emulator/device connected
-./gradlew connectedCheck    # Run if device available (backend must be running)
-```
-
-### GitHub Actions Validation Requirements
-The following checks MUST pass for every PR (these match the GitHub Actions workflows exactly):
-
-#### Main Test Workflow (`test.yaml`)
-1. **Build Health**: `./gradlew buildHealth`
-2. **Debug Build + Tests**: `./gradlew :app:assembleDebug :app:testDebugUnitTest :app:koverXmlReportDebug detekt`
-3. **Code Coverage**: Minimum 10% overall, 80% for changed files
-4. **Instrumented Tests**: `./gradlew connectedCheck` - Requires Android emulator/device + backend on localhost:5000
-5. **Backend Tests**: `cd backend/image && python3 -m unittest discover`
-
-#### Code Quality Requirements
-1. **Detekt**: No code quality violations (use `--auto-correct` to fix)
-2. **Final Newlines**: ALL files must end with a newline character
-3. **Screenshot Tests**: `./gradlew :app:verifyRoborazziDebug` must pass
-4. **Build Warnings**: Treated as errors (`allWarningsAsErrors = true`)
-5. **Commit Format**: Must follow conventional commit format (feat:, fix:, docs:, etc.)
-
-### Pre-Code-Generation Checklist
-**Before generating any code, ALWAYS:**
-
-1. **Read existing code structure** and follow established patterns
-2. **Check test coverage requirements** - aim for 80%+ on new/changed files
-3. **Follow naming conventions** per detekt configuration
-4. **Ensure imports are organized** (detekt will auto-fix)
-5. **Add unit tests** for all new functionality
-6. **Update screenshot tests** if UI changes are made
-7. **Verify backend endpoints** exist if integrating with API
-
-### Mandatory Coding Practices for GitHub Actions Success
-
-#### Code Quality Requirements (Detekt)
-1. **Follow Kotlin style guide** - Use conventional naming (camelCase for functions/variables, PascalCase for classes)
-2. **Line length limit**: Maximum 180 characters per line
-3. **Function length**: Maximum 90 lines per function (excluding `@Composable` functions)
-4. **Class size**: Maximum 600 lines per class
-5. **Method parameters**: Maximum 8 parameters (excluding `@Composable` functions)
-6. **Complexity**: Maximum 4 conditions in complex conditional statements
-7. **No unused imports** - Detekt will auto-remove them
-8. **Final newlines required** - All files must end with a newline character
-
-#### Test Coverage Requirements
-1. **Minimum 10% overall coverage** - Project must maintain at least 10% code coverage
-2. **Minimum 80% coverage for changed files** - Any file you modify must have 80% coverage
-3. **Unit tests required** for all new business logic, data classes, and utility functions
-4. **Mock external dependencies** using MockK in tests
-5. **Test naming convention**: `should_expectedBehavior_when_condition()`
-
-#### UI Testing Requirements (Screenshot Tests)
-1. **Update screenshots** when UI components change: `./gradlew :app:recordRoborazziDebug`
-2. **Verify screenshots** before committing: `./gradlew :app:verifyRoborazziDebug`
-3. **Composable previews** must be properly annotated with `@Preview`
-4. **Private previews excluded** from screenshot generation
-
-#### Instrumented Testing Requirements (Integration/UI Tests)
-1. **Build instrumented test APK**: `./gradlew :app:assembleDebugAndroidTest`
-2. **Run instrumented tests**: `./gradlew connectedCheck` or `./gradlew connectedDebugAndroidTest`
-3. **Prerequisites for instrumented tests**:
-   - **Android emulator running** OR **physical Android device connected via ADB**
-   - **Backend server running** on localhost:5000 (`./backend/scripts/dev.sh`)
-   - **Valid test credentials** (automatically configured in debug builds)
-4. **Instrumented test locations**: `app/src/androidTest/java/`
-5. **Key instrumented tests**:
-   - `SmokeTest.kt`: Tests recipe creation with and without backend sync
-   - `RecipeServiceWrapperTest.kt`: Tests backend integration
-6. **Emulator setup for local testing**:
-   ```bash
-   # Create and start an emulator (example)
-   $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-28;default;x86_64"
-   $ANDROID_HOME/emulator/emulator -avd test_emulator -no-window -no-audio &
-   
-   # Wait for emulator to boot, then run tests
-   adb wait-for-device
-   ./gradlew connectedCheck
-   ```
-
-#### File and Commit Requirements
-1. **File endings**: All `.kt`, `.kts`, `.yaml`, `.yml`, `.py`, `.md`, `.json` files must end with newline
-2. **Conventional commits**: Use format `type(scope): description` where type is one of:
-   - `feat`: New feature
-   - `fix`: Bug fix
-   - `docs`: Documentation changes
-   - `style`: Code style changes
-   - `refactor`: Code refactoring
-   - `test`: Adding tests
-   - `chore`: Maintenance tasks
-   - `ci`: CI/CD changes
-   - `build`: Build system changes
-   - `perf`: Performance improvements
-   - `revert`: Reverting changes
-
-#### Build Requirements
-1. **No build warnings** - All warnings are treated as errors (`allWarningsAsErrors = true`)
-2. **Build health check** must pass - `./gradlew buildHealth`
-3. **Gradle daemon** - Build system must be healthy and free of configuration issues
-
-### Post-Code-Generation Validation
-**After generating code, ALWAYS:**
-
-1. **Run validation script**: `./scripts/validate-pr.sh` (recommended)
-2. **OR run manual checks**:
-   - **Run detekt auto-correct**: `./gradlew detekt --auto-correct`
-   - **Add missing final newlines**: Use the find command above
-   - **Run unit tests**: `./gradlew :app:testDebugUnitTest`
-   - **Update screenshots if needed**: `./gradlew :app:recordRoborazziDebug` (if UI changed)
-   - **Verify coverage**: `./gradlew :app:koverXmlReportDebug`
-   - **Check build**: `./gradlew :app:assembleDebug`
-3. **Verify backend integration** if applicable:
-   - **Start backend**: `./backend/scripts/dev.sh`
-   - **Test health endpoint**: `curl http://localhost:5000/health`
-   - **Run backend tests**: `cd backend/image && python3 -m unittest discover`
-4. **Run instrumented tests** (for UI/integration changes):
-   - **Ensure Android emulator/device is connected**: `adb devices`
-   - **Start backend**: `./backend/scripts/dev.sh` (must be running for tests)
-   - **Run instrumented tests**: `./gradlew connectedCheck`
-
-### Critical: Instrumented Tests Must Pass
-**IMPORTANT**: Work is NOT complete until both unit tests AND instrumented tests pass. The GitHub Actions CI runs instrumented tests on multiple Android API levels (28, 31, 34, 35) and they must all pass for the PR to be approved.
-
-**When you don't have local Android emulator access:**
-1. ✅ Ensure all unit tests pass completely
-2. ✅ Verify backend integration is working (backend starts and responds to health checks)
-3. ✅ Confirm no UI regressions (screenshot tests pass)
-4. ✅ Run `./scripts/validate-pr.sh` and address all issues
-5. ✅ The PR will be validated by GitHub Actions instrumented tests automatically
-6. ❌ **DO NOT** mark work as complete until GitHub Actions shows green checkmarks for instrumented tests
-
-**When you have local Android emulator access:**
-1. Set up and start an Android emulator or connect a physical device
-2. Run `./scripts/validate-pr.sh` and choose "Yes" when prompted for instrumented tests
-3. Alternatively, run manually: `./gradlew connectedCheck` (with backend running)
-4. All tests (unit + instrumented) must pass before work is considered complete
-
-### Manual Testing Scenarios
-After making changes, always test these scenarios:
-1. Start the backend server: `./backend/scripts/dev.sh`
-2. Verify health endpoint: `curl http://localhost:5000/health` should return "OK"
-3. Test API endpoints return proper JSON responses (note: most require authentication)
-4. Backend runs on localhost:5000 with seed data from `backend/seed_data/`
-
-#### Android App Testing
-1. Build and verify APK generation: `./gradlew :app:assembleDebug`
-2. Confirm APK exists: `app/build/outputs/apk/debug/app-debug.apk`
-3. Run unit tests to verify no regressions: `./gradlew :app:testDebugUnitTest`
-4. Validate UI components: `./gradlew :app:validateDebugScreenshotTest`
-
-#### Integration Testing
-1. Start backend server first: `./backend/scripts/dev.sh`
-2. Build Android app with backend running (app expects backend on 10.0.2.2:5000 for emulator)
-3. For instrumented tests, backend must be running on localhost:5000
-4. **Run full instrumented test suite**:
-   ```bash
-   # Start backend
-   ./backend/scripts/dev.sh &
-   
-   # Verify backend is healthy
-   curl http://localhost:5000/health
-   
-   # Ensure emulator/device is connected
-   adb devices
-   
-   # Run instrumented tests
-   ./gradlew connectedCheck
-   ```
-5. **Instrumented tests validate**:
-   - App startup and basic navigation
-   - Recipe creation without backend sync
-   - Backend login and authentication
-   - Recipe creation with backend sync
-   - Data persistence and synchronization
-
-#### CI/CD Pipeline Validation
-The GitHub Actions workflow runs these exact commands:
-```bash
-./gradlew buildHealth
-./gradlew :app:assembleDebug :app:testDebugUnitTest :app:verifyRoborazziDebug :app:koverXmlReportDebug detekt
-./gradlew connectedCheck  # Runs on Android API levels 28, 31, 34, 35
-```
-Always run these locally before pushing to ensure CI will pass.
-
-**Note**: Instrumented tests (`connectedCheck`) run automatically in GitHub Actions with Android emulators, but require manual setup for local testing.
-
-## Project Structure and Navigation
+## Project Structure
 
 ```
 my-kitchen/
-├── app/                     # Android mobile application (Kotlin/Jetpack Compose)
-│   ├── src/main/           # Main Android app source code
-│   ├── src/test/           # Unit tests
-│   ├── src/androidTest/    # Instrumented tests
-│   ├── build.gradle.kts    # Android app build configuration
-│   └── build/outputs/apk/  # Generated APK files
-├── backend/                # Self-hosted Python Flask server
-│   ├── image/              # Flask application code and Docker setup
-│   │   ├── app.py         # Main Flask application
-│   │   └── requirements.txt # Python dependencies
-│   ├── scripts/           # Development scripts
-│   │   ├── dev.sh         # Start Flask server directly
-│   │   └── dev.py         # Docker-based development commands
-│   └── seed_data/         # Test data (users.yaml, recipes.yaml)
-├── .github/workflows/     # CI/CD pipeline definitions
-├── gradle/               # Gradle configuration and version catalog
-└── scripts/              # General development utilities
+├── androidApp/                  # Android entry point
+│   └── src/main/kotlin/…/
+│       ├── MainActivity.kt      # Compose entry, Koin started in MyKitchenApp
+│       └── MyKitchenApp.kt      # Application class, calls startKoin
+├── desktopApp/                  # Desktop JVM entry point
+│   └── src/main/kotlin/…/
+│       └── Main.kt              # startKoin + application {}
+├── webApp/                      # WasmJs entry point
+│   └── src/wasmJsMain/kotlin/…/
+│       └── Main.kt              # startKoin + CanvasBasedWindow
+├── iosApp/                      # Swift Xcode project
+│   └── iosApp/
+│       └── App.swift            # SwiftUI entry — call IosKoinHelperKt.doInitKoin()
+├── server/                      # Ktor server
+│   └── src/main/kotlin/…/server/
+│       ├── Application.kt       # main() entry point
+│       ├── config/AppConfig.kt  # Environment variable config
+│       ├── data/tables/         # Exposed ORM tables
+│       ├── plugins/             # Database, Auth, CORS, Serialization, StatusPages
+│       └── routes/              # HealthRoutes, AuthRoutes, RecipeRoutes
+├── shared/
+│   ├── domain/                  # Domain layer (pure Kotlin)
+│   │   └── src/commonMain/…/
+│   │       ├── model/           # Recipe, User, AuthState, RecipeOrder
+│   │       ├── repository/      # RecipeRepository interface
+│   │       ├── usecase/         # 8 use cases
+│   │       └── di/DomainModule.kt
+│   ├── data/                    # Data layer (KMP)
+│   │   └── src/
+│   │       ├── commonMain/…/
+│   │       │   ├── local/       # RecipeEntity, RecipeDao, RecipeDatabase, mappers
+│   │       │   ├── remote/      # RecipeApiClient, DTOs, mappers
+│   │       │   ├── store/       # CredentialsStore, InMemoryCredentialsStore
+│   │       │   ├── repository/  # RecipeRepositoryImpl
+│   │       │   └── di/          # DataModule, PlatformDataModule (expect)
+│   │       ├── androidMain/     # Room DatabaseFactory + actual PlatformDataModule
+│   │       ├── desktopMain/     # Room DatabaseFactory + actual PlatformDataModule
+│   │       ├── iosMain/         # Room DatabaseFactory + actual PlatformDataModule
+│   │       └── wasmJsMain/      # InMemoryRecipeDao + actual PlatformDataModule
+│   └── ui/                      # Shared Compose UI (KMP)
+│       └── src/
+│           ├── commonMain/…/ui/
+│           │   ├── App.kt               # NavHost entry point
+│           │   ├── theme/AppTheme.kt
+│           │   ├── navigation/Route.kt  # Type-safe routes
+│           │   ├── screens/recipelist/  # RecipeListScreen + ViewModel
+│           │   ├── screens/addedit/     # AddEditScreen + ViewModel
+│           │   ├── screens/login/       # LoginScreen + ViewModel
+│           │   └── di/UiModule.kt
+│           └── iosMain/…/ui/
+│               ├── MainViewController.kt
+│               └── IosKoinHelper.kt     # initKoin() called from Swift
+├── build-logic/                         # Convention plugins
+│   └── src/main/kotlin/
+│       ├── kmp-library.gradle.kts       # Base KMP lib (all targets + Koin + coroutines)
+│       ├── kmp-compose.gradle.kts       # Extends kmp-library + Compose + nav + lifecycle
+│       └── server-app.gradle.kts        # Ktor server app convention
+├── gradle/
+│   ├── libs.versions.toml               # Version catalog
+│   └── detekt.yml                       # Detekt config (formatting enabled)
+└── .github/workflows/
+    ├── test.yaml                        # Main CI: build, test, detekt, ios, web, backend
+    └── …                               # Other workflows (security, backend-image, etc.)
 ```
 
-### Frequently Used Files
-- `app/build.gradle.kts` - Android app build configuration
-- `backend/image/app.py` - Main backend application
-- `backend/image/requirements.txt` - Python dependencies
-- `gradle/libs.versions.toml` - Dependency version catalog
-- `.github/workflows/test.yaml` - Main CI pipeline
+---
 
-## Build Artifacts and Reports
+## Build Commands
 
-After building, find generated files in:
-- **APKs**: `app/build/outputs/apk/debug/app-debug.apk` and `app/build/outputs/apk/release/app-release.apk`
-- **Test Reports**: `app/build/reports/tests/`
-- **Coverage Reports**: `app/build/reports/kover/`
-- **Lint Reports**: `app/build/reports/detekt/`
-- **Screenshot Test Reports**: `app/build/reports/screenshotTest/`
+### Prerequisites
+- Java 17+ (OpenJDK Temurin 17 recommended)
+- Python 3.8+ (for backend)
+- Android SDK (for Android builds)
+- Xcode (for iOS builds, macOS only)
 
-## Common Issues and Solutions
-
-### Build Issues
-- **AGP Version Warning**: "Dependency Analysis plugin" warning is non-blocking
-- **Screenshot Test Warning**: Experimental feature warning is non-blocking
-- **Docker Build Fails**: Backend Docker script requires git tags; use Flask directly instead
-- **Slow First Build**: Initial Gradle builds download dependencies; subsequent builds are much faster
-
-### Validation Failures and Fixes
-
-#### Code Quality (Detekt) Failures
+### Android
 ```bash
-# Auto-fix most issues
+# Debug APK
+./gradlew :androidApp:assembleDebug
+# → app/build/outputs/apk/ (no — androidApp/build/outputs/apk/debug/app-debug.apk)
+
+# Release APK
+./gradlew :androidApp:assembleRelease
+```
+
+### Desktop
+```bash
+# Compile check
+./gradlew :desktopApp:compileKotlin
+
+# Run locally
+./gradlew :desktopApp:run
+
+# Package native distribution
+./gradlew :desktopApp:createDistributable
+```
+
+### Web (WasmJs)
+```bash
+# Development server
+./gradlew :webApp:wasmJsBrowserRun --continuous
+
+# Production build
+./gradlew :webApp:wasmJsBrowserDistribution
+# → webApp/build/dist/wasmJs/productionExecutable/
+```
+
+### iOS (macOS only)
+```bash
+# Build KMP framework
+./gradlew :shared:ui:linkDebugFrameworkIosArm64 \
+          :shared:ui:linkDebugFrameworkIosX64 \
+          :shared:ui:linkDebugFrameworkIosSimulatorArm64
+```
+Then open `iosApp/iosApp.xcodeproj` in Xcode and call `IosKoinHelperKt.doInitKoin()` from `App.swift`.
+
+### Server (Ktor)
+```bash
+# Development (direct)
+./gradlew :server:run
+
+# With custom config (env vars)
+RECIPES_DB_URL=jdbc:postgresql://localhost/mykitchen \
+RECIPES_SECRET_KEY=your-secret \
+./gradlew :server:run
+
+# Build fat JAR
+./gradlew :server:shadowJar
+
+# Docker (from repo root)
+cd backend && docker-compose up
+```
+
+### Backend (Python legacy — kept for migration)
+```bash
+# Start backend server
+./backend/scripts/dev.sh          # Flask on localhost:5000
+curl http://localhost:5000/health  # Should return: OK
+
+# Run backend tests
+cd backend/image && python3 -m unittest discover
+```
+
+---
+
+## Testing
+
+### Unit Tests
+```bash
+# Domain layer (28 tests)
+./gradlew :shared:domain:desktopTest
+
+# Data layer (12 tests — API client + repository)
+./gradlew :shared:data:desktopTest
+
+# Server (7 integration tests — H2 in-memory)
+./gradlew :server:test
+
+# All at once
+./gradlew :shared:domain:desktopTest :shared:data:desktopTest :server:test
+```
+
+### Code Quality
+```bash
+# Detekt (all modules)
+./gradlew detekt
+
+# Detekt with auto-correct (formatting)
 ./gradlew detekt --auto-correct
-
-# Common fixes:
-# - Line too long: Break into multiple lines (max 180 chars)
-# - Function too long: Split into smaller functions (max 90 lines, excluding @Composable)
-# - Too many parameters: Use data classes or reduce parameters (max 8, excluding @Composable)
 ```
 
-#### Test Coverage Failures
-```bash
-# Check current coverage
-./gradlew :app:koverXmlReportDebug
+### Test Timing
 
-# Add unit tests for:
-# - All new business logic functions
-# - Data classes
-# - Utility functions
-# Aim for 80% coverage on changed files, 10% minimum overall
+| Command | Typical Time | Notes |
+|---------|-------------|-------|
+| `:androidApp:assembleDebug` | 7+ min cold / <10s warm | Never cancel |
+| `:shared:domain:desktopTest` | ~5s | |
+| `:shared:data:desktopTest` | ~15s | |
+| `:server:test` | ~15s | H2 in-memory |
+| `detekt` | ~10s warm | |
+
+---
+
+## Architecture
+
+### Domain Layer (`shared/domain`)
+- Pure Kotlin, no Android/platform imports
+- **Models**: `Recipe`, `User`, `AuthState`, `RecipeOrder`
+- **Repository interface**: `RecipeRepository` (8 methods)
+- **Use Cases**: `GetRecipesUseCase`, `GetRecipeUseCase`, `AddRecipeUseCase(title, content)`, `DeleteRecipeUseCase`, `SyncRecipesUseCase`, `LoginUseCase`, `LogoutUseCase`, `GetAuthStateUseCase`
+- **DI**: `domainModule` (Koin) — all use cases as `factory`
+
+### Data Layer (`shared/data`)
+- `RecipeRepositoryImpl` — Room + Ktor API + CredentialsStore
+- `DataModule` — `HttpClient` (platform-default engine), `RecipeApiClient`, `CredentialsStore`, `RecipeRepository`
+- `platformDataModule` (expect/actual) — platform-specific Room database + `RecipeDao` binding
+  - Android: `getDatabaseBuilder(get<Context>())` (Koin Android context)
+  - Desktop: `getDatabaseBuilder()` → `~/.mykitchen/recipe.db`
+  - iOS: `getDatabaseBuilder()` → NSDocumentDirectory
+  - WasmJs: `InMemoryRecipeDao` (no Room on WasmJs)
+- HTTP engine auto-detected by Ktor per platform (CIO for JVM/iOS, Js for WasmJs)
+
+### UI Layer (`shared/ui`)
+- Compose Multiplatform — works on Android, Desktop, Web, iOS
+- Navigation: type-safe `Route.RecipeList`, `Route.EditRecipe(id?)`, `Route.Login`
+- `RecipeListScreen` / `RecipeListViewModel` — sort, delete, sync, logout
+- `AddEditScreen` / `AddEditViewModel` — create/edit recipe
+- `LoginScreen` / `LoginViewModel` — server URL + email + password login
+- `UiModule` — Koin `viewModelOf` + `parametersOf` for AddEditViewModel
+
+### Server (`server`)
+- Ktor + Netty
+- JWT authentication (HMAC256)
+- Exposed ORM with PostgreSQL (prod) / H2 (tests)
+- Endpoints: `GET /health`, `GET /version`, `POST /users/login`, `GET/POST/PUT/DELETE /recipes`
+- Config via env vars: `RECIPES_DB_URL`, `RECIPES_DB_USER`, `RECIPES_DB_PASSWORD`, `RECIPES_SECRET_KEY`, `RECIPES_JWT_ISSUER`, `RECIPES_JWT_AUDIENCE`
+
+### Koin DI Startup
+
+Each platform starts Koin with 4 modules:
+```kotlin
+startKoin {
+    // Android only:
+    androidContext(this@MyKitchenApp)
+    modules(platformDataModule, dataModule, domainModule, uiModule)
+}
 ```
 
-#### Screenshot Test Failures
-```bash
-# Update screenshots after UI changes
-./gradlew :app:recordRoborazziDebug
+---
 
-# Verify screenshots
-./gradlew :app:verifyRoborazziDebug
+## Code Conventions
 
-# Note: Only @Preview composables in presentation packages are tested
+### Kotlin / Detekt
+- Max line length: 180 chars
+- Max function length: 90 lines (exclude `@Composable`)
+- Max class size: 600 lines
+- Max method parameters: 8 (exclude `@Composable`)
+- File must end with newline
+- `formatting` rule set active with `autoCorrect: true`
+
+### Commits
+Follow conventional commits:
+```
+feat(ui): add recipe search
+fix(server): handle empty title validation
+test(data): add InMemoryRecipeDao coverage
+chore(deps): bump Ktor to 3.5.1
 ```
 
-#### Instrumented Test Failures
-```bash
-# Check if emulator/device is connected
-adb devices
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `ci`, `build`, `perf`, `revert`
 
-# Start backend (required for integration tests)
-./backend/scripts/dev.sh &
-curl http://localhost:5000/health  # Should return "OK"
+### Adding a New Feature
+1. Add model/interface to `shared/domain` if needed
+2. Add data layer impl to `shared/data`
+3. Add UI in `shared/ui` (ViewModel + Screen)
+4. Wire Koin bindings in the appropriate module
+5. Run tests: `./gradlew :shared:domain:desktopTest :shared:data:desktopTest`
+6. Run detekt: `./gradlew detekt --auto-correct`
+7. Build Android: `./gradlew :androidApp:assembleDebug`
 
-# Build instrumented test APK first
-./gradlew :app:assembleDebugAndroidTest
+---
 
-# Run specific instrumented test
-./gradlew connectedDebugAndroidTest --tests="*SmokeTest*"
+## Common Issues
 
-# Run all instrumented tests
-./gradlew connectedCheck
+### Room KMP on WasmJs
+Room is not available on WasmJs. The `wasmJsMain` has `InMemoryRecipeDao` — data is not persisted across page reloads. This is intentional for the web platform.
 
-# Common issues:
-# - No emulator/device connected: Install Android Studio and create an AVD
-# - Backend not running: Start with ./backend/scripts/dev.sh
-# - Test timeout: Increase timeout or check emulator performance
-# - Network issues: Ensure emulator can reach localhost:5000 (10.0.2.2:5000 from emulator)
+### `HttpClient {}` without engine
+`DataModule` uses `HttpClient { }` (no explicit engine). Ktor auto-detects:
+- JVM (Android/Desktop): CIO (available via `shared:data`'s platform deps)
+- iOS: CIO
+- WasmJs: Js
+
+Do NOT manually inject an `HttpClientEngineFactory` — the auto-detection handles it.
+
+### Android Context in Room
+`platformDataModule` (androidMain) uses `get<Context>()` for the Room database. This works because `startKoin { androidContext(app) }` registers the application context as `Context`. Do NOT call it before `startKoin`.
+
+### iOS Koin Setup
+Call `IosKoinHelperKt.doInitKoin()` from your Swift entry point (before any Kotlin code runs):
+```swift
+@main
+struct MyKitchenApp: App {
+    init() {
+        IosKoinHelperKt.doInitKoin()
+    }
+    var body: some Scene { ... }
+}
 ```
 
-#### Missing Final Newlines
-```bash
-# Auto-fix missing newlines (excluding build directories)
-find . \( -path "./app/build" -o -path "./build" -o -path "./.gradle" \) -prune -o \( -name "*.kt" -o -name "*.kts" -o -name "*.yaml" -o -name "*.yml" -o -name "*.py" -o -name "*.md" -o -name "*.json" \) -exec sh -c 'if [ "$(tail -c1 "{}" | wc -l)" -eq 0 ]; then echo "" >> "{}"; fi' \;
-```
+### Build Warnings: "Unresolved platforms: [iosX64]"
+These warnings appear for compose dependencies that don't resolve for all iOS targets. They are **non-fatal** — the build succeeds. They come from KMP dependency resolution checking before actual compilation.
 
-#### Build Warnings (Treated as Errors)
-- All warnings are treated as errors due to `allWarningsAsErrors = true`
-- Fix any deprecation warnings immediately
-- Use `@Suppress` annotations only as a last resort
+---
 
-#### Commit Message Format Errors
-```bash
-# Use conventional commit format:
-feat: add user authentication
-fix(ui): resolve button alignment issue
-docs: update README with setup instructions
+## GitHub Actions CI
 
-# Valid types: feat, fix, docs, style, refactor, test, chore, ci, build, perf, revert
-```
+The `.github/workflows/test.yaml` runs on PRs/pushes to `main`:
+1. **build** (ubuntu): Android APK + Desktop compile + unit tests + Detekt
+2. **web** (ubuntu): WasmJs browser distribution
+3. **ios** (macos): iOS KMP frameworks + Xcode build
+4. **backend** (ubuntu): Python backend unit tests + health check
+5. **copilot-retrigger-test** (ubuntu, PRs only): script dry-run
 
-### Development Workflow
-- **Backend Server**: Use `./backend/scripts/dev.sh` for direct Flask development
-- **API Testing**: Most endpoints require authentication; use `/health` for basic connectivity testing
-- **Android Development**: Debug builds include test credentials for backend connectivity
-- **Code Quality**: Always run `detekt` before committing; use auto-correct: `./gradlew detekt --auto-correct`
-- **Commit Messages**: Follow conventional commit format for automated versioning
+All jobs must pass before merging to `main`.
 
-## Architecture Notes
-- **Android App**: Built with Kotlin, Jetpack Compose, Room database, Ktor HTTP client
-- **Backend**: Python Flask with YAML file storage, JWT authentication
-- **Communication**: REST API between Android app and backend
-- **Testing**: Unit tests, screenshot tests, instrumented tests requiring backend
-- **Build System**: Gradle for Android, pip for Python, Docker for backend deployment
+---
+
+## Branch Strategy
+
+- `main` — stable, production-ready
+- `app-rewrite` — KMP rewrite (current)
+- Feature branches from `app-rewrite` during development
+
+
