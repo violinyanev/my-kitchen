@@ -1,0 +1,32 @@
+services:
+  ktor-server:
+    # Image published to: ghcr.io/<your-github-username>/my-app:latest
+    image: ghcr.io/violinyanev/my-app:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=jdbc:postgresql://db:5432/mykitchen
+      - DATABASE_USER=mykitchen
+      - DATABASE_PASSWORD=mykitchen
+      - DATABASE_DRIVER=org.postgresql.Driver
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=mykitchen
+      - POSTGRES_USER=mykitchen
+      - POSTGRES_PASSWORD=mykitchen
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mykitchen"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
