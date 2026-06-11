@@ -1,6 +1,6 @@
 package com.ultraviolince.mykitchen.recipes.domain.usecase
 
-import com.ultraviolince.mykitchen.recipes.data.repository.FakeRecipeRepository
+import com.ultraviolince.mykitchen.recipes.data.repository.FakeAuthRepository
 import com.ultraviolince.mykitchen.recipes.domain.repository.LoginState
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -11,11 +11,11 @@ import org.junit.Test
 class GetLoginStateTest {
 
     private lateinit var getLoginState: GetLoginState
-    private lateinit var fakeRepository: FakeRecipeRepository
+    private lateinit var fakeRepository: FakeAuthRepository
 
     @Before
     fun setUp() {
-        fakeRepository = FakeRecipeRepository()
+        fakeRepository = FakeAuthRepository()
         getLoginState = GetLoginState(fakeRepository)
     }
 
@@ -23,7 +23,7 @@ class GetLoginStateTest {
     fun `getLoginState returns flow from repository`() = runBlocking {
         val loginState = getLoginState().first()
 
-        // FakeRecipeRepository returns LoginEmpty by default
+        // FakeAuthRepository returns LoginEmpty by default
         assertThat(loginState).isEqualTo(LoginState.LoginEmpty)
     }
 
