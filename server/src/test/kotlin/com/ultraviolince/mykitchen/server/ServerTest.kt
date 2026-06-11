@@ -39,6 +39,9 @@ import kotlin.test.assertTrue
 data class LoginBody(val email: String, val password: String)
 
 @Serializable
+data class RegisterBody(val email: String, val password: String)
+
+@Serializable
 data class RecipeBody(val title: String, val content: String)
 
 class ServerTest {
@@ -127,6 +130,85 @@ class ServerTest {
         val body = response.body<JsonObject>()
         assertNotNull(body["token"])
         assertTrue(body["token"]!!.jsonPrimitive.content.isNotBlank())
+    }
+
+    @Test
+    fun registerCreatesUserAndReturnsToken() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing { authRoutes(testConfig) }
+        }
+        val client = createClient {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val response = client.post("/users/register") {
+            contentType(ContentType.Application.Json)
+            setBody(RegisterBody("newuser@example.com", "securepassword"))
+        }
+        assertEquals(HttpStatusCode.Created, response.status)
+        val body = response.body<JsonObject>()
+        assertNotNull(body["token"])
+        assertTrue(body["token"]!!.jsonPrimitive.content.isNotBlank())
+    }
+
+    @Test
+    fun registerRejectsDuplicateEmail() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing { authRoutes(testConfig) }
+        }
+        val client = createClient {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        client.post("/users/register") {
+            contentType(ContentType.Application.Json)
+            setBody(RegisterBody("dup@example.com", "securepassword"))
+        }
+        val response = client.post("/users/register") {
+            contentType(ContentType.Application.Json)
+            setBody(RegisterBody("dup@example.com", "securepassword"))
+        }
+        assertEquals(HttpStatusCode.Conflict, response.status)
+    }
+
+    @Test
+    fun registerRejectsInvalidEmail() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing { authRoutes(testConfig) }
+        }
+        val client = createClient {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val response = client.post("/users/register") {
+            contentType(ContentType.Application.Json)
+            setBody(RegisterBody("notanemail", "securepassword"))
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+    @Test
+    fun registerRejectsShortPassword() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing { authRoutes(testConfig) }
+        }
+        val client = createClient {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val response = client.post("/users/register") {
+            contentType(ContentType.Application.Json)
+            setBody(RegisterBody("user@example.com", "short"))
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
     @Test

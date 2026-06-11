@@ -5,6 +5,8 @@ import com.ultraviolince.mykitchen.server.config.AppConfig
 import com.ultraviolince.mykitchen.server.data.dto.ErrorDto
 import com.ultraviolince.mykitchen.server.data.dto.LoginRequestDto
 import com.ultraviolince.mykitchen.server.data.dto.LoginResponseDto
+import com.ultraviolince.mykitchen.server.data.dto.RegisterRequestDto
+import com.ultraviolince.mykitchen.server.data.repository.UserRepository
 import com.ultraviolince.mykitchen.server.data.tables.Users
 import com.ultraviolince.mykitchen.server.plugins.generateToken
 import io.ktor.http.HttpStatusCode
@@ -59,5 +61,28 @@ fun Route.authRoutes(config: AppConfig) {
             email = user[Users.email],
         )
         call.respond(LoginResponseDto(token))
+    }
+
+    post("/users/register") {
+        val request = call.receive<RegisterRequestDto>()
+        if (!request.email.isValidEmail()) {
+            call.respond(HttpStatusCode.BadRequest, ErrorDto("Valid email address is required"))
+            return@post
+        }
+        if (!request.password.isValidPassword()) {
+            call.respond(HttpStatusCode.BadRequest, ErrorDto("Password must be at least $MIN_PASSWORD_LENGTH characters"))
+            return@post
+        }
+        if (UserRepository.findByEmail(request.email) != null) {
+            call.respond(HttpStatusCode.Conflict, ErrorDto("Email already registered"))
+            return@post
+        }
+        val userId = UserRepository.create(request.email, request.password)
+        val token = generateToken(
+            config = config,
+            userId = userId.toString(),
+            email = request.email,
+        )
+        call.respond(HttpStatusCode.Created, LoginResponseDto(token))
     }
 }
