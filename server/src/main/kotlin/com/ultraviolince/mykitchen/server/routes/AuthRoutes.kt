@@ -15,11 +15,21 @@ import io.ktor.server.routing.post
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
+private val EMAIL_REGEX = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+private const val MIN_PASSWORD_LENGTH = 8
+
+private fun String.isValidEmail(): Boolean = EMAIL_REGEX.matches(this)
+private fun String.isValidPassword(): Boolean = length >= MIN_PASSWORD_LENGTH
+
 fun Route.authRoutes(config: AppConfig) {
     post("/users/login") {
         val request = call.receive<LoginRequestDto>()
-        if (request.email.isBlank() || request.password.isBlank()) {
-            call.respond(HttpStatusCode.BadRequest, ErrorDto("Email and password are required"))
+        if (!request.email.isValidEmail()) {
+            call.respond(HttpStatusCode.BadRequest, ErrorDto("Valid email address is required"))
+            return@post
+        }
+        if (!request.password.isValidPassword()) {
+            call.respond(HttpStatusCode.BadRequest, ErrorDto("Password must be at least $MIN_PASSWORD_LENGTH characters"))
             return@post
         }
 
