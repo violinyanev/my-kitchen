@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.8"
+# dependencies = ["click>=8.0"]
+# ///
 
 #  -------------------------------------------------------------------------
 #  Copyright (C) 2023 Violin Yanev

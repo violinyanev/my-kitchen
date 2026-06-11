@@ -82,7 +82,7 @@ run_backend_security() {
     echo ""
     echo "🔍 Safety - Python Dependency Vulnerability Scan"
     echo "------------------------------------------------"
-    cd backend/image && pip install -r requirements.txt --quiet 2>/dev/null && cd ../..
+    cd backend/image && uv sync --quiet 2>/dev/null && cd ../..
     if safety check 2>/dev/null; then
         print_success "Safety scan completed - no known vulnerabilities"
     else

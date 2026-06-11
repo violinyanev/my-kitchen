@@ -6,4 +6,4 @@ SCRIPT_DIR="$(dirname -- "$(realpath -- "$0")")"
 
 export RECIPES_SECRET_KEY="Test"
 export FLASK_DEBUG=1
-python3 $SCRIPT_DIR/../image/app.py $SCRIPT_DIR/../seed_data
+uv run --project "$SCRIPT_DIR/../image" "$SCRIPT_DIR/../image/app.py" "$SCRIPT_DIR/../seed_data"

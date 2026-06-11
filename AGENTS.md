@@ -11,7 +11,7 @@ My Kitchen is a free and open source recipe management application featuring an 
 
 ### Prerequisites and Setup
 - Java 17+ (OpenJDK Temurin 17 recommended)
-- Python 3.8+ (3.12+ tested and working)
+- Python 3.10+ with uv (https://docs.astral.sh/uv/)
 - Docker (optional for backend containerization)
 - Android SDK (for app development)
 
@@ -21,7 +21,7 @@ My Kitchen is a free and open source recipe management application featuring an 
 ./scripts/setup-dev.sh
 ```
 This script will:
-- Verify prerequisites (Java 17+, Python 3.8+)
+- Verify prerequisites (Java 17+, uv)
 - Install backend dependencies
 - Set up Git hooks for automatic validation
 - Run initial build health check
@@ -37,11 +37,10 @@ Execute these commands in sequence for a complete development setup:
 ```bash
 # Verify prerequisites
 java -version    # Should show Java 17+
-python3 --version    # Should show Python 3.8+
+uv --version     # Should show uv version
 docker --version     # Optional but recommended
 
-# Install backend dependencies
-python3 -m pip install -r backend/image/requirements.txt
+# Install backend dependencies (handled automatically by uv on first run)
 
 # Build health check (first time setup)
 ./gradlew buildHealth    # NEVER CANCEL: Takes 3-4 minutes on first run, 10+ minute timeout recommended
@@ -94,7 +93,7 @@ python3 -m pip install -r backend/image/requirements.txt
 ./backend/scripts/dev.sh    # Starts immediately on localhost:5000
 
 # Run backend unit tests
-cd backend/image && python3 -m unittest discover    # Fast: <1 second
+cd backend/image && uv run python -m unittest discover    # Fast: <1 second
 
 # Test backend health (while server is running)
 curl http://localhost:5000/health    # Should return: OK
@@ -104,10 +103,10 @@ curl http://localhost:5000/health    # Should return: OK
 ```bash
 # Note: Docker build requires git tags to be present
 # Build backend Docker image
-python3 ./backend/scripts/dev.py build    # Requires git tags, may fail in development
+uv run ./backend/scripts/dev.py build    # Requires git tags, may fail in development
 
 # Run backend with Docker
-python3 ./backend/scripts/dev.py start    # Requires successful build
+uv run ./backend/scripts/dev.py start    # Requires successful build
 ```
 
 ## Build Timing and Timeout Guidelines
@@ -150,7 +149,7 @@ This script automatically runs all required checks and fixes common issues.
 curl http://localhost:5000/health    # Verify backend is running
 
 # 3. Run backend unit tests
-cd backend/image && python3 -m unittest discover && cd ../..
+cd backend/image && uv run python -m unittest discover && cd ../..
 
 # 4. Auto-fix code style issues
 ./gradlew detekt --auto-correct
@@ -171,7 +170,7 @@ The following checks MUST pass for every PR (these match the GitHub Actions work
 2. **Debug Build + Tests**: `./gradlew :app:assembleDebug :app:testDebugUnitTest :app:koverXmlReportDebug detekt`
 3. **Code Coverage**: Minimum 10% overall, 80% for changed files
 4. **Instrumented Tests**: `./gradlew connectedCheck` - Requires Android emulator/device + backend on localhost:5000
-5. **Backend Tests**: `cd backend/image && python3 -m unittest discover`
+5. **Backend Tests**: `cd backend/image && uv run python -m unittest discover`
 
 #### Code Quality Requirements
 1. **Detekt**: No code quality violations (use `--auto-correct` to fix)
@@ -272,7 +271,7 @@ The following checks MUST pass for every PR (these match the GitHub Actions work
 3. **Verify backend integration** if applicable:
    - **Start backend**: `./backend/scripts/dev.sh`
    - **Test health endpoint**: `curl http://localhost:5000/health`
-   - **Run backend tests**: `cd backend/image && python3 -m unittest discover`
+   - **Run backend tests**: `cd backend/image && uv run python -m unittest discover`
 4. **Run instrumented tests** (for UI/integration changes):
    - **Ensure Android emulator/device is connected**: `adb devices`
    - **Start backend**: `./backend/scripts/dev.sh` (must be running for tests)
@@ -357,7 +356,7 @@ my-kitchen/
 ├── backend/                # Self-hosted Python Flask server
 │   ├── image/              # Flask application code and Docker setup
 │   │   ├── app.py         # Main Flask application
-│   │   └── requirements.txt # Python dependencies
+│   │   └── pyproject.toml # Python dependencies
 │   ├── scripts/           # Development scripts
 │   │   ├── dev.sh         # Start Flask server directly
 │   │   └── dev.py         # Docker-based development commands
@@ -370,7 +369,7 @@ my-kitchen/
 ### Frequently Used Files
 - `app/build.gradle.kts` - Android app build configuration
 - `backend/image/app.py` - Main backend application
-- `backend/image/requirements.txt` - Python dependencies
+- `backend/image/pyproject.toml` - Python dependencies
 - `gradle/libs.versions.toml` - Dependency version catalog
 - `.github/workflows/test.yaml` - Main CI pipeline
 
@@ -485,4 +484,4 @@ docs: update README with setup instructions
 - **Backend**: Python Flask with YAML file storage, JWT authentication
 - **Communication**: REST API between Android app and backend
 - **Testing**: Unit tests, screenshot tests, instrumented tests requiring backend
-- **Build System**: Gradle for Android, pip for Python, Docker for backend deployment
+- **Build System**: Gradle for Android, uv for Python, Docker for backend deployment
