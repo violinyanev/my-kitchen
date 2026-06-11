@@ -21,7 +21,7 @@ fun main() {
         configureSerialization()
         configureAuthentication(config)
         configureStatusPages()
-        configureCors()
+        configureCors(config)
         configureRouting(config)
     }.start(wait = true)
 }

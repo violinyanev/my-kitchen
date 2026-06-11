@@ -51,6 +51,7 @@ class ServerTest {
         databaseUser = "sa",
         databasePassword = "",
         databaseDriver = "org.h2.Driver",
+        corsAllowedOrigins = null,
     )
 
     @BeforeTest

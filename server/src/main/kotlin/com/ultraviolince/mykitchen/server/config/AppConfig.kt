@@ -8,6 +8,8 @@ data class AppConfig(
     val databaseUser: String,
     val databasePassword: String,
     val databaseDriver: String,
+    /** Null means allow any origin (development only). In production set CORS_ALLOWED_ORIGINS. */
+    val corsAllowedOrigins: List<String>?,
 ) {
     companion object {
         fun fromEnvironment(): AppConfig = AppConfig(
@@ -21,6 +23,11 @@ data class AppConfig(
             databasePassword = System.getenv("DATABASE_PASSWORD") ?: "mykitchen",
             databaseDriver = System.getenv("DATABASE_DRIVER")
                 ?: "org.postgresql.Driver",
+            corsAllowedOrigins = System.getenv("CORS_ALLOWED_ORIGINS")
+                ?.split(",")
+                ?.map { it.trim() }
+                ?.filter { it.isNotBlank() }
+                ?.takeIf { it.isNotEmpty() },
         )
     }
 }
