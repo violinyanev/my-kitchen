@@ -11,7 +11,8 @@ data class AppConfig(
 ) {
     companion object {
         fun fromEnvironment(): AppConfig = AppConfig(
-            jwtSecret = System.getenv("JWT_SECRET") ?: "dev-secret-change-in-production",
+            jwtSecret = System.getenv("JWT_SECRET")
+                ?: error("JWT_SECRET environment variable is required. Set it to a strong random secret."),
             jwtIssuer = System.getenv("JWT_ISSUER") ?: "mykitchen",
             jwtAudience = System.getenv("JWT_AUDIENCE") ?: "mykitchen-users",
             databaseUrl = System.getenv("DATABASE_URL")
