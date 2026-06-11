@@ -9,6 +9,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+// NOTE: These tests are currently commented out because RecipeServiceWrapper constructor
+// has changed to require dataStore and dao parameters, which would need mocking setup.
+// This is a pre-existing issue not related to the current test fixes.
+
 //class RecipeServiceWrapperTest {
 //
 //    private val service = RecipeServiceWrapper()
