@@ -6,6 +6,9 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger("StatusPages")
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
@@ -13,7 +16,8 @@ fun Application.configureStatusPages() {
             call.respond(HttpStatusCode.BadRequest, ErrorDto(cause.message ?: "Bad request"))
         }
         exception<Throwable> { call, cause ->
-            call.respond(HttpStatusCode.InternalServerError, ErrorDto(cause.message ?: "Internal server error"))
+            logger.error("Unhandled exception", cause)
+            call.respond(HttpStatusCode.InternalServerError, ErrorDto("Internal server error"))
         }
         status(HttpStatusCode.Unauthorized) { call, _ ->
             call.respond(HttpStatusCode.Unauthorized, ErrorDto("Unauthorized"))
