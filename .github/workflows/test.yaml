@@ -96,6 +96,21 @@ jobs:
       matrix:
         api-level: [28, 31, 34, 35, 36]
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: mykitchen
+          POSTGRES_PASSWORD: mykitchen
+          POSTGRES_DB: mykitchen
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - uses: actions/checkout@v6
       with:
@@ -116,10 +131,10 @@ jobs:
       run: nohup java -jar server/build/libs/server-all.jar > /tmp/server.log 2>&1 &
       env:
         JWT_SECRET: test-secret-for-ci
-        DATABASE_DRIVER: org.h2.Driver
-        DATABASE_URL: jdbc:h2:mem:ci;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
-        DATABASE_USER: sa
-        DATABASE_PASSWORD: ""
+        DATABASE_DRIVER: org.postgresql.Driver
+        DATABASE_URL: jdbc:postgresql://localhost:5432/mykitchen
+        DATABASE_USER: mykitchen
+        DATABASE_PASSWORD: mykitchen
 
     - name: Wait for server to be ready
       run: |
