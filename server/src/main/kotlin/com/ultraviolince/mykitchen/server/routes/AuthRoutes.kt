@@ -31,7 +31,10 @@ fun Route.authRoutes(config: AppConfig) {
             return@post
         }
         if (!request.password.isValidPassword()) {
-            call.respond(HttpStatusCode.BadRequest, ErrorDto("Password must be at least $MIN_PASSWORD_LENGTH characters"))
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorDto("Password must be at least $MIN_PASSWORD_LENGTH characters"),
+            )
             return@post
         }
 
@@ -70,7 +73,10 @@ fun Route.authRoutes(config: AppConfig) {
             return@post
         }
         if (!request.password.isValidPassword()) {
-            call.respond(HttpStatusCode.BadRequest, ErrorDto("Password must be at least $MIN_PASSWORD_LENGTH characters"))
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorDto("Password must be at least $MIN_PASSWORD_LENGTH characters"),
+            )
             return@post
         }
         if (UserRepository.findByEmail(request.email) != null) {

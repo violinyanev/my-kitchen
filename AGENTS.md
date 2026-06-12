@@ -21,6 +21,33 @@ All GitHub Actions checks must pass. Run the validation command before committin
 ./gradlew :androidApp:assembleDebug :shared:domain:desktopTest :shared:data:desktopTest :server:test detekt
 ```
 
+**After every code change**, run Detekt on the affected module before committing:
+
+```bash
+# Server changes
+./gradlew :server:detekt
+
+# Shared module changes
+./gradlew :shared:domain:detekt :shared:data:detekt :shared:ui:detekt
+
+# Android changes
+./gradlew :androidApp:detekt
+```
+
+Detekt enforces `ArgumentListWrapping` — any `respond()`, `call()`, or function call with
+arguments that push the line past the threshold must wrap each argument onto its own line:
+
+```kotlin
+// Wrong — triggers ArgumentListWrapping
+call.respond(HttpStatusCode.BadRequest, ErrorDto("some long message here"))
+
+// Correct
+call.respond(
+    HttpStatusCode.BadRequest,
+    ErrorDto("some long message here"),
+)
+```
+
 ---
 
 ## Tech Stack
