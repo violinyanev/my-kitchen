@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -63,7 +64,7 @@ fun AddEditScreen(
                 value = state.title,
                 onValueChange = { viewModel.onTitleChange(it) },
                 label = { Text("Title") },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("title_field"),
                 isError = state.titleError != null,
                 supportingText = state.titleError?.let { { Text(it) } },
                 singleLine = true,
@@ -75,13 +76,14 @@ fun AddEditScreen(
                 label = { Text("Instructions") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .testTag("content_field"),
                 minLines = 5,
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = { viewModel.save() },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("save_button"),
                 enabled = !state.isLoading,
             ) {
                 if (state.isLoading) {
