@@ -38,6 +38,23 @@ fun LoginScreen(
         if (state.isLoggedIn) onLoginSuccess()
     }
 
+    LoginScreenContent(
+        state = state,
+        onEmailChange = viewModel::onEmailChange,
+        onPasswordChange = viewModel::onPasswordChange,
+        onServerUrlChange = viewModel::onServerUrlChange,
+        onLogin = viewModel::login,
+    )
+}
+
+@Composable
+internal fun LoginScreenContent(
+    state: LoginState,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onServerUrlChange: (String) -> Unit,
+    onLogin: () -> Unit,
+) {
     Scaffold { paddingValues ->
         Column(
             modifier = Modifier
@@ -53,7 +70,7 @@ fun LoginScreen(
 
             OutlinedTextField(
                 value = state.serverUrl,
-                onValueChange = { viewModel.onServerUrlChange(it) },
+                onValueChange = onServerUrlChange,
                 label = { Text("Server URL") },
                 modifier = Modifier.fillMaxWidth().testTag("server_url_field"),
                 singleLine = true,
@@ -62,7 +79,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
                 value = state.email,
-                onValueChange = { viewModel.onEmailChange(it) },
+                onValueChange = onEmailChange,
                 label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth().testTag("email_field"),
                 singleLine = true,
@@ -71,7 +88,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
                 value = state.password,
-                onValueChange = { viewModel.onPasswordChange(it) },
+                onValueChange = onPasswordChange,
                 label = { Text("Password") },
                 modifier = Modifier.fillMaxWidth().testTag("password_field"),
                 singleLine = true,
@@ -88,7 +105,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Button(
-                onClick = { viewModel.login() },
+                onClick = onLogin,
                 modifier = Modifier.fillMaxWidth().testTag("login_button"),
                 enabled = !state.isLoading,
             ) {

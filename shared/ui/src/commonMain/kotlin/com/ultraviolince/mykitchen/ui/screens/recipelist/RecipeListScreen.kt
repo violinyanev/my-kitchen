@@ -53,13 +53,36 @@ fun RecipeListScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val authState by viewModel.authState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(authState) {
         if (authState is AuthState.LoggedOut) {
             onNavigateToLogin()
         }
     }
+
+    RecipeListScreenContent(
+        state = state,
+        onAddRecipe = onAddRecipe,
+        onEditRecipe = onEditRecipe,
+        onSync = viewModel::sync,
+        onLogout = viewModel::logout,
+        onDelete = viewModel::delete,
+        onOrderChange = viewModel::setOrder,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun RecipeListScreenContent(
+    state: RecipeListState,
+    onAddRecipe: () -> Unit,
+    onEditRecipe: (String) -> Unit,
+    onSync: () -> Unit,
+    onLogout: () -> Unit,
+    onDelete: (String) -> Unit,
+    onOrderChange: (RecipeOrder) -> Unit,
+) {
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(state.error) {
         state.error?.let { snackbarHostState.showSnackbar(it) }
@@ -73,11 +96,11 @@ fun RecipeListScreen(
                     if (state.isSyncing) {
                         CircularProgressIndicator(modifier = Modifier.padding(8.dp))
                     } else {
-                        IconButton(onClick = { viewModel.sync() }) {
+                        IconButton(onClick = onSync) {
                             Icon(Icons.Default.Refresh, contentDescription = "Sync")
                         }
                     }
-                    IconButton(onClick = { viewModel.logout() }) {
+                    IconButton(onClick = onLogout) {
                         Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout")
                     }
                 },
@@ -97,7 +120,7 @@ fun RecipeListScreen(
         ) {
             OrderToggle(
                 currentOrder = state.order,
-                onOrderChange = { viewModel.setOrder(it) },
+                onOrderChange = onOrderChange,
             )
             if (state.recipes.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -112,7 +135,7 @@ fun RecipeListScreen(
                         RecipeItem(
                             recipe = recipe,
                             onClick = { onEditRecipe(recipe.id) },
-                            onDelete = { viewModel.delete(recipe.id) },
+                            onDelete = { onDelete(recipe.id) },
                         )
                     }
                 }
