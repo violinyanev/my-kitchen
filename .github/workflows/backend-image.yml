@@ -27,11 +27,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Run unit tests
-        run: |
-          cd backend/image
-          python3 -m unittest discover
-
       - name: Install cosign
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v4.1.2
@@ -58,7 +53,8 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v7
         with:
-          context: "{{defaultContext}}:backend/image"
+          context: .
+          file: server/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

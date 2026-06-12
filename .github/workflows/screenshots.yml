@@ -7,7 +7,9 @@ on:
 jobs:
   verify-screenshots:
     runs-on: ubuntu-latest
-
+    # Roborazzi screenshot testing is not yet configured for the KMP rewrite.
+    # This job is temporarily disabled until screenshot tests are set up in androidApp/.
+    if: false
     permissions:
       contents: write
       pull-requests: write
