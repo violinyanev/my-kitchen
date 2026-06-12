@@ -13,6 +13,7 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: write
 
 env:
     JAVA_VERSION: 17
@@ -40,14 +41,23 @@ jobs:
     - name: Build desktop app
       run: ./gradlew :desktopApp:compileKotlin
 
-    - name: Run unit tests
-      run: ./gradlew :shared:domain:desktopTest :shared:data:desktopTest
-
-    - name: Run server tests
-      run: ./gradlew :server:test
+    - name: Run unit tests and generate coverage report
+      run: ./gradlew koverXmlReport
 
     - name: Run Detekt
       run: ./gradlew detekt
+
+    - name: Add coverage report to PR
+      uses: mi-kas/kover-report@v2.4
+      if: github.event_name == 'pull_request'
+      with:
+        path: ${{ github.workspace }}/build/reports/kover/report.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: Code Coverage
+        update-comment: true
+        min-coverage-overall: 10
+        min-coverage-changed-files: 0
+        coverage-counter-type: LINE
 
   web:
     runs-on: ubuntu-latest

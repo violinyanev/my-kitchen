@@ -8,6 +8,7 @@ dependencies {
     compileOnly(libs.plugins.compose.multiplatform.toDep())
     compileOnly(libs.plugins.compose.compiler.toDep())
     compileOnly(libs.plugins.kotlin.jvm.toDep())
+    compileOnly(libs.plugins.kover.toDep())
     compileOnly(libs.plugins.ktor.toDep())
     compileOnly(libs.plugins.kotlin.serialization.toDep())
 }

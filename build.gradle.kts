@@ -13,6 +13,14 @@ plugins {
     alias(libs.plugins.ktor) apply false
 }
 
+// Aggregate unit-test coverage from the modules that have tests.
+// shared:ui is intentionally excluded — it has no unit tests.
+dependencies {
+    kover(project(":shared:domain"))
+    kover(project(":shared:data"))
+    kover(project(":server"))
+}
+
 subprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
 
