@@ -41,6 +41,26 @@ fun AddEditScreen(
         if (state.isSaved) onNavigateBack()
     }
 
+    AddEditScreenContent(
+        state = state,
+        recipeId = recipeId,
+        onNavigateBack = onNavigateBack,
+        onTitleChange = viewModel::onTitleChange,
+        onContentChange = viewModel::onContentChange,
+        onSave = viewModel::save,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun AddEditScreenContent(
+    state: AddEditState,
+    recipeId: String?,
+    onNavigateBack: () -> Unit,
+    onTitleChange: (String) -> Unit,
+    onContentChange: (String) -> Unit,
+    onSave: () -> Unit,
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -62,7 +82,7 @@ fun AddEditScreen(
         ) {
             OutlinedTextField(
                 value = state.title,
-                onValueChange = { viewModel.onTitleChange(it) },
+                onValueChange = onTitleChange,
                 label = { Text("Title") },
                 modifier = Modifier.fillMaxWidth().testTag("title_field"),
                 isError = state.titleError != null,
@@ -72,7 +92,7 @@ fun AddEditScreen(
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
                 value = state.content,
-                onValueChange = { viewModel.onContentChange(it) },
+                onValueChange = onContentChange,
                 label = { Text("Instructions") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,7 +102,7 @@ fun AddEditScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { viewModel.save() },
+                onClick = onSave,
                 modifier = Modifier.fillMaxWidth().testTag("save_button"),
                 enabled = !state.isLoading,
             ) {

@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
     alias(libs.plugins.ktor) apply false
+    alias(libs.plugins.roborazzi) apply false
 }
 
 // Aggregate unit-test coverage from the modules that have tests.

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.roborazzi)
 }
 
 android {
@@ -30,6 +31,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.jvmArgs("-Drobolectric.pixelCopyRenderMode=hardware")
+                it.systemProperties["roborazzi.output.dir"] = "${project.projectDir}/src/test/screenshots"
+            }
+        }
+    }
 }
 
 dependencies {
@@ -42,4 +53,20 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.test.manifest)
+
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.junit.rule)
+    testImplementation(libs.roborazzi.preview.scanner)
+    testImplementation(libs.preview.scanner.compose)
+    testImplementation(libs.robolectric)
+}
+
+roborazzi {
+    generateComposePreviewRobolectricTests {
+        enable = true
+        includePrivatePreviews = false
+        packages = listOf("com.ultraviolince.mykitchen.ui")
+        testRunnerClass = "com.ultraviolince.mykitchen.ScreenshotTestRunner"
+    }
 }
