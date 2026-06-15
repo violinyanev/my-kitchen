@@ -9,8 +9,9 @@ class UserTest {
     fun `AuthState LoggedIn holds user`() {
         val user = User("a@b.com", "http://localhost:5000", "tok")
         val state: AuthState = AuthState.LoggedIn(user)
-        assertTrue(state is AuthState.LoggedIn)
-        assertEquals("a@b.com", (state as AuthState.LoggedIn).user.email)
+        val loggedIn = state as? AuthState.LoggedIn
+        assertTrue(loggedIn != null)
+        assertEquals("a@b.com", loggedIn.user.email)
     }
 
     @Test
