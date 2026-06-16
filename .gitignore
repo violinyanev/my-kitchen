@@ -32,7 +32,7 @@ render.experimental.xml
 # Keystore files (exclude all except release keystore)
 *.jks
 *.keystore
-!app/keystore/release.keystore
+!androidApp/keystore/release.keystore
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
