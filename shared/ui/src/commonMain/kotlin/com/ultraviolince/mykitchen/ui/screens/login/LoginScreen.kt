@@ -25,6 +25,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.ultraviolince.mykitchen.ui.generated.resources.Res
+import com.ultraviolince.mykitchen.ui.generated.resources.email_hint
+import com.ultraviolince.mykitchen.ui.generated.resources.login_heading
+import com.ultraviolince.mykitchen.ui.generated.resources.password_hint
+import com.ultraviolince.mykitchen.ui.generated.resources.server_url_hint
+import com.ultraviolince.mykitchen.ui.generated.resources.sign_in
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -65,13 +72,13 @@ internal fun LoginScreenContent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("My Kitchen", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(Res.string.login_heading), style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedTextField(
                 value = state.serverUrl,
                 onValueChange = onServerUrlChange,
-                label = { Text("Server URL") },
+                label = { Text(stringResource(Res.string.server_url_hint)) },
                 modifier = Modifier.fillMaxWidth().testTag("server_url_field"),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -80,7 +87,7 @@ internal fun LoginScreenContent(
             OutlinedTextField(
                 value = state.email,
                 onValueChange = onEmailChange,
-                label = { Text("Email") },
+                label = { Text(stringResource(Res.string.email_hint)) },
                 modifier = Modifier.fillMaxWidth().testTag("email_field"),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -89,7 +96,7 @@ internal fun LoginScreenContent(
             OutlinedTextField(
                 value = state.password,
                 onValueChange = onPasswordChange,
-                label = { Text("Password") },
+                label = { Text(stringResource(Res.string.password_hint)) },
                 modifier = Modifier.fillMaxWidth().testTag("password_field"),
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
@@ -112,7 +119,7 @@ internal fun LoginScreenContent(
                 if (state.isLoading) {
                     CircularProgressIndicator()
                 } else {
-                    Text("Sign In")
+                    Text(stringResource(Res.string.sign_in))
                 }
             }
         }

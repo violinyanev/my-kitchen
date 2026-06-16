@@ -41,6 +41,16 @@ import androidx.compose.ui.unit.dp
 import com.ultraviolince.mykitchen.domain.model.AuthState
 import com.ultraviolince.mykitchen.domain.model.Recipe
 import com.ultraviolince.mykitchen.domain.model.RecipeOrder
+import com.ultraviolince.mykitchen.ui.generated.resources.Res
+import com.ultraviolince.mykitchen.ui.generated.resources.add_recipe
+import com.ultraviolince.mykitchen.ui.generated.resources.delete_recipe
+import com.ultraviolince.mykitchen.ui.generated.resources.logout
+import com.ultraviolince.mykitchen.ui.generated.resources.no_recipes
+import com.ultraviolince.mykitchen.ui.generated.resources.sort_date
+import com.ultraviolince.mykitchen.ui.generated.resources.sort_title
+import com.ultraviolince.mykitchen.ui.generated.resources.sync
+import com.ultraviolince.mykitchen.ui.generated.resources.your_recipes
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,24 +101,24 @@ internal fun RecipeListScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("My Kitchen") },
+                title = { Text(stringResource(Res.string.your_recipes)) },
                 actions = {
                     if (state.isSyncing) {
                         CircularProgressIndicator(modifier = Modifier.padding(8.dp))
                     } else {
                         IconButton(onClick = onSync) {
-                            Icon(Icons.Default.Refresh, contentDescription = "Sync")
+                            Icon(Icons.Default.Refresh, contentDescription = stringResource(Res.string.sync))
                         }
                     }
                     IconButton(onClick = onLogout) {
-                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout")
+                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = stringResource(Res.string.logout))
                     }
                 },
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddRecipe) {
-                Icon(Icons.Default.Add, contentDescription = "Add recipe")
+                Icon(Icons.Default.Add, contentDescription = stringResource(Res.string.add_recipe))
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -124,7 +134,7 @@ internal fun RecipeListScreenContent(
             )
             if (state.recipes.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No recipes yet. Tap + to add one.", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(Res.string.no_recipes), style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
                 LazyColumn(
@@ -154,7 +164,7 @@ private fun OrderToggle(currentOrder: RecipeOrder, onOrderChange: (RecipeOrder) 
     ) {
         TextButton(onClick = { onOrderChange(RecipeOrder.Title()) }) {
             Text(
-                "A–Z",
+                stringResource(Res.string.sort_title),
                 color = if (currentOrder is RecipeOrder.Title) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.onSurface,
             )
@@ -162,7 +172,7 @@ private fun OrderToggle(currentOrder: RecipeOrder, onOrderChange: (RecipeOrder) 
         Spacer(modifier = Modifier.width(4.dp))
         TextButton(onClick = { onOrderChange(RecipeOrder.Date()) }) {
             Text(
-                "Date",
+                stringResource(Res.string.sort_date),
                 color = if (currentOrder is RecipeOrder.Date) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.onSurface,
             )
@@ -197,7 +207,7 @@ private fun RecipeItem(
                 }
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete recipe")
+                Icon(Icons.Default.Delete, contentDescription = stringResource(Res.string.delete_recipe))
             }
         }
     }

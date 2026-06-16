@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">My Kitchen</string>
+
+    <!-- Recipe list screen -->
+    <string name="your_recipes">My Kitchen</string>
+    <string name="sync">Sync</string>
+    <string name="logout">Logout</string>
+    <string name="sort_title">A–Z</string>
+    <string name="sort_date">Date</string>
+    <string name="no_recipes">No recipes yet. Tap + to add one.</string>
+    <string name="add_recipe">Add recipe</string>
+    <string name="delete_recipe">Delete recipe</string>
+
+    <!-- Add/edit screen -->
+    <string name="new_recipe">New Recipe</string>
+    <string name="edit_recipe">Edit Recipe</string>
+    <string name="back">Back</string>
+    <string name="title_hint">Title</string>
+    <string name="content_hint">Instructions</string>
+    <string name="save">Save</string>
+
+    <!-- Login screen -->
+    <string name="login_heading">My Kitchen</string>
+    <string name="server_url_hint">Server URL</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="sign_in">Sign In</string>
+</resources>

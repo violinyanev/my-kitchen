@@ -25,6 +25,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.ultraviolince.mykitchen.ui.generated.resources.Res
+import com.ultraviolince.mykitchen.ui.generated.resources.back
+import com.ultraviolince.mykitchen.ui.generated.resources.content_hint
+import com.ultraviolince.mykitchen.ui.generated.resources.edit_recipe
+import com.ultraviolince.mykitchen.ui.generated.resources.new_recipe
+import com.ultraviolince.mykitchen.ui.generated.resources.save
+import com.ultraviolince.mykitchen.ui.generated.resources.title_hint
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -64,10 +72,10 @@ internal fun AddEditScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (recipeId == null) "New Recipe" else "Edit Recipe") },
+                title = { Text(if (recipeId == null) stringResource(Res.string.new_recipe) else stringResource(Res.string.edit_recipe)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.back))
                     }
                 },
             )
@@ -83,7 +91,7 @@ internal fun AddEditScreenContent(
             OutlinedTextField(
                 value = state.title,
                 onValueChange = onTitleChange,
-                label = { Text("Title") },
+                label = { Text(stringResource(Res.string.title_hint)) },
                 modifier = Modifier.fillMaxWidth().testTag("title_field"),
                 isError = state.titleError != null,
                 supportingText = state.titleError?.let { { Text(it) } },
@@ -93,7 +101,7 @@ internal fun AddEditScreenContent(
             OutlinedTextField(
                 value = state.content,
                 onValueChange = onContentChange,
-                label = { Text("Instructions") },
+                label = { Text(stringResource(Res.string.content_hint)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -109,7 +117,7 @@ internal fun AddEditScreenContent(
                 if (state.isLoading) {
                     CircularProgressIndicator()
                 } else {
-                    Text("Save")
+                    Text(stringResource(Res.string.save))
                 }
             }
         }
