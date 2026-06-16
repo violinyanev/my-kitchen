@@ -35,8 +35,11 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
 
-    - name: Build Android APK
+    - name: Build Android APK (debug)
       run: ./gradlew :androidApp:assembleDebug
+
+    - name: Build Android APK (release)
+      run: ./gradlew :androidApp:assembleRelease
 
     - name: Build desktop app
       run: ./gradlew :desktopApp:compileKotlin
