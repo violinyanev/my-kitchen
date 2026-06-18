@@ -10,7 +10,7 @@ plugins {
 val libs: VersionCatalog = the<VersionCatalogsExtension>().named("libs")
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(libs.findVersion("javaVersion").get().toString().toInt())
     jvm("desktop")
 
     listOf(

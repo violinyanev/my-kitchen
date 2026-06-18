@@ -5,8 +5,10 @@ plugins {
     id("org.jetbrains.kotlinx.kover")
 }
 
+val libs: VersionCatalog = the<VersionCatalogsExtension>().named("libs")
+
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(libs.findVersion("javaVersion").get().toString().toInt()))
     }
 }

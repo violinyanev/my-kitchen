@@ -2,6 +2,7 @@
 kotlin = "2.3.20"
 agp = "9.2.1"
 ksp = "2.3.9"
+javaVersion = "17"
 
 # Compose
 composeMultiplatform = "1.11.1"

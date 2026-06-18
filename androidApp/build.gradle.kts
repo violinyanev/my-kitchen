@@ -58,8 +58,9 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        val jv = JavaVersion.toVersion(libs.versions.javaVersion.get())
+        sourceCompatibility = jv
+        targetCompatibility = jv
     }
 
     testOptions {
