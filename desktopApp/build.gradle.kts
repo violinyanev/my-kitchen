@@ -25,7 +25,7 @@ compose.desktop {
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb,
             )
             packageName = "My Kitchen"
-            packageVersion = "2.0.0"
+            packageVersion = project.findProperty("versionName")?.toString() ?: "1.0.0"
         }
     }
 }
