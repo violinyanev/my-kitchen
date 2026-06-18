@@ -105,7 +105,7 @@ internal fun LoginScreenContent(
             Spacer(modifier = Modifier.height(8.dp))
             if (state.error != null) {
                 Text(
-                    text = state.error!!,
+                    text = stringResource(state.error!!),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )

@@ -27,4 +27,10 @@
     <string name="email_hint">E-Mail</string>
     <string name="password_hint">Passwort</string>
     <string name="sign_in">Anmelden</string>
+
+    <!-- Errors -->
+    <string name="error_fields_required">Alle Felder sind erforderlich</string>
+    <string name="error_title_required">Titel ist erforderlich</string>
+    <string name="error_login_failed">Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.</string>
+    <string name="error_sync_failed">Synchronisierung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
 </resources>

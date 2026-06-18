@@ -10,6 +10,8 @@ import com.ultraviolince.mykitchen.domain.usecase.GetAuthStateUseCase
 import com.ultraviolince.mykitchen.domain.usecase.GetRecipesUseCase
 import com.ultraviolince.mykitchen.domain.usecase.LogoutUseCase
 import com.ultraviolince.mykitchen.domain.usecase.SyncRecipesUseCase
+import com.ultraviolince.mykitchen.ui.generated.resources.Res
+import com.ultraviolince.mykitchen.ui.generated.resources.error_sync_failed
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,12 +19,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
 
 data class RecipeListState(
     val recipes: List<Recipe> = emptyList(),
     val order: RecipeOrder = RecipeOrder.Date(),
     val isSyncing: Boolean = false,
-    val error: String? = null,
+    val error: StringResource? = null,
 )
 
 class RecipeListViewModel(
@@ -65,7 +68,12 @@ class RecipeListViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isSyncing = true, error = null) }
             val result = syncRecipes()
-            _state.update { it.copy(isSyncing = false, error = result.exceptionOrNull()?.message) }
+            _state.update {
+                it.copy(
+                    isSyncing = false,
+                    error = if (result.isFailure) Res.string.error_sync_failed else null,
+                )
+            }
         }
     }
 

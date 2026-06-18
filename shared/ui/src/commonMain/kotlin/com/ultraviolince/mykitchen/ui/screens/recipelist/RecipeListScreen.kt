@@ -48,6 +48,7 @@ import com.ultraviolince.mykitchen.ui.generated.resources.logout
 import com.ultraviolince.mykitchen.ui.generated.resources.no_recipes
 import com.ultraviolince.mykitchen.ui.generated.resources.sort_date
 import com.ultraviolince.mykitchen.ui.generated.resources.sort_title
+import org.jetbrains.compose.resources.getString
 import com.ultraviolince.mykitchen.ui.generated.resources.sync
 import com.ultraviolince.mykitchen.ui.generated.resources.your_recipes
 import org.jetbrains.compose.resources.stringResource
@@ -95,7 +96,7 @@ internal fun RecipeListScreenContent(
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(state.error) {
-        state.error?.let { snackbarHostState.showSnackbar(it) }
+        state.error?.let { snackbarHostState.showSnackbar(getString(it)) }
     }
 
     Scaffold(

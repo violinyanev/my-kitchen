@@ -27,4 +27,10 @@
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
     <string name="sign_in">Sign In</string>
+
+    <!-- Errors -->
+    <string name="error_fields_required">All fields are required</string>
+    <string name="error_title_required">Title is required</string>
+    <string name="error_login_failed">Login failed. Please check your credentials.</string>
+    <string name="error_sync_failed">Sync failed. Please try again.</string>
 </resources>

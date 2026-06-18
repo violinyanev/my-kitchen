@@ -94,7 +94,7 @@ internal fun AddEditScreenContent(
                 label = { Text(stringResource(Res.string.title_hint)) },
                 modifier = Modifier.fillMaxWidth().testTag("title_field"),
                 isError = state.titleError != null,
-                supportingText = state.titleError?.let { { Text(it) } },
+                supportingText = state.titleError?.let { error -> { Text(stringResource(error)) } },
                 singleLine = true,
             )
             Spacer(modifier = Modifier.height(12.dp))

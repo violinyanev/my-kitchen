@@ -4,18 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.domain.usecase.AddRecipeUseCase
 import com.ultraviolince.mykitchen.domain.usecase.GetRecipeUseCase
+import com.ultraviolince.mykitchen.ui.generated.resources.Res
+import com.ultraviolince.mykitchen.ui.generated.resources.error_title_required
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
 
 data class AddEditState(
     val title: String = "",
     val content: String = "",
     val isLoading: Boolean = false,
     val isSaved: Boolean = false,
-    val titleError: String? = null,
+    val titleError: StringResource? = null,
 )
 
 class AddEditViewModel(
@@ -56,7 +59,7 @@ class AddEditViewModel(
     fun save() {
         val title = _state.value.title.trim()
         if (title.isBlank()) {
-            _state.update { it.copy(titleError = "Title is required") }
+            _state.update { it.copy(titleError = Res.string.error_title_required) }
             return
         }
         viewModelScope.launch {
