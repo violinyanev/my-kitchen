@@ -22,6 +22,21 @@ dependencies {
     kover(project(":server"))
 }
 
+kover {
+    reports {
+        filters {
+            excludes {
+                // DI wiring: Koin module declarations have no logic to test
+                classes("*.di.*Module*", "*.di.*ModuleKt")
+                // Platform DB/driver factories: delegate to Room internals
+                classes("*.data.local.*Database*", "*.data.local.*DatabaseKt")
+                // Generated Room DAOs
+                annotatedBy("androidx.room.Dao")
+            }
+        }
+    }
+}
+
 subprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
 

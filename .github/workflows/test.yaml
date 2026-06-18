@@ -69,7 +69,7 @@ jobs:
         title: Code Coverage
         update-comment: true
         min-coverage-overall: 10
-        min-coverage-changed-files: 0
+        min-coverage-changed-files: 60
         coverage-counter-type: LINE
 
   web:
