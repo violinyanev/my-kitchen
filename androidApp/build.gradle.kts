@@ -1,3 +1,5 @@
+@file:OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
+
 import java.util.Properties
 
 plugins {
@@ -98,6 +100,5 @@ roborazzi {
         enable = true
         includePrivatePreviews = false
         packages = listOf("com.ultraviolince.mykitchen.ui")
-        testRunnerClass = "com.ultraviolince.mykitchen.ScreenshotTestRunner"
     }
 }
