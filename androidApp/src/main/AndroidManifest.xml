@@ -22,10 +22,11 @@
             </intent-filter>
         </activity>
 
-        <!-- Explicitly declare CMP resource reader initializer so Robolectric
-             unit tests pick it up even when the library manifest isn't fully merged. -->
+        <!-- Explicitly declare CMP context provider so Robolectric unit tests pick
+             it up even when the library manifest isn't fully merged. In CMP 1.11+,
+             the ContentProvider class is AndroidContextProvider. -->
         <provider
-            android:name="org.jetbrains.compose.resources.ResourcesInitializer"
+            android:name="org.jetbrains.compose.resources.AndroidContextProvider"
             android:authorities="${applicationId}.ResourcesInitializer"
             android:exported="false"
             android:multiprocess="true" />
