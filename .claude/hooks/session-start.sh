@@ -48,6 +48,17 @@ EOF
 fi
 log "dl.google.com is reachable (HTTP $GOOGLE_MAVEN_STATUS) — proceeding"
 
+# ── 0. Ensure Java 17 is installed (required by server module toolchain) ───
+if [ ! -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+    log "Java 17 not found — installing openjdk-17-jdk..."
+    # --allow-unauthenticated tolerates blocked third-party PPAs in the sandbox
+    apt-get update -qq --allow-unauthenticated 2>/dev/null || true
+    apt-get install -y -qq --allow-unauthenticated openjdk-17-jdk
+    log "Java 17 installed at /usr/lib/jvm/java-17-openjdk-amd64"
+else
+    log "Java 17 already available"
+fi
+
 # ── 1. Warm Gradle + resolve all dependencies ──────────────────────────────
 log "Resolving Gradle dependencies for all modules..."
 ./gradlew dependencies --continue --quiet \
