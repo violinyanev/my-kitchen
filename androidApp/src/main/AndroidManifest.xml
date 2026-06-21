@@ -21,6 +21,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Explicitly declare CMP resource reader initializer so Robolectric
+             unit tests pick it up even when the library manifest isn't fully merged. -->
+        <provider
+            android:name="org.jetbrains.compose.resources.ResourcesInitializer"
+            android:authorities="${applicationId}.ResourcesInitializer"
+            android:exported="false"
+            android:multiprocess="true" />
     </application>
 
 </manifest>
