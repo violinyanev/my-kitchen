@@ -4,6 +4,12 @@ plugins {
     id("kmp-compose")
 }
 
+// Without an explicit group in this project, CMP would derive a package of "ui.generated.resources"
+// which doesn't match the imports used across the codebase. Pin it explicitly.
+compose.resources {
+    packageOfResClass = "com.ultraviolince.mykitchen.ui.generated.resources"
+}
+
 kotlin {
     android {
         namespace = "com.ultraviolince.mykitchen.shared.ui"
