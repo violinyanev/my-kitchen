@@ -11,8 +11,12 @@
 # What this script checks (pure JVM / no AGP dependency):
 #   • Detekt static analysis
 #   • Unit tests for shared:domain, shared:data, server (desktop/JVM targets)
-#   • Kover XML coverage report
+#   • Kover XML coverage report (per-module: server + shared:domain)
 #   • Server fat-JAR compilation
+#
+# Note: root-level koverXmlReport and per-module KMP reports aggregate Android
+# sources and require the Android SDK — those are CI-only. Only the pure-JVM
+# :server:koverXmlReport is safe to run here.
 #
 # What CI checks that cannot run here:
 #   • androidApp: assemble, unit tests, screenshot tests (Roborazzi)
@@ -61,8 +65,11 @@ print_step "Running server unit tests..."
 print_success "server tests passed"
 
 # ── 3. Coverage report ────────────────────────────────────────────────────
-print_step "Generating Kover XML coverage report..."
-./gradlew koverXmlReport
+# Root-level koverXmlReport aggregates Android modules and requires the
+# Android SDK. Run per-module reports for the pure-JVM modules instead;
+# the aggregated report is validated by CI.
+print_step "Generating Kover XML coverage report (server)..."
+./gradlew :server:koverXmlReport
 print_success "Coverage report generated"
 
 # ── 4. Server fat-JAR compilation ─────────────────────────────────────────
