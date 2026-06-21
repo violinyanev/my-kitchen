@@ -31,7 +31,7 @@ can_reach() { timeout 10 curl -sS -o /dev/null -w "%{http_code}" "$1" 2>/dev/nul
 
 # ── Preflight network check ────────────────────────────────────────────────
 log "Checking network policy..."
-GOOGLE_MAVEN_STATUS=$(can_reach "https://dl.google.com/dl/android/maven2/")
+GOOGLE_MAVEN_STATUS=$(can_reach "https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml")
 if [ "$GOOGLE_MAVEN_STATUS" != "200" ]; then
     cat >&2 <<EOF
 
@@ -48,14 +48,52 @@ EOF
 fi
 log "dl.google.com is reachable (HTTP $GOOGLE_MAVEN_STATUS) — proceeding"
 
-# ── 1. Warm Gradle + resolve all dependencies ──────────────────────────────
+# ── 0. Ensure Java 17 is installed (required by server module toolchain) ───
+if [ ! -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+    log "Java 17 not found — installing openjdk-17-jdk..."
+    # --allow-unauthenticated tolerates blocked third-party PPAs in the sandbox
+    apt-get update -qq --allow-unauthenticated 2>/dev/null || true
+    apt-get install -y -qq --allow-unauthenticated openjdk-17-jdk
+    log "Java 17 installed at /usr/lib/jvm/java-17-openjdk-amd64"
+else
+    log "Java 17 already available"
+fi
+
+# ── 1. Ensure Android SDK is installed ────────────────────────────────────
+ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
+if [ ! -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+    log "Android SDK not found — installing command-line tools..."
+    mkdir -p "$ANDROID_HOME/cmdline-tools"
+    curl -sSL "https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip" \
+        -o /tmp/cmdline-tools.zip
+    unzip -q /tmp/cmdline-tools.zip -d /tmp/cmdline-tools-extracted
+    mv /tmp/cmdline-tools-extracted/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
+    rm /tmp/cmdline-tools.zip
+    log "Android cmdline-tools installed"
+
+    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+    yes | sdkmanager --licenses > /dev/null 2>&1
+    sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0" \
+        2>&1 | grep -v "^\[" || true
+    log "Android SDK platform 36 + build-tools installed"
+else
+    log "Android SDK already available"
+    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+fi
+
+# Write sdk.dir so Gradle can find the SDK without ANDROID_HOME in all contexts
+echo "sdk.dir=$ANDROID_HOME" > local.properties
+echo "ANDROID_HOME=$ANDROID_HOME" >> "${CLAUDE_ENV_FILE:-/dev/null}"
+log "Android SDK configured at $ANDROID_HOME"
+
+# ── 2. Warm Gradle + resolve all dependencies ─────────────────────────────
 log "Resolving Gradle dependencies for all modules..."
 ./gradlew dependencies --continue --quiet \
     -Porg.gradle.warning.mode=none \
     2>&1 | tail -5
 log "Gradle dependencies resolved"
 
-# ── 2. Run JVM checks (proves cache is warm) ─────────────────────────────
+# ── 3. Run JVM checks (proves cache is warm) ─────────────────────────────
 log "Running Detekt..."
 ./gradlew detekt --quiet 2>&1 | tail -5
 
@@ -66,7 +104,7 @@ log "Running JVM unit tests (domain + data + server)..."
           --continue --quiet 2>&1 | tail -10
 log "JVM tests passed"
 
-# ── 3. Browser tooling (for E2E / Playwright tests) ───────────────────────
+# ── 4. Browser tooling (for E2E / Playwright tests) ───────────────────────
 log "Checking browser-binary CDN reachability..."
 PLAYWRIGHT_STATUS=$(can_reach "https://cdn.playwright.dev/")
 GOOG_STORAGE_STATUS=$(can_reach "https://storage.googleapis.com/")
