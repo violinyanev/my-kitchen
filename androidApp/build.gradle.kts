@@ -82,6 +82,7 @@ dependencies {
     implementation(project(":shared:domain"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.koin.android)
+    implementation(compose.components.resources)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.compose.ui.test.junit4)
