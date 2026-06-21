@@ -5,10 +5,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ultraviolince.mykitchen.domain.model.Recipe
 import com.ultraviolince.mykitchen.domain.model.RecipeOrder
 import com.ultraviolince.mykitchen.ui.theme.AppTheme
+import org.jetbrains.compose.resources.PreviewContextConfigurationEffect
 
 @Preview(showBackground = true)
 @Composable
 internal fun RecipeListScreenEmptyPreview() {
+    PreviewContextConfigurationEffect()
     AppTheme {
         RecipeListScreenContent(
             state = RecipeListState(),
@@ -25,6 +27,7 @@ internal fun RecipeListScreenEmptyPreview() {
 @Preview(showBackground = true, name = "Recipe List With Items")
 @Composable
 internal fun RecipeListScreenWithItemsPreview() {
+    PreviewContextConfigurationEffect()
     AppTheme {
         RecipeListScreenContent(
             state = RecipeListState(

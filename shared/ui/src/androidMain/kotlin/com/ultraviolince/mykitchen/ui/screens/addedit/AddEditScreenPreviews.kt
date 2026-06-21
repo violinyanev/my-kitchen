@@ -3,10 +3,12 @@ package com.ultraviolince.mykitchen.ui.screens.addedit
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.ultraviolince.mykitchen.ui.theme.AppTheme
+import org.jetbrains.compose.resources.PreviewContextConfigurationEffect
 
 @Preview(showBackground = true)
 @Composable
 internal fun AddEditScreenNewPreview() {
+    PreviewContextConfigurationEffect()
     AppTheme {
         AddEditScreenContent(
             state = AddEditState(),
@@ -22,6 +24,7 @@ internal fun AddEditScreenNewPreview() {
 @Preview(showBackground = true, name = "Edit Recipe")
 @Composable
 internal fun AddEditScreenEditPreview() {
+    PreviewContextConfigurationEffect()
     AppTheme {
         AddEditScreenContent(
             state = AddEditState(title = "Pasta Carbonara", content = "1. Boil pasta\n2. Mix eggs and cheese\n3. Combine"),
