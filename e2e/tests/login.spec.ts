@@ -105,7 +105,6 @@ test.describe("Login screen", () => {
     // should navigate away from the login screen.
     await page.waitForTimeout(2000);
     // Canvas still exists and has non-zero dimensions after navigation
-    const canvas = page.locator("canvas");
     await expect(canvas).toBeVisible();
   });
 });
