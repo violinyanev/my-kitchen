@@ -1,13 +1,28 @@
 package com.ultraviolince.mykitchen
 
-class TestApplication : MyKitchenApp() {
+import android.app.Application
+import com.ultraviolince.mykitchen.data.di.dataModule
+import com.ultraviolince.mykitchen.data.di.platformDataModule
+import com.ultraviolince.mykitchen.domain.di.domainModule
+import com.ultraviolince.mykitchen.ui.di.uiModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.startKoin
+
+class TestApplication : Application() {
     override fun onCreate() {
         // CMP's DefaultAndroidResourceReader requires AndroidContextHolder.context to be set
         // before stringResource() is called during composition. Robolectric doesn't invoke
         // ContentProviders before the first composable render, so we set it directly via
-        // reflection before super.onCreate() (which starts Koin and may trigger composition).
+        // reflection before super.onCreate().
         initCmpContext()
         super.onCreate()
+        if (GlobalContext.getOrNull() == null) {
+            startKoin {
+                androidContext(this@TestApplication)
+                modules(platformDataModule, dataModule, domainModule, uiModule)
+            }
+        }
     }
 
     private fun initCmpContext() {
