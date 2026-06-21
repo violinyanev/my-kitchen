@@ -17,16 +17,15 @@ import { expect, Page, test } from "@playwright/test";
 
 const SERVER_URL = process.env.SERVER_URL ?? "http://localhost:5000";
 
-/** Waits until the canvas has rendered at least one non-transparent pixel. */
+/** Waits until Compose/Skiko has initialised the canvas (non-zero dimensions).
+ *  We avoid getContext("2d") because acquiring a 2D context locks the canvas
+ *  and prevents Skiko from later creating its WebGL2 context.
+ */
 async function waitForCanvasPaint(page: Page, timeout = 45_000) {
   await page.waitForFunction(
     () => {
       const c = document.querySelector("canvas") as HTMLCanvasElement | null;
-      if (!c) return false;
-      const ctx = c.getContext("2d");
-      if (!ctx) return false;
-      const d = ctx.getImageData(c.width / 2, c.height / 2, 1, 1).data;
-      return d[3] > 0;
+      return c !== null && c.width > 0 && c.height > 0;
     },
     null,
     { timeout }

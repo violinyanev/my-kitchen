@@ -6,8 +6,7 @@
  * The app renders entirely to a <canvas> element (Compose Multiplatform WasmJs),
  * so DOM selectors for text content don't work. Instead we:
  *  1. Assert the canvas element is present and non-empty (bounding box > 0).
- *  2. Use screenshot comparison for visual regression.
- *  3. Use Playwright's mouse API for interactions (click on known coordinates
+ *  2. Use Playwright's mouse API for interactions (click on known coordinates
  *     or use accessibility roles if Compose exposes them via ARIA).
  */
 
@@ -29,34 +28,29 @@ test.describe("App loads", () => {
     expect(box!.height).toBeGreaterThan(100);
   });
 
-  test("login screen renders (visual snapshot)", async ({ page }) => {
+  test("login screen renders", async ({ page }) => {
     await page.goto("/");
 
-    // Wait for the Compose/WasmJs runtime to paint something on the canvas.
-    // The canvas starts blank; we wait until at least one non-transparent pixel
-    // exists (checked via JS canvas API) to know the UI has rendered.
+    // Wait for Compose/Skiko to initialise the canvas and set its dimensions.
+    // We check canvas.width/height rather than reading pixels via getContext("2d"):
+    // acquiring a 2D context locks the canvas element and prevents Skiko from
+    // later creating its WebGL2 context, which would break rendering entirely.
     await page.waitForFunction(
       () => {
         const canvas = document.querySelector(
           "canvas#ComposeTarget"
-        ) as HTMLCanvasElement;
-        if (!canvas) return false;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return false;
-        const data = ctx.getImageData(
-          canvas.width / 2,
-          canvas.height / 2,
-          1,
-          1
-        ).data;
-        // Alpha > 0 means something was drawn
-        return data[3] > 0;
+        ) as HTMLCanvasElement | null;
+        return canvas !== null && canvas.width > 0 && canvas.height > 0;
       },
       null,
       { timeout: 45_000 }
     );
 
-    // Verify that the canvas is still visible after painting
-    await expect(page.locator("canvas#ComposeTarget")).toBeVisible();
+    const canvas = page.locator("canvas#ComposeTarget");
+    await expect(canvas).toBeVisible();
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThan(0);
+    expect(box!.height).toBeGreaterThan(0);
   });
 });
