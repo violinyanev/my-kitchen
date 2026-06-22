@@ -87,7 +87,7 @@ test.describe("Login screen", () => {
 
     // Fill server URL field (top ~28% of screen, centered)
     await page.mouse.click(box.x + box.width / 2, box.y + box.height * 0.28);
-    await page.keyboard.selectAll();
+    await page.keyboard.press('ControlOrMeta+a');
     await page.keyboard.type(SERVER_URL);
 
     // Fill email field (~39% down)
