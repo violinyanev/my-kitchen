@@ -65,6 +65,18 @@ android {
         targetCompatibility = jv
     }
 
+    sourceSets {
+        // Workaround for CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
+        // KotlinMultiplatformAndroidVariant has variant.sources.assets == null in AGP 9.x, so CMP
+        // 1.11.1 silently skips asset registration for generated .cvr resource files. Add the
+        // prepared-resources directory here (androidApp uses com.android.application which works)
+        // so the .cvr files reach both the APK assets and the Robolectric test classpath.
+        getByName("main").assets.srcDir(
+            project(":shared:ui").layout.buildDirectory
+                .dir("generated/compose/resourceGenerator/preparedResources/commonMain"),
+        )
+    }
+
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
