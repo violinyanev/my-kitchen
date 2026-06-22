@@ -1,16 +1,21 @@
 package com.ultraviolince.mykitchen.ui.screens.recipelist
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.ultraviolince.mykitchen.domain.model.Recipe
 import com.ultraviolince.mykitchen.domain.model.RecipeOrder
 import com.ultraviolince.mykitchen.ui.theme.AppTheme
-import org.jetbrains.compose.resources.PreviewContextConfigurationEffect
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 
+@OptIn(ExperimentalResourceApi::class)
 @Preview(showBackground = true)
 @Composable
 internal fun RecipeListScreenEmptyPreview() {
-    PreviewContextConfigurationEffect()
+    val ctx = LocalContext.current
+    remember(ctx) { setResourceReaderAndroidContext(ctx) }
     AppTheme {
         RecipeListScreenContent(
             state = RecipeListState(),
@@ -24,10 +29,12 @@ internal fun RecipeListScreenEmptyPreview() {
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Preview(showBackground = true, name = "Recipe List With Items")
 @Composable
 internal fun RecipeListScreenWithItemsPreview() {
-    PreviewContextConfigurationEffect()
+    val ctx = LocalContext.current
+    remember(ctx) { setResourceReaderAndroidContext(ctx) }
     AppTheme {
         RecipeListScreenContent(
             state = RecipeListState(
