@@ -65,6 +65,19 @@ android {
         targetCompatibility = jv
     }
 
+    sourceSets {
+        // Workaround for CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
+        // KotlinMultiplatformAndroidVariant has variant.sources.assets == null in AGP 9.x, so CMP
+        // 1.11.1 silently skips asset registration for generated .cvr resource files. Resolve the
+        // Provider<Directory> to a plain File so AGP's srcDir() accepts it without the Provider
+        // restriction. Task ordering is guaranteed by the project dependency on shared:ui.
+        getByName("main").assets.srcDir(
+            project(":shared:ui").layout.buildDirectory
+                .dir("generated/compose/resourceGenerator/preparedResources/commonMain")
+                .get().asFile,
+        )
+    }
+
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -73,20 +86,6 @@ android {
                 it.systemProperties["roborazzi.output.dir"] = "${project.projectDir}/src/test/screenshots"
             }
         }
-    }
-}
-
-// Workaround for CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
-// KotlinMultiplatformAndroidVariant has variant.sources.assets == null in AGP 9.x, so CMP
-// 1.11.1 silently skips asset registration for generated .cvr resource files. Register the
-// prepared-resources directory via the Variant API so .cvr files reach both APK assets and
-// the Robolectric test classpath (androidApp uses com.android.application which works).
-androidComponents {
-    onVariants { variant ->
-        variant.sources.assets?.addGeneratedDirectory(
-            project(":shared:ui").layout.buildDirectory
-                .dir("generated/compose/resourceGenerator/preparedResources/commonMain"),
-        )
     }
 }
 
