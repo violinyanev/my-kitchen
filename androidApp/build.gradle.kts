@@ -69,8 +69,9 @@ android {
         // Workaround for CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
         // KotlinMultiplatformAndroidVariant has variant.sources.assets == null in AGP 9.x, so CMP
         // 1.11.1 silently skips asset registration for generated .cvr resource files. Resolve the
-        // Provider<Directory> to a plain File so AGP's srcDir() accepts it without the Provider
-        // restriction. Task ordering is guaranteed by the project dependency on shared:ui.
+        // Provider<Directory> to a plain File (AGP 9.x rejects Providers in srcDir, and
+        // addGeneratedDirectory is not available). Explicit task wiring is added below to satisfy
+        // the Gradle configuration cache implicit-dependency check.
         getByName("main").assets.srcDir(
             project(":shared:ui").layout.buildDirectory
                 .dir("generated/compose/resourceGenerator/preparedResources/commonMain")
@@ -86,6 +87,15 @@ android {
                 it.systemProperties["roborazzi.output.dir"] = "${project.projectDir}/src/test/screenshots"
             }
         }
+    }
+}
+
+// Wire mergeXxxAssets → shared:ui CMP prepare task so the configuration cache doesn't flag
+// an implicit dependency. Required because sourceSets.main.assets.srcDir(File) loses the
+// task dependency chain; tasks.named() is lazy and compatible with the configuration cache.
+tasks.configureEach {
+    if (name.startsWith("merge") && name.endsWith("Assets")) {
+        dependsOn(project(":shared:ui").tasks.named("prepareComposeResourcesTaskForCommonMain"))
     }
 }
 
