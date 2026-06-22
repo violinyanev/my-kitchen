@@ -4,19 +4,6 @@ plugins {
     id("kmp-compose")
 }
 
-android {
-    namespace = "com.ultraviolince.mykitchen.shared.ui"
-    compileSdk = libs.versions.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-    }
-    compileOptions {
-        val jv = JavaVersion.toVersion(libs.versions.javaVersion.get())
-        sourceCompatibility = jv
-        targetCompatibility = jv
-    }
-}
-
 // Without an explicit group in this project, CMP would derive a package of "ui.generated.resources"
 // which doesn't match the imports used across the codebase. Pin it explicitly.
 compose.resources {
@@ -24,7 +11,10 @@ compose.resources {
 }
 
 kotlin {
-    androidTarget {
+    android {
+        namespace = "com.ultraviolince.mykitchen.shared.ui"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }

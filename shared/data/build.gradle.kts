@@ -7,19 +7,6 @@ plugins {
     alias(libs.plugins.room3)
 }
 
-android {
-    namespace = "com.ultraviolince.mykitchen.shared.data"
-    compileSdk = libs.versions.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-    }
-    compileOptions {
-        val jv = JavaVersion.toVersion(libs.versions.javaVersion.get())
-        sourceCompatibility = jv
-        targetCompatibility = jv
-    }
-}
-
 room3 {
     schemaDirectory("$projectDir/schemas")
 }
@@ -33,7 +20,10 @@ tasks.withType<KotlinCompilationTask<*>>().configureEach {
 }
 
 kotlin {
-    androidTarget {
+    android {
+        namespace = "com.ultraviolince.mykitchen.shared.data"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
         compilerOptions {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.javaVersion.get()))
         }
