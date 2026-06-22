@@ -97,6 +97,7 @@ dependencies {
     testImplementation(libs.roborazzi.preview.scanner)
     testImplementation(libs.preview.scanner.compose)
     testImplementation(libs.robolectric)
+    testImplementation(compose.components.resources)
 }
 
 roborazzi {
