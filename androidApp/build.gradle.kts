@@ -94,20 +94,21 @@ android {
                     .get()
                     .asFile
                     .absolutePath
+                // Ensure .cvr files exist before Robolectric reads them. Wired here (inside
+                // testOptions.unitTests.all) rather than via tasks.configureEach because the
+                // latter fires inside Roborazzi's afterEvaluate task-iterator where
+                // tasks.named() on a cross-project task throws UnknownTaskException.
+                it.dependsOn(project(":shared:ui").tasks.named("prepareComposeResourcesTaskForCommonMain"))
             }
         }
     }
 }
 
-// Wire mergeXxxAssets and test*UnitTest → shared:ui CMP prepare task.
-// mergeXxxAssets: satisfies the Gradle configuration-cache implicit-dependency check for
-//   the srcDir(File) addition above (File loses the task-dependency chain).
-// test*UnitTest: ensures the .cvr files are on disk before Robolectric reads them via
-//   the android.merged_assets system property set above.
-// tasks.named() is lazy and compatible with the configuration cache.
+// Wire mergeXxxAssets → shared:ui CMP prepare task so the configuration cache doesn't flag
+// an implicit dependency. Required because sourceSets.main.assets.srcDir(File) loses the
+// task dependency chain; tasks.named() is lazy and compatible with the configuration cache.
 tasks.configureEach {
-    if ((name.startsWith("merge") && name.endsWith("Assets")) ||
-        (name.startsWith("test") && name.endsWith("UnitTest"))) {
+    if (name.startsWith("merge") && name.endsWith("Assets")) {
         dependsOn(project(":shared:ui").tasks.named("prepareComposeResourcesTaskForCommonMain"))
     }
 }
