@@ -85,16 +85,29 @@ android {
             all {
                 it.jvmArgs("-Drobolectric.pixelCopyRenderMode=hardware")
                 it.systemProperties["roborazzi.output.dir"] = "${project.projectDir}/src/test/screenshots"
+                // CMP-9547 / Robolectric: AGP 9.x does not pass android.merged_assets to the
+                // test JVM for this KMP+CMP setup, so DefaultAndroidResourceReader cannot open
+                // .cvr files via AssetManager.  Explicitly set the property to the CMP prepared-
+                // resources output so Robolectric's shadow AssetManager finds the files.
+                it.systemProperties["android.merged_assets"] = project(":shared:ui").layout.buildDirectory
+                    .dir("generated/compose/resourceGenerator/preparedResources/commonMain")
+                    .get()
+                    .asFile
+                    .absolutePath
             }
         }
     }
 }
 
-// Wire mergeXxxAssets → shared:ui CMP prepare task so the configuration cache doesn't flag
-// an implicit dependency. Required because sourceSets.main.assets.srcDir(File) loses the
-// task dependency chain; tasks.named() is lazy and compatible with the configuration cache.
+// Wire mergeXxxAssets and test*UnitTest → shared:ui CMP prepare task.
+// mergeXxxAssets: satisfies the Gradle configuration-cache implicit-dependency check for
+//   the srcDir(File) addition above (File loses the task-dependency chain).
+// test*UnitTest: ensures the .cvr files are on disk before Robolectric reads them via
+//   the android.merged_assets system property set above.
+// tasks.named() is lazy and compatible with the configuration cache.
 tasks.configureEach {
-    if (name.startsWith("merge") && name.endsWith("Assets")) {
+    if ((name.startsWith("merge") && name.endsWith("Assets")) ||
+        (name.startsWith("test") && name.endsWith("UnitTest"))) {
         dependsOn(project(":shared:ui").tasks.named("prepareComposeResourcesTaskForCommonMain"))
     }
 }
