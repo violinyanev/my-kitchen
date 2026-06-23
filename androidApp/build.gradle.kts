@@ -1,12 +1,54 @@
 @file:OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
 
 import java.util.Properties
+import javax.inject.Inject
+import org.gradle.api.file.FileSystemOperations
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.roborazzi)
+}
+
+// CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
+// KotlinMultiplatformAndroidVariant.sources.assets == null in AGP 9.x, so CMP 1.11.1 silently
+// skips registration of generated .cvr files. Copy the prepared resources into a local build
+// directory and wire it via androidComponents.onVariants / addGeneratedSourceDirectory — the
+// only API in AGP 9.x that correctly registers generated asset directories for all consumers
+// (APK packaging, android.merged_assets for Robolectric unit tests, instrumented tests).
+abstract class CopyDirTask @Inject constructor(
+    private val fileSystemOperations: FileSystemOperations,
+) : DefaultTask() {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val sourceDirectory: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val destinationDirectory: DirectoryProperty
+
+    @TaskAction
+    fun copy() {
+        fileSystemOperations.sync {
+            from(sourceDirectory)
+            into(destinationDirectory)
+        }
+    }
+}
+
+val copyCmpAssets = tasks.register<CopyDirTask>("copyCmpAssetsForAndroid") {
+    dependsOn(project(":shared:ui").tasks.named("prepareComposeResourcesTaskForCommonMain"))
+    sourceDirectory.set(
+        project(":shared:ui").layout.buildDirectory
+            .dir("generated/compose/resourceGenerator/preparedResources/commonMain"),
+    )
+    destinationDirectory.set(layout.buildDirectory.dir("generated/cmp-assets"))
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
+    }
 }
 
 android {
@@ -65,46 +107,14 @@ android {
         targetCompatibility = jv
     }
 
-    sourceSets {
-        // Workaround for CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
-        // KotlinMultiplatformAndroidVariant has variant.sources.assets == null in AGP 9.x, so CMP
-        // 1.11.1 silently skips asset registration for generated .cvr resource files. Resolve the
-        // Provider<Directory> to a plain File (AGP 9.x rejects Providers in srcDir, and
-        // addGeneratedDirectory is not available). Explicit task wiring is added below to satisfy
-        // the Gradle configuration cache implicit-dependency check.
-        getByName("main").assets.srcDir(
-            project(":shared:ui").layout.buildDirectory
-                .dir("generated/compose/resourceGenerator/preparedResources/commonMain")
-                .get().asFile,
-        )
-    }
-
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
             all {
                 it.jvmArgs("-Drobolectric.pixelCopyRenderMode=hardware")
                 it.systemProperties["roborazzi.output.dir"] = "${project.projectDir}/src/test/screenshots"
-                // CMP-9547 / Robolectric: AGP 9.x does not pass android.merged_assets to the
-                // test JVM for this KMP+CMP setup, so DefaultAndroidResourceReader cannot open
-                // .cvr files via AssetManager.  Explicitly set the property to the CMP prepared-
-                // resources output so Robolectric's shadow AssetManager finds the files.
-                it.systemProperties["android.merged_assets"] = project(":shared:ui").layout.buildDirectory
-                    .dir("generated/compose/resourceGenerator/preparedResources/commonMain")
-                    .get()
-                    .asFile
-                    .absolutePath
             }
         }
-    }
-}
-
-// Wire mergeXxxAssets → shared:ui CMP prepare task so the configuration cache doesn't flag
-// an implicit dependency. Required because sourceSets.main.assets.srcDir(File) loses the
-// task dependency chain; tasks.named() is lazy and compatible with the configuration cache.
-tasks.configureEach {
-    if (name.startsWith("merge") && name.endsWith("Assets")) {
-        dependsOn(project(":shared:ui").tasks.named("prepareComposeResourcesTaskForCommonMain"))
     }
 }
 
