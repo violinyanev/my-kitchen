@@ -47,7 +47,11 @@ val copyCmpAssets = tasks.register<CopyDirTask>("copyCmpAssetsForAndroid") {
 
 androidComponents {
     onVariants(selector().all()) { variant ->
+        // Register CMP assets for the production variant (APK → instrumented tests).
         variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
+        // Register for the unit-test variant so AGP includes them in the unit-test
+        // asset merge and sets android.merged_assets correctly for Robolectric.
+        variant.unitTest?.sources?.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
     }
 }
 
