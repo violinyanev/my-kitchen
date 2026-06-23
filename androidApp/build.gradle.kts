@@ -94,11 +94,6 @@ android {
                     .get()
                     .asFile
                     .absolutePath
-                // Ensure .cvr files exist before Robolectric reads them. Wired here (inside
-                // testOptions.unitTests.all) rather than via tasks.configureEach because the
-                // latter fires inside Roborazzi's afterEvaluate task-iterator where
-                // tasks.named() on a cross-project task throws UnknownTaskException.
-                it.dependsOn(project(":shared:ui").tasks.named("prepareComposeResourcesTaskForCommonMain"))
             }
         }
     }
