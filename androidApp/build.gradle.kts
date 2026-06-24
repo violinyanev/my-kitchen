@@ -3,7 +3,6 @@
 import java.util.Properties
 import javax.inject.Inject
 import org.gradle.api.file.FileSystemOperations
-import org.gradle.process.CommandLineArgumentProvider
 
 plugins {
     alias(libs.plugins.android.application)
@@ -15,9 +14,9 @@ plugins {
 // CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
 // KotlinMultiplatformAndroidVariant.sources.assets == null in AGP 9.x, so CMP 1.11.1 silently
 // skips registration of generated .cvr files. Copy the prepared resources into a local build
-// directory and wire it via androidComponents.onVariants / addGeneratedSourceDirectory — the
-// only API in AGP 9.x that correctly registers generated asset directories for all consumers
-// (APK packaging, android.merged_assets for Robolectric unit tests, instrumented tests).
+// directory and register it as a main sourceSets asset source via a lazy Provider so that
+// mergeDebugAssets (APK / instrumented tests) and mergeDebugUnitTestAssets (Robolectric) both
+// pick up the .cvr files automatically without any android.merged_assets override.
 abstract class CopyDirTask @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
 ) : DefaultTask() {
@@ -44,34 +43,6 @@ val copyCmpAssets = tasks.register<CopyDirTask>("copyCmpAssetsForAndroid") {
             .dir("generated/compose/resourceGenerator/preparedResources/commonMain"),
     )
     destinationDirectory.set(layout.buildDirectory.dir("generated/cmp-assets"))
-}
-
-androidComponents {
-    onVariants(selector().all()) { variant ->
-        // Register CMP assets for the production variant (APK → instrumented tests).
-        variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
-    }
-}
-
-// CMP-9547 / Robolectric: AGP 9.x runs a separate mergeXxxUnitTestAssets pipeline that doesn't
-// inherit addGeneratedSourceDirectory sources from the production variant. Override
-// android.merged_assets via a CommandLineArgumentProvider so our value is appended AFTER AGP's
-// own -Dandroid.merged_assets=... JVM arg (jvmArgumentProviders run after systemProperties in
-// the Test task's command-line construction) and therefore wins the last-wins -D resolution.
-// Wiring assetsDir to copyCmpAssets.flatMap ensures Gradle's CC tracks the task-output
-// dependency properly — no explicit dependsOn needed.
-abstract class CmpAssetsProvider @Inject constructor() : CommandLineArgumentProvider {
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val assetsDir: DirectoryProperty
-
-    override fun asArguments() = listOf("-Dandroid.merged_assets=${assetsDir.asFile.get()}")
-}
-
-tasks.withType<Test>().configureEach {
-    jvmArgumentProviders += objects.newInstance<CmpAssetsProvider>().apply {
-        assetsDir.set(copyCmpAssets.flatMap { it.destinationDirectory })
-    }
 }
 
 android {
@@ -128,6 +99,17 @@ android {
         val jv = JavaVersion.toVersion(libs.versions.javaVersion.get())
         sourceCompatibility = jv
         targetCompatibility = jv
+    }
+
+    sourceSets {
+        // Wire the CMP prepared resources into the main source set assets so that
+        // mergeDebugAssets / mergeReleaseAssets (APK packaging → instrumented tests) and
+        // mergeDebugUnitTestAssets (Robolectric android.merged_assets) both include the .cvr
+        // files. Using a lazy Provider avoids the AGP 9.x "skip non-existent srcDir" behaviour
+        // and establishes the copyCmpAssetsForAndroid task dependency automatically.
+        getByName("main") {
+            assets.srcDir(copyCmpAssets.flatMap { it.destinationDirectory })
+        }
     }
 
     testOptions {
