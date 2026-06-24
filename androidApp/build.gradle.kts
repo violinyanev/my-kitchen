@@ -14,9 +14,10 @@ plugins {
 // CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
 // KotlinMultiplatformAndroidVariant.sources.assets == null in AGP 9.x, so CMP 1.11.1 silently
 // skips registration of generated .cvr files. Copy the prepared resources into a local build
-// directory and register it via the AGP Variant API (addGeneratedSourceDirectory) so that
-// mergeDebugAssets (APK / instrumented tests) and mergeDebugUnitTestAssets (Robolectric) both
-// pick up the .cvr files automatically. AGP 9.2.1 blocks assets.srcDir(Provider) in sourceSets.
+// directory and register it via sourceSets.assets.srcDir() (enabled by
+// android.sourceset.disallowProvider=false in gradle.properties) for both the main source set
+// (APK → instrumented tests) and the test source set (mergeDebugUnitTestAssets → Robolectric).
+// Explicit dependsOn below compensates for the disabled auto-tracking.
 abstract class CopyDirTask @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
 ) : DefaultTask() {
@@ -101,6 +102,19 @@ android {
         targetCompatibility = jv
     }
 
+    sourceSets {
+        // CMP-9547: wire copyCmpAssetsForAndroid into main (APK → instrumented tests) and test
+        // (mergeDebugUnitTestAssets → Robolectric android.merged_assets) source sets.
+        // Provider-based srcDir() is allowed by android.sourceset.disallowProvider=false in
+        // gradle.properties; explicit dependsOn below compensates for disabled auto-tracking.
+        getByName("main") {
+            assets.srcDir(copyCmpAssets.flatMap { it.destinationDirectory })
+        }
+        getByName("test") {
+            assets.srcDir(copyCmpAssets.flatMap { it.destinationDirectory })
+        }
+    }
+
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -112,17 +126,12 @@ android {
     }
 }
 
-// AGP 9.x Variant API: register copyCmpAssetsForAndroid output as a generated asset source for
-// every variant and its unit-test component. The production variant registration wires into
-// mergeDebugAssets / mergeReleaseAssets (APK → instrumented tests). The unit-test registration
-// wires into mergeDebugUnitTestAssets, whose output AGP passes to Robolectric via
-// android.merged_assets — without it the production-variant registration alone does NOT propagate
-// to unit-test asset merging.
-androidComponents {
-    onVariants(selector().all()) { variant ->
-        variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
-        variant.unitTest?.sources?.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
-    }
+// android.sourceset.disallowProvider=false (gradle.properties) disables automatic Gradle task
+// dependency tracking when Provider<Directory> is used in sourceSets.assets.srcDir(). Wire
+// copyCmpAssetsForAndroid explicitly into every merge*Assets task so that AGP runs it before
+// merging assets for production APKs, instrumented tests, and Robolectric unit tests.
+tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }.configureEach {
+    dependsOn(copyCmpAssets)
 }
 
 dependencies {
