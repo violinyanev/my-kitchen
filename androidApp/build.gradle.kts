@@ -49,12 +49,22 @@ androidComponents {
     onVariants(selector().all()) { variant ->
         // Register CMP assets for the production variant (APK → instrumented tests).
         variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
-        // Register CMP assets for unit tests (Robolectric). onVariants provides the base Variant
-        // type; cast to ApplicationVariant to reach the unitTest component whose asset merge is
-        // separate from the production variant's in AGP 9.x.
-        (variant as? com.android.build.api.variant.ApplicationVariant)
-            ?.unitTest?.sources?.assets
-            ?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
+    }
+}
+
+// CMP-9547 / Robolectric: AGP 9.x runs a separate mergeXxxUnitTestAssets task whose output
+// doesn't include shared:ui's generated CMP .cvr files. Overriding android.merged_assets via
+// doFirst { systemProperty(...) } doesn't work under configuration cache — the JVM args snapshot
+// is taken before doFirst runs. Instead, read AGP's android.merged_assets value and copy our
+// CMP assets INTO that directory in doFirst, so Robolectric finds them at their expected path.
+tasks.withType<Test>().configureEach {
+    dependsOn(copyCmpAssets)
+    val cmpAssetsDir = layout.buildDirectory.dir("generated/cmp-assets")
+    doFirst {
+        val mergedPath = systemProperties["android.merged_assets"]?.toString() ?: return@doFirst
+        val src = cmpAssetsDir.get().asFile
+        val dst = java.io.File(mergedPath)
+        if (src.exists() && dst.exists()) src.copyRecursively(dst, overwrite = true)
     }
 }
 
