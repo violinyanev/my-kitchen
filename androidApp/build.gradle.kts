@@ -3,7 +3,6 @@
 import java.util.Properties
 import javax.inject.Inject
 import org.gradle.api.file.FileSystemOperations
-import org.gradle.process.CommandLineArgumentProvider
 
 plugins {
     alias(libs.plugins.android.application)
@@ -50,26 +49,12 @@ androidComponents {
     onVariants(selector().all()) { variant ->
         // Register CMP assets for the production variant (APK → instrumented tests).
         variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
-    }
-}
-
-// CMP-9547 / Robolectric: AGP 9.x unit-test asset merge doesn't inherit generated source
-// directories registered via addGeneratedSourceDirectory on the production variant. Use a
-// CommandLineArgumentProvider so -Dandroid.merged_assets is appended AFTER AGP's own
-// systemProperties -D arg and overrides it, pointing Robolectric's shadow AssetManager at
-// the CMP .cvr files.
-abstract class CmpAssetsProvider @Inject constructor() : CommandLineArgumentProvider {
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val assetsDir: DirectoryProperty
-
-    override fun asArguments() = listOf("-Dandroid.merged_assets=${assetsDir.asFile.get()}")
-}
-
-tasks.withType<Test>().configureEach {
-    dependsOn(copyCmpAssets)
-    jvmArgumentProviders += objects.newInstance<CmpAssetsProvider>().also {
-        it.assetsDir.set(layout.buildDirectory.dir("generated/cmp-assets"))
+        // Register CMP assets for unit tests (Robolectric). onVariants provides the base Variant
+        // type; cast to ApplicationVariant to reach the unitTest component whose asset merge is
+        // separate from the production variant's in AGP 9.x.
+        (variant as? com.android.build.api.variant.ApplicationVariant)
+            ?.unitTest?.sources?.assets
+            ?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
     }
 }
 
