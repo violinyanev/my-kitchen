@@ -14,9 +14,9 @@ plugins {
 // CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
 // KotlinMultiplatformAndroidVariant.sources.assets == null in AGP 9.x, so CMP 1.11.1 silently
 // skips registration of generated .cvr files. Copy the prepared resources into a local build
-// directory and register it as a main sourceSets asset source via a lazy Provider so that
+// directory and register it via the AGP Variant API (addGeneratedSourceDirectory) so that
 // mergeDebugAssets (APK / instrumented tests) and mergeDebugUnitTestAssets (Robolectric) both
-// pick up the .cvr files automatically without any android.merged_assets override.
+// pick up the .cvr files automatically. AGP 9.2.1 blocks assets.srcDir(Provider) in sourceSets.
 abstract class CopyDirTask @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
 ) : DefaultTask() {
@@ -101,17 +101,6 @@ android {
         targetCompatibility = jv
     }
 
-    sourceSets {
-        // Wire the CMP prepared resources into the main source set assets so that
-        // mergeDebugAssets / mergeReleaseAssets (APK packaging → instrumented tests) and
-        // mergeDebugUnitTestAssets (Robolectric android.merged_assets) both include the .cvr
-        // files. Using a lazy Provider avoids the AGP 9.x "skip non-existent srcDir" behaviour
-        // and establishes the copyCmpAssetsForAndroid task dependency automatically.
-        getByName("main") {
-            assets.srcDir(copyCmpAssets.flatMap { it.destinationDirectory })
-        }
-    }
-
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -120,6 +109,17 @@ android {
                 it.systemProperties["roborazzi.output.dir"] = "${project.projectDir}/src/test/screenshots"
             }
         }
+    }
+}
+
+// AGP 9.x Variant API: register copyCmpAssetsForAndroid output as a generated asset source for
+// every variant. This wires copyCmpAssetsForAndroid as a dependency of mergeDebugAssets /
+// mergeReleaseAssets (APK packaging → instrumented tests) and, because isIncludeAndroidResources
+// = true, also of mergeDebugUnitTestAssets whose output directory AGP passes to Robolectric via
+// android.merged_assets. No manual android.merged_assets override is required.
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
     }
 }
 
