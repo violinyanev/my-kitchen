@@ -18,6 +18,9 @@ plugins {
 // android.sourceset.disallowProvider=false in gradle.properties) for both the main source set
 // (APK → instrumented tests) and the test source set (mergeDebugUnitTestAssets → Robolectric).
 // Explicit dependsOn below compensates for the disabled auto-tracking.
+// Note: cmpAssetsDir is captured as a plain Provider<Directory> (not derived from the task
+// provider) so AGP can evaluate it eagerly under disallowProvider=false without realizing
+// copyCmpAssetsForAndroid during configuration — avoiding cross-project tasks.named() failures.
 abstract class CopyDirTask @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
 ) : DefaultTask() {
@@ -37,13 +40,14 @@ abstract class CopyDirTask @Inject constructor(
     }
 }
 
+val cmpAssetsDir = layout.buildDirectory.dir("generated/cmp-assets")
+
 val copyCmpAssets = tasks.register<CopyDirTask>("copyCmpAssetsForAndroid") {
-    dependsOn(project(":shared:ui").tasks.named("prepareComposeResourcesTaskForCommonMain"))
     sourceDirectory.set(
         project(":shared:ui").layout.buildDirectory
             .dir("generated/compose/resourceGenerator/preparedResources/commonMain"),
     )
-    destinationDirectory.set(layout.buildDirectory.dir("generated/cmp-assets"))
+    destinationDirectory.set(cmpAssetsDir)
 }
 
 android {
@@ -108,10 +112,10 @@ android {
         // Provider-based srcDir() is allowed by android.sourceset.disallowProvider=false in
         // gradle.properties; explicit dependsOn below compensates for disabled auto-tracking.
         getByName("main") {
-            assets.srcDir(copyCmpAssets.flatMap { it.destinationDirectory })
+            assets.srcDir(cmpAssetsDir)
         }
         getByName("test") {
-            assets.srcDir(copyCmpAssets.flatMap { it.destinationDirectory })
+            assets.srcDir(cmpAssetsDir)
         }
     }
 
@@ -130,8 +134,11 @@ android {
 // dependency tracking when Provider<Directory> is used in sourceSets.assets.srcDir(). Wire
 // copyCmpAssetsForAndroid explicitly into every merge*Assets task so that AGP runs it before
 // merging assets for production APKs, instrumented tests, and Robolectric unit tests.
-tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }.configureEach {
-    dependsOn(copyCmpAssets)
+// tasks.configureEach (not tasks.matching) is truly lazy: it never eagerly realizes tasks.
+tasks.configureEach {
+    if (name.startsWith("merge") && name.endsWith("Assets")) {
+        dependsOn(copyCmpAssets)
+    }
 }
 
 dependencies {
