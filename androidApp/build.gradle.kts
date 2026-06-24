@@ -113,13 +113,15 @@ android {
 }
 
 // AGP 9.x Variant API: register copyCmpAssetsForAndroid output as a generated asset source for
-// every variant. This wires copyCmpAssetsForAndroid as a dependency of mergeDebugAssets /
-// mergeReleaseAssets (APK packaging → instrumented tests) and, because isIncludeAndroidResources
-// = true, also of mergeDebugUnitTestAssets whose output directory AGP passes to Robolectric via
-// android.merged_assets. No manual android.merged_assets override is required.
+// every variant and its unit-test component. The production variant registration wires into
+// mergeDebugAssets / mergeReleaseAssets (APK → instrumented tests). The unit-test registration
+// wires into mergeDebugUnitTestAssets, whose output AGP passes to Robolectric via
+// android.merged_assets — without it the production-variant registration alone does NOT propagate
+// to unit-test asset merging.
 androidComponents {
     onVariants(selector().all()) { variant ->
         variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
+        variant.unitTest?.sources?.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
     }
 }
 
