@@ -3,6 +3,7 @@
 import java.util.Properties
 import javax.inject.Inject
 import org.gradle.api.file.FileSystemOperations
+import org.gradle.process.CommandLineArgumentProvider
 
 plugins {
     alias(libs.plugins.android.application)
@@ -53,17 +54,24 @@ androidComponents {
 }
 
 // CMP-9547 / Robolectric: AGP 9.x runs a separate mergeXxxUnitTestAssets pipeline that doesn't
-// inherit addGeneratedSourceDirectory sources from the production variant. Register the CMP
-// assets dir on the test source set so AGP's merge task includes it, and ensure copyCmpAssets
-// runs before the merge tasks so the directory is populated in time.
-tasks.withType<Test>().configureEach {
-    dependsOn(copyCmpAssets)
+// inherit addGeneratedSourceDirectory sources from the production variant. Override
+// android.merged_assets via a CommandLineArgumentProvider so our value is appended AFTER AGP's
+// own -Dandroid.merged_assets=... JVM arg (jvmArgumentProviders run after systemProperties in
+// the Test task's command-line construction) and therefore wins the last-wins -D resolution.
+// Wiring assetsDir to copyCmpAssets.flatMap ensures Gradle's CC tracks the task-output
+// dependency properly — no explicit dependsOn needed.
+abstract class CmpAssetsProvider @Inject constructor() : CommandLineArgumentProvider {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val assetsDir: DirectoryProperty
+
+    override fun asArguments() = listOf("-Dandroid.merged_assets=${assetsDir.asFile.get()}")
 }
 
-tasks.matching {
-    it.name.startsWith("merge") && it.name.contains("UnitTest") && it.name.endsWith("Assets")
-}.configureEach {
-    dependsOn(copyCmpAssets)
+tasks.withType<Test>().configureEach {
+    jvmArgumentProviders += objects.newInstance<CmpAssetsProvider>().apply {
+        assetsDir.set(copyCmpAssets.flatMap { it.destinationDirectory })
+    }
 }
 
 android {
@@ -120,14 +128,6 @@ android {
         val jv = JavaVersion.toVersion(libs.versions.javaVersion.get())
         sourceCompatibility = jv
         targetCompatibility = jv
-    }
-
-    // Register the CMP assets directory as a test source asset so AGP's mergeXxxUnitTestAssets
-    // task includes it. Use a concrete File (not a lazy Provider) for maximum AGP 9.x compat.
-    sourceSets {
-        getByName("test") {
-            assets.srcDir(layout.buildDirectory.dir("generated/cmp-assets").get().asFile)
-        }
     }
 
     testOptions {
