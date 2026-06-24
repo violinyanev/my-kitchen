@@ -43,6 +43,13 @@ abstract class CopyDirTask @Inject constructor(
 val cmpAssetsDir = layout.buildDirectory.dir("generated/cmp-assets")
 
 val copyCmpAssets = tasks.register<CopyDirTask>("copyCmpAssetsForAndroid") {
+    // Declare explicit dependencies on all three CMP tasks that write to preparedResources/commonMain.
+    // This block is lazy (runs after all projects configure), so shared:ui tasks are already registered.
+    dependsOn(
+        project(":shared:ui").tasks.named("prepareComposeResourcesTaskForCommonMain"),
+        project(":shared:ui").tasks.named("convertXmlValueResourcesForCommonMain"),
+        project(":shared:ui").tasks.named("copyNonXmlValueResourcesForCommonMain"),
+    )
     sourceDirectory.set(
         project(":shared:ui").layout.buildDirectory
             .dir("generated/compose/resourceGenerator/preparedResources/commonMain"),
