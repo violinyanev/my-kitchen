@@ -14,13 +14,11 @@ plugins {
 // CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
 // KotlinMultiplatformAndroidVariant.sources.assets == null in AGP 9.x, so CMP 1.11.1 silently
 // skips registration of generated .cvr files. Copy the prepared resources into a local build
-// directory and register it via sourceSets.assets.srcDir() (enabled by
-// android.sourceset.disallowProvider=false in gradle.properties) for both the main source set
+// directory and register it via sourceSets.assets.srcDir(File) for both the main source set
 // (APK → instrumented tests) and the test source set (mergeDebugUnitTestAssets → Robolectric).
-// Explicit dependsOn below compensates for the disabled auto-tracking.
-// Note: cmpAssetsDir is captured as a plain Provider<Directory> (not derived from the task
-// provider) so AGP can evaluate it eagerly under disallowProvider=false without realizing
-// copyCmpAssetsForAndroid during configuration — avoiding cross-project tasks.named() failures.
+// srcDir(File) is the standard AGP API; it fully registers the directory as a task input so
+// AGP's merge*Assets tasks scan it at execution time. tasks.configureEach wires the explicit
+// dependsOn ordering (srcDir(File) carries no task-dependency info on its own).
 abstract class CopyDirTask @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
 ) : DefaultTask() {
@@ -116,13 +114,15 @@ android {
     sourceSets {
         // CMP-9547: wire copyCmpAssetsForAndroid into main (APK → instrumented tests) and test
         // (mergeDebugUnitTestAssets → Robolectric android.merged_assets) source sets.
-        // Provider-based srcDir() is allowed by android.sourceset.disallowProvider=false in
-        // gradle.properties; explicit dependsOn below compensates for disabled auto-tracking.
+        // Use srcDir(File) — the standard AGP API — instead of srcDir(Provider) so AGP fully
+        // registers the directory as a task input. cmpAssetsDir.get() is safe at configuration
+        // time because layout.buildDirectory is always resolved. Explicit dependsOn in
+        // tasks.configureEach below ensures copyCmpAssetsForAndroid runs before any merge*Assets.
         getByName("main") {
-            assets.srcDir(cmpAssetsDir)
+            assets.srcDir(cmpAssetsDir.get().asFile)
         }
         getByName("test") {
-            assets.srcDir(cmpAssetsDir)
+            assets.srcDir(cmpAssetsDir.get().asFile)
         }
     }
 
@@ -137,10 +137,9 @@ android {
     }
 }
 
-// android.sourceset.disallowProvider=false (gradle.properties) disables automatic Gradle task
-// dependency tracking when Provider<Directory> is used in sourceSets.assets.srcDir(). Wire
-// copyCmpAssetsForAndroid explicitly into every merge*Assets task so that AGP runs it before
-// merging assets for production APKs, instrumented tests, and Robolectric unit tests.
+// srcDir(File) doesn't carry task-dependency information, so wire copyCmpAssetsForAndroid
+// explicitly into every merge*Assets task to guarantee it runs before AGP merges assets for
+// production APKs, instrumented tests, and Robolectric unit tests.
 // tasks.configureEach (not tasks.matching) is truly lazy: it never eagerly realizes tasks.
 tasks.configureEach {
     if (name.startsWith("merge") && name.endsWith("Assets")) {
