@@ -53,20 +53,17 @@ androidComponents {
 }
 
 // CMP-9547 / Robolectric: AGP 9.x runs a separate mergeXxxUnitTestAssets pipeline that doesn't
-// inherit addGeneratedSourceDirectory sources from the production variant. With Configuration
-// Cache enabled, systemProperty() modifications in doFirst don't reach the forked test JVM
-// because Gradle snapshots the process arguments at configuration time. Instead, read the
-// already-frozen android.merged_assets path and copy our CMP .cvr files INTO that directory
-// before the JVM forks, so Robolectric's ShadowArscAssetManager14 finds them at the expected path.
+// inherit addGeneratedSourceDirectory sources from the production variant. Register the CMP
+// assets dir on the test source set so AGP's merge task includes it, and ensure copyCmpAssets
+// runs before the merge tasks so the directory is populated in time.
 tasks.withType<Test>().configureEach {
     dependsOn(copyCmpAssets)
-    val cmpAssetsDir = layout.buildDirectory.dir("generated/cmp-assets")
-    doFirst {
-        val mergedPath = systemProperties["android.merged_assets"]?.toString() ?: return@doFirst
-        val src = cmpAssetsDir.get().asFile
-        val dst = java.io.File(mergedPath)
-        if (src.exists() && dst.exists()) src.copyRecursively(dst, overwrite = true)
-    }
+}
+
+tasks.matching {
+    it.name.startsWith("merge") && it.name.contains("UnitTest") && it.name.endsWith("Assets")
+}.configureEach {
+    dependsOn(copyCmpAssets)
 }
 
 android {
@@ -123,6 +120,14 @@ android {
         val jv = JavaVersion.toVersion(libs.versions.javaVersion.get())
         sourceCompatibility = jv
         targetCompatibility = jv
+    }
+
+    // Register the CMP assets directory as a test source asset so AGP's mergeXxxUnitTestAssets
+    // task includes it. Use a concrete File (not a lazy Provider) for maximum AGP 9.x compat.
+    sourceSets {
+        getByName("test") {
+            assets.srcDir(layout.buildDirectory.dir("generated/cmp-assets").get().asFile)
+        }
     }
 
     testOptions {
