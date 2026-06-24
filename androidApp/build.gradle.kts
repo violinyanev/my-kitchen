@@ -14,9 +14,9 @@ plugins {
 // CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
 // KotlinMultiplatformAndroidVariant.sources.assets == null in AGP 9.x, so CMP 1.11.1 silently
 // skips registration of generated .cvr files. Copy the prepared resources into a local build
-// directory, then wire it in two places:
-//   1. androidComponents.onVariants / addGeneratedSourceDirectory → APK assets (instrumented tests)
-//   2. android.sourceSets["test"].assets.srcDir() → unit-test merge (Robolectric)
+// directory and wire it via androidComponents.onVariants / addGeneratedSourceDirectory — the
+// only API in AGP 9.x that correctly registers generated asset directories for all consumers
+// (APK packaging, android.merged_assets for Robolectric unit tests, instrumented tests).
 abstract class CopyDirTask @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
 ) : DefaultTask() {
@@ -49,6 +49,20 @@ androidComponents {
     onVariants(selector().all()) { variant ->
         // Register CMP assets for the production variant (APK → instrumented tests).
         variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
+    }
+}
+
+// CMP-9547 / Robolectric: AGP 9.x runs a separate mergeXxxUnitTestAssets pipeline that doesn't
+// inherit addGeneratedSourceDirectory sources from the production variant. Override
+// android.merged_assets inside doFirst (execution time, after all configuration) so
+// Robolectric's ShadowArscAssetManager14 reads .cvr files from the CMP assets directory.
+// doFirst modifies systemProperties directly before the test JVM forks, which is the only
+// reliable way to win over AGP's configuration-time systemProperties["android.merged_assets"].
+tasks.withType<Test>().configureEach {
+    dependsOn(copyCmpAssets)
+    val cmpAssetsDir = layout.buildDirectory.dir("generated/cmp-assets")
+    doFirst {
+        systemProperty("android.merged_assets", cmpAssetsDir.get().asFile.absolutePath)
     }
 }
 
@@ -106,16 +120,6 @@ android {
         val jv = JavaVersion.toVersion(libs.versions.javaVersion.get())
         sourceCompatibility = jv
         targetCompatibility = jv
-    }
-
-    // CMP-9547 / Robolectric: AGP 9.x runs a separate mergeXxxUnitTestAssets task whose output
-    // doesn't inherit addGeneratedSourceDirectory sources from the production variant. Register
-    // the CMP assets dir on the "test" source set so AGP includes it in the unit-test merge and
-    // Robolectric's ShadowArscAssetManager14 finds the .cvr files via android.merged_assets.
-    sourceSets {
-        getByName("test") {
-            assets.srcDir(copyCmpAssets.flatMap { it.destinationDirectory })
-        }
     }
 
     testOptions {
