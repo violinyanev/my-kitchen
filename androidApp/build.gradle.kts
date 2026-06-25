@@ -12,23 +12,32 @@ plugins {
 }
 
 // CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
-// KotlinMultiplatformAndroidVariant.sources.assets == null in AGP 9.x, so CMP 1.11.1 silently
-// skips registration of generated .cvr files. Copy the prepared resources into a local build
-// directory and wire them into the build via two complementary paths:
-//   1. androidComponents.onVariants + addGeneratedSourceDirectory → covers all production
-//      variants (debug, release) via mergeDebugAssets / mergeReleaseAssets. This is the AGP 9.x
-//      preferred API and correctly handles both debug and release APK packaging.
-//   2. sourceSets["test"].assets.srcDir(File) + explicit dependsOn → covers the unit-test
-//      variant (mergeDebugUnitTestAssets → Robolectric android.merged_assets). AGP 9.x exposes
-//      variant.sources.assets == null for the unit-test component, so addGeneratedSourceDirectory
-//      cannot be used there; the old sourceSets API is the only viable hook.
+// KotlinMultiplatformAndroidVariant.sources.assets == null in AGP 9.x, so CMP 1.11.1's
+// copyAndroidMainComposeResourcesToAndroidAssets task fails ("outputDirectory doesn't have a
+// configured value") and the generated .cvr files never reach the Android assets. Work around
+// this by copying shared:ui's prepared resources into a local directory and registering it as a
+// generated asset source on androidApp (which uses com.android.application and is unaffected).
+//
+// Critical detail: the CMP runtime (DefaultAndroidResourceReader) looks the files up under
+//   composeResources/<packageOfResClass>/values/strings.commonMain.cvr
+// but prepareComposeResourcesTaskForCommonMain lays them out WITHOUT the package segment:
+//   composeResources/values/strings.commonMain.cvr
+// So the copy must re-insert the package directory, otherwise the resource is "missing" at
+// runtime in both the APK and Robolectric unit tests (the bug that caused MissingResourceException).
 abstract class CopyDirTask @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
 ) : DefaultTask() {
+    // The shared:ui preparedResources/commonMain/composeResources directory (values/, values-de/…).
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sourceDirectory: DirectoryProperty
 
+    // The packageOfResClass that CMP's runtime expects between composeResources/ and values/.
+    @get:Input
+    abstract val resourcePackage: Property<String>
+
+    // The assets root that gets registered as a generated asset source. Files are written under
+    // composeResources/<package>/ inside it so the final asset path matches what CMP requests.
     @get:OutputDirectory
     abstract val destinationDirectory: DirectoryProperty
 
@@ -36,7 +45,7 @@ abstract class CopyDirTask @Inject constructor(
     fun copy() {
         fileSystemOperations.sync {
             from(sourceDirectory)
-            into(destinationDirectory)
+            into(destinationDirectory.get().dir("composeResources").dir(resourcePackage.get()))
         }
     }
 }
@@ -51,10 +60,14 @@ val copyCmpAssets = tasks.register<CopyDirTask>("copyCmpAssetsForAndroid") {
         project(":shared:ui").tasks.named("convertXmlValueResourcesForCommonMain"),
         project(":shared:ui").tasks.named("copyNonXmlValueResourcesForCommonMain"),
     )
+    // Source is the composeResources/ dir itself (containing values/, values-de/…) so that the
+    // task action can re-root it under composeResources/<package>/ in the destination.
     sourceDirectory.set(
         project(":shared:ui").layout.buildDirectory
-            .dir("generated/compose/resourceGenerator/preparedResources/commonMain"),
+            .dir("generated/compose/resourceGenerator/preparedResources/commonMain/composeResources"),
     )
+    // Must match shared:ui's compose.resources.packageOfResClass.
+    resourcePackage.set("com.ultraviolince.mykitchen.ui.generated.resources")
     destinationDirectory.set(cmpAssetsDir)
 }
 
@@ -114,17 +127,6 @@ android {
         targetCompatibility = jv
     }
 
-    sourceSets {
-        // CMP-9547 path 2: wire CMP assets into the unit-test source set so that
-        // mergeDebugUnitTestAssets (Robolectric android.merged_assets) picks them up.
-        // srcDir(File) is safe here because layout.buildDirectory is always resolved at
-        // configuration time. Explicit dependsOn in tasks.configureEach below handles the
-        // missing task-dependency that srcDir(File) does not carry automatically.
-        getByName("test") {
-            assets.srcDir(cmpAssetsDir.get().asFile)
-        }
-    }
-
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -136,20 +138,15 @@ android {
     }
 }
 
-// CMP-9547 path 1: production variants (debug, release APK, instrumented tests).
-// addGeneratedSourceDirectory wires the task dependency automatically and is the AGP 9.x
-// preferred API. variant.sources.assets is non-null for application variants.
+// CMP-9547: register the copied assets as a generated asset source on every application variant.
+// addGeneratedSourceDirectory wires the task dependency automatically and is the AGP 9.x preferred
+// API. variant.sources.assets is non-null for application variants, so this feeds mergeDebugAssets /
+// mergeReleaseAssets — which in turn feed the APK, instrumented tests, and (via
+// packageDebugUnitTestForUnitTest) the Robolectric unit-test classpath. A single registration on
+// the production variant therefore covers production builds and unit tests alike.
 androidComponents {
     onVariants(selector().all()) { variant ->
         variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
-    }
-}
-
-// CMP-9547 path 2: srcDir(File) on sourceSets["test"] (above) doesn't carry task-dependency
-// information, so explicitly wire copyCmpAssetsForAndroid before every unit-test asset merge.
-tasks.configureEach {
-    if (name.startsWith("merge") && name.endsWith("UnitTestAssets")) {
-        dependsOn(copyCmpAssets)
     }
 }
 
@@ -178,6 +175,13 @@ dependencies {
 }
 
 roborazzi {
+    // Store golden screenshots under the version-controlled directory that the verify-screenshots
+    // workflow commits (androidApp/src/test/screenshots). The roborazzi plugin otherwise defaults
+    // to build/outputs/roborazzi (a build dir), which would never be committed — so references
+    // could never be recorded and verification would fail forever. The raw
+    // testOptions roborazzi.output.dir system property does not work because the plugin overrides
+    // it; outputDir is the supported DSL hook.
+    outputDir.set(layout.projectDirectory.dir("src/test/screenshots"))
     generateComposePreviewRobolectricTests {
         enable = true
         includePrivatePreviews = false
