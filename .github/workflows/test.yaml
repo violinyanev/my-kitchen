@@ -40,7 +40,7 @@ jobs:
       run: ./gradlew :androidApp:assembleDebug
 
     - name: Build Android APK (release)
-      run: ./gradlew :androidApp:assembleRelease
+      run: ./gradlew :androidApp:assembleRelease --stacktrace
 
     - name: Build desktop app
       run: ./gradlew :desktopApp:compileKotlin

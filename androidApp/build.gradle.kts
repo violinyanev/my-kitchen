@@ -14,11 +14,14 @@ plugins {
 // CMP-9547: shared:ui uses com.android.kotlin.multiplatform.library whose
 // KotlinMultiplatformAndroidVariant.sources.assets == null in AGP 9.x, so CMP 1.11.1 silently
 // skips registration of generated .cvr files. Copy the prepared resources into a local build
-// directory and register it via sourceSets.assets.srcDir(File) for both the main source set
-// (APK → instrumented tests) and the test source set (mergeDebugUnitTestAssets → Robolectric).
-// srcDir(File) is the standard AGP API; it fully registers the directory as a task input so
-// AGP's merge*Assets tasks scan it at execution time. tasks.configureEach wires the explicit
-// dependsOn ordering (srcDir(File) carries no task-dependency info on its own).
+// directory and wire them into the build via two complementary paths:
+//   1. androidComponents.onVariants + addGeneratedSourceDirectory → covers all production
+//      variants (debug, release) via mergeDebugAssets / mergeReleaseAssets. This is the AGP 9.x
+//      preferred API and correctly handles both debug and release APK packaging.
+//   2. sourceSets["test"].assets.srcDir(File) + explicit dependsOn → covers the unit-test
+//      variant (mergeDebugUnitTestAssets → Robolectric android.merged_assets). AGP 9.x exposes
+//      variant.sources.assets == null for the unit-test component, so addGeneratedSourceDirectory
+//      cannot be used there; the old sourceSets API is the only viable hook.
 abstract class CopyDirTask @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
 ) : DefaultTask() {
@@ -112,15 +115,11 @@ android {
     }
 
     sourceSets {
-        // CMP-9547: wire copyCmpAssetsForAndroid into main (APK → instrumented tests) and test
-        // (mergeDebugUnitTestAssets → Robolectric android.merged_assets) source sets.
-        // Use srcDir(File) — the standard AGP API — instead of srcDir(Provider) so AGP fully
-        // registers the directory as a task input. cmpAssetsDir.get() is safe at configuration
-        // time because layout.buildDirectory is always resolved. Explicit dependsOn in
-        // tasks.configureEach below ensures copyCmpAssetsForAndroid runs before any merge*Assets.
-        getByName("main") {
-            assets.srcDir(cmpAssetsDir.get().asFile)
-        }
+        // CMP-9547 path 2: wire CMP assets into the unit-test source set so that
+        // mergeDebugUnitTestAssets (Robolectric android.merged_assets) picks them up.
+        // srcDir(File) is safe here because layout.buildDirectory is always resolved at
+        // configuration time. Explicit dependsOn in tasks.configureEach below handles the
+        // missing task-dependency that srcDir(File) does not carry automatically.
         getByName("test") {
             assets.srcDir(cmpAssetsDir.get().asFile)
         }
@@ -137,12 +136,19 @@ android {
     }
 }
 
-// srcDir(File) doesn't carry task-dependency information, so wire copyCmpAssetsForAndroid
-// explicitly into every merge*Assets task to guarantee it runs before AGP merges assets for
-// production APKs, instrumented tests, and Robolectric unit tests.
-// tasks.configureEach (not tasks.matching) is truly lazy: it never eagerly realizes tasks.
+// CMP-9547 path 1: production variants (debug, release APK, instrumented tests).
+// addGeneratedSourceDirectory wires the task dependency automatically and is the AGP 9.x
+// preferred API. variant.sources.assets is non-null for application variants.
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyCmpAssets) { it.destinationDirectory }
+    }
+}
+
+// CMP-9547 path 2: srcDir(File) on sourceSets["test"] (above) doesn't carry task-dependency
+// information, so explicitly wire copyCmpAssetsForAndroid before every unit-test asset merge.
 tasks.configureEach {
-    if (name.startsWith("merge") && name.endsWith("Assets")) {
+    if (name.startsWith("merge") && name.endsWith("UnitTestAssets")) {
         dependsOn(copyCmpAssets)
     }
 }
