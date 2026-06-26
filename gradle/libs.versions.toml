@@ -13,7 +13,7 @@ androidxLifecycle = "1.11.1"
 navigationCompose = "2.9.2"
 
 # Networking
-ktor = "3.5.0"
+ktor = "3.5.1"
 
 # DI
 koin = "4.2.1"
