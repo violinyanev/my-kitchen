@@ -23,7 +23,7 @@ room3 = "3.0.0-alpha06"
 sqlite = "2.6.2"
 exposed = "0.61.0"
 postgresql = "42.7.11"
-hikari = "6.3.0"
+hikari = "6.3.3"
 h2 = "2.3.232"
 
 # Serialization
