@@ -39,21 +39,16 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-
     - name: Setup Pages
       uses: actions/configure-pages@v6
 
-    - name: Build web app
-      run: ./gradlew :shared:jsBrowserDistribution --warning-mode=fail
+    - name: Build web app (WasmJs)
+      run: ./gradlew :webApp:wasmJsBrowserDistribution --warning-mode=fail
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v5
       with:
-        path: ./shared/build/dist/js/productionExecutable
+        path: ./webApp/build/dist/wasmJs/productionExecutable
 
   deploy:
     environment:

@@ -102,7 +102,7 @@ jobs:
     - name: Build APK for release candidate
       if: steps.release_info.outputs.is_tag_release == 'false'
       run: |
-        ./gradlew :app:assembleRelease \
+        ./gradlew :androidApp:assembleRelease \
           -PversionCode=${{ steps.release_info.outputs.version_code }} \
           -PversionName=${{ steps.release_info.outputs.version_name }} \
           -PsnapshotBuild=true
@@ -110,7 +110,7 @@ jobs:
     - name: Build APK for tag release
       if: steps.release_info.outputs.is_tag_release == 'true'
       run: |
-        ./gradlew :app:assembleRelease \
+        ./gradlew :androidApp:assembleRelease \
           -PversionCode=${{ steps.release_info.outputs.version_code }} \
           -PversionName=${{ steps.release_info.outputs.version_name }}
 
@@ -136,7 +136,7 @@ jobs:
 
           This release candidate will be automatically archived when the corresponding production release is published.
         files: |
-          app/build/outputs/apk/release/app-release.apk
+          androidApp/build/outputs/apk/release/androidApp-release.apk
         prerelease: true
         fail_on_unmatched_files: true
         make_latest: false
@@ -159,5 +159,5 @@ jobs:
 
           Built from commit: ${{ github.sha }}
         files: |
-          app/build/outputs/apk/release/app-release.apk
+          androidApp/build/outputs/apk/release/androidApp-release.apk
         fail_on_unmatched_files: true
