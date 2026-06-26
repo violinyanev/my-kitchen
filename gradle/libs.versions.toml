@@ -40,7 +40,7 @@ turbine = "1.2.1"
 truth = "1.4.5"
 mockk = "1.14.11"
 androidxTestExtJunit = "1.2.1"
-composeUiTest = "1.8.2"
+composeUiTest = "1.11.3"
 
 # Code Quality
 detekt = "1.23.8"
