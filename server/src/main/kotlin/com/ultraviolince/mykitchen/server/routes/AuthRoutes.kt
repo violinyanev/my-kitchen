@@ -26,6 +26,7 @@ private fun String.isValidPassword(): Boolean = length >= MIN_PASSWORD_LENGTH
 fun Route.authRoutes(config: AppConfig) {
     post("/users/login") {
         val request = call.receive<LoginRequestDto>()
+        println("LOGIN_ATTEMPT email='${request.email}' passwordLen=${request.password.length}")
         if (!request.email.isValidEmail()) {
             call.respond(HttpStatusCode.BadRequest, ErrorDto("Valid email address is required"))
             return@post
@@ -45,6 +46,7 @@ fun Route.authRoutes(config: AppConfig) {
         }
 
         if (user == null) {
+            println("LOGIN_RESULT email='${request.email}' -> USER_NOT_FOUND")
             call.respond(HttpStatusCode.Unauthorized, ErrorDto("Invalid credentials"))
             return@post
         }
@@ -54,6 +56,7 @@ fun Route.authRoutes(config: AppConfig) {
             .verified
 
         if (!passwordMatches) {
+            println("LOGIN_RESULT email='${request.email}' -> WRONG_PASSWORD")
             call.respond(HttpStatusCode.Unauthorized, ErrorDto("Invalid credentials"))
             return@post
         }
@@ -63,6 +66,7 @@ fun Route.authRoutes(config: AppConfig) {
             userId = user[Users.id].value.toString(),
             email = user[Users.email],
         )
+        println("LOGIN_RESULT email='${request.email}' -> SUCCESS userId=${user[Users.id].value}")
         call.respond(LoginResponseDto(token))
     }
 
