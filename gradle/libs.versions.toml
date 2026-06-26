@@ -28,7 +28,7 @@ h2 = "2.3.232"
 
 # Serialization
 kotlinxSerialization = "1.11.0"
-kotlinxDatetime = "0.8.0"
+kotlinxDatetime = "0.8.0-0.6.x-compat"
 kotlinxCoroutines = "1.11.0"
 
 # Security
