@@ -59,34 +59,31 @@ git diff --cached --name-only --diff-filter=ACM | while read file; do
     fi
 done
 
-# Run quick unit tests on changed files
+# Run JVM unit tests (AGP-free — works everywhere including the Claude sandbox)
 print_step "Running unit tests..."
-./gradlew :androidApp:testDebugUnitTest --quiet || {
+./gradlew :shared:domain:desktopTest :shared:data:desktopTest :server:test --quiet || {
     print_error "Unit tests failed"
     echo ""
     echo "Fix failing tests before committing."
-    echo "Run './gradlew :androidApp:testDebugUnitTest' for detailed output."
+    echo "Run './gradlew :shared:domain:desktopTest :shared:data:desktopTest :server:test' for details."
     exit 1
 }
 
-# Check commit message format
-if [ -n "$1" ]; then  # $1 is the commit message file when called as commit-msg hook
+# Check commit message format (only when invoked as commit-msg hook with $1 set)
+if [ -n "$1" ]; then
     COMMIT_MSG=$(cat "$1")
-else
-    COMMIT_MSG="dummy message"  # For manual testing
-fi
-
-if ! echo "$COMMIT_MSG" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)(\(.+\))?: "; then
-    print_error "Commit message must follow conventional commit format"
-    echo ""
-    echo "Format: type(scope): description"
-    echo "Examples:"
-    echo "  feat: add user authentication"
-    echo "  fix(ui): resolve button alignment issue"
-    echo "  docs: update README with setup instructions"
-    echo ""
-    echo "Valid types: feat, fix, docs, style, refactor, test, chore, ci, build, perf, revert"
-    exit 1
+    if ! echo "$COMMIT_MSG" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)(\(.+\))?: "; then
+        print_error "Commit message must follow conventional commit format"
+        echo ""
+        echo "Format: type(scope): description"
+        echo "Examples:"
+        echo "  feat: add user authentication"
+        echo "  fix(ui): resolve button alignment issue"
+        echo "  docs: update README with setup instructions"
+        echo ""
+        echo "Valid types: feat, fix, docs, style, refactor, test, chore, ci, build, perf, revert"
+        exit 1
+    fi
 fi
 
 print_success "Pre-commit checks passed!"
