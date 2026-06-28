@@ -44,6 +44,10 @@ jobs:
           languages: java-kotlin
           build-mode: none
 
+      - name: Build
+        run: |
+          ./gradlew :server:compileKotlin :desktopApp:compileKotlin
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
