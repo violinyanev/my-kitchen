@@ -3,7 +3,7 @@
 # For local builds behind a corporate proxy, pass Gradle proxy settings via build-arg:
 #   docker build -f server/Dockerfile -t mykitchen-server \
 #     --build-arg GRADLE_PROXY_OPTS="-Dhttp.proxyHost=<host> -Dhttp.proxyPort=<port> -Dhttps.proxyHost=<host> -Dhttps.proxyPort=<port>" .
-FROM eclipse-temurin:17.0.19_10-jdk-jammy AS builder
+FROM eclipse-temurin:25.0.3_9-jdk-jammy AS builder
 # Optional proxy settings for Gradle (Java system properties).
 # Leave empty for GitHub Actions (no proxy needed there).
 ARG GRADLE_PROXY_OPTS=""
@@ -13,7 +13,7 @@ COPY . .
 RUN ./gradlew :server:buildFatJar --no-daemon --no-configuration-cache
 
 # Runtime stage — slim JRE image with only the JAR
-FROM eclipse-temurin:17.0.19_10-jre-jammy
+FROM eclipse-temurin:25.0.3_9-jre-jammy
 WORKDIR /app
 COPY --from=builder /app/server/build/libs/server-all.jar app.jar
 EXPOSE 5000
