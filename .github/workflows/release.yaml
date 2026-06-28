@@ -15,7 +15,7 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0  # Fetch all history for git describe
 
@@ -25,7 +25,7 @@ jobs:
         java-version: 17
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
+      uses: gradle/actions/setup-gradle@v6
 
     - name: Setup GitHub CLI
       run: |
@@ -77,10 +77,32 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Clean up older snapshot releases
+      if: steps.release_info.outputs.is_tag_release == 'false'
+      run: |
+        echo "Cleaning up older snapshot releases (keeping only the latest one)..."
+        
+        # Get all RC releases sorted by creation date (newest first)
+        gh release list --limit 50 --json tagName,createdAt,isPrerelease | \
+        jq -r '.[] | select(.isPrerelease == true and (.tagName | startswith("rc-"))) | .tagName + " " + .createdAt' | \
+        sort -k2 -r | \
+        tail -n +2 | \
+        while IFS= read -r line; do
+          rc_tag=$(echo "$line" | cut -d' ' -f1)
+          if [ -n "$rc_tag" ]; then
+            echo "Deleting older snapshot release: $rc_tag"
+            gh release delete "$rc_tag" --yes --cleanup-tag || echo "Failed to delete $rc_tag (may not exist)"
+          fi
+        done
+        
+        echo "Cleanup completed - keeping only the most recent snapshot release"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build APK for release candidate
       if: steps.release_info.outputs.is_tag_release == 'false'
       run: |
-        ./gradlew :app:assembleRelease \
+        ./gradlew :androidApp:assembleRelease \
           -PversionCode=${{ steps.release_info.outputs.version_code }} \
           -PversionName=${{ steps.release_info.outputs.version_name }} \
           -PsnapshotBuild=true
@@ -88,13 +110,13 @@ jobs:
     - name: Build APK for tag release
       if: steps.release_info.outputs.is_tag_release == 'true'
       run: |
-        ./gradlew :app:assembleRelease \
+        ./gradlew :androidApp:assembleRelease \
           -PversionCode=${{ steps.release_info.outputs.version_code }} \
           -PversionName=${{ steps.release_info.outputs.version_name }}
 
     - name: Create or update release candidate
       if: steps.release_info.outputs.is_tag_release == 'false'
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         # Use commit SHA as tag name to avoid version-like tag restrictions
         tag_name: "rc-${{ github.sha }}"
@@ -114,14 +136,14 @@ jobs:
 
           This release candidate will be automatically archived when the corresponding production release is published.
         files: |
-          app/build/outputs/apk/release/app-release.apk
+          androidApp/build/outputs/apk/release/androidApp-release.apk
         prerelease: true
         fail_on_unmatched_files: true
         make_latest: false
 
     - name: Publish production release
       if: steps.release_info.outputs.is_tag_release == 'true'
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ steps.release_info.outputs.version_name }}
         name: "Release ${{ steps.release_info.outputs.version_name }}"
@@ -137,5 +159,5 @@ jobs:
 
           Built from commit: ${{ github.sha }}
         files: |
-          app/build/outputs/apk/release/app-release.apk
+          androidApp/build/outputs/apk/release/androidApp-release.apk
         fail_on_unmatched_files: true

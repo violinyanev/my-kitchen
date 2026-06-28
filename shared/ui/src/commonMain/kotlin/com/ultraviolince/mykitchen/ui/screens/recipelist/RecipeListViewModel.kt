@@ -1,0 +1,85 @@
+package com.ultraviolince.mykitchen.ui.screens.recipelist
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ultraviolince.mykitchen.domain.model.AuthState
+import com.ultraviolince.mykitchen.domain.model.Recipe
+import com.ultraviolince.mykitchen.domain.model.RecipeOrder
+import com.ultraviolince.mykitchen.domain.usecase.DeleteRecipeUseCase
+import com.ultraviolince.mykitchen.domain.usecase.GetAuthStateUseCase
+import com.ultraviolince.mykitchen.domain.usecase.GetRecipesUseCase
+import com.ultraviolince.mykitchen.domain.usecase.LogoutUseCase
+import com.ultraviolince.mykitchen.domain.usecase.SyncRecipesUseCase
+import com.ultraviolince.mykitchen.ui.generated.resources.Res
+import com.ultraviolince.mykitchen.ui.generated.resources.error_sync_failed
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
+
+data class RecipeListState(
+    val recipes: List<Recipe> = emptyList(),
+    val order: RecipeOrder = RecipeOrder.Date(),
+    val isSyncing: Boolean = false,
+    val error: StringResource? = null,
+)
+
+class RecipeListViewModel(
+    private val getRecipes: GetRecipesUseCase,
+    private val deleteRecipe: DeleteRecipeUseCase,
+    private val syncRecipes: SyncRecipesUseCase,
+    private val logout: LogoutUseCase,
+    private val getAuthState: GetAuthStateUseCase,
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(RecipeListState())
+    val state: StateFlow<RecipeListState> = _state.asStateFlow()
+
+    val authState: StateFlow<AuthState> = getAuthState()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AuthState.LoggedOut)
+
+    init {
+        collectRecipes(RecipeOrder.Date())
+    }
+
+    private fun collectRecipes(order: RecipeOrder) {
+        viewModelScope.launch {
+            getRecipes(order).collect { list ->
+                _state.update { it.copy(recipes = list, order = order) }
+            }
+        }
+    }
+
+    fun setOrder(order: RecipeOrder) {
+        collectRecipes(order)
+    }
+
+    fun delete(id: String) {
+        viewModelScope.launch {
+            deleteRecipe(id)
+        }
+    }
+
+    fun sync() {
+        viewModelScope.launch {
+            _state.update { it.copy(isSyncing = true, error = null) }
+            val result = syncRecipes()
+            _state.update {
+                it.copy(
+                    isSyncing = false,
+                    error = if (result.isFailure) Res.string.error_sync_failed else null,
+                )
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logout.invoke()
+        }
+    }
+}

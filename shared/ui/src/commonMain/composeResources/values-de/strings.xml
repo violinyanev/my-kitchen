@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">My Kitchen</string>
+
+    <!-- Recipe list screen -->
+    <string name="your_recipes">My Kitchen</string>
+    <string name="sync">Synchronisieren</string>
+    <string name="logout">Ausloggen</string>
+    <string name="sort_title">A–Z</string>
+    <string name="sort_date">Datum</string>
+    <string name="no_recipes">Noch keine Rezepte. Tippen Sie auf + um eines hinzuzufügen.</string>
+    <string name="add_recipe">Rezept hinzufügen</string>
+    <string name="delete_recipe">Rezept löschen</string>
+
+    <!-- Add/edit screen -->
+    <string name="new_recipe">Neues Rezept</string>
+    <string name="edit_recipe">Rezept bearbeiten</string>
+    <string name="back">Zurück</string>
+    <string name="title_hint">Titel</string>
+    <string name="content_hint">Rezept</string>
+    <string name="save">Speichern</string>
+
+    <!-- Login screen -->
+    <string name="login_heading">My Kitchen</string>
+    <string name="server_url_hint">Server URL</string>
+    <string name="email_hint">E-Mail</string>
+    <string name="password_hint">Passwort</string>
+    <string name="sign_in">Anmelden</string>
+
+    <!-- Errors -->
+    <string name="error_fields_required">Alle Felder sind erforderlich</string>
+    <string name="error_title_required">Titel ist erforderlich</string>
+    <string name="error_login_failed">Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.</string>
+    <string name="error_sync_failed">Synchronisierung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
+</resources>
