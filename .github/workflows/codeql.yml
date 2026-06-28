@@ -20,6 +20,7 @@ jobs:
   analyze:
     name: Analyze (java-kotlin)
     runs-on: ubuntu-latest
+    continue-on-error: true  # CodeQL 2.25.x does not support Kotlin 2.4+; remove when support lands
     permissions:
       security-events: write
       packages: read
