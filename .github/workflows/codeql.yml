@@ -42,11 +42,11 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: java-kotlin
-          build-mode: none
+          build-mode: manual
 
       - name: Build
         run: |
-          ./gradlew :server:compileKotlin :desktopApp:compileKotlin
+          ./gradlew --no-daemon -Pkotlin.compiler.execution.strategy=in-process :server:compileKotlin :desktopApp:compileKotlin :shared:domain:compileKotlinDesktop :shared:data:compileKotlinDesktop
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
