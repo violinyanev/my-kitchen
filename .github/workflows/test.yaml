@@ -97,7 +97,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_USER: mykitchen
           POSTGRES_PASSWORD: mykitchen
@@ -210,7 +210,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_USER: mykitchen
           POSTGRES_PASSWORD: mykitchen
