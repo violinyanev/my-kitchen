@@ -24,7 +24,7 @@ sqlite = "2.6.2"
 exposed = "0.61.0"
 postgresql = "42.7.11"
 hikari = "6.3.3"
-h2 = "2.3.232"
+h2 = "2.4.240"
 
 # Serialization
 kotlinxSerialization = "1.11.0"
