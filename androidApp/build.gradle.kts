@@ -75,6 +75,12 @@ android {
     namespace = "com.ultraviolince.mykitchen"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
+    buildFeatures {
+        // AGP 9.x disables resValues by default; the release build type uses resValue()
+        // for the snapshot app name, so this must be explicitly enabled.
+        resValues = true
+    }
+
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties()
     if (keystorePropertiesFile.exists()) {
