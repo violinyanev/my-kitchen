@@ -1,0 +1,39 @@
+name: Update WasmJS Yarn Lock
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-yarn-lock:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - uses: actions/setup-java@v5
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v6
+
+    - name: Update WasmJS yarn.lock
+      run: ./gradlew kotlinWasmUpgradeYarnLock
+
+    - name: Commit updated yarn.lock
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add kotlin-js-store/wasm/yarn.lock
+        if git diff --cached --quiet; then
+          echo "yarn.lock is already up to date"
+        else
+          git commit -m "fix: update WasmJS yarn.lock"
+          git push
+        fi
