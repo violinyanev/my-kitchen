@@ -25,7 +25,12 @@ compose.desktop {
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb,
             )
             packageName = "My Kitchen"
-            packageVersion = project.findProperty("versionName")?.toString() ?: "1.0.0"
+            // Deb/Dmg/Msi require a numeric-only version (no leading 'v', no pre-release suffix).
+            // Strip the 'v' prefix and everything from the first '-' onward: "v0.6.9-rc" → "0.6.9".
+            packageVersion = (project.findProperty("versionName")?.toString() ?: "1.0.0")
+                .removePrefix("v")
+                .substringBefore("-")
+                .ifBlank { "1.0.0" }
         }
     }
 }
