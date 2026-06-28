@@ -53,3 +53,29 @@ internal fun RecipeListScreenWithItemsPreview() {
         )
     }
 }
+
+@OptIn(ExperimentalResourceApi::class)
+@Preview(showBackground = true, name = "Phone — Recipe List", widthDp = 360, heightDp = 800)
+@Composable
+internal fun RecipeListScreenPhonePreview() {
+    val ctx = LocalContext.current
+    remember(ctx) { setResourceReaderAndroidContext(ctx) }
+    AppTheme {
+        RecipeListScreenContent(
+            state = RecipeListState(
+                recipes = listOf(
+                    Recipe(id = "1", title = "Pasta Carbonara", content = "Classic Italian pasta dish", timestamp = 0L),
+                    Recipe(id = "2", title = "Chocolate Cake", content = "Rich and decadent cake", timestamp = 0L),
+                    Recipe(id = "3", title = "Caesar Salad", content = "Fresh and crispy", timestamp = 0L),
+                ),
+                order = RecipeOrder.Date(),
+            ),
+            onAddRecipe = {},
+            onEditRecipe = {},
+            onSync = {},
+            onLogout = {},
+            onDelete = {},
+            onOrderChange = {},
+        )
+    }
+}
