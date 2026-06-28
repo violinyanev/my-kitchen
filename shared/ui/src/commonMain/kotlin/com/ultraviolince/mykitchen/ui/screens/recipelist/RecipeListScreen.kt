@@ -66,8 +66,9 @@ fun RecipeListScreen(
     val authState by viewModel.authState.collectAsState()
 
     LaunchedEffect(authState) {
-        if (authState is AuthState.LoggedOut) {
-            onNavigateToLogin()
+        when (authState) {
+            is AuthState.LoggedOut -> onNavigateToLogin()
+            is AuthState.LoggedIn -> viewModel.sync()
         }
     }
 
@@ -84,7 +85,7 @@ fun RecipeListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun RecipeListScreenContent(
+fun RecipeListScreenContent(
     state: RecipeListState,
     onAddRecipe: () -> Unit,
     onEditRecipe: (String) -> Unit,
