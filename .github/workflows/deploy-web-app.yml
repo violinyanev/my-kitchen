@@ -26,7 +26,7 @@ jobs:
     
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         lfs: 'true'
 
@@ -37,18 +37,18 @@ jobs:
         java-version: ${{ env.JAVA_VERSION }}
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
+      uses: gradle/actions/setup-gradle@v6
 
     - name: Setup Pages
-      uses: actions/configure-pages@v5
+      uses: actions/configure-pages@v6
 
-    - name: Build web app
-      run: ./gradlew :shared:jsBrowserDistribution --warning-mode=fail
+    - name: Build web app (WasmJs)
+      run: ./gradlew :webApp:wasmJsBrowserDistribution --warning-mode=fail
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v4
+      uses: actions/upload-pages-artifact@v5
       with:
-        path: ./shared/build/dist/js/productionExecutable
+        path: ./webApp/build/dist/wasmJs/productionExecutable
 
   deploy:
     environment:
@@ -60,5 +60,5 @@ jobs:
     steps:
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v4
+      uses: actions/deploy-pages@v5
 

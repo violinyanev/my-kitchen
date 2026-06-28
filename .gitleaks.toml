@@ -54,6 +54,7 @@ regexes = [
     '''(?i)dummy[_-]?key''',
     '''(?i)test[_-]?password''',
     '''(?i)your[_-]?secret[_-]?here''',
+    '''(?i)your[_-]?secret[_-]?key''',
     # Allow build configuration placeholders
     '''BuildConfig\.(DEFAULT_SERVER|DEFAULT_USERNAME|DEFAULT_PASSWORD)''',
 ]

@@ -61,11 +61,11 @@ done
 
 # Run quick unit tests on changed files
 print_step "Running unit tests..."
-./gradlew :app:testDebugUnitTest --quiet || {
+./gradlew :androidApp:testDebugUnitTest --quiet || {
     print_error "Unit tests failed"
     echo ""
     echo "Fix failing tests before committing."
-    echo "Run './gradlew :app:testDebugUnitTest' for detailed output."
+    echo "Run './gradlew :androidApp:testDebugUnitTest' for detailed output."
     exit 1
 }
 

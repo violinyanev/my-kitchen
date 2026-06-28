@@ -1,0 +1,49 @@
+package com.ultraviolince.mykitchen.ui
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.ultraviolince.mykitchen.ui.navigation.Route
+import com.ultraviolince.mykitchen.ui.screens.addedit.AddEditScreen
+import com.ultraviolince.mykitchen.ui.screens.login.LoginScreen
+import com.ultraviolince.mykitchen.ui.screens.recipelist.RecipeListScreen
+import com.ultraviolince.mykitchen.ui.theme.AppTheme
+
+@Composable
+fun App() {
+    AppTheme {
+        val navController = rememberNavController()
+        NavHost(navController = navController, startDestination = Route.RecipeList) {
+            composable<Route.RecipeList> {
+                RecipeListScreen(
+                    onAddRecipe = { navController.navigate(Route.EditRecipe()) },
+                    onEditRecipe = { id -> navController.navigate(Route.EditRecipe(id)) },
+                    onNavigateToLogin = {
+                        navController.navigate(Route.Login) {
+                            popUpTo(Route.RecipeList) { inclusive = true }
+                        }
+                    },
+                )
+            }
+            composable<Route.EditRecipe> { backStackEntry ->
+                val route: Route.EditRecipe = backStackEntry.toRoute()
+                AddEditScreen(
+                    recipeId = route.id,
+                    onNavigateBack = { navController.popBackStack() },
+                )
+            }
+            composable<Route.Login> {
+                LoginScreen(
+                    onLoginSuccess = {
+                        navController.navigate(Route.RecipeList) {
+                            popUpTo(Route.Login) { inclusive = true }
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
+
