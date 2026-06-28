@@ -8,7 +8,7 @@ javaVersion = "17"
 composeMultiplatform = "1.11.1"
 
 # AndroidX (JetBrains multiplatform versions)
-androidxActivity = "1.10.1"
+androidxActivity = "1.13.0"
 androidxLifecycle = "1.11.1"
 navigationCompose = "2.9.2"
 
