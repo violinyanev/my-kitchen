@@ -83,7 +83,8 @@ jobs:
           echo "✅ Node.js setup successful"
 
       - name: Install npm dependencies
-        # Installs commitlint and other devDependencies from root package.json
+        # Installs commitlint and other devDependencies from root package.json (if present)
+        if: hashFiles('package.json') != ''
         run: npm install
         working-directory: ${{ github.workspace }}
 
