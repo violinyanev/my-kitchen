@@ -16,7 +16,7 @@ navigationCompose = "2.9.2"
 ktor = "3.5.1"
 
 # DI
-koin = "4.2.1"
+koin = "4.2.2"
 
 # Database
 room3 = "3.0.0-rc01"
@@ -45,7 +45,7 @@ composeUiTest = "1.11.3"
 # Code Quality
 detekt = "1.23.8"
 kover = "0.9.8"
-roborazzi = "1.63.0"
+roborazzi = "1.64.0"
 robolectric = "4.16.1"
 composePreviewScanner = "0.9.0"
 
