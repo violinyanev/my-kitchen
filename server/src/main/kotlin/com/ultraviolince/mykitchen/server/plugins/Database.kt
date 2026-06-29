@@ -1,6 +1,7 @@
 package com.ultraviolince.mykitchen.server.plugins
 
 import com.ultraviolince.mykitchen.server.config.AppConfig
+import com.ultraviolince.mykitchen.server.data.tables.RecipeEnrichments
 import com.ultraviolince.mykitchen.server.data.tables.Recipes
 import com.ultraviolince.mykitchen.server.data.tables.Users
 import com.zaxxer.hikari.HikariConfig
@@ -24,7 +25,7 @@ fun Application.configureDatabase(config: AppConfig) {
     val dataSource = HikariDataSource(hikariConfig)
     Database.connect(dataSource)
     transaction {
-        SchemaUtils.createMissingTablesAndColumns(Users, Recipes)
+        SchemaUtils.createMissingTablesAndColumns(Users, Recipes, RecipeEnrichments)
     }
 }
 

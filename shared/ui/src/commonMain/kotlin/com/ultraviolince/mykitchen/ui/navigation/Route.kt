@@ -11,5 +11,8 @@ sealed class Route {
     data class EditRecipe(val id: String? = null) : Route()
 
     @Serializable
+    data class BeautifyRecipe(val id: String) : Route()
+
+    @Serializable
     data object Login : Route()
 }

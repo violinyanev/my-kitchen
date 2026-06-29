@@ -55,6 +55,8 @@ class ServerTest {
         databasePassword = "",
         databaseDriver = "org.h2.Driver",
         corsAllowedOrigins = null,
+        anthropicApiKey = "test-key",
+        unsplashAccessKey = null,
     )
 
     @BeforeTest
