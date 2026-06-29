@@ -5,6 +5,7 @@ import com.ultraviolince.mykitchen.server.data.dto.ErrorDto
 import com.ultraviolince.mykitchen.server.data.dto.RecipeLinkDto
 import com.ultraviolince.mykitchen.server.data.dto.RefineEnrichmentRequestDto
 import com.ultraviolince.mykitchen.server.data.services.EnrichmentService
+import com.ultraviolince.mykitchen.server.data.services.EnrichmentService.AnthropicNotConfiguredException
 import com.ultraviolince.mykitchen.server.data.tables.RecipeEnrichments
 import com.ultraviolince.mykitchen.server.data.tables.Recipes
 import com.ultraviolince.mykitchen.server.plugins.JWT_AUTH_NAME
@@ -53,7 +54,11 @@ private suspend fun io.ktor.server.application.ApplicationCall.handleBeautify(
             .firstOrNull()
     } ?: return respond(HttpStatusCode.NotFound, ErrorDto("Recipe not found"))
 
-    val result = service.enrich(recipe[Recipes.title], recipe[Recipes.content])
+    val result = try {
+        service.enrich(recipe[Recipes.title], recipe[Recipes.content])
+    } catch (_: AnthropicNotConfiguredException) {
+        return respond(HttpStatusCode.ServiceUnavailable, ErrorDto("Beautify feature is not configured on this server"))
+    }
 
     val dto = transaction {
         transaction {
@@ -126,7 +131,11 @@ private suspend fun io.ktor.server.application.ApplicationCall.handleRefine(
     } ?: return respond(HttpStatusCode.NotFound, ErrorDto("No enrichment to refine — run /beautify first"))
 
     val conversationHistory = existing[RecipeEnrichments.conversationHistory]
-    val result = service.refine(request.feedback, conversationHistory)
+    val result = try {
+        service.refine(request.feedback, conversationHistory)
+    } catch (_: AnthropicNotConfiguredException) {
+        return respond(HttpStatusCode.ServiceUnavailable, ErrorDto("Beautify feature is not configured on this server"))
+    }
 
     val dto = transaction {
         RecipeEnrichments.update(

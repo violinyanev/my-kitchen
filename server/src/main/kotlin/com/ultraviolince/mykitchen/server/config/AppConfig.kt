@@ -10,7 +10,8 @@ data class AppConfig(
     val databaseDriver: String,
     /** Null means allow any origin (development only). In production set CORS_ALLOWED_ORIGINS. */
     val corsAllowedOrigins: List<String>?,
-    val anthropicApiKey: String,
+    /** Null means no Anthropic key is configured; beautify endpoint will return 503. */
+    val anthropicApiKey: String?,
     /** Null disables Unsplash image fetching (enrichments still work without images). */
     val unsplashAccessKey: String?,
 ) {
@@ -31,8 +32,7 @@ data class AppConfig(
                 ?.map { it.trim() }
                 ?.filter { it.isNotBlank() }
                 ?.takeIf { it.isNotEmpty() },
-            anthropicApiKey = System.getenv("ANTHROPIC_API_KEY")
-                ?: error("ANTHROPIC_API_KEY environment variable is required."),
+            anthropicApiKey = System.getenv("ANTHROPIC_API_KEY"),
             unsplashAccessKey = System.getenv("UNSPLASH_ACCESS_KEY"),
         )
     }

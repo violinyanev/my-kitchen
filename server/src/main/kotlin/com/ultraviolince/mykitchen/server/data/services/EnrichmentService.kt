@@ -23,9 +23,10 @@ import java.nio.charset.StandardCharsets
 
 class EnrichmentService(private val config: AppConfig) {
 
-    private val anthropicClient: AnthropicClient = AnthropicOkHttpClient.builder()
-        .apiKey(config.anthropicApiKey)
-        .build()
+    private val anthropicClient: AnthropicClient? =
+        config.anthropicApiKey?.let { key ->
+            AnthropicOkHttpClient.builder().apiKey(key).build()
+        }
 
     private val httpClient: HttpClient = HttpClient.newHttpClient()
 
@@ -61,7 +62,10 @@ class EnrichmentService(private val config: AppConfig) {
         val description: String = "",
     )
 
+    class AnthropicNotConfiguredException : Exception("ANTHROPIC_API_KEY is not configured on this server")
+
     suspend fun enrich(recipeTitle: String, recipeContent: String): EnrichmentResult {
+        val client = anthropicClient ?: throw AnthropicNotConfiguredException()
         val userMessage = "Recipe:\nTitle: $recipeTitle\n\n$recipeContent"
         val history = mutableListOf(ConversationMessage("user", userMessage))
 
@@ -72,13 +76,14 @@ class EnrichmentService(private val config: AppConfig) {
             .addUserMessage(userMessage)
             .build()
 
-        val responseText = callClaude(params)
+        val responseText = callClaude(client, params)
         history.add(ConversationMessage("assistant", responseText))
 
         return buildResult(responseText, history)
     }
 
     suspend fun refine(feedback: String, storedHistory: String): EnrichmentResult {
+        val client = anthropicClient ?: throw AnthropicNotConfiguredException()
         val history = json.decodeFromString<List<ConversationMessage>>(storedHistory).toMutableList()
         history.add(ConversationMessage("user", feedback))
 
@@ -96,15 +101,15 @@ class EnrichmentService(private val config: AppConfig) {
             .messages(messages)
             .build()
 
-        val responseText = callClaude(params)
+        val responseText = callClaude(client, params)
         history.add(ConversationMessage("assistant", responseText))
 
         return buildResult(responseText, history)
     }
 
-    private suspend fun callClaude(params: MessageCreateParams): String =
+    private suspend fun callClaude(client: AnthropicClient, params: MessageCreateParams): String =
         withContext(Dispatchers.IO) {
-            anthropicClient.messages().create(params)
+            client.messages().create(params)
                 .content()
                 .filter { it.isText() }
                 .joinToString("") { it.asText().text() }
