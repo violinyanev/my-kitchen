@@ -37,12 +37,12 @@ fun configureTestDatabase(jdbcUrl: String = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;
         password = "",
     )
     transaction {
-        SchemaUtils.create(Users, Recipes)
+        SchemaUtils.create(Users, Recipes, RecipeEnrichments)
     }
 }
 
 fun dropTestDatabase() {
     transaction {
-        SchemaUtils.drop(Recipes, Users)
+        SchemaUtils.drop(RecipeEnrichments, Recipes, Users)
     }
 }
