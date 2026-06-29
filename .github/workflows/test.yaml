@@ -6,6 +6,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  merge_group:
 
 concurrency:
     group: ${{ github.head_ref || github.run_id }}
@@ -49,7 +50,7 @@ jobs:
       run: ./gradlew koverXmlReport
 
     - name: Publish unit test results
-      uses: dorny/test-reporter@v2
+      uses: dorny/test-reporter@v3
       if: always()
       with:
         name: Unit Tests
@@ -97,7 +98,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_USER: mykitchen
           POSTGRES_PASSWORD: mykitchen
@@ -151,9 +152,9 @@ jobs:
         exit 1
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
-        node-version: '22'
+        node-version: '24'
         cache: 'npm'
         cache-dependency-path: e2e/package-lock.json
 
@@ -172,7 +173,7 @@ jobs:
         SERVER_URL: http://localhost:5000
 
     - name: Upload Playwright report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: playwright-report
@@ -210,7 +211,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_USER: mykitchen
           POSTGRES_PASSWORD: mykitchen
@@ -283,7 +284,7 @@ jobs:
         script: ./gradlew connectedCheck --stacktrace
 
     - name: Publish instrumented test results
-      uses: dorny/test-reporter@v2
+      uses: dorny/test-reporter@v3
       if: always()
       with:
         name: Instrumented Tests (API ${{ matrix.api-level }})
