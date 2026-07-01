@@ -55,6 +55,9 @@ class ServerTest {
         databasePassword = "",
         databaseDriver = "org.h2.Driver",
         corsAllowedOrigins = null,
+        ollamaBaseUrl = "http://localhost:11434",
+        ollamaModel = "gemma4:26b",
+        unsplashAccessKey = null,
     )
 
     @BeforeTest

@@ -78,8 +78,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
+    permissions:
+      contents: write
+
     steps:
     - uses: actions/checkout@v7
+      with:
+        ref: ${{ github.head_ref || github.ref }}
 
     - uses: actions/setup-java@v5
       with:
@@ -88,6 +93,20 @@ jobs:
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
+
+    - name: Update Wasm yarn lock if outdated
+      run: ./gradlew kotlinWasmUpgradeYarnLock
+
+    - name: Commit updated yarn lock if changed
+      if: github.event_name == 'pull_request'
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        if [ -n "$(git status --porcelain kotlin-js-store/wasm/yarn.lock)" ]; then
+          git add kotlin-js-store/wasm/yarn.lock
+          git commit -m "chore: update wasm yarn lock"
+          git push origin HEAD:${{ github.head_ref }}
+        fi
 
     - name: Build web app (WasmJs)
       run: ./gradlew :webApp:wasmJsBrowserDistribution

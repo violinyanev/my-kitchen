@@ -25,6 +25,8 @@ kotlin {
             implementation(project(":shared:domain"))
             implementation(project(":shared:data"))
             implementation(compose.materialIconsExtended)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)

@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
@@ -43,6 +44,7 @@ import com.ultraviolince.mykitchen.domain.model.Recipe
 import com.ultraviolince.mykitchen.domain.model.RecipeOrder
 import com.ultraviolince.mykitchen.ui.generated.resources.Res
 import com.ultraviolince.mykitchen.ui.generated.resources.add_recipe
+import com.ultraviolince.mykitchen.ui.generated.resources.beautify_recipe
 import com.ultraviolince.mykitchen.ui.generated.resources.delete_recipe
 import com.ultraviolince.mykitchen.ui.generated.resources.logout
 import com.ultraviolince.mykitchen.ui.generated.resources.no_recipes
@@ -59,6 +61,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun RecipeListScreen(
     onAddRecipe: () -> Unit,
     onEditRecipe: (String) -> Unit,
+    onBeautify: (String) -> Unit,
     onNavigateToLogin: () -> Unit,
     viewModel: RecipeListViewModel = koinViewModel(),
 ) {
@@ -76,6 +79,7 @@ fun RecipeListScreen(
         state = state,
         onAddRecipe = onAddRecipe,
         onEditRecipe = onEditRecipe,
+        onBeautify = onBeautify,
         onSync = viewModel::sync,
         onLogout = viewModel::logout,
         onDelete = viewModel::delete,
@@ -89,6 +93,7 @@ fun RecipeListScreenContent(
     state: RecipeListState,
     onAddRecipe: () -> Unit,
     onEditRecipe: (String) -> Unit,
+    onBeautify: (String) -> Unit,
     onSync: () -> Unit,
     onLogout: () -> Unit,
     onDelete: (String) -> Unit,
@@ -148,6 +153,7 @@ fun RecipeListScreenContent(
                             recipe = recipe,
                             onClick = { onEditRecipe(recipe.id) },
                             onDelete = { onDelete(recipe.id) },
+                            onBeautify = { onBeautify(recipe.id) },
                         )
                     }
                 }
@@ -187,6 +193,7 @@ private fun RecipeItem(
     recipe: Recipe,
     onClick: () -> Unit,
     onDelete: () -> Unit,
+    onBeautify: () -> Unit,
 ) {
     Card(
         onClick = onClick,
@@ -207,6 +214,9 @@ private fun RecipeItem(
                         maxLines = 2,
                     )
                 }
+            }
+            IconButton(onClick = onBeautify) {
+                Icon(Icons.Default.AutoAwesome, contentDescription = stringResource(Res.string.beautify_recipe))
             }
             IconButton(onClick = onDelete) {
                 Icon(Icons.Default.Delete, contentDescription = stringResource(Res.string.delete_recipe))
