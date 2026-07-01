@@ -4,6 +4,7 @@ import com.ultraviolince.mykitchen.data.remote.dto.EnrichmentDto
 import com.ultraviolince.mykitchen.data.remote.dto.RefineRequestDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -15,10 +16,14 @@ import io.ktor.http.contentType
 
 class EnrichmentApiClient(private val httpClient: HttpClient) {
 
+    // Enrichment runs a local LLM (CPU inference), which can take minutes.
+    private val enrichmentTimeoutMillis = 300_000L
+
     suspend fun beautify(serverUrl: String, token: String, recipeId: String): Result<EnrichmentDto> =
         runCatching {
             httpClient.post("$serverUrl/recipes/$recipeId/enrichment/beautify") {
                 bearerAuth(token)
+                timeout { requestTimeoutMillis = enrichmentTimeoutMillis }
             }.body<EnrichmentDto>()
         }
 
@@ -40,6 +45,7 @@ class EnrichmentApiClient(private val httpClient: HttpClient) {
             httpClient.post("$serverUrl/recipes/$recipeId/enrichment/refine") {
                 bearerAuth(token)
                 contentType(ContentType.Application.Json)
+                timeout { requestTimeoutMillis = enrichmentTimeoutMillis }
                 setBody(RefineRequestDto(feedback))
             }.body<EnrichmentDto>()
         }

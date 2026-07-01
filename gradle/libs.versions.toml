@@ -61,7 +61,6 @@ targetSdk = "36"
 logback = "1.5.37"
 
 # AI / Media
-anthropic = "2.34.0"
 coil = "3.2.0"
 
 [libraries]
@@ -149,9 +148,6 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 
 # Code Quality
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
-
-# AI
-anthropic-java = { module = "com.anthropic:anthropic-java", version.ref = "anthropic" }
 
 # Image loading
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }

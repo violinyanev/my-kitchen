@@ -10,8 +10,10 @@ data class AppConfig(
     val databaseDriver: String,
     /** Null means allow any origin (development only). In production set CORS_ALLOWED_ORIGINS. */
     val corsAllowedOrigins: List<String>?,
-    /** Null means no Anthropic key is configured; beautify endpoint will return 503. */
-    val anthropicApiKey: String?,
+    /** Base URL of the Ollama server used for recipe enrichment (e.g. http://ollama:11434). */
+    val ollamaBaseUrl: String,
+    /** Ollama model tag used for enrichment (e.g. gemma4:26b). */
+    val ollamaModel: String,
     /** Null disables Unsplash image fetching (enrichments still work without images). */
     val unsplashAccessKey: String?,
 ) {
@@ -32,7 +34,8 @@ data class AppConfig(
                 ?.map { it.trim() }
                 ?.filter { it.isNotBlank() }
                 ?.takeIf { it.isNotEmpty() },
-            anthropicApiKey = System.getenv("ANTHROPIC_API_KEY"),
+            ollamaBaseUrl = System.getenv("OLLAMA_BASE_URL") ?: "http://ollama:11434",
+            ollamaModel = System.getenv("OLLAMA_MODEL") ?: "gemma4:26b",
             unsplashAccessKey = System.getenv("UNSPLASH_ACCESS_KEY"),
         )
     }

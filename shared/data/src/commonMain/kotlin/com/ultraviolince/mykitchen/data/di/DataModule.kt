@@ -9,6 +9,7 @@ import com.ultraviolince.mykitchen.data.store.InMemoryCredentialsStore
 import com.ultraviolince.mykitchen.domain.repository.EnrichmentRepository
 import com.ultraviolince.mykitchen.domain.repository.RecipeRepository
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -21,6 +22,11 @@ val dataModule = module {
         HttpClient {
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true })
+            }
+            install(HttpTimeout) {
+                // Default for normal calls; beautify/refine override this per-request
+                // because local (CPU) LLM inference can take minutes.
+                requestTimeoutMillis = 30_000
             }
         }
     }

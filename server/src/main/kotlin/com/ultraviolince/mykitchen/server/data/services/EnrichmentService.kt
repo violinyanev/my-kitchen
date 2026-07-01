@@ -1,9 +1,5 @@
 package com.ultraviolince.mykitchen.server.data.services
 
-import com.anthropic.client.AnthropicClient
-import com.anthropic.client.okhttp.AnthropicOkHttpClient
-import com.anthropic.models.messages.MessageCreateParams
-import com.anthropic.models.messages.MessageParam
 import com.ultraviolince.mykitchen.server.config.AppConfig
 import com.ultraviolince.mykitchen.server.data.dto.RecipeLinkDto
 import kotlinx.coroutines.Dispatchers
@@ -20,15 +16,18 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
+import java.time.Duration
 
+/**
+ * Recipe enrichment powered by a locally-hosted Ollama model (no paid API).
+ * The server POSTs to Ollama's /api/chat endpoint with the conversation so far
+ * and asks for a JSON object matching [EnrichmentJsonResponse].
+ */
 class EnrichmentService(private val config: AppConfig) {
 
-    private val anthropicClient: AnthropicClient? =
-        config.anthropicApiKey?.let { key ->
-            AnthropicOkHttpClient.builder().apiKey(key).build()
-        }
-
-    private val httpClient: HttpClient = HttpClient.newHttpClient()
+    private val httpClient: HttpClient = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(10))
+        .build()
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -44,75 +43,85 @@ class EnrichmentService(private val config: AppConfig) {
         val conversationHistory: String,
     )
 
+    /** Thrown when the Ollama enrichment backend is unreachable or returns an error. */
+    class EnrichmentUnavailableException(message: String, cause: Throwable? = null) :
+        Exception(message, cause)
+
     @Serializable
     internal data class ConversationMessage(val role: String, val content: String)
 
     @Serializable
-    private data class ClaudeRecipeResponse(
+    private data class OllamaChatRequest(
+        val model: String,
+        val messages: List<ConversationMessage>,
+        val stream: Boolean = false,
+        val format: String = "json",
+    )
+
+    @Serializable
+    private data class OllamaChatResponse(val message: ConversationMessage? = null)
+
+    @Serializable
+    private data class EnrichmentJsonResponse(
         val summary: String = "",
         val tags: List<String> = emptyList(),
-        val links: List<ClaudeLink> = emptyList(),
+        val links: List<EnrichmentJsonLink> = emptyList(),
         val imageSearchQuery: String = "",
     )
 
     @Serializable
-    private data class ClaudeLink(
+    private data class EnrichmentJsonLink(
         val title: String = "",
         val url: String = "",
         val description: String = "",
     )
 
-    class AnthropicNotConfiguredException : Exception("ANTHROPIC_API_KEY is not configured on this server")
-
     suspend fun enrich(recipeTitle: String, recipeContent: String): EnrichmentResult {
-        val client = anthropicClient ?: throw AnthropicNotConfiguredException()
         val userMessage = "Recipe:\nTitle: $recipeTitle\n\n$recipeContent"
         val history = mutableListOf(ConversationMessage("user", userMessage))
 
-        val params = MessageCreateParams.builder()
-            .model("claude-opus-4-8")
-            .maxTokens(2000L)
-            .system(systemPrompt)
-            .addUserMessage(userMessage)
-            .build()
-
-        val responseText = callClaude(client, params)
+        val responseText = callOllama(history)
         history.add(ConversationMessage("assistant", responseText))
 
         return buildResult(responseText, history)
     }
 
     suspend fun refine(feedback: String, storedHistory: String): EnrichmentResult {
-        val client = anthropicClient ?: throw AnthropicNotConfiguredException()
         val history = json.decodeFromString<List<ConversationMessage>>(storedHistory).toMutableList()
         history.add(ConversationMessage("user", feedback))
 
-        val messages = history.map { msg ->
-            MessageParam.builder()
-                .role(if (msg.role == "user") MessageParam.Role.USER else MessageParam.Role.ASSISTANT)
-                .content(MessageParam.Content.ofString(msg.content))
-                .build()
-        }
-
-        val params = MessageCreateParams.builder()
-            .model("claude-opus-4-8")
-            .maxTokens(2000L)
-            .system(systemPrompt)
-            .messages(messages)
-            .build()
-
-        val responseText = callClaude(client, params)
+        val responseText = callOllama(history)
         history.add(ConversationMessage("assistant", responseText))
 
         return buildResult(responseText, history)
     }
 
-    private suspend fun callClaude(client: AnthropicClient, params: MessageCreateParams): String =
+    private suspend fun callOllama(history: List<ConversationMessage>): String =
         withContext(Dispatchers.IO) {
-            client.messages().create(params)
-                .content()
-                .filter { it.isText() }
-                .joinToString("") { it.asText().text() }
+            val messages = buildList {
+                add(ConversationMessage("system", systemPrompt))
+                addAll(history)
+            }
+            val requestBody = json.encodeToString(
+                OllamaChatRequest(model = config.ollamaModel, messages = messages),
+            )
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create("${config.ollamaBaseUrl.trimEnd('/')}/api/chat"))
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofMinutes(5))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build()
+            val response = try {
+                httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+            } catch (e: java.io.IOException) {
+                throw EnrichmentUnavailableException("Could not reach Ollama at ${config.ollamaBaseUrl}", e)
+            }
+            if (response.statusCode() != 200) {
+                throw EnrichmentUnavailableException(
+                    "Ollama request failed (${response.statusCode()}): ${response.body()}",
+                )
+            }
+            json.decodeFromString<OllamaChatResponse>(response.body()).message?.content.orEmpty()
         }
 
     private suspend fun buildResult(
@@ -120,9 +129,9 @@ class EnrichmentService(private val config: AppConfig) {
         history: List<ConversationMessage>,
     ): EnrichmentResult {
         val parsed = try {
-            json.decodeFromString<ClaudeRecipeResponse>(extractJson(responseText))
+            json.decodeFromString<EnrichmentJsonResponse>(extractJson(responseText))
         } catch (_: Exception) {
-            ClaudeRecipeResponse(summary = responseText.take(500))
+            EnrichmentJsonResponse(summary = responseText.take(500))
         }
 
         val (imageUrl, imageCredit) =
@@ -151,6 +160,7 @@ class EnrichmentService(private val config: AppConfig) {
                 val request = HttpRequest.newBuilder()
                     .uri(URI.create(unsplashUrl))
                     .header("Authorization", "Client-ID ${config.unsplashAccessKey}")
+                    .timeout(Duration.ofSeconds(15))
                     .GET()
                     .build()
                 val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())

@@ -27,7 +27,6 @@ dependencies {
     implementation(libs.bcrypt)
     implementation(libs.logback)
     implementation(libs.kotlinx.datetime)
-    implementation(libs.anthropic.java)
 
     testImplementation(libs.ktor.server.test)
     testImplementation(libs.ktor.client.content.negotiation)
