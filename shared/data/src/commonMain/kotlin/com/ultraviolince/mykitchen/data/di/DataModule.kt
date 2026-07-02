@@ -2,8 +2,6 @@ package com.ultraviolince.mykitchen.data.di
 
 import com.ultraviolince.mykitchen.data.remote.RecipeApiClient
 import com.ultraviolince.mykitchen.data.repository.RecipeRepositoryImpl
-import com.ultraviolince.mykitchen.data.store.CredentialsStore
-import com.ultraviolince.mykitchen.data.store.InMemoryCredentialsStore
 import com.ultraviolince.mykitchen.domain.repository.RecipeRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -22,6 +20,5 @@ val dataModule = module {
         }
     }
     single { RecipeApiClient(get()) }
-    single<CredentialsStore> { InMemoryCredentialsStore() }
     single<RecipeRepository> { RecipeRepositoryImpl(get(), get(), get()) }
 }
