@@ -44,6 +44,9 @@ jobs:
           languages: java-kotlin
           build-mode: none
 
+      - name: Build JVM targets for CodeQL
+        run: ./gradlew :server:buildFatJar :desktopApp:compileKotlin --no-daemon
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
