@@ -42,7 +42,7 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: java-kotlin
-          build-mode: none
+          build-mode: manual
 
       - name: Build JVM targets for CodeQL
         run: ./gradlew :server:buildFatJar :desktopApp:compileKotlin --no-daemon
