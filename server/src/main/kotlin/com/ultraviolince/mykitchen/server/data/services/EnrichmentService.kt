@@ -4,6 +4,7 @@ import com.ultraviolince.mykitchen.server.config.AppConfig
 import com.ultraviolince.mykitchen.server.data.dto.RecipeLinkDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -19,9 +20,10 @@ import java.nio.charset.StandardCharsets
 import java.time.Duration
 
 /**
- * Recipe enrichment powered by a locally-hosted Ollama model (no paid API).
- * The server POSTs to Ollama's /api/chat endpoint with the conversation so far
- * and asks for a JSON object matching [EnrichmentJsonResponse].
+ * Recipe enrichment powered by a locally-hosted llama.cpp model (no paid API).
+ * The server POSTs to llama.cpp's OpenAI-compatible /v1/chat/completions endpoint
+ * with the conversation so far and asks for a JSON object matching
+ * [EnrichmentJsonResponse].
  */
 class EnrichmentService(private val config: AppConfig) {
 
@@ -32,6 +34,7 @@ class EnrichmentService(private val config: AppConfig) {
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
+        encodeDefaults = true
     }
 
     data class EnrichmentResult(
@@ -43,7 +46,7 @@ class EnrichmentService(private val config: AppConfig) {
         val conversationHistory: String,
     )
 
-    /** Thrown when the Ollama enrichment backend is unreachable or returns an error. */
+    /** Thrown when the enrichment backend (llama.cpp) is unreachable or returns an error. */
     class EnrichmentUnavailableException(message: String, cause: Throwable? = null) :
         Exception(message, cause)
 
@@ -51,15 +54,23 @@ class EnrichmentService(private val config: AppConfig) {
     internal data class ConversationMessage(val role: String, val content: String)
 
     @Serializable
-    private data class OllamaChatRequest(
+    private data class ResponseFormat(val type: String = "json_object")
+
+    @Serializable
+    private data class ChatRequest(
         val model: String,
         val messages: List<ConversationMessage>,
         val stream: Boolean = false,
-        val format: String = "json",
+        @SerialName("response_format")
+        val responseFormat: ResponseFormat = ResponseFormat(),
     )
 
     @Serializable
-    private data class OllamaChatResponse(val message: ConversationMessage? = null)
+    private data class ChatChoice(val message: ConversationMessage? = null)
+
+    // OpenAI-compatible chat completion response: { "choices": [ { "message": {...} } ] }
+    @Serializable
+    private data class ChatResponse(val choices: List<ChatChoice> = emptyList())
 
     @Serializable
     private data class EnrichmentJsonResponse(
@@ -103,10 +114,10 @@ class EnrichmentService(private val config: AppConfig) {
                 addAll(history)
             }
             val requestBody = json.encodeToString(
-                OllamaChatRequest(model = config.ollamaModel, messages = messages),
+                ChatRequest(model = config.ollamaModel, messages = messages),
             )
             val request = HttpRequest.newBuilder()
-                .uri(URI.create("${config.ollamaBaseUrl.trimEnd('/')}/api/chat"))
+                .uri(URI.create("${config.ollamaBaseUrl.trimEnd('/')}/v1/chat/completions"))
                 .header("Content-Type", "application/json")
                 .timeout(Duration.ofMinutes(5))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -114,14 +125,14 @@ class EnrichmentService(private val config: AppConfig) {
             val response = try {
                 httpClient.send(request, HttpResponse.BodyHandlers.ofString())
             } catch (e: java.io.IOException) {
-                throw EnrichmentUnavailableException("Could not reach Ollama at ${config.ollamaBaseUrl}", e)
+                throw EnrichmentUnavailableException("Could not reach the LLM server at ${config.ollamaBaseUrl}", e)
             }
             if (response.statusCode() != 200) {
                 throw EnrichmentUnavailableException(
-                    "Ollama request failed (${response.statusCode()}): ${response.body()}",
+                    "LLM request failed (${response.statusCode()}): ${response.body()}",
                 )
             }
-            json.decodeFromString<OllamaChatResponse>(response.body()).message?.content.orEmpty()
+            json.decodeFromString<ChatResponse>(response.body()).choices.firstOrNull()?.message?.content.orEmpty()
         }
 
     private suspend fun buildResult(
