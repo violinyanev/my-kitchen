@@ -63,7 +63,7 @@ jobs:
       run: ./gradlew detekt
 
     - name: Add coverage report to PR
-      uses: mi-kas/kover-report@v2.4
+      uses: mi-kas/kover-report@v2.5
       if: github.event_name == 'pull_request'
       with:
         path: ${{ github.workspace }}/build/reports/kover/report.xml
