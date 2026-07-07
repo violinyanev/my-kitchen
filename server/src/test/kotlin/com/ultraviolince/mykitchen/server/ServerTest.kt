@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.server
 import com.ultraviolince.mykitchen.server.config.AppConfig
 import com.ultraviolince.mykitchen.server.data.repository.UserRepository
 import com.ultraviolince.mykitchen.server.plugins.configureAuthentication
+import com.ultraviolince.mykitchen.server.plugins.configureCors
 import com.ultraviolince.mykitchen.server.plugins.configureSerialization
 import com.ultraviolince.mykitchen.server.plugins.configureStatusPages
 import com.ultraviolince.mykitchen.server.plugins.configureTestDatabase
@@ -18,7 +19,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.request.header
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -315,6 +318,197 @@ class ServerTest {
 
         val listAfter = client.get("/recipes") { bearerAuth(token) }.body<List<JsonObject>>()
         assertTrue(listAfter.isEmpty())
+    }
+
+    @Test
+    fun loginWithInvalidEmailReturns400() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing { authRoutes(testConfig) }
+        }
+        val client = createClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+        val response = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginBody("not-an-email", "password123"))
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+    @Test
+    fun loginWithShortPasswordReturns400() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing { authRoutes(testConfig) }
+        }
+        val client = createClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+        val response = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginBody("user@test.com", "short"))
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+    @Test
+    fun loginWithNonExistentUserReturns401() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing { authRoutes(testConfig) }
+        }
+        val client = createClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+        val response = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginBody("nobody@example.com", "password123"))
+        }
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
+
+    @Test
+    fun createRecipeWithBlankTitleReturns400() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing {
+                authRoutes(testConfig)
+                recipeRoutes()
+            }
+        }
+        val client = createClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+        val token = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginBody("user@test.com", "password123"))
+        }.body<JsonObject>()["token"]!!.jsonPrimitive.content
+        val response = client.post("/recipes") {
+            bearerAuth(token)
+            contentType(ContentType.Application.Json)
+            setBody(RecipeBody("", "some content"))
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+    @Test
+    fun updateNonExistentRecipeReturns404() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing {
+                authRoutes(testConfig)
+                recipeRoutes()
+            }
+        }
+        val client = createClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+        val token = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginBody("user@test.com", "password123"))
+        }.body<JsonObject>()["token"]!!.jsonPrimitive.content
+        val response = client.put("/recipes/00000000-0000-0000-0000-000000000000") {
+            bearerAuth(token)
+            contentType(ContentType.Application.Json)
+            setBody(RecipeBody("Updated", "content"))
+        }
+        assertEquals(HttpStatusCode.NotFound, response.status)
+    }
+
+    @Test
+    fun deleteNonExistentRecipeReturns404() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing {
+                authRoutes(testConfig)
+                recipeRoutes()
+            }
+        }
+        val client = createClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+        val token = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginBody("user@test.com", "password123"))
+        }.body<JsonObject>()["token"]!!.jsonPrimitive.content
+        val response = client.delete("/recipes/00000000-0000-0000-0000-000000000000") {
+            bearerAuth(token)
+        }
+        assertEquals(HttpStatusCode.NotFound, response.status)
+    }
+
+    @Test
+    fun updateRecipeWithInvalidUuidReturns400() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing {
+                authRoutes(testConfig)
+                recipeRoutes()
+            }
+        }
+        val client = createClient { install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) } }
+        val token = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginBody("user@test.com", "password123"))
+        }.body<JsonObject>()["token"]!!.jsonPrimitive.content
+        val response = client.put("/recipes/not-a-valid-uuid") {
+            bearerAuth(token)
+            contentType(ContentType.Application.Json)
+            setBody(RecipeBody("Updated", "content"))
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+    @Test
+    fun unknownRouteReturns404() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            routing { healthRoutes() }
+        }
+        val response = client.get("/completely-unknown-endpoint-xyz")
+        assertEquals(HttpStatusCode.NotFound, response.status)
+    }
+
+    @Test
+    fun configureCorsWithNullOriginsAllowsAnyHost() = testApplication {
+        application {
+            configureSerialization()
+            configureCors(testConfig)
+            routing { healthRoutes() }
+        }
+        val response = client.get("/health")
+        assertEquals(HttpStatusCode.OK, response.status)
+    }
+
+    @Test
+    fun configureCorsWithSpecificOriginsRestrictsToThoseHosts() = testApplication {
+        val configWithCors = testConfig.copy(corsAllowedOrigins = listOf("http://example.com"))
+        application {
+            configureSerialization()
+            configureCors(configWithCors)
+            routing { healthRoutes() }
+        }
+        val response = client.get("/health") {
+            header(HttpHeaders.Origin, "http://example.com")
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+    }
+
+    @Test
+    fun configureRoutingSetsUpHealthAndRecipeEndpoints() = testApplication {
+        application {
+            configureSerialization()
+            configureAuthentication(testConfig)
+            configureStatusPages()
+            configureRouting(testConfig)
+        }
+        val response = client.get("/health")
+        assertEquals(HttpStatusCode.OK, response.status)
     }
 
     @Test

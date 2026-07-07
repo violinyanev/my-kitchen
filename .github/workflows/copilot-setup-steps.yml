@@ -48,7 +48,7 @@ jobs:
     # If you do not check out your code, Copilot will do this for you.
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           lfs: 'true'
 
@@ -83,7 +83,8 @@ jobs:
           echo "✅ Node.js setup successful"
 
       - name: Install npm dependencies
-        # Installs commitlint and other devDependencies from root package.json
+        # Installs commitlint and other devDependencies from root package.json (if present)
+        if: hashFiles('package.json') != ''
         run: npm install
         working-directory: ${{ github.workspace }}
 
@@ -94,6 +95,7 @@ jobs:
           python-version: '3.14'
 
       - name: Install python dependencies
+        if: hashFiles('backend/image/requirements.txt') != ''
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/image/requirements.txt

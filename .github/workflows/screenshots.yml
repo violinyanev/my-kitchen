@@ -3,6 +3,7 @@ name: Verify Screenshots
 on:
   pull_request:
     types: [opened, synchronize]
+  merge_group:
 
 jobs:
   verify-screenshots:
@@ -14,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.head_ref }}
           lfs: 'true'
@@ -38,7 +39,7 @@ jobs:
 
       - name: Commit and push screenshots if changed
         id: commit_screenshots
-        if: failure()
+        if: failure() && github.event_name != 'merge_group'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
