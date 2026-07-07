@@ -76,8 +76,8 @@ android {
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     buildFeatures {
-        // AGP 9.x disables resValues by default; the release build type uses resValue()
-        // for the snapshot app name, so this must be explicitly enabled.
+        // AGP 9.x disables resValues by default; build types use resValue() for
+        // per-variant app names, so this must be explicitly enabled.
         resValues = true
     }
 
@@ -116,14 +116,16 @@ android {
                 "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("release")
-
-            if (project.hasProperty("snapshotBuild") && project.property("snapshotBuild") == "true") {
-                applicationIdSuffix = ".preview"
-                resValue("string", "app_name", "Kitchen on fire!")
-            }
+            resValue("string", "app_name", "My Kitchen")
+        }
+        create("preview") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".preview"
+            resValue("string", "app_name", "Kitchen on fire")
         }
         debug {
             applicationIdSuffix = ".debug"
+            resValue("string", "app_name", "Kitchen on fire")
         }
     }
 
