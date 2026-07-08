@@ -63,6 +63,10 @@ class EnrichmentService(private val config: AppConfig) {
         val stream: Boolean = false,
         @SerialName("response_format")
         val responseFormat: ResponseFormat = ResponseFormat(),
+        // The enrichment JSON fits in well under 900 tokens; without a cap the
+        // model sometimes rambles for 1500+ tokens, which takes minutes on CPU.
+        @SerialName("max_tokens")
+        val maxTokens: Int = 900,
     )
 
     @Serializable
@@ -119,7 +123,10 @@ class EnrichmentService(private val config: AppConfig) {
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("${config.ollamaBaseUrl.trimEnd('/')}/v1/chat/completions"))
                 .header("Content-Type", "application/json")
-                .timeout(Duration.ofMinutes(5))
+                // Generations are serialized on the LLM server, so this must cover
+                // queue wait + generation. Kept below the web client's 10 min so
+                // the backend returns a clean 503 before the client aborts.
+                .timeout(Duration.ofMinutes(9))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build()
             val response = try {

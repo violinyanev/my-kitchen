@@ -17,7 +17,9 @@ import io.ktor.http.contentType
 class EnrichmentApiClient(private val httpClient: HttpClient) {
 
     // Enrichment runs a local LLM (CPU inference), which can take minutes.
-    private val enrichmentTimeoutMillis = 300_000L
+    // The server processes one generation at a time, so a request may also
+    // queue behind another one; 10 min covers queue wait + generation.
+    private val enrichmentTimeoutMillis = 600_000L
 
     suspend fun beautify(serverUrl: String, token: String, recipeId: String): Result<EnrichmentDto> =
         runCatching {
