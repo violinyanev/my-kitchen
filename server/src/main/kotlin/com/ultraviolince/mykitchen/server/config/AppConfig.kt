@@ -10,9 +10,9 @@ data class AppConfig(
     val databaseDriver: String,
     /** Null means allow any origin (development only). In production set CORS_ALLOWED_ORIGINS. */
     val corsAllowedOrigins: List<String>?,
-    /** Base URL of the Ollama server used for recipe enrichment (e.g. http://ollama:11434). */
+    /** Base URL of the OpenAI-compatible LLM server used for recipe enrichment (e.g. http://localhost:8080 for llama.cpp). */
     val ollamaBaseUrl: String,
-    /** Ollama model tag used for enrichment (e.g. gemma4:26b). */
+    /** Model name passed to the LLM server for enrichment (e.g. gemma4:26b). */
     val ollamaModel: String,
     /** Null disables Unsplash image fetching (enrichments still work without images). */
     val unsplashAccessKey: String?,
