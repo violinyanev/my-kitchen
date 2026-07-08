@@ -1,5 +1,6 @@
 package com.ultraviolince.mykitchen.data.remote
 
+import com.ultraviolince.mykitchen.data.remote.dto.RecipeDto
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -74,5 +75,38 @@ class RecipeApiClientTest {
         val client = RecipeApiClient(buildClient(engine))
         val result = client.deleteRecipe("http://localhost:5000", "tok", "recipe-id")
         assertTrue(result.isSuccess)
+    }
+
+    @Test
+    fun createRecipeReturnsCreatedRecipeOnSuccess() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = """{"id":"new-id","title":"Pasta","content":"Boil","created_at":1000,"updated_at":1000}""",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val client = RecipeApiClient(buildClient(engine))
+        val recipe = RecipeDto(id = "new-id", title = "Pasta", content = "Boil", createdAt = 1000L, updatedAt = 1000L)
+        val result = client.createRecipe("http://localhost:5000", "tok", recipe)
+        assertTrue(result.isSuccess)
+        assertEquals("new-id", result.getOrNull()?.id)
+        assertEquals("Pasta", result.getOrNull()?.title)
+    }
+
+    @Test
+    fun updateRecipeReturnsUpdatedRecipeOnSuccess() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = """{"id":"id1","title":"Updated","content":"New content","created_at":1000,"updated_at":2000}""",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val client = RecipeApiClient(buildClient(engine))
+        val recipe = RecipeDto(id = "id1", title = "Updated", content = "New content", createdAt = 1000L, updatedAt = 2000L)
+        val result = client.updateRecipe("http://localhost:5000", "tok", recipe)
+        assertTrue(result.isSuccess)
+        assertEquals("Updated", result.getOrNull()?.title)
     }
 }

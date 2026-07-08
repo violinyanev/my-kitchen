@@ -4,8 +4,6 @@ import com.ultraviolince.mykitchen.data.remote.EnrichmentApiClient
 import com.ultraviolince.mykitchen.data.remote.RecipeApiClient
 import com.ultraviolince.mykitchen.data.repository.EnrichmentRepositoryImpl
 import com.ultraviolince.mykitchen.data.repository.RecipeRepositoryImpl
-import com.ultraviolince.mykitchen.data.store.CredentialsStore
-import com.ultraviolince.mykitchen.data.store.InMemoryCredentialsStore
 import com.ultraviolince.mykitchen.domain.repository.EnrichmentRepository
 import com.ultraviolince.mykitchen.domain.repository.RecipeRepository
 import io.ktor.client.HttpClient
@@ -32,7 +30,6 @@ val dataModule = module {
     }
     single { RecipeApiClient(get()) }
     single { EnrichmentApiClient(get()) }
-    single<CredentialsStore> { InMemoryCredentialsStore() }
     single<RecipeRepository> { RecipeRepositoryImpl(get(), get(), get()) }
     single<EnrichmentRepository> { EnrichmentRepositoryImpl(get(), get()) }
 }
