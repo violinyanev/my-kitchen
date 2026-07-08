@@ -20,6 +20,7 @@ jobs:
   analyze:
     name: Analyze (java-kotlin)
     runs-on: ubuntu-latest
+    continue-on-error: true  # CodeQL extractor doesn't yet support Kotlin 2.4.0; non-blocking until it does
     permissions:
       security-events: write
       packages: read
