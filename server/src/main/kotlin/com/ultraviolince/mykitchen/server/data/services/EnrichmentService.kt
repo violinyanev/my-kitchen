@@ -63,10 +63,11 @@ class EnrichmentService(private val config: AppConfig) {
         val stream: Boolean = false,
         @SerialName("response_format")
         val responseFormat: ResponseFormat = ResponseFormat(),
-        // The enrichment JSON fits in well under 900 tokens; without a cap the
-        // model sometimes rambles for 1500+ tokens, which takes minutes on CPU.
+        // Gemma 4 spends ~800-1300 tokens on reasoning (reasoning_content)
+        // before the JSON answer, so the cap must cover thinking + answer.
+        // It exists to bound runaway generations, not to squeeze latency.
         @SerialName("max_tokens")
-        val maxTokens: Int = 900,
+        val maxTokens: Int = 2048,
     )
 
     @Serializable
