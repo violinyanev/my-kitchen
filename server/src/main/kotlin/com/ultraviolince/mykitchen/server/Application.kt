@@ -6,7 +6,9 @@ import com.ultraviolince.mykitchen.server.plugins.configureCors
 import com.ultraviolince.mykitchen.server.plugins.configureDatabase
 import com.ultraviolince.mykitchen.server.plugins.configureSerialization
 import com.ultraviolince.mykitchen.server.plugins.configureStatusPages
+import com.ultraviolince.mykitchen.server.data.services.EnrichmentService
 import com.ultraviolince.mykitchen.server.routes.authRoutes
+import com.ultraviolince.mykitchen.server.routes.enrichmentRoutes
 import com.ultraviolince.mykitchen.server.routes.healthRoutes
 import com.ultraviolince.mykitchen.server.routes.recipeRoutes
 import io.ktor.server.application.Application
@@ -27,9 +29,11 @@ fun main() {
 }
 
 fun Application.configureRouting(config: AppConfig) {
+    val enrichmentService = EnrichmentService(config)
     routing {
         healthRoutes()
         authRoutes(config)
         recipeRoutes()
+        enrichmentRoutes(enrichmentService)
     }
 }

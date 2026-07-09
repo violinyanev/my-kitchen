@@ -43,3 +43,27 @@ data class ErrorDto(val error: String)
 
 @Serializable
 data class VersionResponse(val version: String)
+
+@Serializable
+data class RecipeLinkDto(
+    val title: String,
+    val url: String,
+    val description: String,
+)
+
+@Serializable
+data class EnrichmentResponseDto(
+    val id: String,
+    @SerialName("recipe_id") val recipeId: String,
+    @SerialName("image_url") val imageUrl: String?,
+    @SerialName("image_credit") val imageCredit: String?,
+    val tags: List<String>,
+    val links: List<RecipeLinkDto>,
+    val summary: String,
+    @SerialName("updated_at") val updatedAt: Long,
+)
+
+@Serializable
+data class RefineEnrichmentRequestDto(
+    val feedback: String,
+)
