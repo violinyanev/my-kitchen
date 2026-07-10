@@ -61,7 +61,7 @@ targetSdk = "36"
 logback = "1.5.38"
 
 # AI / Media
-coil = "3.2.0"
+coil = "3.5.0"
 
 [libraries]
 # Kotlin
