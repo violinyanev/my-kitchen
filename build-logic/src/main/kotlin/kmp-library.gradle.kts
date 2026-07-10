@@ -9,8 +9,9 @@ plugins {
 
 val libs: VersionCatalog = the<VersionCatalogsExtension>().named("libs")
 
+val javaVersionStr = libs.findVersion("javaVersion").get().toString()
+
 kotlin {
-    jvmToolchain(libs.findVersion("javaVersion").get().toString().toInt())
     jvm("desktop")
 
     listOf(
@@ -42,3 +43,14 @@ kotlin {
     }
 }
 
+// Set the Kotlin JVM target and Java compiler release without requiring an exact JDK toolchain
+// installation. This allows building with JDK 25 (or any newer JDK) while still producing
+// bytecode compatible with the javaVersion specified in libs.versions.toml.
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(javaVersionStr))
+    }
+}
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(javaVersionStr.toInt())
+}

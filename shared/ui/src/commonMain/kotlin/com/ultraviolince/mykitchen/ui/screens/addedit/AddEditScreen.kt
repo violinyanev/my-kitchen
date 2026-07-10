@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +33,8 @@ import com.ultraviolince.mykitchen.ui.generated.resources.content_hint
 import com.ultraviolince.mykitchen.ui.generated.resources.edit_recipe
 import com.ultraviolince.mykitchen.ui.generated.resources.new_recipe
 import com.ultraviolince.mykitchen.ui.generated.resources.save
+import com.ultraviolince.mykitchen.ui.generated.resources.show_beautified
+import com.ultraviolince.mykitchen.ui.generated.resources.show_original
 import com.ultraviolince.mykitchen.ui.generated.resources.title_hint
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -56,6 +60,7 @@ fun AddEditScreen(
         onTitleChange = viewModel::onTitleChange,
         onContentChange = viewModel::onContentChange,
         onSave = viewModel::save,
+        onToggleBeautified = viewModel::toggleBeautified,
     )
 }
 
@@ -68,6 +73,7 @@ internal fun AddEditScreenContent(
     onTitleChange: (String) -> Unit,
     onContentChange: (String) -> Unit,
     onSave: () -> Unit,
+    onToggleBeautified: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -78,47 +84,87 @@ internal fun AddEditScreenContent(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.back))
                     }
                 },
+                actions = {
+                    if (state.enrichment != null) {
+                        IconButton(
+                            onClick = onToggleBeautified,
+                            modifier = Modifier.testTag("beautify_toggle"),
+                        ) {
+                            Icon(
+                                if (state.showBeautified) Icons.Filled.AutoAwesome else Icons.Outlined.AutoAwesome,
+                                contentDescription = stringResource(
+                                    if (state.showBeautified) Res.string.show_original else Res.string.show_beautified,
+                                ),
+                            )
+                        }
+                    }
+                },
             )
         },
     ) { paddingValues ->
-        Column(
+        if (state.showBeautified && state.enrichment != null) {
+            BeautifiedRecipeView(
+                title = state.title,
+                content = state.content,
+                enrichment = state.enrichment,
+                modifier = Modifier.padding(paddingValues),
+            )
+        } else {
+            EditFields(
+                state = state,
+                onTitleChange = onTitleChange,
+                onContentChange = onContentChange,
+                onSave = onSave,
+                modifier = Modifier.padding(paddingValues),
+            )
+        }
+    }
+}
+
+@Composable
+private fun EditFields(
+    state: AddEditState,
+    onTitleChange: (String) -> Unit,
+    onContentChange: (String) -> Unit,
+    onSave: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .imePadding(),
+    ) {
+        OutlinedTextField(
+            value = state.title,
+            onValueChange = onTitleChange,
+            label = { Text(stringResource(Res.string.title_hint)) },
+            modifier = Modifier.fillMaxWidth().testTag("title_field"),
+            isError = state.titleError != null,
+            supportingText = state.titleError?.let { error -> { Text(stringResource(error)) } },
+            singleLine = true,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedTextField(
+            value = state.content,
+            onValueChange = onContentChange,
+            label = { Text(stringResource(Res.string.content_hint)) },
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-                .imePadding(),
+                .fillMaxWidth()
+                .weight(1f)
+                .testTag("content_field"),
+            minLines = 5,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onSave,
+            modifier = Modifier.fillMaxWidth().testTag("save_button"),
+            enabled = !state.isLoading,
         ) {
-            OutlinedTextField(
-                value = state.title,
-                onValueChange = onTitleChange,
-                label = { Text(stringResource(Res.string.title_hint)) },
-                modifier = Modifier.fillMaxWidth().testTag("title_field"),
-                isError = state.titleError != null,
-                supportingText = state.titleError?.let { error -> { Text(stringResource(error)) } },
-                singleLine = true,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = state.content,
-                onValueChange = onContentChange,
-                label = { Text(stringResource(Res.string.content_hint)) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .testTag("content_field"),
-                minLines = 5,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = onSave,
-                modifier = Modifier.fillMaxWidth().testTag("save_button"),
-                enabled = !state.isLoading,
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator()
-                } else {
-                    Text(stringResource(Res.string.save))
-                }
+            if (state.isLoading) {
+                CircularProgressIndicator()
+            } else {
+                Text(stringResource(Res.string.save))
             }
         }
     }

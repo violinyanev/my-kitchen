@@ -11,6 +11,6 @@ val uiModule = module {
     viewModelOf(::RecipeListViewModel)
     viewModelOf(::LoginViewModel)
     viewModel { (recipeId: String?) ->
-        AddEditViewModel(get(), get(), recipeId)
+        AddEditViewModel(get(), get(), get(), recipeId)
     }
 }

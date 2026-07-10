@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.test) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
@@ -30,8 +31,16 @@ kover {
                 classes("*.di.*Module*", "*.di.*ModuleKt")
                 // Platform DB/driver factories: delegate to Room internals
                 classes("*.data.local.*Database*", "*.data.local.*DatabaseKt")
-                // Generated Room DAOs
+                // Generated Room DAO implementations (KSP output) — untestable generated code
+                classes("*.data.local.*_Impl*")
+                // Room DAO interfaces (old androidx.room and KMP androidx.room3)
                 annotatedBy("androidx.room.Dao")
+                annotatedBy("androidx.room3.Dao")
+            }
+        }
+        verify {
+            rule {
+                minBound(80)
             }
         }
     }

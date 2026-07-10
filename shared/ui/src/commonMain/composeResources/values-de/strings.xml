@@ -28,6 +28,15 @@
     <string name="password_hint">Passwort</string>
     <string name="sign_in">Anmelden</string>
 
+    <!-- Beautified recipe view -->
+    <string name="show_beautified">Verschönerte Version anzeigen</string>
+    <string name="show_original">Originalrezept anzeigen</string>
+    <string name="beautify_summary">Zusammenfassung</string>
+    <string name="beautify_tags">Tags</string>
+    <string name="beautify_links">Verwandte Links</string>
+    <string name="beautify_photo_credit">Foto von %1$s auf Unsplash</string>
+    <string name="beautify_disclaimer">Links sind KI-generiert. Bitte vor dem Teilen überprüfen.</string>
+
     <!-- Errors -->
     <string name="error_fields_required">Alle Felder sind erforderlich</string>
     <string name="error_title_required">Titel ist erforderlich</string>

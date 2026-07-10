@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.domain.di
 import com.ultraviolince.mykitchen.domain.usecase.AddRecipeUseCase
 import com.ultraviolince.mykitchen.domain.usecase.DeleteRecipeUseCase
 import com.ultraviolince.mykitchen.domain.usecase.GetAuthStateUseCase
+import com.ultraviolince.mykitchen.domain.usecase.GetEnrichmentUseCase
 import com.ultraviolince.mykitchen.domain.usecase.GetRecipeUseCase
 import com.ultraviolince.mykitchen.domain.usecase.GetRecipesUseCase
 import com.ultraviolince.mykitchen.domain.usecase.LoginUseCase
@@ -19,4 +20,5 @@ val domainModule = module {
     factory { LoginUseCase(get()) }
     factory { LogoutUseCase(get()) }
     factory { GetAuthStateUseCase(get()) }
+    factory { GetEnrichmentUseCase(get()) }
 }

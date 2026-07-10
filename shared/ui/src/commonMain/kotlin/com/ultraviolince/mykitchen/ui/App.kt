@@ -5,6 +5,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.ultraviolince.mykitchen.ui.navigation.Route
 import com.ultraviolince.mykitchen.ui.screens.addedit.AddEditScreen
 import com.ultraviolince.mykitchen.ui.screens.login.LoginScreen
@@ -13,6 +16,11 @@ import com.ultraviolince.mykitchen.ui.theme.AppTheme
 
 @Composable
 fun App() {
+    SingletonImageLoader.setSafe { context ->
+        ImageLoader.Builder(context)
+            .components { add(KtorNetworkFetcherFactory()) }
+            .build()
+    }
     AppTheme {
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = Route.RecipeList) {
