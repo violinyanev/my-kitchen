@@ -22,8 +22,6 @@ val dataModule = module {
                 json(Json { ignoreUnknownKeys = true })
             }
             install(HttpTimeout) {
-                // Default for normal calls; beautify/refine override this per-request
-                // because local (CPU) LLM inference can take minutes.
                 requestTimeoutMillis = 30_000
             }
         }
