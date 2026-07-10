@@ -2,8 +2,8 @@ package com.ultraviolince.mykitchen.server
 
 import com.ultraviolince.mykitchen.server.config.AppConfig
 import com.ultraviolince.mykitchen.server.data.repository.UserRepository
-import com.ultraviolince.mykitchen.server.data.services.EnrichmentService
-import com.ultraviolince.mykitchen.server.data.services.FakeLlmServer
+import com.ultraviolince.mykitchen.server.data.tables.RecipeEnrichments
+import com.ultraviolince.mykitchen.server.data.tables.Recipes
 import com.ultraviolince.mykitchen.server.plugins.configureAuthentication
 import com.ultraviolince.mykitchen.server.plugins.configureSerialization
 import com.ultraviolince.mykitchen.server.plugins.configureStatusPages
@@ -26,40 +26,21 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
-@Serializable
-private data class RefineBody(val feedback: String)
 
 /** Client + auth token + a pre-created recipe, ready for enrichment calls. */
 private class Ctx(val client: HttpClient, val token: String, val recipeId: String)
 
 class EnrichmentRoutesTest {
-
-    private lateinit var fakeLlm: FakeLlmServer
-
-    private val llmResponse = """
-        {"summary":"A tasty dish","tags":["quick"],
-         "links":[{"title":"Recipe","url":"http://example.com","description":"desc"}],
-         "imageSearchQuery":""}
-    """.trimIndent()
-
-    @BeforeTest
-    fun setUp() {
-        fakeLlm = FakeLlmServer.respondingWith(llmResponse)
-    }
-
-    @AfterTest
-    fun tearDown() {
-        fakeLlm.close()
-    }
 
     private fun testApp(block: suspend Ctx.() -> Unit) {
         val config = AppConfig(
@@ -71,7 +52,7 @@ class EnrichmentRoutesTest {
             databasePassword = "",
             databaseDriver = "org.h2.Driver",
             corsAllowedOrigins = null,
-            ollamaBaseUrl = fakeLlm.baseUrl,
+            ollamaBaseUrl = "http://unused",
             ollamaModel = "gemma4:26b",
             unsplashAccessKey = null,
         )
@@ -86,7 +67,7 @@ class EnrichmentRoutesTest {
                     routing {
                         authRoutes(config)
                         recipeRoutes()
-                        enrichmentRoutes(EnrichmentService(config))
+                        enrichmentRoutes()
                     }
                 }
                 val client = createClient {
@@ -108,40 +89,32 @@ class EnrichmentRoutesTest {
         }
     }
 
-    @Test
-    fun beautifyRequiresAuth() = testApp {
-        val response = client.post("/recipes/$recipeId/enrichment/beautify")
-        assertEquals(HttpStatusCode.Unauthorized, response.status)
-    }
-
-    @Test
-    fun beautifyReturns404ForUnknownRecipe() = testApp {
-        val response = client.post("/recipes/00000000-0000-0000-0000-000000000000/enrichment/beautify") {
-            bearerAuth(token)
-        }
-        assertEquals(HttpStatusCode.NotFound, response.status)
-    }
-
-    @Test
-    fun beautifyCreatesEnrichmentOnSuccess() = testApp {
-        val response = client.post("/recipes/$recipeId/enrichment/beautify") {
-            bearerAuth(token)
-        }
-        assertEquals(HttpStatusCode.OK, response.status)
-        val body = response.body<JsonObject>()
-        assertEquals("A tasty dish", body["summary"]!!.jsonPrimitive.content)
-    }
-
-    @Test
-    fun beautifyReturns503WhenLlmUnavailable() {
-        fakeLlm.close()
-        fakeLlm = FakeLlmServer.respondingWithStatus(500)
-        testApp {
-            val response = client.post("/recipes/$recipeId/enrichment/beautify") {
-                bearerAuth(token)
+    /** Simulates the AutoBeautifyWorker having enriched the recipe. */
+    private fun seedEnrichment(recipeId: String, summary: String = "A tasty dish") {
+        transaction {
+            val userId = Recipes.selectAll()
+                .where { Recipes.id eq UUID.fromString(recipeId) }
+                .first()[Recipes.userId].value
+            val now = System.currentTimeMillis()
+            RecipeEnrichments.insert { row ->
+                row[RecipeEnrichments.recipeId] = UUID.fromString(recipeId)
+                row[RecipeEnrichments.userId] = userId
+                row[RecipeEnrichments.imageUrl] = null
+                row[RecipeEnrichments.imageCredit] = null
+                row[RecipeEnrichments.links] = """[{"title":"Recipe","url":"http://example.com","description":"desc"}]"""
+                row[RecipeEnrichments.tags] = """["quick"]"""
+                row[RecipeEnrichments.summary] = summary
+                row[RecipeEnrichments.conversationHistory] = "[]"
+                row[RecipeEnrichments.createdAt] = now
+                row[RecipeEnrichments.updatedAt] = now
             }
-            assertEquals(HttpStatusCode.ServiceUnavailable, response.status)
         }
+    }
+
+    @Test
+    fun getEnrichmentRequiresAuth() = testApp {
+        val response = client.get("/recipes/$recipeId/enrichment")
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
@@ -153,8 +126,8 @@ class EnrichmentRoutesTest {
     }
 
     @Test
-    fun getEnrichmentReturnsStoredEnrichmentAfterBeautify() = testApp {
-        client.post("/recipes/$recipeId/enrichment/beautify") { bearerAuth(token) }
+    fun getEnrichmentReturnsStoredEnrichment() = testApp {
+        seedEnrichment(recipeId)
         val response = client.get("/recipes/$recipeId/enrichment") { bearerAuth(token) }
         assertEquals(HttpStatusCode.OK, response.status)
         val body = response.body<JsonObject>()
@@ -162,49 +135,27 @@ class EnrichmentRoutesTest {
     }
 
     @Test
-    fun refineRequiresExistingEnrichment() = testApp {
-        val response = client.post("/recipes/$recipeId/enrichment/refine") {
-            bearerAuth(token)
+    fun getEnrichmentReturns404ForAnotherUsersRecipe() = testApp {
+        seedEnrichment(recipeId)
+        UserRepository.create("other@test.com", "password123")
+        val otherToken = client.post("/users/login") {
             contentType(ContentType.Application.Json)
-            setBody(RefineBody("spicier please"))
-        }
+            setBody(LoginBody("other@test.com", "password123"))
+        }.body<JsonObject>()["token"]!!.jsonPrimitive.content
+        val response = client.get("/recipes/$recipeId/enrichment") { bearerAuth(otherToken) }
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
     @Test
-    fun refineRejectsBlankFeedback() = testApp {
-        client.post("/recipes/$recipeId/enrichment/beautify") { bearerAuth(token) }
-        val response = client.post("/recipes/$recipeId/enrichment/refine") {
-            bearerAuth(token)
-            contentType(ContentType.Application.Json)
-            setBody(RefineBody("   "))
-        }
-        assertEquals(HttpStatusCode.BadRequest, response.status)
-    }
-
-    @Test
-    fun refineUpdatesExistingEnrichment() = testApp {
-        client.post("/recipes/$recipeId/enrichment/beautify") { bearerAuth(token) }
-        val response = client.post("/recipes/$recipeId/enrichment/refine") {
-            bearerAuth(token)
-            contentType(ContentType.Application.Json)
-            setBody(RefineBody("spicier please"))
-        }
-        assertEquals(HttpStatusCode.OK, response.status)
-    }
-
-    @Test
-    fun deleteEnrichmentReturns404WhenNoneExists() = testApp {
-        val response = client.delete("/recipes/$recipeId/enrichment") { bearerAuth(token) }
-        assertEquals(HttpStatusCode.NotFound, response.status)
-    }
-
-    @Test
-    fun deleteEnrichmentRemovesExistingOne() = testApp {
-        client.post("/recipes/$recipeId/enrichment/beautify") { bearerAuth(token) }
-        val response = client.delete("/recipes/$recipeId/enrichment") { bearerAuth(token) }
+    fun deletingRecipeAlsoRemovesItsEnrichment() = testApp {
+        seedEnrichment(recipeId)
+        val response = client.delete("/recipes/$recipeId") { bearerAuth(token) }
         assertEquals(HttpStatusCode.NoContent, response.status)
-        val getAfter = client.get("/recipes/$recipeId/enrichment") { bearerAuth(token) }
-        assertEquals(HttpStatusCode.NotFound, getAfter.status)
+        val remaining = transaction {
+            RecipeEnrichments.selectAll()
+                .where { RecipeEnrichments.recipeId eq UUID.fromString(recipeId) }
+                .count()
+        }
+        assertEquals(0, remaining)
     }
 }
