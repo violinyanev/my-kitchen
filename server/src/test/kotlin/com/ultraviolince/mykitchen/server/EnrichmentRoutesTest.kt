@@ -147,6 +147,40 @@ class EnrichmentRoutesTest {
     }
 
     @Test
+    fun listEnrichmentsRequiresAuth() = testApp {
+        val response = client.get("/enrichments")
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
+
+    @Test
+    fun listEnrichmentsReturnsEmptyListWhenNoneExist() = testApp {
+        val response = client.get("/enrichments") { bearerAuth(token) }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(emptyList(), response.body<List<JsonObject>>())
+    }
+
+    @Test
+    fun listEnrichmentsReturnsOnlyOwnEnrichments() = testApp {
+        seedEnrichment(recipeId)
+        // A second user with their own enriched recipe must not leak in.
+        UserRepository.create("other@test.com", "password123")
+        val otherToken = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginBody("other@test.com", "password123"))
+        }.body<JsonObject>()["token"]!!.jsonPrimitive.content
+        val otherRecipeId = client.post("/recipes") {
+            bearerAuth(otherToken)
+            contentType(ContentType.Application.Json)
+            setBody(RecipeBody("Soup", "Boil water"))
+        }.body<JsonObject>()["id"]!!.jsonPrimitive.content
+        seedEnrichment(otherRecipeId, summary = "Other dish")
+
+        val body = client.get("/enrichments") { bearerAuth(token) }.body<List<JsonObject>>()
+        assertEquals(1, body.size)
+        assertEquals("A tasty dish", body.first()["summary"]!!.jsonPrimitive.content)
+    }
+
+    @Test
     fun deletingRecipeAlsoRemovesItsEnrichment() = testApp {
         seedEnrichment(recipeId)
         val response = client.delete("/recipes/$recipeId") { bearerAuth(token) }

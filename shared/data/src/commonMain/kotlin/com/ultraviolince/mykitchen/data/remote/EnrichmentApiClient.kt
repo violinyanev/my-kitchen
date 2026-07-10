@@ -20,4 +20,12 @@ class EnrichmentApiClient(private val httpClient: HttpClient) {
             }
             if (response.status == HttpStatusCode.NotFound) null else response.body<EnrichmentDto>()
         }
+
+    /** All enrichments of the current user — one call, for tag filtering in the list. */
+    suspend fun getEnrichments(serverUrl: String, token: String): Result<List<EnrichmentDto>> =
+        runCatching {
+            httpClient.get("$serverUrl/enrichments") {
+                bearerAuth(token)
+            }.body<List<EnrichmentDto>>()
+        }
 }

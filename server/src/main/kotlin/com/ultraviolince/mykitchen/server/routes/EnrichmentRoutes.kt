@@ -30,7 +30,20 @@ fun Route.enrichmentRoutes() {
         route("/recipes/{recipeId}/enrichment") {
             get { call.handleGetEnrichment() }
         }
+        // All enrichments of the current user in one call, so the recipe list
+        // can offer tag filtering without one request per recipe.
+        get("/enrichments") { call.handleGetAllEnrichments() }
     }
+}
+
+private suspend fun io.ktor.server.application.ApplicationCall.handleGetAllEnrichments() {
+    val userId = userIdOrUnauthorized() ?: return
+    val enrichments = transaction {
+        RecipeEnrichments.selectAll()
+            .where { RecipeEnrichments.userId eq UUID.fromString(userId) }
+            .map { it.toEnrichmentDto() }
+    }
+    respond(enrichments)
 }
 
 private suspend fun io.ktor.server.application.ApplicationCall.handleGetEnrichment() {

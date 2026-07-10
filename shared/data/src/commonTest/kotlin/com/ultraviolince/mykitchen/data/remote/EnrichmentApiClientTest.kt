@@ -55,6 +55,31 @@ class EnrichmentApiClientTest {
     }
 
     @Test
+    fun getEnrichmentsReturnsListOnSuccess() = runTest {
+        val engine = MockEngine { _ ->
+            respond(
+                content = "[$enrichmentJson]",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val client = EnrichmentApiClient(buildClient(engine))
+        val result = client.getEnrichments("http://localhost:5000", "tok")
+        assertTrue(result.isSuccess)
+        assertEquals(1, result.getOrNull()?.size)
+    }
+
+    @Test
+    fun getEnrichmentsReturnsFailureOnServerError() = runTest {
+        val engine = MockEngine { _ ->
+            respond(content = """{"error":"boom"}""", status = HttpStatusCode.InternalServerError)
+        }
+        val client = EnrichmentApiClient(buildClient(engine))
+        val result = client.getEnrichments("http://localhost:5000", "tok")
+        assertTrue(result.isFailure)
+    }
+
+    @Test
     fun getEnrichmentReturnsFailureOnServerError() = runTest {
         val engine = MockEngine { _ ->
             respond(content = """{"error":"boom"}""", status = HttpStatusCode.InternalServerError)

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -80,6 +82,7 @@ fun RecipeListScreen(
         onLogout = viewModel::logout,
         onDelete = viewModel::delete,
         onOrderChange = viewModel::setOrder,
+        onTagSelect = viewModel::selectTag,
     )
 }
 
@@ -93,6 +96,7 @@ fun RecipeListScreenContent(
     onLogout: () -> Unit,
     onDelete: (String) -> Unit,
     onOrderChange: (RecipeOrder) -> Unit,
+    onTagSelect: (String?) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -134,7 +138,14 @@ fun RecipeListScreenContent(
                 currentOrder = state.order,
                 onOrderChange = onOrderChange,
             )
-            if (state.recipes.isEmpty()) {
+            if (state.allTags.isNotEmpty()) {
+                TagFilterRow(
+                    tags = state.allTags,
+                    selectedTag = state.selectedTag,
+                    onTagSelect = onTagSelect,
+                )
+            }
+            if (state.visibleRecipes.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(stringResource(Res.string.no_recipes), style = MaterialTheme.typography.bodyLarge)
                 }
@@ -143,7 +154,7 @@ fun RecipeListScreenContent(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(state.recipes, key = { it.id }) { recipe ->
+                    items(state.visibleRecipes, key = { it.id }) { recipe ->
                         RecipeItem(
                             recipe = recipe,
                             onClick = { onEditRecipe(recipe.id) },
@@ -152,6 +163,26 @@ fun RecipeListScreenContent(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun TagFilterRow(
+    tags: List<String>,
+    selectedTag: String?,
+    onTagSelect: (String?) -> Unit,
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(tags, key = { it }) { tag ->
+            FilterChip(
+                selected = tag == selectedTag,
+                onClick = { onTagSelect(tag) },
+                label = { Text(tag) },
+            )
         }
     }
 }

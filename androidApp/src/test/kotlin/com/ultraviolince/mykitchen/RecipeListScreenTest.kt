@@ -44,6 +44,7 @@ class RecipeListScreenTest {
                     onLogout = {},
                     onDelete = {},
                     onOrderChange = {},
+                    onTagSelect = {},
                 )
             }
         }
@@ -69,6 +70,7 @@ class RecipeListScreenTest {
                     onLogout = {},
                     onDelete = {},
                     onOrderChange = {},
+                    onTagSelect = {},
                 )
             }
         }
