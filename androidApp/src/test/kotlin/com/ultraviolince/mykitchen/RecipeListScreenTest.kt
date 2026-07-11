@@ -40,11 +40,11 @@ class RecipeListScreenTest {
                     ),
                     onAddRecipe = {},
                     onEditRecipe = {},
-                    onBeautify = {},
                     onSync = {},
                     onLogout = {},
                     onDelete = {},
                     onOrderChange = {},
+                    onTagSelect = {},
                 )
             }
         }
@@ -66,11 +66,11 @@ class RecipeListScreenTest {
                     state = RecipeListState(),
                     onAddRecipe = {},
                     onEditRecipe = {},
-                    onBeautify = {},
                     onSync = {},
                     onLogout = {},
                     onDelete = {},
                     onOrderChange = {},
+                    onTagSelect = {},
                 )
             }
         }

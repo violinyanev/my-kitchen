@@ -28,34 +28,6 @@ class EnrichmentApiClientTest {
     """.trimIndent()
 
     @Test
-    fun beautifyReturnsEnrichmentOnSuccess() = runTest {
-        val engine = MockEngine { _ ->
-            respond(
-                content = enrichmentJson,
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
-            )
-        }
-        val client = EnrichmentApiClient(buildClient(engine))
-        val result = client.beautify("http://localhost:5000", "tok", "recipe-1")
-        assertTrue(result.isSuccess)
-        assertEquals("Tasty", result.getOrNull()?.summary)
-    }
-
-    @Test
-    fun beautifyReturnsFailureOn503() = runTest {
-        val engine = MockEngine { _ ->
-            respond(
-                content = """{"error":"Beautify service is temporarily unavailable"}""",
-                status = HttpStatusCode.ServiceUnavailable,
-            )
-        }
-        val client = EnrichmentApiClient(buildClient(engine))
-        val result = client.beautify("http://localhost:5000", "tok", "recipe-1")
-        assertTrue(result.isFailure)
-    }
-
-    @Test
     fun getEnrichmentReturnsNullOn404() = runTest {
         val engine = MockEngine { _ ->
             respond(content = """{"error":"No enrichment found"}""", status = HttpStatusCode.NotFound)
@@ -79,40 +51,41 @@ class EnrichmentApiClientTest {
         val result = client.getEnrichment("http://localhost:5000", "tok", "recipe-1")
         assertTrue(result.isSuccess)
         assertEquals("enr-1", result.getOrNull()?.id)
+        assertEquals("Tasty", result.getOrNull()?.summary)
     }
 
     @Test
-    fun refineReturnsUpdatedEnrichmentOnSuccess() = runTest {
+    fun getEnrichmentsReturnsListOnSuccess() = runTest {
         val engine = MockEngine { _ ->
             respond(
-                content = enrichmentJson,
+                content = "[$enrichmentJson]",
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json"),
             )
         }
         val client = EnrichmentApiClient(buildClient(engine))
-        val result = client.refine("http://localhost:5000", "tok", "recipe-1", "make it spicier")
+        val result = client.getEnrichments("http://localhost:5000", "tok")
         assertTrue(result.isSuccess)
-        assertEquals("Tasty", result.getOrNull()?.summary)
+        assertEquals(1, result.getOrNull()?.size)
     }
 
     @Test
-    fun refineReturnsFailureOn503() = runTest {
+    fun getEnrichmentsReturnsFailureOnServerError() = runTest {
         val engine = MockEngine { _ ->
-            respond(content = """{"error":"unavailable"}""", status = HttpStatusCode.ServiceUnavailable)
+            respond(content = """{"error":"boom"}""", status = HttpStatusCode.InternalServerError)
         }
         val client = EnrichmentApiClient(buildClient(engine))
-        val result = client.refine("http://localhost:5000", "tok", "recipe-1", "feedback")
+        val result = client.getEnrichments("http://localhost:5000", "tok")
         assertTrue(result.isFailure)
     }
 
     @Test
-    fun deleteEnrichmentReturnsSuccessOn204() = runTest {
+    fun getEnrichmentReturnsFailureOnServerError() = runTest {
         val engine = MockEngine { _ ->
-            respond(content = "", status = HttpStatusCode.NoContent)
+            respond(content = """{"error":"boom"}""", status = HttpStatusCode.InternalServerError)
         }
         val client = EnrichmentApiClient(buildClient(engine))
-        val result = client.deleteEnrichment("http://localhost:5000", "tok", "recipe-1")
-        assertTrue(result.isSuccess)
+        val result = client.getEnrichment("http://localhost:5000", "tok", "recipe-1")
+        assertTrue(result.isFailure)
     }
 }

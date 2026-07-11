@@ -13,16 +13,17 @@ import kotlinx.serialization.json.Json
 
 /** Creates an EnrichmentApiClient backed by a configurable MockEngine. */
 fun buildMockEnrichmentApiClient(
-    beautifySucceeds: Boolean = true,
+    succeeds: Boolean = true,
     enrichmentJson: String = """
         {"id":"enr-1","recipe_id":"recipe-1","image_url":null,"image_credit":null,
          "tags":["quick"],"links":[],"summary":"Tasty","updated_at":1000}
     """.trimIndent(),
 ): EnrichmentApiClient {
-    val engine = MockEngine { _ ->
-        if (beautifySucceeds) {
+    val engine = MockEngine { request ->
+        if (succeeds) {
+            val body = if (request.url.encodedPath.endsWith("/enrichments")) "[$enrichmentJson]" else enrichmentJson
             respond(
-                content = enrichmentJson,
+                content = body,
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json"),
             )

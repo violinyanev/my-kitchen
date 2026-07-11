@@ -10,7 +10,6 @@ import coil3.SingletonImageLoader
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.ultraviolince.mykitchen.ui.navigation.Route
 import com.ultraviolince.mykitchen.ui.screens.addedit.AddEditScreen
-import com.ultraviolince.mykitchen.ui.screens.beautify.BeautifyScreen
 import com.ultraviolince.mykitchen.ui.screens.login.LoginScreen
 import com.ultraviolince.mykitchen.ui.screens.recipelist.RecipeListScreen
 import com.ultraviolince.mykitchen.ui.theme.AppTheme
@@ -29,7 +28,6 @@ fun App() {
                 RecipeListScreen(
                     onAddRecipe = { navController.navigate(Route.EditRecipe()) },
                     onEditRecipe = { id -> navController.navigate(Route.EditRecipe(id)) },
-                    onBeautify = { id -> navController.navigate(Route.BeautifyRecipe(id)) },
                     onNavigateToLogin = {
                         navController.navigate(Route.Login) {
                             popUpTo(Route.RecipeList) { inclusive = true }
@@ -40,13 +38,6 @@ fun App() {
             composable<Route.EditRecipe> { backStackEntry ->
                 val route: Route.EditRecipe = backStackEntry.toRoute()
                 AddEditScreen(
-                    recipeId = route.id,
-                    onNavigateBack = { navController.popBackStack() },
-                )
-            }
-            composable<Route.BeautifyRecipe> { backStackEntry ->
-                val route: Route.BeautifyRecipe = backStackEntry.toRoute()
-                BeautifyScreen(
                     recipeId = route.id,
                     onNavigateBack = { navController.popBackStack() },
                 )

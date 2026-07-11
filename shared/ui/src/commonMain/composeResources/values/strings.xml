@@ -28,15 +28,9 @@
     <string name="password_hint">Password</string>
     <string name="sign_in">Sign In</string>
 
-    <!-- Beautify screen -->
-    <string name="beautify_recipe">Beautify recipe</string>
-    <string name="beautify_loading">Generating recipe enrichment…</string>
-    <string name="beautify_accept">Accept</string>
-    <string name="beautify_reject">Reject</string>
-    <string name="beautify_refine">Improve…</string>
-    <string name="beautify_refine_hint">Describe what to change…</string>
-    <string name="beautify_refine_send">Send</string>
-    <string name="beautify_refine_cancel">Cancel</string>
+    <!-- Beautified recipe view -->
+    <string name="show_beautified">Show beautified version</string>
+    <string name="show_original">Show original recipe</string>
     <string name="beautify_summary">Summary</string>
     <string name="beautify_tags">Tags</string>
     <string name="beautify_links">Related links</string>
@@ -49,6 +43,4 @@
     <string name="error_login_failed">Login failed. Please check your credentials.</string>
     <string name="error_delete_failed">Delete failed. Please try again.</string>
     <string name="error_sync_failed">Sync failed. Please try again.</string>
-    <string name="error_beautify_failed">Could not beautify recipe. Please try again.</string>
-    <string name="error_refine_failed">Could not apply refinement. Please try again.</string>
 </resources>
