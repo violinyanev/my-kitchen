@@ -47,6 +47,7 @@
     <string name="error_fields_required">Alle Felder sind erforderlich</string>
     <string name="error_title_required">Titel ist erforderlich</string>
     <string name="error_login_failed">Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.</string>
+    <string name="error_delete_failed">Löschen fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="error_sync_failed">Synchronisierung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="error_beautify_failed">Rezept konnte nicht verschönert werden. Bitte versuchen Sie es erneut.</string>
     <string name="error_refine_failed">Verfeinerung konnte nicht angewendet werden. Bitte versuchen Sie es erneut.</string>
