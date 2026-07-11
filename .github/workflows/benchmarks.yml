@@ -2,9 +2,9 @@ name: Performance Benchmarks
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, prod ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, prod ]
   schedule:
     - cron: '0 2 * * 0'
 
