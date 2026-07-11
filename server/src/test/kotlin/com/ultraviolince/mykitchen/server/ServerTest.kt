@@ -61,6 +61,7 @@ class ServerTest {
         ollamaBaseUrl = "http://localhost:11434",
         ollamaModel = "gemma4:26b",
         unsplashAccessKey = null,
+        devMode = true,
     )
 
     @BeforeTest
@@ -478,14 +479,35 @@ class ServerTest {
     }
 
     @Test
-    fun configureCorsWithNullOriginsAllowsAnyHost() = testApplication {
+    fun configureCorsWithNullOriginsAndDevModeAllowsAnyHost() = testApplication {
         application {
             configureSerialization()
-            configureCors(testConfig)
+            configureCors(testConfig) // testConfig has devMode=true and corsAllowedOrigins=null
             routing { healthRoutes() }
         }
         val response = client.get("/health")
         assertEquals(HttpStatusCode.OK, response.status)
+    }
+
+    @Test
+    fun configureCorsWithNullOriginsAndProdModeThrows() {
+        val prodConfig = testConfig.copy(devMode = false, corsAllowedOrigins = null)
+        var caughtException: IllegalStateException? = null
+        try {
+            testApplication {
+                application {
+                    configureSerialization()
+                    configureCors(prodConfig)
+                    routing { healthRoutes() }
+                }
+                // Trigger startup by making a request
+                client.get("/health")
+            }
+        } catch (e: IllegalStateException) {
+            caughtException = e
+        }
+        assertNotNull(caughtException)
+        assertTrue(caughtException.message!!.contains("CORS_ALLOWED_ORIGINS"))
     }
 
     @Test

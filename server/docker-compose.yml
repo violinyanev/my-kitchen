@@ -10,6 +10,7 @@ services:
       - DATABASE_PASSWORD=mykitchen
       - DATABASE_DRIVER=org.postgresql.Driver
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS is required (comma-separated list of allowed origins)}
     depends_on:
       db:
         condition: service_healthy
