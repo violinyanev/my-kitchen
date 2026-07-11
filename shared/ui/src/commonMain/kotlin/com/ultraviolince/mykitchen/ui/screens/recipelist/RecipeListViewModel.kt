@@ -11,6 +11,7 @@ import com.ultraviolince.mykitchen.domain.usecase.GetRecipesUseCase
 import com.ultraviolince.mykitchen.domain.usecase.LogoutUseCase
 import com.ultraviolince.mykitchen.domain.usecase.SyncRecipesUseCase
 import com.ultraviolince.mykitchen.ui.generated.resources.Res
+import com.ultraviolince.mykitchen.ui.generated.resources.error_delete_failed
 import com.ultraviolince.mykitchen.ui.generated.resources.error_sync_failed
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -60,7 +61,11 @@ class RecipeListViewModel(
 
     fun delete(id: String) {
         viewModelScope.launch {
-            deleteRecipe(id)
+            try {
+                deleteRecipe(id)
+            } catch (e: Exception) {
+                _state.update { it.copy(error = Res.string.error_delete_failed) }
+            }
         }
     }
 
