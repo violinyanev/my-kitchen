@@ -11,6 +11,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.URLEncoder
 import java.net.http.HttpClient
@@ -26,6 +27,8 @@ import java.time.Duration
  * [EnrichmentJsonResponse].
  */
 class EnrichmentService(private val config: AppConfig) {
+
+    private val logger = LoggerFactory.getLogger(EnrichmentService::class.java)
 
     private val httpClient: HttpClient = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(10))
@@ -149,7 +152,12 @@ class EnrichmentService(private val config: AppConfig) {
     ): EnrichmentResult {
         val parsed = try {
             json.decodeFromString<EnrichmentJsonResponse>(extractJson(responseText))
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            logger.error(
+                "Failed to parse LLM JSON response (parse error: ${e::class.simpleName}); " +
+                    "falling back to raw text summary. Response was: ${responseText.take(200)}",
+                e,
+            )
             EnrichmentJsonResponse(summary = responseText.take(500))
         }
 
@@ -193,7 +201,15 @@ class EnrichmentService(private val config: AppConfig) {
                 val credit = result["user"]?.jsonObject?.get("name")?.jsonPrimitive?.content
 
                 imageUrl to credit
-            } catch (_: Exception) {
+            } catch (e: java.io.IOException) {
+                logger.error("Network error fetching Unsplash image for query \"$query\"", e)
+                null to null
+            } catch (e: Exception) {
+                logger.error(
+                    "Failed to fetch or parse Unsplash image for query \"$query\" " +
+                        "(${e::class.simpleName})",
+                    e,
+                )
                 null to null
             }
         }
