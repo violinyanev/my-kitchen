@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.server.routes
 import com.ultraviolince.mykitchen.server.data.dto.CreateRecipeRequestDto
 import com.ultraviolince.mykitchen.server.data.dto.ErrorDto
 import com.ultraviolince.mykitchen.server.data.dto.RecipeResponseDto
+import com.ultraviolince.mykitchen.server.data.tables.RecipeEnrichments
 import com.ultraviolince.mykitchen.server.data.tables.Recipes
 import com.ultraviolince.mykitchen.server.plugins.JWT_AUTH_NAME
 import io.ktor.http.HttpStatusCode
@@ -125,6 +126,12 @@ private suspend fun ApplicationCall.handleDeleteRecipe() {
     val recipeId = parameters["id"]
         ?: return respond(HttpStatusCode.BadRequest, ErrorDto("Recipe ID required"))
     val deleted = transaction {
+        // Auto-beautify gives (almost) every recipe an enrichment row, and its
+        // FK to recipes has no cascade — remove it first or the delete fails.
+        RecipeEnrichments.deleteWhere {
+            (RecipeEnrichments.recipeId eq UUID.fromString(recipeId)) and
+                (RecipeEnrichments.userId eq UUID.fromString(userId))
+        }
         Recipes.deleteWhere {
             (Recipes.id eq UUID.fromString(recipeId)) and
                 (Recipes.userId eq UUID.fromString(userId))

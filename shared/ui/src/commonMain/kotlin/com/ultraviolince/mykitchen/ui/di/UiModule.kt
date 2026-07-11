@@ -1,7 +1,6 @@
 package com.ultraviolince.mykitchen.ui.di
 
 import com.ultraviolince.mykitchen.ui.screens.addedit.AddEditViewModel
-import com.ultraviolince.mykitchen.ui.screens.beautify.BeautifyViewModel
 import com.ultraviolince.mykitchen.ui.screens.login.LoginViewModel
 import com.ultraviolince.mykitchen.ui.screens.recipelist.RecipeListViewModel
 import org.koin.core.module.dsl.viewModel
@@ -12,9 +11,6 @@ val uiModule = module {
     viewModelOf(::RecipeListViewModel)
     viewModelOf(::LoginViewModel)
     viewModel { (recipeId: String?) ->
-        AddEditViewModel(get(), get(), recipeId)
-    }
-    viewModel { (recipeId: String) ->
-        BeautifyViewModel(get(), get(), get(), get(), recipeId)
+        AddEditViewModel(get(), get(), get(), recipeId)
     }
 }

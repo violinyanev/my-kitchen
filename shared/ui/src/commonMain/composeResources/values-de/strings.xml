@@ -28,15 +28,9 @@
     <string name="password_hint">Passwort</string>
     <string name="sign_in">Anmelden</string>
 
-    <!-- Beautify screen -->
-    <string name="beautify_recipe">Rezept verschönern</string>
-    <string name="beautify_loading">Rezept-Anreicherung wird generiert…</string>
-    <string name="beautify_accept">Übernehmen</string>
-    <string name="beautify_reject">Ablehnen</string>
-    <string name="beautify_refine">Verbessern…</string>
-    <string name="beautify_refine_hint">Beschreiben Sie, was geändert werden soll…</string>
-    <string name="beautify_refine_send">Senden</string>
-    <string name="beautify_refine_cancel">Abbrechen</string>
+    <!-- Beautified recipe view -->
+    <string name="show_beautified">Verschönerte Version anzeigen</string>
+    <string name="show_original">Originalrezept anzeigen</string>
     <string name="beautify_summary">Zusammenfassung</string>
     <string name="beautify_tags">Tags</string>
     <string name="beautify_links">Verwandte Links</string>
@@ -47,7 +41,6 @@
     <string name="error_fields_required">Alle Felder sind erforderlich</string>
     <string name="error_title_required">Titel ist erforderlich</string>
     <string name="error_login_failed">Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.</string>
+    <string name="error_delete_failed">Löschen fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="error_sync_failed">Synchronisierung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
-    <string name="error_beautify_failed">Rezept konnte nicht verschönert werden. Bitte versuchen Sie es erneut.</string>
-    <string name="error_refine_failed">Verfeinerung konnte nicht angewendet werden. Bitte versuchen Sie es erneut.</string>
 </resources>

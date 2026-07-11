@@ -46,9 +46,7 @@ class RecipeRepositoryImpl(
             ?: return Result.failure(IllegalStateException("No server URL"))
 
         val remoteResult = api.getRecipes(serverUrl, token)
-        if (remoteResult.isFailure) return Result.failure(remoteResult.exceptionOrNull()!!)
-
-        val remoteRecipes = remoteResult.getOrNull()!!
+        val remoteRecipes = remoteResult.getOrElse { return Result.failure(it) }
         remoteRecipes.forEach { dto -> dao.insert(dto.toDomain()) }
 
         val unsyncedIds = dao.getUnsyncedDeletedIds()
@@ -62,9 +60,7 @@ class RecipeRepositoryImpl(
 
     override suspend fun login(email: String, password: String, serverUrl: String): Result<Unit> {
         val result = api.login(serverUrl, email, password)
-        if (result.isSuccess) {
-            credentials.saveCredentials(result.getOrNull()!!.token, serverUrl)
-        }
+        result.getOrNull()?.let { credentials.saveCredentials(it.token, serverUrl) }
         return result.map { }
     }
 

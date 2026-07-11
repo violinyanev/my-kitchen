@@ -11,36 +11,14 @@ class EnrichmentRepositoryImplTest {
 
     private suspend fun buildRepo(
         loggedIn: Boolean = true,
-        beautifySucceeds: Boolean = true,
+        apiSucceeds: Boolean = true,
     ): EnrichmentRepositoryImpl {
-        val api = buildMockEnrichmentApiClient(beautifySucceeds = beautifySucceeds)
+        val api = buildMockEnrichmentApiClient(succeeds = apiSucceeds)
         val creds = InMemoryCredentialsStore()
         if (loggedIn) {
             creds.saveCredentials("tok", "http://localhost:5000")
         }
         return EnrichmentRepositoryImpl(api, creds)
-    }
-
-    @Test
-    fun beautifyReturnsEnrichmentWhenLoggedIn() = runTest {
-        val repo = buildRepo()
-        val result = repo.beautify("recipe-1")
-        assertTrue(result.isSuccess)
-        assertEquals("Tasty", result.getOrNull()?.summary)
-    }
-
-    @Test
-    fun beautifyFailsWhenNotLoggedIn() = runTest {
-        val repo = buildRepo(loggedIn = false)
-        val result = repo.beautify("recipe-1")
-        assertTrue(result.isFailure)
-    }
-
-    @Test
-    fun beautifyPropagatesApiFailure() = runTest {
-        val repo = buildRepo(beautifySucceeds = false)
-        val result = repo.beautify("recipe-1")
-        assertTrue(result.isFailure)
     }
 
     @Test
@@ -59,30 +37,24 @@ class EnrichmentRepositoryImplTest {
     }
 
     @Test
-    fun refineReturnsUpdatedEnrichmentWhenLoggedIn() = runTest {
-        val repo = buildRepo()
-        val result = repo.refine("recipe-1", "spicier please")
-        assertTrue(result.isSuccess)
-    }
-
-    @Test
-    fun refineFailsWhenNotLoggedIn() = runTest {
-        val repo = buildRepo(loggedIn = false)
-        val result = repo.refine("recipe-1", "feedback")
+    fun getEnrichmentPropagatesApiFailure() = runTest {
+        val repo = buildRepo(apiSucceeds = false)
+        val result = repo.getEnrichment("recipe-1")
         assertTrue(result.isFailure)
     }
 
     @Test
-    fun deleteEnrichmentSucceedsWhenLoggedIn() = runTest {
+    fun getEnrichmentsReturnsListWhenLoggedIn() = runTest {
         val repo = buildRepo()
-        val result = repo.deleteEnrichment("recipe-1")
+        val result = repo.getEnrichments()
         assertTrue(result.isSuccess)
+        assertEquals(listOf("enr-1"), result.getOrNull()?.map { it.id })
     }
 
     @Test
-    fun deleteEnrichmentFailsWhenNotLoggedIn() = runTest {
+    fun getEnrichmentsFailsWhenNotLoggedIn() = runTest {
         val repo = buildRepo(loggedIn = false)
-        val result = repo.deleteEnrichment("recipe-1")
+        val result = repo.getEnrichments()
         assertTrue(result.isFailure)
     }
 }
