@@ -47,6 +47,7 @@
     <string name="error_fields_required">All fields are required</string>
     <string name="error_title_required">Title is required</string>
     <string name="error_login_failed">Login failed. Please check your credentials.</string>
+    <string name="error_delete_failed">Delete failed. Please try again.</string>
     <string name="error_sync_failed">Sync failed. Please try again.</string>
     <string name="error_beautify_failed">Could not beautify recipe. Please try again.</string>
     <string name="error_refine_failed">Could not apply refinement. Please try again.</string>
