@@ -42,4 +42,19 @@ class EnrichmentRepositoryImplTest {
         val result = repo.getEnrichment("recipe-1")
         assertTrue(result.isFailure)
     }
+
+    @Test
+    fun getEnrichmentsReturnsListWhenLoggedIn() = runTest {
+        val repo = buildRepo()
+        val result = repo.getEnrichments()
+        assertTrue(result.isSuccess)
+        assertEquals(listOf("enr-1"), result.getOrNull()?.map { it.id })
+    }
+
+    @Test
+    fun getEnrichmentsFailsWhenNotLoggedIn() = runTest {
+        val repo = buildRepo(loggedIn = false)
+        val result = repo.getEnrichments()
+        assertTrue(result.isFailure)
+    }
 }

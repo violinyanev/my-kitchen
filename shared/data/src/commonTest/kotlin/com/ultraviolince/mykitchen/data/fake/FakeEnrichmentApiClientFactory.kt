@@ -19,10 +19,11 @@ fun buildMockEnrichmentApiClient(
          "tags":["quick"],"links":[],"summary":"Tasty","updated_at":1000}
     """.trimIndent(),
 ): EnrichmentApiClient {
-    val engine = MockEngine { _ ->
+    val engine = MockEngine { request ->
         if (succeeds) {
+            val body = if (request.url.encodedPath.endsWith("/enrichments")) "[$enrichmentJson]" else enrichmentJson
             respond(
-                content = enrichmentJson,
+                content = body,
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json"),
             )

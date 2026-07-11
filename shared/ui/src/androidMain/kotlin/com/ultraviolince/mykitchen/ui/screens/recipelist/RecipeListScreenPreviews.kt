@@ -25,6 +25,7 @@ internal fun RecipeListScreenEmptyPreview() {
             onLogout = {},
             onDelete = {},
             onOrderChange = {},
+            onTagSelect = {},
         )
     }
 }
@@ -43,6 +44,10 @@ internal fun RecipeListScreenWithItemsPreview() {
                     Recipe(id = "2", title = "Chocolate Cake", content = "Rich and decadent cake", timestamp = 0L),
                 ),
                 order = RecipeOrder.Title(),
+                tagsByRecipe = mapOf(
+                    "1" to listOf("quick", "budget-friendly"),
+                    "2" to listOf("kids-friendly"),
+                ),
             ),
             onAddRecipe = {},
             onEditRecipe = {},
@@ -50,6 +55,7 @@ internal fun RecipeListScreenWithItemsPreview() {
             onLogout = {},
             onDelete = {},
             onOrderChange = {},
+            onTagSelect = {},
         )
     }
 }
@@ -76,6 +82,7 @@ internal fun RecipeListScreenPhonePreview() {
             onLogout = {},
             onDelete = {},
             onOrderChange = {},
+            onTagSelect = {},
         )
     }
 }

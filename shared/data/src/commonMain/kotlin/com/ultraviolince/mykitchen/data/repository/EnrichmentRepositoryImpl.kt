@@ -18,4 +18,12 @@ class EnrichmentRepositoryImpl(
             ?: return Result.failure(IllegalStateException("Not logged in"))
         return api.getEnrichment(serverUrl, token, recipeId).map { it?.toDomain() }
     }
+
+    override suspend fun getEnrichments(): Result<List<RecipeEnrichment>> {
+        val token = credentials.getToken()
+            ?: return Result.failure(IllegalStateException("Not logged in"))
+        val serverUrl = credentials.getServerUrl()
+            ?: return Result.failure(IllegalStateException("Not logged in"))
+        return api.getEnrichments(serverUrl, token).map { list -> list.map { it.toDomain() } }
+    }
 }

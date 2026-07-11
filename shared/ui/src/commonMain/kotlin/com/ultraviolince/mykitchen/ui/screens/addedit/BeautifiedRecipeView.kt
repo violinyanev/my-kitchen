@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.ultraviolince.mykitchen.domain.model.RecipeEnrichment
@@ -101,7 +102,11 @@ internal fun BeautifiedRecipeView(
 
 @Composable
 private fun RecipeLinkCard(link: RecipeLink) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    val uriHandler = LocalUriHandler.current
+    Card(
+        onClick = { uriHandler.openUri(link.url) },
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(link.title, style = MaterialTheme.typography.titleSmall)
             Spacer(modifier = Modifier.height(4.dp))
