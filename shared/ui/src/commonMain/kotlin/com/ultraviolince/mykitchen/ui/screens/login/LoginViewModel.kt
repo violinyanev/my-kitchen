@@ -3,6 +3,7 @@ package com.ultraviolince.mykitchen.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.domain.usecase.LoginUseCase
+import com.ultraviolince.mykitchen.ui.DefaultCredentials
 import com.ultraviolince.mykitchen.ui.generated.resources.Res
 import com.ultraviolince.mykitchen.ui.generated.resources.error_fields_required
 import com.ultraviolince.mykitchen.ui.generated.resources.error_login_failed
@@ -39,6 +40,16 @@ class LoginViewModel(
 
     fun onServerUrlChange(url: String) {
         _state.update { it.copy(serverUrl = url, error = null) }
+    }
+
+    fun applyDefaultCredentials(credentials: DefaultCredentials) {
+        _state.update {
+            it.copy(
+                serverUrl = credentials.serverUrl ?: it.serverUrl,
+                email = credentials.email ?: it.email,
+                password = credentials.password ?: it.password,
+            )
+        }
     }
 
     fun login() {
