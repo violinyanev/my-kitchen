@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.ultraviolince.mykitchen.ui.DefaultCredentials
 import com.ultraviolince.mykitchen.ui.generated.resources.Res
 import com.ultraviolince.mykitchen.ui.generated.resources.email_hint
 import com.ultraviolince.mykitchen.ui.generated.resources.login_heading
@@ -39,9 +40,16 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
+    defaultCredentials: DefaultCredentials? = null,
     viewModel: LoginViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (defaultCredentials != null) {
+            viewModel.applyDefaultCredentials(defaultCredentials)
+        }
+    }
 
     LaunchedEffect(state.isLoggedIn) {
         if (state.isLoggedIn) onLoginSuccess()

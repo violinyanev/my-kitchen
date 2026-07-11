@@ -14,8 +14,14 @@ import com.ultraviolince.mykitchen.ui.screens.login.LoginScreen
 import com.ultraviolince.mykitchen.ui.screens.recipelist.RecipeListScreen
 import com.ultraviolince.mykitchen.ui.theme.AppTheme
 
+data class DefaultCredentials(
+    val serverUrl: String? = null,
+    val email: String? = null,
+    val password: String? = null,
+)
+
 @Composable
-fun App() {
+fun App(defaultCredentials: DefaultCredentials? = null) {
     SingletonImageLoader.setSafe { context ->
         ImageLoader.Builder(context)
             .components { add(KtorNetworkFetcherFactory()) }
@@ -44,6 +50,7 @@ fun App() {
             }
             composable<Route.Login> {
                 LoginScreen(
+                    defaultCredentials = defaultCredentials,
                     onLoginSuccess = {
                         navController.navigate(Route.RecipeList) {
                             popUpTo(Route.Login) { inclusive = true }

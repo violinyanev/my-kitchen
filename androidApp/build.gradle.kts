@@ -79,6 +79,7 @@ android {
         // AGP 9.x disables resValues by default; build types use resValue() for
         // per-variant app names, so this must be explicitly enabled.
         resValues = true
+        buildConfig = true
     }
 
     val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -105,6 +106,10 @@ android {
         versionCode = project.findProperty("versionCode")?.toString()?.toInt() ?: 1
         versionName = project.findProperty("versionName")?.toString() ?: "2.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Empty defaults so all build types always have these fields.
+        buildConfigField("String", "PREVIEW_SERVER_URL", "\"\"")
+        buildConfigField("String", "PREVIEW_EMAIL", "\"\"")
+        buildConfigField("String", "PREVIEW_PASSWORD", "\"\"")
     }
 
     buildTypes {
@@ -122,6 +127,10 @@ android {
             initWith(getByName("release"))
             applicationIdSuffix = ".preview"
             resValue("string", "app_name", "Kitchen on fire")
+            // Injected by CI from GitHub secrets; empty when building locally.
+            buildConfigField("String", "PREVIEW_SERVER_URL", "\"${project.findProperty("previewUrl") ?: ""}\"")
+            buildConfigField("String", "PREVIEW_EMAIL", "\"${project.findProperty("previewUser") ?: ""}\"")
+            buildConfigField("String", "PREVIEW_PASSWORD", "\"${project.findProperty("previewPass") ?: ""}\"")
         }
         debug {
             applicationIdSuffix = ".debug"
