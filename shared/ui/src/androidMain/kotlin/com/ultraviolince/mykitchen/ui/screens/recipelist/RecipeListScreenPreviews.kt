@@ -21,11 +21,11 @@ internal fun RecipeListScreenEmptyPreview() {
             state = RecipeListState(),
             onAddRecipe = {},
             onEditRecipe = {},
-            onBeautify = {},
             onSync = {},
             onLogout = {},
             onDelete = {},
             onOrderChange = {},
+            onTagSelect = {},
         )
     }
 }
@@ -44,14 +44,18 @@ internal fun RecipeListScreenWithItemsPreview() {
                     Recipe(id = "2", title = "Chocolate Cake", content = "Rich and decadent cake", timestamp = 0L),
                 ),
                 order = RecipeOrder.Title(),
+                tagsByRecipe = mapOf(
+                    "1" to listOf("quick", "budget-friendly"),
+                    "2" to listOf("kids-friendly"),
+                ),
             ),
             onAddRecipe = {},
             onEditRecipe = {},
-            onBeautify = {},
             onSync = {},
             onLogout = {},
             onDelete = {},
             onOrderChange = {},
+            onTagSelect = {},
         )
     }
 }
@@ -74,11 +78,11 @@ internal fun RecipeListScreenPhonePreview() {
             ),
             onAddRecipe = {},
             onEditRecipe = {},
-            onBeautify = {},
             onSync = {},
             onLogout = {},
             onDelete = {},
             onOrderChange = {},
+            onTagSelect = {},
         )
     }
 }

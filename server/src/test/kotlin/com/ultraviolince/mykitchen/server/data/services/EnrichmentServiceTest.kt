@@ -79,17 +79,4 @@ class EnrichmentServiceTest {
             runBlocking { service.enrich("Pasta", "Boil pasta") }
         }
     }
-
-    @Test
-    fun refineSendsStoredHistoryAndAppendsFeedback() = runBlocking {
-        val llmResponse = """{"summary":"Refined","tags":[],"links":[],"imageSearchQuery":""}"""
-        FakeLlmServer.respondingWith(llmResponse).use { fake ->
-            val service = EnrichmentService(configFor(fake.baseUrl))
-            val storedHistory = """[{"role":"user","content":"Recipe:\nTitle: Pasta\n\nBoil pasta"}]"""
-            val result = service.refine("Make it spicier", storedHistory)
-            assertEquals("Refined", result.summary)
-            // History should now include the original message plus this feedback and reply.
-            assertTrue(result.conversationHistory.contains("Make it spicier"))
-        }
-    }
 }

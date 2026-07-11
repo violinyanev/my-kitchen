@@ -2,7 +2,9 @@ package com.ultraviolince.mykitchen.ui.screens.addedit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ultraviolince.mykitchen.domain.model.RecipeEnrichment
 import com.ultraviolince.mykitchen.domain.usecase.AddRecipeUseCase
+import com.ultraviolince.mykitchen.domain.usecase.GetEnrichmentUseCase
 import com.ultraviolince.mykitchen.domain.usecase.GetRecipeUseCase
 import com.ultraviolince.mykitchen.ui.generated.resources.Res
 import com.ultraviolince.mykitchen.ui.generated.resources.error_title_required
@@ -19,11 +21,15 @@ data class AddEditState(
     val isLoading: Boolean = false,
     val isSaved: Boolean = false,
     val titleError: StringResource? = null,
+    /** Server-generated beautification, if the background worker has produced one yet. */
+    val enrichment: RecipeEnrichment? = null,
+    val showBeautified: Boolean = false,
 )
 
 class AddEditViewModel(
     private val addRecipe: AddRecipeUseCase,
     private val getRecipe: GetRecipeUseCase,
+    private val getEnrichment: GetEnrichmentUseCase,
     private val recipeId: String?,
 ) : ViewModel() {
 
@@ -33,6 +39,7 @@ class AddEditViewModel(
     init {
         if (recipeId != null) {
             loadRecipe(recipeId)
+            loadEnrichment(recipeId)
         }
     }
 
@@ -46,6 +53,17 @@ class AddEditViewModel(
                 _state.update { it.copy(isLoading = false) }
             }
         }
+    }
+
+    private fun loadEnrichment(id: String) {
+        viewModelScope.launch {
+            val enrichment = getEnrichment(id).getOrNull() ?: return@launch
+            _state.update { it.copy(enrichment = enrichment) }
+        }
+    }
+
+    fun toggleBeautified() {
+        _state.update { it.copy(showBeautified = !it.showBeautified) }
     }
 
     fun onTitleChange(title: String) {

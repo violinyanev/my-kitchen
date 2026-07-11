@@ -62,8 +62,3 @@ data class EnrichmentResponseDto(
     val summary: String,
     @SerialName("updated_at") val updatedAt: Long,
 )
-
-@Serializable
-data class RefineEnrichmentRequestDto(
-    val feedback: String,
-)

@@ -102,16 +102,6 @@ class EnrichmentService(private val config: AppConfig) {
         return buildResult(responseText, history)
     }
 
-    suspend fun refine(feedback: String, storedHistory: String): EnrichmentResult {
-        val history = json.decodeFromString<List<ConversationMessage>>(storedHistory).toMutableList()
-        history.add(ConversationMessage("user", feedback))
-
-        val responseText = callOllama(history)
-        history.add(ConversationMessage("assistant", responseText))
-
-        return buildResult(responseText, history)
-    }
-
     private suspend fun callOllama(history: List<ConversationMessage>): String =
         withContext(Dispatchers.IO) {
             val messages = buildList {
