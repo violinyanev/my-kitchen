@@ -51,7 +51,7 @@ jobs:
             :shared:domain:compileKotlinDesktop \
             :shared:data:compileKotlinDesktop \
             :server:compileKotlin \
-            --no-daemon --stacktrace
+            --no-daemon --stacktrace --no-build-cache
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
