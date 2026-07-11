@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.4.0"
 agp = "9.2.1"
-ksp = "2.3.9"
+ksp = "2.3.10"
 javaVersion = "17"
 
 # Compose
@@ -49,7 +49,7 @@ composeUiTest = "1.11.4"
 # Code Quality
 detekt = "1.23.8"
 kover = "0.9.8"
-roborazzi = "1.67.0"
+roborazzi = "1.68.0"
 robolectric = "4.16.1"
 composePreviewScanner = "0.9.1"
 
@@ -62,7 +62,7 @@ minSdk = "28"
 targetSdk = "36"
 
 # Logging
-logback = "1.5.37"
+logback = "1.5.38"
 
 # AI / Media
 coil = "3.5.0"
