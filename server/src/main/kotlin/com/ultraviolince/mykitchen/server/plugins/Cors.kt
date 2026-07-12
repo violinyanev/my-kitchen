@@ -19,6 +19,10 @@ fun Application.configureCors(config: AppConfig) {
         allowHeader(HttpHeaders.ContentType)
         val origins = config.corsAllowedOrigins
         if (origins == null) {
+            check(config.devMode) {
+                "CORS_ALLOWED_ORIGINS must be set in production. " +
+                    "Set DEV_MODE=true only for local development to allow any origin."
+            }
             anyHost()
         } else {
             origins.forEach { origin ->

@@ -2,9 +2,9 @@ name: Performance Benchmarks
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, prod ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, prod ]
   schedule:
     - cron: '0 2 * * 0'
 
@@ -16,16 +16,16 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
 
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+      uses: android-actions/setup-android@v4
 
     - name: Grant execute permission to gradlew
       run: chmod +x gradlew
@@ -60,7 +60,7 @@ jobs:
           -Pandroid.testInstrumentationRunnerArguments.class=com.ultraviolince.mykitchen.macrobenchmark.BaselineProfileGenerator
 
     - name: Upload benchmark reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: benchmark-reports
@@ -69,7 +69,7 @@ jobs:
           macrobenchmark/build/outputs/connected_android_test_additional_output/
 
     - name: Upload baseline profiles
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: baseline-profiles

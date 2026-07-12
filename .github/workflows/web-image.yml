@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Web Docker Image CI
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}-web
 
 
 jobs:
@@ -55,7 +55,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: server/Dockerfile
+          file: webApp/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

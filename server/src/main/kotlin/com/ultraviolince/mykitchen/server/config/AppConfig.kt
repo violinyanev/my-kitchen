@@ -16,6 +16,8 @@ data class AppConfig(
     val ollamaModel: String,
     /** Null disables Unsplash image fetching (enrichments still work without images). */
     val unsplashAccessKey: String?,
+    /** True only in local development; allows omitting CORS_ALLOWED_ORIGINS. Set DEV_MODE=true to enable. */
+    val devMode: Boolean = false,
 ) {
     companion object {
         fun fromEnvironment(): AppConfig = AppConfig(
@@ -37,6 +39,7 @@ data class AppConfig(
             ollamaBaseUrl = System.getenv("OLLAMA_BASE_URL") ?: "http://ollama:11434",
             ollamaModel = System.getenv("OLLAMA_MODEL") ?: "gemma4:26b",
             unsplashAccessKey = System.getenv("UNSPLASH_ACCESS_KEY"),
+            devMode = System.getenv("DEV_MODE")?.lowercase() == "true",
         )
     }
 }

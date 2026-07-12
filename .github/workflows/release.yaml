@@ -104,7 +104,10 @@ jobs:
       run: |
         ./gradlew :androidApp:assemblePreview \
           -PversionCode=${{ steps.release_info.outputs.version_code }} \
-          -PversionName=${{ steps.release_info.outputs.version_name }}
+          -PversionName=${{ steps.release_info.outputs.version_name }} \
+          -PpreviewUrl=${{ secrets.PREVIEW_URL }} \
+          -PpreviewUser=${{ secrets.PREVIEW_USER }} \
+          -PpreviewPass=${{ secrets.PREVIEW_PASS }}
 
     - name: Build APK for tag release
       if: steps.release_info.outputs.is_tag_release == 'true'

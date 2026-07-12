@@ -64,7 +64,7 @@ Use `scripts/validate-pr.sh` to run all locally-executable checks at once.
 3. **Do not declare success based on local checks alone** when the changed
    files fall into the CI-only category above. Push to the branch, wait for
    all GitHub Actions jobs (`build`, `web`, `ios`, `instrumentedtests`,
-   `verify-screenshots`, `backend-image`) to turn green, and only then report
+   `verify-screenshots`, `backend-image`, `web-image`) to turn green, and only then report
    the task as done.
 
 4. **When editing `androidApp/build.gradle.kts`**, remember that Kotlin script
@@ -105,6 +105,7 @@ scripts/             validate-pr.sh and pre-commit-hook.sh
 | `ios` | macos | iOS framework linking (arm64 + simulator) |
 | `instrumentedtests` | ubuntu (emulator) | Android instrumented tests, API 28/31/34/35/36 |
 | `verify-screenshots` | ubuntu | Roborazzi screenshot regression tests |
-| `backend-image` | ubuntu | Docker build + push |
+| `backend-image` | ubuntu | Docker build + push (server) |
+| `web-image` | ubuntu | Docker build + push (web) |
 
 All jobs must be green before a PR is merged.
