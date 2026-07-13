@@ -90,8 +90,8 @@ class EnrichmentService(private val config: AppConfig) {
 
     @Serializable
     private data class EnrichmentJsonLink(
-        val title: String = "",
-        val url: String = "",
+        val site: String = "",
+        val searchQuery: String = "",
         val description: String = "",
     )
 
@@ -161,7 +161,10 @@ class EnrichmentService(private val config: AppConfig) {
         return EnrichmentResult(
             summary = parsed.summary,
             tags = parsed.tags,
-            links = parsed.links.map { RecipeLinkDto(it.title, it.url, it.description) },
+            links = parsed.links.mapNotNull { link ->
+                val url = siteSearchUrl(link.site, link.searchQuery) ?: return@mapNotNull null
+                RecipeLinkDto(link.site, url, link.description)
+            },
             imageUrl = imageUrl,
             imageCredit = imageCredit,
             conversationHistory = Json.encodeToString(history),
@@ -216,6 +219,17 @@ class EnrichmentService(private val config: AppConfig) {
     }
 
     companion object {
+        private val siteSearchTemplates = mapOf(
+            "AllRecipes" to { q: String -> "https://www.allrecipes.com/search?q=${URLEncoder.encode(q, StandardCharsets.UTF_8)}" },
+            "BBC Good Food" to { q: String -> "https://www.bbcgoodfood.com/search?q=${URLEncoder.encode(q, StandardCharsets.UTF_8)}" },
+            "Food Network" to { q: String -> "https://www.foodnetwork.com/search/${URLEncoder.encode(q, StandardCharsets.UTF_8)}-" },
+            "Serious Eats" to { q: String -> "https://www.seriouseats.com/search?q=${URLEncoder.encode(q, StandardCharsets.UTF_8)}" },
+            "NYT Cooking" to { q: String -> "https://cooking.nytimes.com/search?q=${URLEncoder.encode(q, StandardCharsets.UTF_8)}" },
+        )
+
+        fun siteSearchUrl(site: String, searchQuery: String): String? =
+            siteSearchTemplates[site]?.invoke(searchQuery.trim())?.takeIf { searchQuery.isNotBlank() }
+
         private val systemPrompt = """
             You are a culinary assistant helping make recipe cards more beautiful and useful.
 
@@ -224,12 +238,13 @@ class EnrichmentService(private val config: AppConfig) {
               "summary": "A brief, appetizing description of the dish (2-3 sentences)",
               "tags": ["pick only from: healthy, quick, vegetarian, vegan, kids-friendly, gluten-free, dairy-free, budget-friendly, meal-prep"],
               "links": [
-                {"title": "...", "url": "https://...", "description": "..."}
+                {"site": "AllRecipes", "searchQuery": "keywords to search for on this site", "description": "..."}
               ],
               "imageSearchQuery": "specific search query for a food photo of this dish"
             }
 
-            For links, provide 3-5 URLs from reputable cooking sites (AllRecipes, BBC Good Food, Food Network, Serious Eats, or NYT Cooking) relevant to this type of recipe.
+            For links, suggest 3-5 entries using these exact site names: AllRecipes, BBC Good Food, Food Network, Serious Eats, NYT Cooking.
+            Provide a relevant search query for each site — do NOT invent specific URLs.
 
             When the user sends follow-up feedback, update your response accordingly while keeping the same JSON structure.
 
