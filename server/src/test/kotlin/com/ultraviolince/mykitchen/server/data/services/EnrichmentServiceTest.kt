@@ -27,7 +27,7 @@ class EnrichmentServiceTest {
     fun enrichParsesWellFormedJsonResponse() = runBlocking {
         val llmResponse = """
             {"summary":"A tasty dish","tags":["quick","vegetarian"],
-             "links":[{"title":"Recipe","url":"http://example.com","description":"desc"}],
+             "links":[{"site":"AllRecipes","searchQuery":"pasta primavera","description":"desc"}],
              "imageSearchQuery":"pasta"}
         """.trimIndent()
         FakeLlmServer.respondingWith(llmResponse).use { fake ->
@@ -36,7 +36,8 @@ class EnrichmentServiceTest {
             assertEquals("A tasty dish", result.summary)
             assertEquals(listOf("quick", "vegetarian"), result.tags)
             assertEquals(1, result.links.size)
-            assertEquals("Recipe", result.links.first().title)
+            assertEquals("AllRecipes", result.links.first().title)
+            assertTrue(result.links.first().url.startsWith("https://www.allrecipes.com/search?q="))
             // No Unsplash key configured, so no image lookup is attempted.
             assertEquals(null, result.imageUrl)
         }
