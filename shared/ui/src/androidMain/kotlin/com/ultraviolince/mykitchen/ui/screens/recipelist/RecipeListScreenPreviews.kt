@@ -61,6 +61,31 @@ internal fun RecipeListScreenWithItemsPreview() {
 }
 
 @OptIn(ExperimentalResourceApi::class)
+@Preview(showBackground = true, name = "Recipe List — Server Unreachable")
+@Composable
+internal fun RecipeListScreenServerUnreachablePreview() {
+    val ctx = LocalContext.current
+    remember(ctx) { setResourceReaderAndroidContext(ctx) }
+    AppTheme {
+        RecipeListScreenContent(
+            state = RecipeListState(
+                recipes = listOf(
+                    Recipe(id = "1", title = "Pasta Carbonara", content = "Classic Italian pasta dish", timestamp = 0L),
+                ),
+                isServerReachable = false,
+            ),
+            onAddRecipe = {},
+            onEditRecipe = {},
+            onSync = {},
+            onLogout = {},
+            onDelete = {},
+            onOrderChange = {},
+            onTagSelect = {},
+        )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
 @Preview(showBackground = true, name = "Phone — Recipe List", widthDp = 360, heightDp = 800)
 @Composable
 internal fun RecipeListScreenPhonePreview() {
