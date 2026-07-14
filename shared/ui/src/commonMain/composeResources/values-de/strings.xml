@@ -43,4 +43,5 @@
     <string name="error_login_failed">Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.</string>
     <string name="error_delete_failed">Löschen fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="error_sync_failed">Synchronisierung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
+    <string name="error_server_unreachable">Server nicht erreichbar — Rezepte hinzufügen ist deaktiviert bis die Synchronisierung erfolgreich ist.</string>
 </resources>

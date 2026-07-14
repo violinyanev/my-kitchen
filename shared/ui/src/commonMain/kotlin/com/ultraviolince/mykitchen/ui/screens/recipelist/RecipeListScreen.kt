@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -46,6 +47,7 @@ import com.ultraviolince.mykitchen.domain.model.RecipeOrder
 import com.ultraviolince.mykitchen.ui.generated.resources.Res
 import com.ultraviolince.mykitchen.ui.generated.resources.add_recipe
 import com.ultraviolince.mykitchen.ui.generated.resources.delete_recipe
+import com.ultraviolince.mykitchen.ui.generated.resources.error_server_unreachable
 import com.ultraviolince.mykitchen.ui.generated.resources.logout
 import com.ultraviolince.mykitchen.ui.generated.resources.no_recipes
 import com.ultraviolince.mykitchen.ui.generated.resources.sort_date
@@ -123,7 +125,13 @@ fun RecipeListScreenContent(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddRecipe) {
+            FloatingActionButton(
+                onClick = { if (state.isServerReachable) onAddRecipe() },
+                containerColor = if (state.isServerReachable)
+                    MaterialTheme.colorScheme.primaryContainer
+                else
+                    MaterialTheme.colorScheme.surfaceVariant,
+            ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(Res.string.add_recipe))
             }
         },
@@ -134,6 +142,19 @@ fun RecipeListScreenContent(
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
+            if (!state.isServerReachable) {
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        stringResource(Res.string.error_server_unreachable),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
+            }
             OrderToggle(
                 currentOrder = state.order,
                 onOrderChange = onOrderChange,

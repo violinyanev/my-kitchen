@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ultraviolince.mykitchen.domain.model.AuthState
 import com.ultraviolince.mykitchen.domain.model.Recipe
+import com.ultraviolince.mykitchen.domain.model.SessionExpiredException
 import com.ultraviolince.mykitchen.domain.model.RecipeOrder
 import com.ultraviolince.mykitchen.domain.usecase.DeleteRecipeUseCase
 import com.ultraviolince.mykitchen.domain.usecase.GetAuthStateUseCase
@@ -28,6 +29,7 @@ data class RecipeListState(
     val order: RecipeOrder = RecipeOrder.Date(),
     val isSyncing: Boolean = false,
     val error: StringResource? = null,
+    val isServerReachable: Boolean = true,
     /** Tags of each recipe's server-generated enrichment, keyed by recipe id. */
     val tagsByRecipe: Map<String, List<String>> = emptyMap(),
     val selectedTag: String? = null,
@@ -102,13 +104,18 @@ class RecipeListViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isSyncing = true, error = null) }
             val result = syncRecipes()
+            if (result.exceptionOrNull() is SessionExpiredException) {
+                logout.invoke()
+                return@launch
+            }
             _state.update {
                 it.copy(
                     isSyncing = false,
+                    isServerReachable = result.isSuccess,
                     error = if (result.isFailure) Res.string.error_sync_failed else null,
                 )
             }
-            loadEnrichmentTags()
+            if (result.isSuccess) loadEnrichmentTags()
         }
     }
 
