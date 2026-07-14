@@ -76,6 +76,36 @@ Key points:
 - Create local `private class FakeXxxRepo : XxxRepository` inline — test fakes from other modules aren't accessible
 - `kotlinx.coroutines.test` is declared in `libs.versions.toml`; add `testImplementation(libs.kotlinx.coroutines.test)` to `androidApp/build.gradle.kts` if not present
 
+### Screenshot (golden) tests — `@Preview` functions
+
+Every meaningful **visual state** of a screen needs a `@Preview` in `shared/ui/src/androidMain/.../screens/<screen>/<Screen>Previews.kt`. Roborazzi auto-converts these into golden screenshot tests via `generateComposePreviewRobolectricTests`.
+
+```kotlin
+@OptIn(ExperimentalResourceApi::class)
+@Preview(showBackground = true, name = "My Screen — Error State")
+@Composable
+internal fun MyScreenErrorPreview() {
+    val ctx = LocalContext.current
+    remember(ctx) { setResourceReaderAndroidContext(ctx) }
+    AppTheme {
+        MyScreenContent(
+            state = MyState(isError = true),
+            onAction = {},
+        )
+    }
+}
+```
+
+**How goldens are recorded:** The `verify-screenshots` CI job runs `verifyAndRecordRoborazziDebug`. When a new `@Preview` has no golden yet, the job records it, then auto-commits the new image file to the PR branch with the message "Updated Roborazzi screenshots after verification" and posts a PR comment. No manual step needed — just push the preview and let CI handle it.
+
+**When goldens must be re-recorded:** If existing UI changes cause a visual diff, the `verify-screenshots` job fails and the same auto-commit mechanism updates the affected goldens. Review the committed diff to confirm the change was intentional.
+
+Goldens live in `androidApp/src/test/screenshots/` and are committed to the repo (tracked by git).
+
+**Rule of thumb:** For every new state you add to `RecipeListState`, `AddEditState`, or any other screen state, add a `@Preview` for it. Behavioral tests (`createComposeRule`) check logic; `@Preview` + roborazzi checks visual appearance.
+
+---
+
 ### Compose UI tests (`androidApp/src/test/`)
 
 Test the `*Content` composable (the stateless one), not the screen that wires the ViewModel:
@@ -129,6 +159,7 @@ For each changed component, ask:
 - [ ] Default / happy-path state renders key elements
 - [ ] Error / unreachable / loading states show the right UI
 - [ ] User actions (button clicks) call the right callback — and blocked actions don't
+- [ ] A `@Preview` exists in `*Previews.kt` for every new visual state (roborazzi turns these into golden screenshot tests automatically)
 
 ---
 
