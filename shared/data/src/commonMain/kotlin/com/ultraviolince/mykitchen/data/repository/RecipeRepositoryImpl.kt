@@ -7,7 +7,10 @@ import com.ultraviolince.mykitchen.data.store.CredentialsStore
 import com.ultraviolince.mykitchen.domain.model.AuthState
 import com.ultraviolince.mykitchen.domain.model.Recipe
 import com.ultraviolince.mykitchen.domain.model.RecipeOrder
+import com.ultraviolince.mykitchen.domain.model.SessionExpiredException
 import com.ultraviolince.mykitchen.domain.model.User
+import io.ktor.client.plugins.ResponseException
+import io.ktor.http.HttpStatusCode
 import com.ultraviolince.mykitchen.domain.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -46,7 +49,12 @@ class RecipeRepositoryImpl(
             ?: return Result.failure(IllegalStateException("No server URL"))
 
         val remoteResult = api.getRecipes(serverUrl, token)
-        val remoteRecipes = remoteResult.getOrElse { return Result.failure(it) }
+        val remoteRecipes = remoteResult.getOrElse { error ->
+            if (error is ResponseException && error.response.status == HttpStatusCode.Unauthorized) {
+                return Result.failure(SessionExpiredException())
+            }
+            return Result.failure(error)
+        }
         remoteRecipes.forEach { dto -> dao.insert(dto.toDomain()) }
 
         val unsyncedIds = dao.getUnsyncedDeletedIds()

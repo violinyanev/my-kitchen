@@ -43,4 +43,5 @@
     <string name="error_login_failed">Login failed. Please check your credentials.</string>
     <string name="error_delete_failed">Delete failed. Please try again.</string>
     <string name="error_sync_failed">Sync failed. Please try again.</string>
+    <string name="error_server_unreachable">Server unreachable — adding recipes is disabled until sync succeeds.</string>
 </resources>
