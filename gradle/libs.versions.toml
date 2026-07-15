@@ -9,7 +9,7 @@ composeMultiplatform = "1.11.1"
 
 # AndroidX (JetBrains multiplatform versions)
 androidxActivity = "1.13.0"
-androidxLifecycle = "2.10.0"
+androidxLifecycle = "2.11.0"
 navigationCompose = "2.9.2"
 
 # Networking
@@ -55,7 +55,7 @@ composePreviewScanner = "0.9.1"
 
 # Android SDK
 # @keep
-compileSdk = "36"
+compileSdk = "37"
 # @keep
 minSdk = "28"
 # @keep
