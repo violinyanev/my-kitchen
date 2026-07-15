@@ -55,7 +55,7 @@ composePreviewScanner = "0.9.1"
 
 # Android SDK
 # @keep
-compileSdk = "36"
+compileSdk = "37"
 # @keep
 minSdk = "28"
 # @keep
