@@ -49,7 +49,7 @@ composeUiTest = "1.11.4"
 # Code Quality
 detekt = "1.23.8"
 kover = "0.9.9"
-roborazzi = "1.69.0"
+roborazzi = "1.70.0"
 robolectric = "4.16.1"
 composePreviewScanner = "0.9.1"
 
