@@ -1,12 +1,5 @@
 pluginManagement {
     includeBuild("build-logic")
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "io.ktor.plugin") {
-                useModule("io.ktor:ktor-gradle-plugin:${requested.version}")
-            }
-        }
-    }
     repositories {
         google()
         mavenCentral()
