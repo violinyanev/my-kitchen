@@ -62,7 +62,7 @@ minSdk = "28"
 targetSdk = "36"
 
 # Logging
-logback = "1.6.1"
+logback = "1.6.3"
 
 # AI / Media
 coil = "3.5.0"
