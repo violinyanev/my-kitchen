@@ -51,7 +51,7 @@ detekt = "1.23.8"
 kover = "0.9.9"
 roborazzi = "1.72.0"
 robolectric = "4.16.1"
-composePreviewScanner = "0.9.1"
+composePreviewScanner = "0.9.3"
 
 # Android SDK
 # @keep
