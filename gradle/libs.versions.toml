@@ -50,7 +50,7 @@ composeUiTest = "1.12.1"
 detekt = "1.23.8"
 kover = "0.9.9"
 roborazzi = "1.73.0"
-robolectric = "4.16.1"
+robolectric = "4.17"
 composePreviewScanner = "0.9.3"
 
 # Android SDK
