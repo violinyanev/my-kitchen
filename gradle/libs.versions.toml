@@ -1,11 +1,11 @@
 [versions]
 kotlin = "2.4.10"
-agp = "9.4.0"
+agp = "9.4.1"
 ksp = "2.3.12"
 javaVersion = "17"
 
 # Compose
-composeMultiplatform = "1.12.0"
+composeMultiplatform = "1.12.1"
 
 # AndroidX (JetBrains multiplatform versions)
 androidxActivity = "1.13.0"
@@ -49,7 +49,7 @@ composeUiTest = "1.12.1"
 # Code Quality
 detekt = "1.23.8"
 kover = "0.9.9"
-roborazzi = "1.74.0"
+roborazzi = "1.75.0"
 robolectric = "4.17"
 composePreviewScanner = "0.9.3"
 
@@ -65,7 +65,7 @@ targetSdk = "36"
 logback = "1.6.3"
 
 # AI / Media
-coil = "3.6.2"
+coil = "3.6.3"
 
 [libraries]
 # Kotlin
