@@ -42,17 +42,8 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: java-kotlin
-          build-mode: manual
+          build-mode: none
           tools: latest
-
-      - name: Build for CodeQL analysis
-        run: |
-          ./gradlew :androidApp:compileDebugKotlin \
-            :desktopApp:compileKotlin \
-            :shared:domain:compileKotlinDesktop \
-            :shared:data:compileKotlinDesktop \
-            :server:compileKotlin \
-            --no-daemon --stacktrace --no-build-cache
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
